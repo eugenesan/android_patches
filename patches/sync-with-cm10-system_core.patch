@@ -1,0 +1,112 @@
+From 99053137d92b879e3426dd736534337b20b0906d Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Fri, 2 Nov 2012 23:02:54 +0200
+Subject: [PATCH] sync with cm10
+
+Change-Id: I13ffd803a48619bf11fa2c3bb3bf7fc7c9fa33f3
+---
+ init/device_perms.h     | 10 ++++++++++
+ init/property_service.c |  7 +++++++
+ libion/Android.mk       |  4 ++++
+ liblog/logprint.c       | 19 ++++++++-----------
+ 4 files changed, 29 insertions(+), 11 deletions(-)
+
+diff --git a/init/device_perms.h b/init/device_perms.h
+index 504c0ab..dbd6ca4 100644
+--- a/init/device_perms.h
++++ b/init/device_perms.h
+@@ -27,3 +27,13 @@ struct {
+      {NULL, 0, 0 }
+ };
+ */
++
++// Alternatively you can append to the existing property_perms and/or
++// control_perms structs with the following:
++/*
++#define CONTROL_PERMS_APPEND \
++    { "rawip_vsnet1",AID_RADIO, AID_RADIO }, \
++    { "rawip_vsnet2",AID_RADIO, AID_RADIO }, \
++    { "rawip_vsnet3",AID_RADIO, AID_RADIO }, \
++    { "rawip_vsnet4",AID_RADIO, AID_RADIO },
++*/
+diff --git a/init/property_service.c b/init/property_service.c
+index 74d671f..3f4da7a 100644
+--- a/init/property_service.c
++++ b/init/property_service.c
+@@ -92,6 +92,10 @@ struct {
+     { "persist.service.", AID_RADIO,    0 },
+     { "persist.security.",AID_SYSTEM,   0 },
+     { "net.pdp",          AID_RADIO,    AID_RADIO },
++    { "service.bootanim.exit", AID_GRAPHICS, 0 },
++#ifdef PROPERTY_PERMS_APPEND
++PROPERTY_PERMS_APPEND
++#endif
+     { NULL, 0, 0 }
+ };
+ /* Avoid extending this array. Check device_perms.h */
+@@ -109,6 +113,9 @@ struct {
+ } control_perms[] = {
+     { "dumpstate",AID_SHELL, AID_LOG },
+     { "ril-daemon",AID_RADIO, AID_RADIO },
++#ifdef CONTROL_PERMS_APPEND
++CONTROL_PERMS_APPEND
++#endif
+      {NULL, 0, 0 }
+ };
+ /* Avoid extending this array. Check device_perms.h */
+diff --git a/libion/Android.mk b/libion/Android.mk
+index 5121fee..e2027cb 100644
+--- a/libion/Android.mk
++++ b/libion/Android.mk
+@@ -1,3 +1,5 @@
++ifneq ($(TARGET_BOARD_PLATFORM),omap3)
++
+ LOCAL_PATH:= $(call my-dir)
+ 
+ include $(CLEAR_VARS)
+@@ -13,3 +15,5 @@ LOCAL_MODULE := iontest
+ LOCAL_MODULE_TAGS := optional tests
+ LOCAL_SHARED_LIBRARIES := liblog
+ include $(BUILD_EXECUTABLE)
++
++endif
+diff --git a/liblog/logprint.c b/liblog/logprint.c
+index b89b512..a3d81a9 100644
+--- a/liblog/logprint.c
++++ b/liblog/logprint.c
+@@ -775,13 +775,11 @@ char *android_log_formatLogLine (
+     size_t prefixBufTmpRemainLen = sizeof(prefixBuf);
+ 
+     if (p_format->colored_output == OUTPUT_COLOR_ON) {
+-        prefixColorLen = snprintf(prefixBufTmp, prefixBufTmpRemainLen, "%c[%d;%d;%dm", 
+-                0x1B, 38, 5, colorFromPri(entry->priority));
+-        if(prefixColorLen >= prefixBufTmpRemainLen) {
+-            prefixColorLen = prefixBufTmpRemainLen - 1;
+-        }
+-        prefixBufTmp += prefixColorLen;
+-        prefixBufTmpRemainLen -= prefixColorLen;
++    prefixColorLen = snprintf(prefixBufTmp, prefixBufTmpRemainLen, "%c[%d;%d;%dm", 0x1B, 38, 5, colorFromPri(entry->priority));
++    if(prefixColorLen >= prefixBufTmpRemainLen)
++        prefixColorLen = prefixBufTmpRemainLen - 1;
++    prefixBufTmp += prefixColorLen;
++    prefixBufTmpRemainLen -= prefixColorLen;
+     }
+ 
+     switch (p_format->format) {
+@@ -855,10 +853,9 @@ char *android_log_formatLogLine (
+     size_t suffixBufTmpRemainLen = sizeof(suffixBuf) - suffixLen;
+ 
+     if (p_format->colored_output == OUTPUT_COLOR_ON) {
+-        suffixColorLen = snprintf(suffixBufTmp, suffixBufTmpRemainLen, "%c[%dm", 0x1B, 0);
+-        if(suffixColorLen >= suffixBufTmpRemainLen) {
+-            suffixColorLen = suffixBufTmpRemainLen - 1;
+-        }
++    suffixColorLen = snprintf(suffixBufTmp, suffixBufTmpRemainLen, "%c[%dm", 0x1B, 0);
++    if(suffixColorLen >= suffixBufTmpRemainLen)
++        suffixColorLen = suffixBufTmpRemainLen - 1;
+     }
+ 
+ 
+-- 
+1.8.0
+

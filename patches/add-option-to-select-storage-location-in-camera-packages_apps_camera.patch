@@ -1,0 +1,676 @@
+From 347b3e857aee7f273e6d06abd39d9327a1ac7f39 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Fri, 9 Nov 2012 09:59:26 +0200
+Subject: [PATCH] add option to select storage location in camera
+
+Requires:
+        http://review.cyanogenmod.org/#/c/25847/
+
+Based on:
+        http://gerrit.sudoservers.com/#/c/3325/
+        http://gerrit.sudoservers.com/#/c/3326/
+
+Change-Id: Ib786586a2d1ac3af911af673a3ffeddf4a2b403f
+---
+ res/values/strings.xml                             |  3 ++
+ res/xml/camera_preferences.xml                     |  3 ++
+ res/xml/video_preferences.xml                      |  3 ++
+ src/com/android/camera/ActivityBase.java           |  5 +-
+ src/com/android/camera/Camera.java                 | 33 ++++++++-----
+ src/com/android/camera/CameraSettings.java         | 39 ++++++++++++++-
+ src/com/android/camera/ComboPreferences.java       |  3 +-
+ src/com/android/camera/PanoramaActivity.java       |  6 +--
+ .../android/camera/RecordLocationPreference.java   |  2 +-
+ src/com/android/camera/Storage.java                | 55 +++++++++++++---------
+ src/com/android/camera/Thumbnail.java              | 14 +++---
+ src/com/android/camera/VideoCamera.java            | 18 +++++--
+ 12 files changed, 133 insertions(+), 51 deletions(-)
+ mode change 100755 => 100644 perftests/panorama/benchmark.cpp
+ mode change 100755 => 100644 src/com/android/camera/FocusManager.java
+ mode change 100755 => 100644 src/com/android/camera/PanoramaActivity.java
+ mode change 100755 => 100644 src/com/android/camera/PreviewFrameLayout.java
+ mode change 100755 => 100644 src/com/android/camera/ShutterButton.java
+ mode change 100755 => 100644 src/com/android/camera/Util.java
+ mode change 100755 => 100644 tests/src/com/android/camera/CameraTestRunner.java
+ mode change 100755 => 100644 tests/src/com/android/camera/StressTests.java
+ mode change 100755 => 100644 tests/src/com/android/camera/power/ImageAndVideoCapture.java
+ mode change 100755 => 100644 tests/src/com/android/camera/stress/CameraLatency.java
+ mode change 100755 => 100644 tests/src/com/android/camera/stress/CameraStressTestRunner.java
+ mode change 100755 => 100644 tests/src/com/android/camera/stress/ImageCapture.java
+ mode change 100755 => 100644 tests/src/com/android/camera/stress/SwitchPreview.java
+ mode change 100755 => 100644 tests/src/com/android/camera/stress/VideoCapture.java
+
+diff --git a/perftests/panorama/benchmark.cpp b/perftests/panorama/benchmark.cpp
+old mode 100755
+new mode 100644
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index 64a8a17..f16184e 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -131,6 +131,9 @@
+     <!-- Settings screen, Camcorder setting category title -->
+     <string name="pref_camcorder_settings_category">Camcorder settings</string>
+ 
++    <!-- More Settings screen, storage title -->
++    <string name="pref_camera_storage_title">Storage</string>
++
+     <!-- More Settings screen, power button title -->
+     <string name="pref_camera_power_shutter_title">Power shutter</string>
+     <string name="pref_camera_power_shutter_default">off</string>
+diff --git a/res/xml/camera_preferences.xml b/res/xml/camera_preferences.xml
+index f6076f1..f951157 100644
+--- a/res/xml/camera_preferences.xml
++++ b/res/xml/camera_preferences.xml
+@@ -60,6 +60,9 @@
+             camera:entries="@array/pref_switch_entries"
+             camera:entryValues="@array/pref_switch_entryvalues" />
+     <ListPreference
++            camera:key="pref_camera_storage_key"
++            camera:title="@string/pref_camera_storage_title" />
++    <ListPreference
+             camera:key="pref_camera_picturesize_key"
+             camera:title="@string/pref_camera_picturesize_title"
+             camera:entries="@array/pref_camera_picturesize_entries"
+diff --git a/res/xml/video_preferences.xml b/res/xml/video_preferences.xml
+index 56ec347..83b9044 100644
+--- a/res/xml/video_preferences.xml
++++ b/res/xml/video_preferences.xml
+@@ -77,6 +77,9 @@
+             camera:entries="@array/pref_switch_entries"
+             camera:entryValues="@array/pref_switch_entryvalues" />
+     <ListPreference
++            camera:key="pref_camera_storage_key"
++            camera:title="@string/pref_camera_storage_title" />
++    <ListPreference
+             camera:key="pref_camera_coloreffect_key"
+             camera:defaultValue="@string/pref_camera_coloreffect_default"
+             camera:title="@string/pref_camera_coloreffect_title"
+diff --git a/src/com/android/camera/ActivityBase.java b/src/com/android/camera/ActivityBase.java
+index b3d63ce..6c65603 100644
+--- a/src/com/android/camera/ActivityBase.java
++++ b/src/com/android/camera/ActivityBase.java
+@@ -21,6 +21,7 @@ import android.content.ContentResolver;
+ import android.content.Context;
+ import android.content.Intent;
+ import android.content.IntentFilter;
++import android.content.SharedPreferences;
+ import android.graphics.Rect;
+ import android.hardware.Camera.Parameters;
+ import android.os.AsyncTask;
+@@ -321,7 +322,7 @@ abstract public class ActivityBase extends AbstractGalleryActivity
+                 Thumbnail result[] = new Thumbnail[1];
+                 // Load the thumbnail from the media provider.
+                 int code = Thumbnail.getLastThumbnailFromContentResolver(
+-                        resolver, result);
++                        resolver, result, Storage.generateBucketId(Storage.mStorage));
+                 switch (code) {
+                     case Thumbnail.THUMBNAIL_FOUND:
+                         return result[0];
+@@ -374,7 +375,7 @@ abstract public class ActivityBase extends AbstractGalleryActivity
+         // Intent mode does not show camera roll. Use 0 as a work around for
+         // invalid bucket id.
+         // TODO: add support of empty media set in gallery.
+-        path += (getPictures ? MediaSetUtils.CAMERA_BUCKET_ID : "0");
++        path += (getPictures ? Storage.generateBucketIdInt(Storage.mStorage) : "0");
+         data.putString(PhotoPage.KEY_MEDIA_SET_PATH, path);
+         data.putString(PhotoPage.KEY_MEDIA_ITEM_PATH, path);
+ 
+diff --git a/src/com/android/camera/Camera.java b/src/com/android/camera/Camera.java
+index 28299c5..3a0c3bd 100644
+--- a/src/com/android/camera/Camera.java
++++ b/src/com/android/camera/Camera.java
+@@ -91,6 +91,7 @@ public class Camera extends ActivityBase implements FocusManager.Listener,
+     private final String[] OTHER_SETTING_KEYS = {
+                 CameraSettings.KEY_RECORD_LOCATION,
+                 CameraSettings.KEY_POWER_SHUTTER,
++                CameraSettings.KEY_STORAGE,
+                 CameraSettings.KEY_PICTURE_SIZE,
+                 CameraSettings.KEY_FOCUS_MODE,
+                 CameraSettings.KEY_FOCUS_TIME,
+@@ -586,7 +587,7 @@ public class Camera extends ActivityBase implements FocusManager.Listener,
+         queue.addIdleHandler(new MessageQueue.IdleHandler() {
+             @Override
+             public boolean queueIdle() {
+-                Storage.ensureOSXCompatible();
++                Storage.ensureOSXCompatible(Storage.mStorage);
+                 return false;
+             }
+         });
+@@ -1166,7 +1167,7 @@ public class Camera extends ActivityBase implements FocusManager.Listener,
+         private void storeImage(final byte[] data, Uri uri, String title,
+                 Location loc, int width, int height, int thumbnailWidth,
+                 int orientation) {
+-            boolean ok = Storage.updateImage(mContentResolver, uri, title, loc,
++            boolean ok = Storage.updateImage(mContentResolver, uri, Storage.mStorage, title, loc,
+                     orientation, data, width, height);
+             if (ok) {
+                 boolean needThumbnail;
+@@ -1278,7 +1279,7 @@ public class Camera extends ActivityBase implements FocusManager.Listener,
+         // Runs in namer thread
+         private void generateUri() {
+             mTitle = Util.createJpegName(mDateTaken);
+-            mUri = Storage.newImage(mResolver, mTitle, mDateTaken, mWidth, mHeight);
++            mUri = Storage.newImage(mResolver, Storage.mStorage, mTitle, mDateTaken, mWidth, mHeight);
+         }
+ 
+         // Runs in namer thread
+@@ -1371,6 +1372,7 @@ public class Camera extends ActivityBase implements FocusManager.Listener,
+         mCameraId = getPreferredCameraId(mPreferences);
+         mContentResolver = getContentResolver();
+         initPowerShutter(mPreferences);
++        Storage.mStorage = CameraSettings.readStorage(mPreferences);
+         // To reduce startup time, open the camera and start the preview in
+         // another thread.
+         mCameraStartUpThread = new CameraStartUpThread();
+@@ -1540,7 +1542,8 @@ public class Camera extends ActivityBase implements FocusManager.Listener,
+     }
+ 
+     private void checkStorage() {
+-        mStorageSpace = Storage.getAvailableSpace();
++        Log.d(TAG, Log.getStackTraceString(new Exception()));
++        mStorageSpace = Storage.getAvailableSpace(Storage.mStorage);
+         updateStorageHint(mStorageSpace);
+     }
+ 
+@@ -2000,19 +2003,19 @@ public class Camera extends ActivityBase implements FocusManager.Listener,
+         }
+         switch (keyCode) {
+             case KeyEvent.KEYCODE_FOCUS:
+-                if (mFirstTimeInitialized && event.getRepeatCount() == 0) {
++                if (mFirstTimeInitialized && (event.getRepeatCount() == 0)) {
+                     onShutterButtonFocus(true);
+                 }
+                 return true;
+             case KeyEvent.KEYCODE_CAMERA:
+-                if (mFirstTimeInitialized && event.getRepeatCount() == 0) {
++                if (mFirstTimeInitialized && (event.getRepeatCount() == 0)) {
+                     onShutterButtonClick();
+                 }
+                 return true;
+             case KeyEvent.KEYCODE_DPAD_CENTER:
+                 // If we get a dpad center event without any focused view, move
+                 // the focus to the shutter button and press it.
+-                if (mFirstTimeInitialized && event.getRepeatCount() == 0) {
++                if (mFirstTimeInitialized && (event.getRepeatCount() == 0)) {
+                     // Start auto-focus immediately to reduce shutter lag. After
+                     // the shutter button gets the focus, onShutterButtonFocus()
+                     // will be called again but it is fine.
+@@ -2027,11 +2030,10 @@ public class Camera extends ActivityBase implements FocusManager.Listener,
+                 }
+                 return true;
+             case KeyEvent.KEYCODE_POWER:
+-                if (mFirstTimeInitialized && event.getRepeatCount() == 0 && mPowerShutter) {
++                if (mFirstTimeInitialized && (event.getRepeatCount() == 0) && mPowerShutter) {
+                     onShutterButtonFocus(true);
+                 }
+                 return true;
+-
+             case KeyEvent.KEYCODE_VOLUME_UP:
+                 if (mParameters.isZoomSupported()
+                         && mZoomControl != null && mZoomControl.isEnabled()) {
+@@ -2075,13 +2077,13 @@ public class Camera extends ActivityBase implements FocusManager.Listener,
+                 return true;
+             case KeyEvent.KEYCODE_VOLUME_UP:
+                 if (mParameters.isZoomSupported()
+-                        && mZoomControl != null && mZoomControl.isEnabled()) {
++                        && (mZoomControl != null) && mZoomControl.isEnabled()) {
+                     return true;
+                 }
+                 break;
+             case KeyEvent.KEYCODE_VOLUME_DOWN:
+                 if (mParameters.isZoomSupported()
+-                        && mZoomControl != null && mZoomControl.isEnabled()) {
++                        && (mZoomControl != null) && mZoomControl.isEnabled()) {
+                     return true;
+                 }
+                 break;
+@@ -2526,6 +2528,15 @@ public class Camera extends ActivityBase implements FocusManager.Listener,
+                 mPreferences, mContentResolver);
+         mLocationManager.recordLocation(recordLocation);
+ 
++        String storage = CameraSettings.readStorage(mPreferences);
++        if (!storage.equals(Storage.mStorage)) {
++            Storage.mStorage = storage;
++            checkStorage();
++        }
++
++        Log.e(TAG, "!!!Changes picked up in Camera.");
++        createCameraScreenNail(true);
++
+         setCameraParametersWhenIdle(UPDATE_PARAM_PREFERENCE);
+         setPreviewFrameLayoutAspectRatio();
+         updateOnScreenIndicators();
+diff --git a/src/com/android/camera/CameraSettings.java b/src/com/android/camera/CameraSettings.java
+index c66a570..3f6c62c 100644
+--- a/src/com/android/camera/CameraSettings.java
++++ b/src/com/android/camera/CameraSettings.java
+@@ -24,6 +24,9 @@ import android.hardware.Camera.CameraInfo;
+ import android.hardware.Camera.Parameters;
+ import android.hardware.Camera.Size;
+ import android.media.CamcorderProfile;
++import android.os.Environment;
++import android.os.storage.StorageManager;
++import android.os.storage.StorageVolume;
+ import android.util.FloatMath;
+ import android.util.Log;
+ 
+@@ -60,6 +63,7 @@ public class CameraSettings {
+     public static final String KEY_CAMERA_FIRST_USE_HINT_SHOWN = "pref_camera_first_use_hint_shown_key";
+     public static final String KEY_VIDEO_FIRST_USE_HINT_SHOWN = "pref_video_first_use_hint_shown_key";
+     public static final String KEY_POWER_SHUTTER = "pref_power_shutter";
++    public static final String KEY_STORAGE = "pref_camera_storage_key";
+ 
+     public static final String KEY_POWER_MODE = "pref_camera_powermode_key";
+     public static final String KEY_PICTURE_FORMAT = "pref_camera_pictureformat_key";
+@@ -158,7 +162,7 @@ public class CameraSettings {
+         ListPreference antiBanding = group.findPreference(KEY_ANTIBANDING);
+         ListPreference redeyeReduction = group.findPreference(KEY_REDEYE_REDUCTION);
+ 
+-		if (redeyeReduction != null) {
++        if (redeyeReduction != null) {
+             filterUnsupportedOptions(group,
+                     redeyeReduction, mParameters.getSupportedRedeyeReductionModes());
+         }
+@@ -192,6 +196,7 @@ public class CameraSettings {
+         ListPreference videoFlashMode =
+                 group.findPreference(KEY_VIDEOCAMERA_FLASH_MODE);
+         ListPreference videoEffect = group.findPreference(KEY_VIDEO_EFFECT);
++        ListPreference storage = group.findPreference(KEY_STORAGE);
+         ListPreference iso = group.findPreference(KEY_ISO);
+         ListPreference burstMode = group.findPreference(KEY_BURST_MODE);
+         ListPreference jpeg = group.findPreference(KEY_JPEG);
+@@ -239,6 +244,7 @@ public class CameraSettings {
+                     iso, mParameters.getSupportedIsoValues());
+         }
+         if (burstMode != null) burstMode.setValueIndex(4);
++        if (storage != null) buildStorage(group, storage);
+         qcomInitPreferences(group);
+     }
+ 
+@@ -289,6 +295,33 @@ public class CameraSettings {
+         preference.setEntryValues(entryValues);
+     }
+ 
++    private void buildStorage(PreferenceGroup group, ListPreference storage) {
++        StorageManager sm = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
++        StorageVolume[] volumes = sm.getVolumeList();
++        String[] entries = new String[volumes.length];
++        String[] entryValues = new String[volumes.length];
++
++        if (volumes.length < 2) {
++           //No need for storage setting
++           removePreference(group, storage.getKey());
++           return;
++        }
++
++        for (int i = 0; i < volumes.length; i++) {
++            StorageVolume v = volumes[i];
++            entries[i] = v.getDescription(mContext);
++            entryValues[i] = v.getPath();
++        }
++        storage.setEntries(entries);
++        storage.setEntryValues(entryValues);
++
++        // Filter saved invalid value
++        if (storage.findIndexOfValue(storage.getValue()) < 0) {
++            // Default to the primary storage
++            storage.setValueIndex(0);
++        }
++    }
++
+     private static boolean removePreference(PreferenceGroup group, String key) {
+         for (int i = 0, n = group.size(); i < n; i++) {
+             CameraPreference child = group.get(i);
+@@ -493,6 +526,10 @@ public class CameraSettings {
+         return null;
+     }
+ 
++    public static String readStorage(SharedPreferences pref) {
++        return pref.getString(KEY_STORAGE,
++            Environment.getExternalStorageDirectory().toString());
++    }
+ 
+     public static void restorePreferences(Context context,
+             ComboPreferences preferences, Parameters parameters) {
+diff --git a/src/com/android/camera/ComboPreferences.java b/src/com/android/camera/ComboPreferences.java
+index 95a2df6..589ac60 100644
+--- a/src/com/android/camera/ComboPreferences.java
++++ b/src/com/android/camera/ComboPreferences.java
+@@ -79,7 +79,8 @@ public class ComboPreferences implements SharedPreferences, OnSharedPreferenceCh
+                 || key.equals(CameraSettings.KEY_RECORD_LOCATION)
+                 || key.equals(CameraSettings.KEY_CAMERA_FIRST_USE_HINT_SHOWN)
+                 || key.equals(CameraSettings.KEY_VIDEO_FIRST_USE_HINT_SHOWN)
+-                || key.equals(CameraSettings.KEY_VIDEO_EFFECT);
++                || key.equals(CameraSettings.KEY_VIDEO_EFFECT)
++                || key.equals(CameraSettings.KEY_STORAGE);
+     }
+ 
+     @Override
+diff --git a/src/com/android/camera/FocusManager.java b/src/com/android/camera/FocusManager.java
+old mode 100755
+new mode 100644
+diff --git a/src/com/android/camera/PanoramaActivity.java b/src/com/android/camera/PanoramaActivity.java
+old mode 100755
+new mode 100644
+index 8afa218..ef7802a
+--- a/src/com/android/camera/PanoramaActivity.java
++++ b/src/com/android/camera/PanoramaActivity.java
+@@ -901,10 +901,10 @@ public class PanoramaActivity extends ActivityBase implements
+         if (jpegData != null) {
+             String filename = PanoUtil.createName(
+                     getResources().getString(R.string.pano_file_name_format), mTimeTaken);
+-            Uri uri = Storage.addImage(mContentResolver, filename, mTimeTaken, null,
++            Uri uri = Storage.addImage(mContentResolver, Storage.mStorage, filename, mTimeTaken, null,
+                     orientation, jpegData, width, height);
+             if (uri != null) {
+-                String filepath = Storage.generateFilepath(filename);
++                String filepath = Storage.generateFilepath(Storage.mStorage, filename);
+                 try {
+                     ExifInterface exif = new ExifInterface(filepath);
+ 
+@@ -1230,6 +1230,7 @@ public class PanoramaActivity extends ActivityBase implements
+     }
+ 
+     private void processZoomValueChanged(int index) {
++        // Not useful to change zoom value when the activity is paused.
+         if (mPaused)
+             return;
+ 
+@@ -1284,5 +1285,4 @@ public class PanoramaActivity extends ActivityBase implements
+         }
+         return super.onKeyUp(keyCode, event);
+     }
+-
+ }
+diff --git a/src/com/android/camera/PreviewFrameLayout.java b/src/com/android/camera/PreviewFrameLayout.java
+old mode 100755
+new mode 100644
+diff --git a/src/com/android/camera/RecordLocationPreference.java b/src/com/android/camera/RecordLocationPreference.java
+index 968c15d..5617571 100644
+--- a/src/com/android/camera/RecordLocationPreference.java
++++ b/src/com/android/camera/RecordLocationPreference.java
+@@ -22,7 +22,7 @@ import android.content.SharedPreferences;
+ import android.util.AttributeSet;
+ 
+ /**
+- * {@code RecordLocationPreference} is used to keep the "store locaiton"
++ * {@code RecordLocationPreference} is used to keep the "store location"
+  * option in {@code SharedPreference}.
+  */
+ public class RecordLocationPreference extends IconListPreference {
+diff --git a/src/com/android/camera/ShutterButton.java b/src/com/android/camera/ShutterButton.java
+old mode 100755
+new mode 100644
+diff --git a/src/com/android/camera/Storage.java b/src/com/android/camera/Storage.java
+index 62ce69d..1a11193 100644
+--- a/src/com/android/camera/Storage.java
++++ b/src/com/android/camera/Storage.java
+@@ -32,24 +32,17 @@ import java.io.FileOutputStream;
+ public class Storage {
+     private static final String TAG = "CameraStorage";
+ 
+-    public static final String DCIM =
+-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString();
+-
+-    public static final String DIRECTORY = DCIM + "/Camera";
+-
+-    // Match the code in MediaProvider.computeBucketValues().
+-    public static final String BUCKET_ID =
+-            String.valueOf(DIRECTORY.toLowerCase().hashCode());
++    public static String mStorage;
+ 
+     public static final long UNAVAILABLE = -1L;
+     public static final long PREPARING = -2L;
+     public static final long UNKNOWN_SIZE = -3L;
+     public static final long LOW_STORAGE_THRESHOLD= 50000000;
+ 
+-    public static Uri addImage(ContentResolver resolver, String title, long date,
++    public static Uri addImage(ContentResolver resolver, String storage, String title, long date,
+                 Location location, int orientation, byte[] jpeg, int width, int height) {
+         // Save the image.
+-        String path = generateFilepath(title);
++        String path = generateFilepath(storage, title);
+         FileOutputStream out = null;
+         try {
+             out = new FileOutputStream(path);
+@@ -102,9 +95,9 @@ public class Storage {
+     //
+     // We also insert hint values for the WIDTH and HEIGHT fields to give
+     // correct aspect ratio before the real values are updated in updateImage().
+-    public static Uri newImage(ContentResolver resolver, String title,
++    public static Uri newImage(ContentResolver resolver, String storage, String title,
+             long date, int width, int height) {
+-        String path = generateFilepath(title);
++        String path = generateFilepath(storage, title);
+ 
+         // Insert into MediaStore.
+         ContentValues values = new ContentValues(4);
+@@ -133,10 +126,10 @@ public class Storage {
+     //
+     // Returns true if the update is successful.
+     public static boolean updateImage(ContentResolver resolver, Uri uri,
+-            String title, Location location, int orientation, byte[] jpeg,
++            String storage, String title, Location location, int orientation, byte[] jpeg,
+             int width, int height) {
+         // Save the image.
+-        String path = generateFilepath(title);
++        String path = generateFilepath(storage, title);
+         String tmpPath = path + ".tmp";
+         FileOutputStream out = null;
+         try {
+@@ -190,13 +183,32 @@ public class Storage {
+         }
+     }
+ 
+-    public static String generateFilepath(String title) {
+-        return DIRECTORY + '/' + title + ".jpg";
++    public static String generateDCIM(String storage) {
++        return new File(storage, Environment.DIRECTORY_DCIM).toString();
++    }
++
++    public static String generateDirectory(String storage) {
++        return generateDCIM(storage) + "/Camera";
++    }
++
++    public static String generateFilepath(String storage, String title) {
++        return generateDirectory(storage) + '/' + title + ".jpg";
++    }
++
++    public static String generateBucketId(String storage) {
++        // Match the code in MediaProvider.computeBucketValues().
++        return String.valueOf(generateDirectory(storage).toLowerCase().hashCode());
++    }
++
++    public static String generateBucketIdInt(String storage) {
++        // Match the code in ediaProvider.computeBucketValues()
++        return String.valueOf(generateDirectory(storage).toLowerCase().hashCode());
+     }
+ 
+-    public static long getAvailableSpace() {
++    public static long getAvailableSpace(String storage) {
+         String state = Environment.getExternalStorageState();
+         Log.d(TAG, "External storage state=" + state);
++        Log.d(TAG, Log.getStackTraceString(new Exception()));
+         if (Environment.MEDIA_CHECKING.equals(state)) {
+             return PREPARING;
+         }
+@@ -204,14 +216,15 @@ public class Storage {
+             return UNAVAILABLE;
+         }
+ 
+-        File dir = new File(DIRECTORY);
++        String directory = generateDirectory(storage);
++        File dir = new File(directory);
+         dir.mkdirs();
+         if (!dir.isDirectory() || !dir.canWrite()) {
+             return UNAVAILABLE;
+         }
+ 
+         try {
+-            StatFs stat = new StatFs(DIRECTORY);
++            StatFs stat = new StatFs(directory);
+             return stat.getAvailableBlocks() * (long) stat.getBlockSize();
+         } catch (Exception e) {
+             Log.i(TAG, "Fail to access external storage", e);
+@@ -223,8 +236,8 @@ public class Storage {
+      * OSX requires plugged-in USB storage to have path /DCIM/NNNAAAAA to be
+      * imported. This is a temporary fix for bug#1655552.
+      */
+-    public static void ensureOSXCompatible() {
+-        File nnnAAAAA = new File(DCIM, "100ANDRO");
++    public static void ensureOSXCompatible(String storage) {
++        File nnnAAAAA = new File(generateDCIM(storage), "100ANDRO");
+         if (!(nnnAAAAA.exists() || nnnAAAAA.mkdirs())) {
+             Log.e(TAG, "Failed to create " + nnnAAAAA.getPath());
+         }
+diff --git a/src/com/android/camera/Thumbnail.java b/src/com/android/camera/Thumbnail.java
+index 812901c..22b0938 100644
+--- a/src/com/android/camera/Thumbnail.java
++++ b/src/com/android/camera/Thumbnail.java
+@@ -162,9 +162,9 @@ public class Thumbnail {
+     // The media is deleted while we are getting its thumbnail from media provider.
+     public static final int THUMBNAIL_DELETED = 2;
+ 
+-    public static int getLastThumbnailFromContentResolver(ContentResolver resolver, Thumbnail[] result) {
+-        Media image = getLastImageThumbnail(resolver);
+-        Media video = getLastVideoThumbnail(resolver);
++    public static int getLastThumbnailFromContentResolver(ContentResolver resolver, Thumbnail[] result, String bucketId) {
++        Media image = getLastImageThumbnail(resolver, bucketId);
++        Media video = getLastVideoThumbnail(resolver, bucketId);
+         if (image == null && video == null) return THUMBNAIL_NOT_FOUND;
+ 
+         Bitmap bitmap = null;
+@@ -203,14 +203,14 @@ public class Thumbnail {
+         public final Uri uri;
+     }
+ 
+-    private static Media getLastImageThumbnail(ContentResolver resolver) {
++    private static Media getLastImageThumbnail(ContentResolver resolver, String bucketId) {
+         Uri baseUri = Images.Media.EXTERNAL_CONTENT_URI;
+ 
+         Uri query = baseUri.buildUpon().appendQueryParameter("limit", "1").build();
+         String[] projection = new String[] {ImageColumns._ID, ImageColumns.ORIENTATION,
+                 ImageColumns.DATE_TAKEN};
+         String selection = ImageColumns.MIME_TYPE + "='image/jpeg' AND " +
+-                ImageColumns.BUCKET_ID + '=' + Storage.BUCKET_ID;
++                ImageColumns.BUCKET_ID + '=' + bucketId;
+         String order = ImageColumns.DATE_TAKEN + " DESC," + ImageColumns._ID + " DESC";
+ 
+         Cursor cursor = null;
+@@ -229,13 +229,13 @@ public class Thumbnail {
+         return null;
+     }
+ 
+-    private static Media getLastVideoThumbnail(ContentResolver resolver) {
++    private static Media getLastVideoThumbnail(ContentResolver resolver, String bucketId) {
+         Uri baseUri = Video.Media.EXTERNAL_CONTENT_URI;
+ 
+         Uri query = baseUri.buildUpon().appendQueryParameter("limit", "1").build();
+         String[] projection = new String[] {VideoColumns._ID, MediaColumns.DATA,
+                 VideoColumns.DATE_TAKEN};
+-        String selection = VideoColumns.BUCKET_ID + '=' + Storage.BUCKET_ID;
++        String selection = VideoColumns.BUCKET_ID + '=' + bucketId;
+         String order = VideoColumns.DATE_TAKEN + " DESC," + VideoColumns._ID + " DESC";
+ 
+         Cursor cursor = null;
+diff --git a/src/com/android/camera/Util.java b/src/com/android/camera/Util.java
+old mode 100755
+new mode 100644
+diff --git a/src/com/android/camera/VideoCamera.java b/src/com/android/camera/VideoCamera.java
+index fbf4e58..818bfc3 100644
+--- a/src/com/android/camera/VideoCamera.java
++++ b/src/com/android/camera/VideoCamera.java
+@@ -340,6 +340,7 @@ public class VideoCamera extends ActivityBase
+         mNumberOfCameras = CameraHolder.instance().getNumberOfCameras();
+         mPrefVideoEffectDefault = getString(R.string.pref_video_effect_default);
+         resetEffect();
++        Storage.mStorage = CameraSettings.readStorage(mPreferences);
+ 
+         /*
+          * To reduce startup time, we start the preview in another thread.
+@@ -448,6 +449,7 @@ public class VideoCamera extends ActivityBase
+         final String[] OTHER_SETTING_KEYS = {
+                     CameraSettings.KEY_RECORD_LOCATION,
+                     CameraSettings.KEY_POWER_SHUTTER,
++                    CameraSettings.KEY_STORAGE,
+                     CameraSettings.KEY_COLOR_EFFECT };
+ 
+         CameraPicker.setImageResourceId(R.drawable.ic_switch_video_facing_holo_light);
+@@ -635,7 +637,7 @@ public class VideoCamera extends ActivityBase
+     }
+ 
+     private void updateAndShowStorageHint() {
+-        mStorageSpace = Storage.getAvailableSpace();
++        mStorageSpace = Storage.getAvailableSpace(Storage.mStorage);
+         updateStorageHint(mStorageSpace);
+     }
+ 
+@@ -806,7 +808,7 @@ public class VideoCamera extends ActivityBase
+         intentFilter.addDataScheme("file");
+         mReceiver = new MyBroadcastReceiver();
+         registerReceiver(mReceiver, intentFilter);
+-        mStorageSpace = Storage.getAvailableSpace();
++        mStorageSpace = Storage.getAvailableSpace(Storage.mStorage);
+ 
+         mHandler.postDelayed(new Runnable() {
+             @Override
+@@ -1360,7 +1362,7 @@ public class VideoCamera extends ActivityBase
+         // Used when emailing.
+         String filename = title + convertOutputFormatToFileExt(outputFileFormat);
+         String mime = convertOutputFormatToMimeType(outputFileFormat);
+-        String path = Storage.DIRECTORY + '/' + filename;
++        String path = Storage.generateDirectory(Storage.mStorage) + '/' + filename;
+         String tmpPath = path + ".tmp";
+         mCurrentVideoValues = new ContentValues(7);
+         mCurrentVideoValues.put(Video.Media.TITLE, title);
+@@ -2231,6 +2233,14 @@ public class VideoCamera extends ActivityBase
+             // Check if the current effects selection has changed
+             if (updateEffectSelection()) return;
+ 
++            String storage = CameraSettings.readStorage(mPreferences);
++            if (!storage.equals(Storage.mStorage)) {
++                Storage.mStorage = storage;
++                updateAndShowStorageHint();
++            }
++
++            Log.e(TAG, "!!!Changes picked up in VideoCamera.");
++
+             readVideoPreferences();
+             showTimeLapseUI(mCaptureTimeLapse);
+ 
+@@ -2518,7 +2528,7 @@ public class VideoCamera extends ActivityBase
+         String title = Util.createJpegName(dateTaken);
+         int orientation = Exif.getOrientation(data);
+         Size s = mParameters.getPictureSize();
+-        Uri uri = Storage.addImage(mContentResolver, title, dateTaken, loc, orientation, data,
++        Uri uri = Storage.addImage(mContentResolver, Storage.mStorage, title, dateTaken, loc, orientation, data,
+                 s.width, s.height);
+         if (uri != null) {
+             // Create a thumbnail whose width is equal or bigger than that of the preview.
+diff --git a/tests/src/com/android/camera/CameraTestRunner.java b/tests/src/com/android/camera/CameraTestRunner.java
+old mode 100755
+new mode 100644
+diff --git a/tests/src/com/android/camera/StressTests.java b/tests/src/com/android/camera/StressTests.java
+old mode 100755
+new mode 100644
+diff --git a/tests/src/com/android/camera/power/ImageAndVideoCapture.java b/tests/src/com/android/camera/power/ImageAndVideoCapture.java
+old mode 100755
+new mode 100644
+diff --git a/tests/src/com/android/camera/stress/CameraLatency.java b/tests/src/com/android/camera/stress/CameraLatency.java
+old mode 100755
+new mode 100644
+diff --git a/tests/src/com/android/camera/stress/CameraStressTestRunner.java b/tests/src/com/android/camera/stress/CameraStressTestRunner.java
+old mode 100755
+new mode 100644
+diff --git a/tests/src/com/android/camera/stress/ImageCapture.java b/tests/src/com/android/camera/stress/ImageCapture.java
+old mode 100755
+new mode 100644
+diff --git a/tests/src/com/android/camera/stress/SwitchPreview.java b/tests/src/com/android/camera/stress/SwitchPreview.java
+old mode 100755
+new mode 100644
+diff --git a/tests/src/com/android/camera/stress/VideoCapture.java b/tests/src/com/android/camera/stress/VideoCapture.java
+old mode 100755
+new mode 100644
+-- 
+1.8.0
+

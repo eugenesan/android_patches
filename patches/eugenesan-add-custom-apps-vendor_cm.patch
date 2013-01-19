@@ -1,0 +1,43 @@
+From 275dcebe07f805733190484c860f6a15a4c36ea1 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sat, 27 Oct 2012 10:20:58 +0200
+Subject: [PATCH] add custom apps
+
+Change-Id: I292610d10c8a6322e23548222c7729a77621df50
+---
+ config/common.mk | 4 +++-
+ get-prebuilts    | 6 ++++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/config/common.mk b/config/common.mk
+index 9b5b04b..6c101f0 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -101,7 +101,9 @@ PRODUCT_COPY_FILES += \
+ PRODUCT_COPY_FILES +=  \
+     vendor/cm/proprietary/Term.apk:system/app/Term.apk \
+     vendor/cm/proprietary/lib/armeabi/libjackpal-androidterm4.so:system/lib/libjackpal-androidterm4.so \
+-    vendor/cm/proprietary/Pdroid.apk:system/app/Pdroid.apk
++    vendor/cm/proprietary/Pdroid.apk:system/app/Pdroid.apk \
++    vendor/cm/proprietary/AdobeFlashPlayer.apk:system/app/AdobeFlashPlayer.apk \
++    vendor/cm/proprietary/MarketEnabler.apk:system/app/MarketEnabler.apk
+ 
+ # Bring in camera effects
+ PRODUCT_COPY_FILES +=  \
+diff --git a/get-prebuilts b/get-prebuilts
+index 9ec2d08..7f656be 100755
+--- a/get-prebuilts
++++ b/get-prebuilts
+@@ -9,3 +9,9 @@ unzip -o -d $BASEDIR/proprietary $BASEDIR/proprietary/Term.apk lib/armeabi/libja
+ 
+ # Get Privacy droid (we use a prebuilt so it can update from the Market, and currently this the only option ;-()
+ curl -L -o $BASEDIR/proprietary/Pdroid.apk -O -L "https://dl.dropbox.com/s/d1elu8ekqh8bjkj/PDroid_release.apk?dl=1"
++
++# Get Adobe Flash Player (Source: http://helpx.adobe.com/flash-player/kb/archived-flash-player-versions.html)
++curl -L -o $BASEDIR/proprietary/AdobeFlashPlayer.apk -O -L "http://download.macromedia.com/pub/flashplayer/installers/archive/android/11.1.115.27/install_flash_player_ics.apk"
++
++# Get Market Enabler (Source: https://code.google.com/p/market-enabler/downloads/list)
++curl -L -o $BASEDIR/proprietary/MarketEnabler.apk -O -L "http://market-enabler.googlecode.com/files/MarketEnabler_v3113.apk"
+-- 
+1.8.0
+

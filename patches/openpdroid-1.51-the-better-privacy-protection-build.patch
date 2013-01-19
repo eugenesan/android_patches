@@ -1,0 +1,116 @@
+From 29687e846a5b34568a886f2ebb157e96d0538c52 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Tue, 15 Jan 2013 13:34:52 +0200
+Subject: [PATCH] openpdroid 1.51 - the better privacy protection
+
+OpenPDroid is a set of modifications to the Android framework and
+libraries which allows fine-tuning of the data which applications
+are able to retrieve about your device, your account, your messages,
+and more. Specifically, it is a Privacy service provider
+(using the PDroid 1.51 interface) forked from CollegeDev's PDroid 2.0,
+which is itself an extension of Syvat's PDroid.
+
+What (specifically) can I control with OpenPDroid?
+Data access:
+    Device ID (IMEI/MEID/ESN)
+    Phone/voicemail number
+    Sim Card Serial (ICCID)
+    Subscriber ID (IMSI)
+    Source number of incoming calls
+    Destination number of outgoing calls
+    Network location
+    GPS location
+    Authentication credentials
+    List of accounts, including identifiers (e.g. gmail e-mail address)
+    Contact list and details
+    Call log
+    Calendar
+    Read and send SMS
+    Read and send MMS
+    Record audio (not phone calls)
+    Camera
+    Browser bookmarks and history
+    System logs
+    Wifi Info, such as current access point, IP address
+    Network information (detailed network information such as
+    connection state, IP address, etc)
+    Android ID (a unique installation ID for your Android installation)
+    SIM information (your phone operator and country)
+    Restrict access to iptables command
+    ICC Access (reading or writing SMS on the SIM or R-UIM)
+
+Actions:
+    Make phone calls
+    Start on Boot (or more accurately, get notified when the boot is complete)
+    Switch Wifi State (turn wifi on and off, change access points)
+    Switch network state (turn off or on mobile data)
+
+Other:
+    Force online state (always tell the app that the device is online: only
+    needed if denying Wifi info and/or Network info)
+
+Change-Id: Icaeba366286a712b64484e1cdf3e794930dee367
+---
+ core/pathmap.mk        | 3 +++
+ target/product/core.mk | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/core/pathmap.mk b/core/pathmap.mk
+index 4aec521..c5f0433 100644
+--- a/core/pathmap.mk
++++ b/core/pathmap.mk
+@@ -81,6 +81,7 @@ JNI_H_INCLUDE := $(call include-path-for,libnativehelper)/nativehelper
+ # is so common and the other framework libraries can have mutual
+ # interdependencies.
+ #
++# BEGIN privacy-added: privacy
+ FRAMEWORKS_BASE_SUBDIRS := \
+ 	$(addsuffix /java, \
+ 	    core \
+@@ -92,6 +93,7 @@ FRAMEWORKS_BASE_SUBDIRS := \
+ 	    media/mca/filterpacks \
+ 	    drm \
+ 	    opengl \
++	    privacy \
+ 	    sax \
+ 	    telephony \
+ 	    wifi \
+@@ -99,6 +101,7 @@ FRAMEWORKS_BASE_SUBDIRS := \
+ 	    icu4j \
+ 	    voip \
+ 	 )
++# END privacy-added: privacy
+ 
+ #
+ # A version of FRAMEWORKS_BASE_SUBDIRS that is expanded to full paths from
+diff --git a/target/product/core.mk b/target/product/core.mk
+index 831298a..15814dd 100644
+--- a/target/product/core.mk
++++ b/target/product/core.mk
+@@ -22,6 +22,7 @@ PRODUCT_PROPERTY_OVERRIDES := \
+     ro.config.notification_sound=OnTheHunt.ogg \
+     ro.config.alarm_alert=Alarm_Classic.ogg
+ 
++# BEGIN privacy-added: PDroid
+ PRODUCT_PACKAGES += \
+     ApplicationsProvider \
+     BackupRestoreConfirmation \
+@@ -36,6 +37,7 @@ PRODUCT_PACKAGES += \
+     Home \
+     KeyChain \
+     MediaProvider \
++    PDroid \
+     PackageInstaller \
+     PhotoTable \
+     PicoTts \
+@@ -133,6 +135,7 @@ PRODUCT_PACKAGES += \
+     zoneinfo.dat \
+     zoneinfo.idx \
+     zoneinfo.version
++# END privacy-added: PDroid
+ 
+ PRODUCT_COPY_FILES += \
+     system/core/rootdir/init.usb.rc:root/init.usb.rc \
+-- 
+1.8.0.3
+

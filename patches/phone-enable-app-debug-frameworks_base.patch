@@ -1,0 +1,25 @@
+From f81be2fd528cf4cf996cd26ce17555a405e22872 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Mon, 24 Sep 2012 16:56:23 +0200
+Subject: [PATCH] add phone app debug
+
+Change-Id: I4a391a3619a0b02d29e0fc3f5b6c9b30aa1317a8
+---
+ media/java/android/media/AudioService.java | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/media/java/android/media/AudioService.java b/media/java/android/media/AudioService.java
+index fd82f38..82afd2d 100644
+--- a/media/java/android/media/AudioService.java
++++ b/media/java/android/media/AudioService.java
+@@ -971,6 +971,7 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
+         showVolumeChangeUi(streamType, flags);
+         oldIndex = (oldIndex + 5) / 10;
+         index = (index + 5) / 10;
++        Log.d(TAG, "AudioService_VolumeUpdate_Stream:" + streamType + ", index:" + oldIndex + "->" + index);
+         Intent intent = new Intent(AudioManager.VOLUME_CHANGED_ACTION);
+         intent.putExtra(AudioManager.EXTRA_VOLUME_STREAM_TYPE, streamType);
+         intent.putExtra(AudioManager.EXTRA_VOLUME_STREAM_VALUE, index);
+-- 
+1.7.11.3
+

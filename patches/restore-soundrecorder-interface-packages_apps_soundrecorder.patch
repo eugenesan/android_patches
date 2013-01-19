@@ -1,0 +1,26 @@
+From c18cf7bb9c7e0de4166aa36f473d66d14b94718f Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sat, 13 Oct 2012 07:49:53 +0200
+Subject: [PATCH] restore soundrecorder interface
+
+Change-Id: I84aada707d4acf98ebc654edb8f5cf9455ba9a13
+---
+ AndroidManifest.xml | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index 02fc212..270c65b 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -32,6 +32,8 @@
+                 android:theme="@style/Theme.SoundRecorder">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.MAIN" />
++                <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+             <intent-filter>
+                  <action android:name="android.provider.MediaStore.RECORD_SOUND" />
+-- 
+1.7.11.3
+

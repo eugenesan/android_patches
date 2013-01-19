@@ -1,0 +1,86 @@
+From a3f4bf77117c9dc8f4190d94838a79284e059c3e Mon Sep 17 00:00:00 2001
+From: franciscofranco <franciscofranco.1990@gmail.com>
+Date: Fri, 21 Dec 2012 18:14:43 -0800
+Subject: [PATCH] Changes to make it compile with Google's GCC 4.7 toolchain.
+
+Signed-off-by: franciscofranco <franciscofranco.1990@gmail.com>
+---
+ Makefile                                               |  2 +-
+ drivers/staging/prima/CORE/HDD/inc/wlan_hdd_assoc.h    |  2 +-
+ drivers/staging/prima/CORE/WDI/CP/inc/wlan_qct_wdi_i.h | 12 ++++++------
+ 3 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/staging/prima/CORE/HDD/inc/wlan_hdd_assoc.h b/drivers/staging/prima/CORE/HDD/inc/wlan_hdd_assoc.h
+index f3945f6..8743f20 100644
+--- a/drivers/staging/prima/CORE/HDD/inc/wlan_hdd_assoc.h
++++ b/drivers/staging/prima/CORE/HDD/inc/wlan_hdd_assoc.h
+@@ -101,7 +101,7 @@ extern eHalStatus hdd_smeRoamCallback( void *pContext, tCsrRoamInfo *pRoamInfo,
+ 
+ extern v_VOID_t hdd_connSaveConnectInfo( hdd_adapter_t *pAdapter, tCsrRoamInfo *pRoamInfo, eCsrRoamBssType eBssType );
+ 
+-inline v_BOOL_t hdd_connGetConnectedBssType( hdd_station_ctx_t *pHddCtx, 
++v_BOOL_t hdd_connGetConnectedBssType( hdd_station_ctx_t *pHddCtx, 
+         eMib_dot11DesiredBssType *pConnectedBssType );
+ 
+ int hdd_SetGENIEToCsr( hdd_adapter_t *pAdapter, eCsrAuthType *RSNAuthType );
+diff --git a/drivers/staging/prima/CORE/WDI/CP/inc/wlan_qct_wdi_i.h b/drivers/staging/prima/CORE/WDI/CP/inc/wlan_qct_wdi_i.h
+index 268edd4..90076b8 100644
+--- a/drivers/staging/prima/CORE/WDI/CP/inc/wlan_qct_wdi_i.h
++++ b/drivers/staging/prima/CORE/WDI/CP/inc/wlan_qct_wdi_i.h
+@@ -4055,7 +4055,7 @@ WDI_ProcessHALDumpCmdRsp
+ 
+  @return Result of the function call
+ */
+-WPT_INLINE WDI_Status
++WDI_Status
+ WDI_CleanCB
+ (
+   WDI_ControlBlockType*  pWDICtx
+@@ -4071,7 +4071,7 @@ WDI_CleanCB
+  @see
+  @return Result of the function call
+ */
+-WPT_INLINE WDI_Status
++WDI_Status
+ WDI_ProcessRequest
+ (
+   WDI_ControlBlockType*  pWDICtx,
+@@ -4516,7 +4516,7 @@ WDI_FindAssocSessionByIdx
+  @see
+  @return 
+ */
+-WPT_INLINE void 
++void 
+ WDI_DS_AssignDatapathContext 
+ (
+   void *pContext, 
+@@ -4532,7 +4532,7 @@ WDI_DS_AssignDatapathContext
+  @see
+  @return pointer to Datapath context
+ */
+-WPT_INLINE void * 
++void * 
+ WDI_DS_GetDatapathContext 
+ (
+   void *pContext
+@@ -4548,7 +4548,7 @@ WDI_DS_GetDatapathContext
+  @see
+  @return void
+ */
+-WPT_INLINE void  
++void  
+ WDT_AssignTransportDriverContext 
+ (
+   void *pContext, 
+@@ -4564,7 +4564,7 @@ WDT_AssignTransportDriverContext
+  @see
+  @return pointer to datapath context 
+ */
+-WPT_INLINE void * 
++void * 
+ WDT_GetTransportDriverContext 
+ (
+   void *pContext
+-- 
+1.8.0.3
+

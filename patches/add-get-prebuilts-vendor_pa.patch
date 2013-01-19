@@ -1,0 +1,52 @@
+From 4c9a86b34ae348c642f1ed947ceaf7b079ba51df Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sat, 19 Jan 2013 09:42:20 +0200
+Subject: [PATCH] add get prebuilts
+
+Change-Id: I7c77a2d50ba531fbf36e29593664cb6ed39fa30d
+---
+ .gitignore    |  6 ++++++
+ get-prebuilts | 18 ++++++++++++++++++
+ 2 files changed, 24 insertions(+)
+ create mode 100644 .gitignore
+ create mode 100755 get-prebuilts
+
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..8563a41
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,6 @@
++# Ignore downloaded components
++prebuilt/common/apk/*.apk
++prebuilt/common/lib/*
++
++# Ignore download stamp
++prebuilt/common/.get-prebuilts
+diff --git a/get-prebuilts b/get-prebuilts
+new file mode 100755
+index 0000000..a44f8e3
+--- /dev/null
++++ b/get-prebuilts
+@@ -0,0 +1,18 @@
++BASEDIR=`dirname $0`
++
++mkdir -p $BASEDIR/prebuilt/common/apk
++
++# Get Market Enabler (Source: https://code.google.com/p/market-enabler/downloads/list)
++curl -L -o $BASEDIR/prebuilt/common/apk/MarketEnabler.apk -O -L "http://market-enabler.googlecode.com/files/MarketEnabler_v3113.apk"
++
++# Get Adobe Flash Player (Source: http://helpx.adobe.com/flash-player/kb/archived-flash-player-versions.html)
++curl -L -o $BASEDIR/prebuilt/common/apk/AdobeFlashPlayer.apk -O -L "http://download.macromedia.com/pub/flashplayer/installers/archive/android/11.1.115.34/install_flash_player_ics.apk"
++
++# Get Pdroid manager (http://forum.xda-developers.com/showthread.php?p=34190204)
++#curl -L -o $BASEDIR/prebuilt/common/apk/Pdroid.apk -O -L "http://forum.xda-developers.com/attachment.php?attachmentid=1638382&d=1357994614"
++
++# Get Android Terminal Emulator (we use a prebuilt so it can update from the Market)
++curl -L -o $BASEDIR/prebuilt/common/apk/Term.apk -O -L "http://jackpal.github.com/Android-Terminal-Emulator/downloads/Term.apk"
++unzip -o -d $BASEDIR/prebuilt/common $BASEDIR/prebuilt/common/apk/Term.apk lib/armeabi/libjackpal-androidterm4.so
++
++touch $BASEDIR/prebuilt/common/.`basename $0`
+-- 
+1.8.0.3
+

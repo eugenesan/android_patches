@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project name="eugenesan/android_device_lge_mako" path="device/lge/mako" remote="github" revision="jellybean" />
+  <project name="ParanoidAndroid/proprietary_vendor_lge" path="vendor/lge" remote="github" revision="jellybean" />
+  <project name="ParanoidAndroid/lge-kernel-mako" path="kernel/lge/mako" remote="github" revision="jellybean" />
+  <project name="platform/hardware/qcom/audio" path="hardware/qcom/audio" remote="aosp" revision="master" />
+  <project name="platform/hardware/qcom/bt" path="hardware/qcom/bt" remote="aosp" revision="master" />
+  <project name="platform/hardware/qcom/camera" path="hardware/qcom/camera" remote="aosp" revision="master" />
+  <project name="ParanoidAndroid/android_hardware_qcom_display" path="hardware/qcom/display" remote="github" revision="jellybean" />
+  <project name="platform/hardware/qcom/gps" path="hardware/qcom/gps" remote="aosp" revision="master" />
+  <project name="platform/hardware/qcom/media" path="hardware/qcom/media" remote="aosp" revision="master" />
+  <project name="platform/hardware/qcom/power" path="hardware/qcom/power" remote="aosp" revision="master" />
+  <project name="platform/hardware/qcom/wlan" path="hardware/qcom/wlan" remote="aosp" revision="master" />
+  <project name="CyanogenMod/android_packages_apps_Torch" path="packages/apps/Torch" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_packages_apps_CMFileManager" path="packages/apps/CMFileManager" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_rsync" path="external/rsync" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_bash" path="external/bash" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_htop" path="external/htop" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_libncurses" path="external/libncurses" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_lsof" path="external/lsof" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_lzo" path="external/lzo" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_nano" path="external/nano" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_openvpn" path="external/openvpn" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_powertop" path="external/powertop" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_vim" path="external/vim" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_packages_apps_DSPManager" path="packages/apps/DSPManager" remote="github" revision="177d90019c16cb53a5944d92687f7aa79aaf5677" />
+  <remove-project name="platform/packages/inputmethods/LatinIME" />
+  <remove-project name="platform/packages/inputmethods/OpenWnn" />
+  <remove-project name="platform/packages/inputmethods/PinyinIME" />
+  <project name="CyanogenMod/android_packages_inputmethods_LatinIME" path="packages/inputmethods/LatinIME" remote="github" revision="cm-10.1" />
+  <remove-project name="ParanoidAndroid/android_build" />
+  <project name="eugenesan/android_build" path="build" remote="github" revision="jellybean">
+    <copyfile dest="Makefile" src="core/root.mk" />
+  </project>
+  <remove-project name="ParanoidAndroid/android_frameworks_base" />
+  <project name="eugenesan/android_frameworks_base" path="frameworks/base" remote="github" revision="jellybean" />
+  <remove-project name="ParanoidAndroid/paranoid" />
+  <project name="eugenesan/paranoid" path="paranoid" remote="github" revision="jellybean">
+    <copyfile dest="rom-build.sh" src="build.sh" />
+  </project>
+  <remove-project name="ParanoidAndroid/android_vendor_pa" />
+  <project name="eugenesan/android_vendor_pa" path="vendor/pa" remote="github" revision="jellybean" />
+</manifest>

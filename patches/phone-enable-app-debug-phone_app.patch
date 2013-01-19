@@ -1,0 +1,30 @@
+From e8dbde8da1c915ca3fc56a249ebe7e7f4479dc3e Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sun, 23 Sep 2012 16:07:06 +0200
+Subject: add phone app debug
+
+Change-Id: Id41b22dd43143152f7981761513d0efbe6560fb4
+---
+ src/com/android/phone/PhoneApp.java | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/src/com/android/phone/PhoneApp.java b/src/com/android/phone/PhoneApp.java
+index 1ce9132..89d97ed 100644
+--- a/src/com/android/phone/PhoneApp.java
++++ b/src/com/android/phone/PhoneApp.java
+@@ -91,10 +91,9 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
+      *
+      * ***** DO NOT SUBMIT WITH DBG_LEVEL > 0 *************
+      */
+-    /* package */ static final int DBG_LEVEL = 0;
++    /* package */ static final int DBG_LEVEL = 2;
+ 
+-    private static final boolean DBG =
+-            (PhoneApp.DBG_LEVEL >= 1) && (SystemProperties.getInt("ro.debuggable", 0) == 1);
++    private static final boolean DBG = (PhoneApp.DBG_LEVEL >= 1);
+     private static final boolean VDBG = (PhoneApp.DBG_LEVEL >= 2);
+ 
+     // Message codes; see mHandler below.
+-- 
+1.7.11.3
+

@@ -1,0 +1,65 @@
+From c398a8977db18df8c275104fcfe8e646588a87b4 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sun, 13 Jan 2013 11:57:59 +0200
+Subject: [PATCH] fix double inclusion and cosmetcs
+
+Change-Id: Ibeb8f7b16a636675b4094a27d21ab9d7fee8a814
+---
+ envsetup.sh | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
+
+diff --git a/envsetup.sh b/envsetup.sh
+index a21e6b6..06ab249 100644
+--- a/envsetup.sh
++++ b/envsetup.sh
+@@ -11,6 +11,7 @@ Invoke ". build/envsetup.sh" from your shell to add the following functions to y
+ - jgrep:   Greps on all local Java files.
+ - resgrep: Greps on all local res/*.xml files.
+ - godir:   Go to the directory containing a file.
++- mka:      Builds using SCHED_BATCH on all processors.
+ 
+ Look at the source to view more functions. The complete list is:
+ EOF
+@@ -79,7 +80,6 @@ function check_variant()
+     return 1
+ }
+ 
+-#credit cm
+ function mka() {
+     case `uname -s` in
+         Darwin)
+@@ -138,9 +138,7 @@ function setpaths()
+     case $ARCH in
+         x86) toolchaindir=x86/i686-linux-android-4.6/bin
+             ;;
+-
+         arm) toolchaindir=arm/arm-linux-androideabi-$targetgccversion/bin
+-
+             ;;
+         mips) toolchaindir=mips/mipsel-linux-android-4.6/bin
+             ;;
+@@ -1155,6 +1153,8 @@ function godir () {
+     cd $T/$pathname
+ }
+ 
++alias mkap='dopush mka'
++
+ # Force JAVA_HOME to point to java 1.6 if it isn't already set
+ function set_java_home() {
+     if [ ! "$JAVA_HOME" ]; then
+@@ -1187,12 +1187,4 @@ do
+ done
+ unset f
+ 
+-# Execute the contents of any vendorsetup.sh files we can find.
+-for f in `/bin/ls vendor/*/vendorsetup.sh vendor/*/*/vendorsetup.sh device/*/*/vendorsetup.sh 2> /dev/null`
+-do
+-    echo "including $f"
+-    . $f
+-done
+-unset f
+-
+ addcompletions
+-- 
+1.8.0.3
+

@@ -1,0 +1,26 @@
+From 5af08ec28ffb1f7a702b5afc6ffe08c736203a29 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Mon, 1 Oct 2012 21:08:00 +0200
+Subject: [PATCH] fix occasional ring volume reset take2
+
+Change-Id: If3c3f6fb951d7179c5058cb5db4ef1ce178aa88f
+---
+ src/com/android/phone/PhoneUtils.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/com/android/phone/PhoneUtils.java b/src/com/android/phone/PhoneUtils.java
+index fc0327a..9cbc911 100644
+--- a/src/com/android/phone/PhoneUtils.java
++++ b/src/com/android/phone/PhoneUtils.java
+@@ -248,7 +248,7 @@ public class PhoneUtils {
+ 
+         // If the ringer is currently ringing and/or vibrating, stop it
+         // right now and prevent new rings (before actually answering the call)
+-        PhoneApp.getInstance().notifier.silenceRinger();
++        app.notifier.silenceRinger();
+ 
+         final Phone phone = ringing.getPhone();
+         final boolean phoneIsCdma = (phone.getPhoneType() == Phone.PHONE_TYPE_CDMA);
+-- 
+1.7.11.3
+

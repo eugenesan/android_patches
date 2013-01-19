@@ -1,0 +1,2366 @@
+From d06faabbca3b4f74ffa4a2641afcf2005c82a388 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Tue, 1 Jan 2013 11:47:48 +0200
+Subject: [PATCH] hybrid engine
+
+Change-Id: I16b4ab83e1701993be60aa579f86a742929e995e
+---
+ AndroidManifest.xml                                |   3 +
+ res/drawable-hdpi/ic_settings_jellybeer.png        | Bin 0 -> 969 bytes
+ res/drawable-mdpi/ic_settings_jellybeer.png        | Bin 0 -> 771 bytes
+ res/drawable-xhdpi/ic_settings_jellybeer.png       | Bin 0 -> 1219 bytes
+ res/layout/preference_dialog_dpigroup.xml          |  33 +++
+ res/layout/simple_preference.xml                   |  27 +++
+ res/values/arrays.xml                              |  32 +++
+ res/values/strings.xml                             |  62 ++++++
+ res/xml/beerbong_display_settings.xml              | 111 ++++++++++
+ res/xml/beerbong_dpi_group.xml                     |  36 ++++
+ res/xml/beerbong_dpi_group_app_list.xml            |  26 +++
+ res/xml/beerbong_dpi_groups_settings.xml           |  58 +++++
+ res/xml/beerbong_dpi_settings.xml                  |  43 ++++
+ res/xml/beerbong_settings.xml                      |  51 +++++
+ res/xml/beerbong_visualization_settings.xml        |  45 ++++
+ res/xml/settings_headers.xml                       |   8 +
+ .../settings/beerbong/AppListPreference.java       |  63 ++++++
+ .../android/settings/beerbong/Applications.java    | 239 +++++++++++++++++++++
+ .../android/settings/beerbong/CMDProcessor.java    | 134 ++++++++++++
+ .../beerbong/CustomDpiGroupPreference.java         | 109 ++++++++++
+ .../android/settings/beerbong/DisplaySettings.java | 105 +++++++++
+ .../settings/beerbong/DpiGroupFragment.java        | 129 +++++++++++
+ .../settings/beerbong/DpiGroupPreference.java      |  91 ++++++++
+ src/com/android/settings/beerbong/DpiGroups.java   | 178 +++++++++++++++
+ .../android/settings/beerbong/DpiPreferences.java  |  97 +++++++++
+ src/com/android/settings/beerbong/Settings.java    |  41 ++++
+ src/com/android/settings/beerbong/Utils.java       | 202 +++++++++++++++++
+ .../settings/beerbong/VisualizationSettings.java   | 127 +++++++++++
+ 28 files changed, 2050 insertions(+)
+ create mode 100644 res/drawable-hdpi/ic_settings_jellybeer.png
+ create mode 100644 res/drawable-mdpi/ic_settings_jellybeer.png
+ create mode 100644 res/drawable-xhdpi/ic_settings_jellybeer.png
+ create mode 100644 res/layout/preference_dialog_dpigroup.xml
+ create mode 100644 res/layout/simple_preference.xml
+ create mode 100644 res/xml/beerbong_display_settings.xml
+ create mode 100644 res/xml/beerbong_dpi_group.xml
+ create mode 100644 res/xml/beerbong_dpi_group_app_list.xml
+ create mode 100644 res/xml/beerbong_dpi_groups_settings.xml
+ create mode 100644 res/xml/beerbong_dpi_settings.xml
+ create mode 100644 res/xml/beerbong_settings.xml
+ create mode 100644 res/xml/beerbong_visualization_settings.xml
+ create mode 100644 src/com/android/settings/beerbong/AppListPreference.java
+ create mode 100644 src/com/android/settings/beerbong/Applications.java
+ create mode 100644 src/com/android/settings/beerbong/CMDProcessor.java
+ create mode 100644 src/com/android/settings/beerbong/CustomDpiGroupPreference.java
+ create mode 100644 src/com/android/settings/beerbong/DisplaySettings.java
+ create mode 100644 src/com/android/settings/beerbong/DpiGroupFragment.java
+ create mode 100644 src/com/android/settings/beerbong/DpiGroupPreference.java
+ create mode 100644 src/com/android/settings/beerbong/DpiGroups.java
+ create mode 100644 src/com/android/settings/beerbong/DpiPreferences.java
+ create mode 100644 src/com/android/settings/beerbong/Settings.java
+ create mode 100644 src/com/android/settings/beerbong/Utils.java
+ create mode 100644 src/com/android/settings/beerbong/VisualizationSettings.java
+
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index 53a838d..84fb92f 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -1458,6 +1458,9 @@
+             android:theme="@style/CryptKeeperBlankTheme"
+         />
+ 
++        <activity android:name=".beerbong.Settings" />
++        <activity android:name=".beerbong.DisplaySettings" />
++
+         <!-- CyanogenMod activities Start -->
+         <activity android:name=".cyanogenmod.PowerWidget" />
+ 
+diff --git a/res/drawable-hdpi/ic_settings_jellybeer.png b/res/drawable-hdpi/ic_settings_jellybeer.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..d83f0f043c8aecc1de6ab1280e3943f3bca83af9
+GIT binary patch
+literal 969
+zcmV;)12+7LP)<h;3K|Lk000e1NJLTq001xm001xu1^@s6R|5Hm00009a7bBm000XT
+z000XT0n*)m`~Uy|AY({UO#lFTB>(_`g8%^e{{R4h=>PzAFaQARU;qF*m;eA5Z<1fd
+zMgRZ<Pf0{URCwC#+FgiLWf%wW-?*cem2H`5nH3UQ21P_h5QLSKA{b#%)Ln!(-E`kg
+z6eNLt-9#jHQ$z#>K~$#pc@ZI*1c~%vAJPXER4lujI{S37&%j~W+1;5rv%3f8ftTUD
+z@9>`Ue?R{J|8w3`iwISYMJgTx00RI$Mtv6l*?`Ts0weeo@8Cb&j9ai8NAVsGV<ooX
+zIy7(yZ{v4dgRNMHKX3qhy9H32hJ_a64&03^aUM?KhrH=X0=o=n;4gfQ{aBA1aXtdS
+z;gf9NjH@w>QGA=gU(LQdi-?%2EQ^SzBVs(}E)GS+wQZiKZE4r=V9ZZ^6cJ~40-)U{
+zzJH$f<n_3r3>I2EkEC+43>JDU%W$V1c1tGt`zAgsi-lHW2~HJm(9ejZ*+y9aYDt}S
+zOw7RyoJ=Y%O~@|Cvsl&XsB{rS7*COW315{l16SeQ6r;I}pYc4NNwMtO3!TE)JTTGP
+zB#@V}rYdGG@N3J6Z^tXRunGWb*pt5N%R>E4coJt;!A_5-W4#ma7wUK5zFzD!?8C9t
+zg|ec7({UTl#c5f83=iP-wBt4G#9R1fwr*5JY>0^O(`0S!)FsZc3`fMlyvHLgZCfH@
+zv|#k^>cq^=l{c!V222%u@nPY5Q!jg<UwdU}h9!2OB{QsCPJA@=2rjN7fO^Y}R1U!U
+z0*D{024E<KtQkkD24H)Ec^WN@wBP|;ibt_DuMgsbg$|&}HY@O4fj0la6YY|ng#e(L
+zt}aXK@EUF{v_FnFdi6s6w$ja4IXiJqq3tQ`?lz^I>sZ+WY7ZVREUlgZO!RT|Tl+qY
+zUFkkYdr9gS71rnSK5~7NX}-e?nS~uM<E=!aFglm?3Bam?$Jw3i(@{*vLdOduu>%+M
+z0l>YPE{?TR+L;&O^a;m9g@oech}aYnOG-#&)<wjwh#1Sh_eI3=Zu+XtaLhVv^5Eh2
+zydJ^lxzT<~ahWjvtH&q^)QS|SjkqZ5|HM6+ww68vB4SNMyciMx_TfC>i-_3P%WT$W
+zdC*-?b=;C_xi*!v-ZIMVl(tEiCrqA;9m#BK>O{R08Sn6<{w$M+dK*)Cmd^0-MGy`A
+romtj?d{c@K8GLFm05AYh?f8EH-J;asG=WPk00000NkvXXu0mjf8*so4
+
+literal 0
+HcmV?d00001
+
+diff --git a/res/drawable-mdpi/ic_settings_jellybeer.png b/res/drawable-mdpi/ic_settings_jellybeer.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..bcfcf09397cf24807e8385cc4ec232ccf830ab37
+GIT binary patch
+literal 771
+zcmV+e1N{7nP)<h;3K|Lk000e1NJLTq001BW001Be1^@s6b9#F800009a7bBm000XT
+z000XT0n*)m`~Uy|AY({UO#lFTB>(_`g8%^e{{R4h=>PzAFaQARU;qF*m;eA5Z<1fd
+zMgRZ;iAh93RCwCtmtAO%VHn4M&%UhHW|S?hoQxABEourUk~6Ubjg%tC#G$ms3CV#2
+z=S-X^;XqkwSwl+V09i;j3#$<e`*`<r;99-C_I_-8w;j0Z>b;+*_kQl{zOVoNzy4RE
+zvXEB70$W+eb1AS9*ay@BUBC@sHP8yw0JnfnU^CDHOaM259$*Ks3-|$C2fBfgoDry#
+zUahvN@6~bt+K~ECeXEYC6Y7BaK<!gg;eBei`Z4B>sr~8&wLWc)e?0x6-MO(VYGt+n
+zk~9$Z0}XSK<{@Ac(3=kfU6E(QXKP7dst5R-^-pOhuoPIC7c|okVgUG3$SoKO^sWO&
+zi?nzO_*UpGC|A!0s>h4uDfN?jQmvZ`gy}>iFdpPoS|l$4>VZ?hHDJwrGvO=XPK>t!
+z9YABQ0E%50UI6=n(*f=#pbe<ZM#bd;oQ}A+RWktIZ(uoa2&e|W0_`zA3hV{00(Ub(
+zSf-v=zpGo~T`~hlZBz%<djW3L73#BK$BR>ea54o+T56nuPo8Avw?6>)W89Prgh>&=
+zSsLHTv^SCBhK14twGrI#LIh9&Y>091d<BrC;bJ$iHO8Iu6~IWa>)POgTHt9Ys5uWH
+z6+F@cTn1K!<~R}+a!Mj9mKnQmj=WbzwLKR4Aa5<0EhSHcR|M@o0S<&v&8v#b<9D`d
+zdr|EA3~&h;%-0u81aDUaXl7&Ufh7U9bJ-TptOZ03_^G~ATh*Fel6nfSQn#zmgY);~
+zo0DX;X5~>XPlPP%0ba)rMzheXF>hJa`etBpRJ_B$uR<kR`YsNtkE0QpuDw)`tF?uk
+zT9TtVtpj#O3szeI;|&9kfZIS{p*Jb{@4Mqa0|3Pj6UKQ#FRB0l002ovPDHLkV1jYw
+BOlSZA
+
+literal 0
+HcmV?d00001
+
+diff --git a/res/drawable-xhdpi/ic_settings_jellybeer.png b/res/drawable-xhdpi/ic_settings_jellybeer.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..99541788b180c999d17dafe2f1e9e455ead8415f
+GIT binary patch
+literal 1219
+zcmV;!1U&nRP)<h;3K|Lk000e1NJLTq002M$002M;1^@s6s%dfF00009a7bBm000XT
+z000XT0n*)m`~Uy|AY({UO#lFTB>(_`g8%^e{{R4h=>PzAFaQARU;qF*m;eA5Z<1fd
+zMgRZ=Nl8RORCwC#+gXTKWf%wW-{_c{W2S9dwpdz(8CHfU*+L5hT?lPdq;ydcZ9;cm
+z)Kv>XQr)ydASDzn5Jg>h6|GX*qG)bt)@Ybz4yC5f>Eb*C$B%EEZ#y&JeCPYaVa|Ey
+zf%889^S;mWKF`;YB#9zpgo2|@K%0Oz0mVjV6|z$>2N&R+82cG(@g4TzWXz6h8WL>8
+zk0H~8lW<8!<_NZ816JWrbYX7DoEz`@72o5VkQr10Muy^j1e_V;Ct!3;XcMM~%xs($
+z1Wdpv{MC<4FD8Z3d+=|JUxrKL9!`t-?g=uFG=hMR3gUoySc0o!66LTpzVt<ydJLIO
+zn0XAD?XjY!2hruQ17BlV{LPhsoA7EZ|7Jrs9>9lr5pW?sj(ys!SdWFV`Wo&9?r(DC
+z`##d$=*WYBYln#^n^~ndtC)bp!-Rl?c?CjmG|JWFto(a8l!p=Q#9~|*MD#XU1e=7B
+zey5(fb+pd|+PT1hxDt27eQy)Zdv9!kFY2*Xm281~BN}W*?8irV5ntBwfhySo`{G5-
+zh_SdeNLYr`^B`bEJ(1QRVFDh-`?$QwMsO}xR1?JxR|5WvJzp*fnvOTIpp^;ez-zb>
+z%gcCy$#@2*v?>83r6)*RaSt8~x0uCzJdWd9k$|l4?!^mX1ba&477t_;t4$-f<9QsY
+zCk3qmhopz84<5tSEtej(J((FBA92jL{bh~SDzOtU)tiFWh{?ER0AK$~*o7-HW7h{U
+zTN<$iIx%L5mi_1oKG>czY5bJ12Zc$7J`LlT^%(PtL_jyzl#ER)S~|S0<atKX2q<-j
+zV~R$=nI+G=i$p*tW|fR>DG~uQq&3PcHWZ0~n{jGM*u1(Z1Y9gF>1Fj=6RC5{6EHDS
+z;L_6j3hZii0y^<@<N;ayAgvrVEE{a51ChRjtV`O!abJndE<A#5tw_KTX}8J(JcQdy
+z{(k^V@mVEHXE<VHD83}l2};inmPS^nRS6iO|9+*Xq=z<InSgTGEv;ZZ>*yo1h7vH8
+zW%AyB6zjzYq4=s=+($JSC+!XF86sELSz_o`;%&Se&+;H3TN)dW6Y<*+5HL9t;vU2k
+zcv)Jztjm}TgukVg7}7$+c|(}wOp5#c_^MvzD<xn({)qeIvB&_$h8)m^J2Ug$?dWsA
+zTnX5Q&oj>p!_AyMNXk#cbGRWhwz5&%u+ko(Irv1{4c>=!cq^i<&G@~+KK^`MjoYOS
+zk$vcvR)04PCIRqpxSBC#Y{U-y68GJic)c1IH%i(WJ~md@8R2oVI4tcCe!XGqD@l@S
+zuDg;X*_I3qHYZ84sLJ^cc-7J-H%nS{ye5`uSC0GtA88N3%J}LV8~uWM`UIzjZJ00Z
+z*Bw`8$<~6sq4*l<4<lB`7RxQVsuer&Q@F(a5hP8lcSlNpebN&Itc~~Ncd*dz6fHQ~
+h1hffg6HsjYKLAnN(<_j{47UIP002ovPDHLkV1l3+Ead<I
+
+literal 0
+HcmV?d00001
+
+diff --git a/res/layout/preference_dialog_dpigroup.xml b/res/layout/preference_dialog_dpigroup.xml
+new file mode 100644
+index 0000000..d7b8848
+--- /dev/null
++++ b/res/layout/preference_dialog_dpigroup.xml
+@@ -0,0 +1,33 @@
++<?xml version="1.0" encoding="utf-8"?>
++<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent">
++    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++            android:layout_width="match_parent"
++            android:layout_height="match_parent"
++            android:orientation="vertical"
++            android:gravity="center_horizontal"
++            android:paddingBottom="20dip">
++
++        <ImageView android:id="@android:id/icon"
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:paddingTop="20dip"
++                android:visibility="gone"
++                android:contentDescription="@null" />
++
++        <TextView android:id="@+id/text_dpi"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:textAppearance="?android:attr/textAppearanceMedium"
++                android:layout_marginTop="12dip"
++                android:layout_marginLeft="20dip"
++                android:layout_marginRight="20dip" />
++
++        <SeekBar android:id="@*android:id/seekbar"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:padding="20dip" />
++
++    </LinearLayout>
++</ScrollView>
+diff --git a/res/layout/simple_preference.xml b/res/layout/simple_preference.xml
+new file mode 100644
+index 0000000..6070c69
+--- /dev/null
++++ b/res/layout/simple_preference.xml
+@@ -0,0 +1,27 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:minHeight="?android:attr/listPreferredItemHeight"
++    android:gravity="center_vertical"
++    android:paddingRight="?android:attr/scrollbarSize"
++    android:background="?android:attr/selectableItemBackground" >
++
++    <ImageView
++        android:id="@+android:id/icon"
++        android:layout_width="48dip"
++        android:layout_height="48dip"
++        android:layout_marginLeft="10dip"
++        android:layout_gravity="center"
++        />
++
++    <TextView android:id="@+android:id/title"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginLeft="15dip"
++        android:singleLine="true"
++        android:textAppearance="?android:attr/textAppearanceMedium"
++        android:ellipsize="marquee"
++        android:fadingEdge="horizontal" />
++
++</LinearLayout>
+diff --git a/res/values/arrays.xml b/res/values/arrays.xml
+index 3862ae2..666d77f 100644
+--- a/res/values/arrays.xml
++++ b/res/values/arrays.xml
+@@ -1255,4 +1255,36 @@
+     </string-array>
+ 
+     <!-- **** CYANOGENMOD EDITS END **** -->
++
++    <string-array name="entries_dpi_system_window">
++        <item>120 dpi</item>
++        <item>160 dpi</item>
++        <item>213 dpi</item>
++        <item>240 dpi</item>
++        <item>320 dpi</item>
++        <item>480 dpi</item>
++    </string-array>
++
++    <string-array name="values_dpi_system_window" translatable="false">
++        <item>120</item>
++        <item>160</item>
++        <item>213</item>
++        <item>240</item>
++        <item>320</item>
++        <item>480</item>
++    </string-array>
++
++    <string-array name="uimode_entries">
++        <item>None</item>
++        <item>PhoneUI</item>
++        <item>PhabletUI</item>
++        <item>TabletUI</item>
++    </string-array>
++
++    <string-array name="uimode_values" translatable="false">
++        <item>0</item>
++        <item>1</item>
++        <item>2</item>
++        <item>3</item>
++    </string-array>
+ </resources>
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index 8e2fb11..659fd6e 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -5089,4 +5089,66 @@
+     <string name="lock_clock_summary">View or change how the \'Chronus\' Home and Lock screen widgets will display</string>
+ 
+     <!-- **** CYANOGENMOD ADDITIONS END **** -->
++
++    <string name="header_category_jellybeer">JellyBeer</string>
++    <string name="beerbong_settings">Settings</string>
++
++    <!-- Visualization settings -->
++    <string name="beerbong_visualization_title">UIModes</string>
++    <string name="beerbong_visualization_summary">Change UIModes and DPIs</string>
++
++    <string name="ui_long">UIModes and DPIs</string>
++
++    <string name="dpi_settings_title">LCD density</string>
++    <string name="system_dpi_title">LCD density</string>
++    <string name="system_dpi_summary">Current LCD density:</string>
++    <string name="system_dpi_standar_title">Standard density</string>
++    <string name="system_dpi_standar_summary">Select the density from a list</string>
++    <string name="system_dpi_custom_title">Specify custom density</string>
++    <string name="system_dpi_custom_hint">120 to 480</string>
++    <string name="system_dpi_custom_summary">Select a custom density from 120 to 480</string>
++
++    <string name="uimode_title">UIMode</string>
++
++    <string name="dpi_groups_title">DPI Groups</string>
++    <string name="dpi_groups_summary">Define wich apps should be in each DPI group</string>
++    <string name="dpi_group_title">DPI Group</string>
++    <string name="dpi_groups_apps">applications</string>
++    <string name="dpi_group_add_app">Add application</string>
++    <string name="dpi_group_app_list">Applications list</string>
++    <string name="dpi_group_alert_add_app_title">Choose an application</string>
++    <string name="dpi_groups_alert_remove_app">Remove application</string>
++    <string name="dpi_groups_remove_app">Remove %s application from group?</string>
++    <string name="dpi_groups_backuprestore_title">Backup and restore</string>
++    <string name="dpi_groups_auto_backup">Auto backup</string>
++    <string name="dpi_groups_auto_backup_summary">Perform an auto backup everytime you change the configuration</string>
++    <string name="dpi_groups_backup_title">Backup</string>
++    <string name="dpi_groups_backup_summary">Backup your groups configuration</string>
++    <string name="dpi_groups_restore_title">Restore</string>
++    <string name="dpi_groups_restore_summary">Restore your groups configuration</string>
++    <string name="dpi_groups_backup_done">Backup of configuration file done</string>
++    <string name="dpi_groups_restore_done">Configuration file restored</string>
++    <string name="dpi_groups_restore_default_title">Restore default groups</string>
++    <string name="dpi_groups_restore_default_summary">Remove custom DPI groups and leave the default groups</string>
++    <string name="dpi_groups_delete_title">Delete DPI group</string>
++    <string name="dpi_groups_delete_summary">Do you want to delete this DPI group?</string>
++    <string name="customdpigroup">Add group</string>
++    <string name="customdpigroup_summary">Add a custom dpi group</string>
++    <string name="custom_dpi">Current dpi:</string>
++    <string name="customdpigroup_group_exists">The selected custom dpi group already exists.</string>
++
++    <string name="alert_reboot">Reboot needed</string>
++    <string name="alert_reboot_message">This change needs a reboot to be applied. Do you want to reboot now?</string>
++    <string name="alert_yes">Yes</string>
++    <string name="alert_no">No</string>
++
++    <!-- Display settings -->
++    <string name="beerbong_display_settings">Display</string>
++    <string name="beerbong_display_title">Display</string>
++    <string name="beerbong_display_summary">Change display settings</string>
++
++    <string name="ui_short">UI</string>
++
++    <string name="multipane_ui">Enable Dual panel</string>
++    <string name="multipane_ui_summary">This will enable/disable Dual panel"</string>
+ </resources>
+diff --git a/res/xml/beerbong_display_settings.xml b/res/xml/beerbong_display_settings.xml
+new file mode 100644
+index 0000000..01fb274
+--- /dev/null
++++ b/res/xml/beerbong_display_settings.xml
+@@ -0,0 +1,111 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2010 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++
++<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
++        android:title="@string/beerbong_display_settings"
++        xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
++
++    <PreferenceCategory
++        android:key="ui"
++        android:title="@string/ui_short">
++
++        <CheckBoxPreference
++            android:key="force_dualpanel"
++            android:title="@string/multipane_ui"
++            android:summary="@string/multipane_ui_summary"
++            android:defaultValue="false" />
++
++        <!--Preference
++            android:key="custom_carrier_label"
++            android:title="@string/custom_carrier_label_title" />
++
++        <CheckBoxPreference
++            android:key="notification_show_wifi_ssid"
++            android:title="@string/notification_show_wifi_ssid_title"
++            android:summary="@string/notification_show_wifi_ssid_summary"
++            android:defaultValue="false" />
++
++        <CheckBoxPreference
++            android:key="use_alt_resolver"
++            android:title="@string/alt_resolver"
++            android:summary="@string/alt_resolver_summary"
++            android:defaultValue="false" /-->
++
++    </PreferenceCategory>
++
++    <!--PreferenceCategory
++        android:key="notification"
++        android:title="@string/notification_cat">
++
++        <Preference
++            android:key="notification_wallpaper"
++            android:title="@string/notification_wallpaper_title"
++            android:summary="@string/notification_wallpaper_summary" />
++
++        <Preference
++            android:key="notification_wallpaper_alpha"
++            android:title="@string/notif_wallpaper_alpha_title" />
++
++        <ListPreference
++            android:entries="@array/clock_position_entries"
++            android:entryValues="@array/clock_position_values"
++            android:key="clock_position"
++            android:title="@string/clock_position_title" />
++
++        <ColorPickerPreference
++            android:key="status_bar_color"
++            android:title="@string/status_bar_color_title"
++            android:summary="@string/status_bar_color_summary"
++            android:defaultValue="#FF000000" />
++
++        <ListPreference
++            android:key="status_bar_weekday"
++            android:title="@string/status_bar_weekday_title"
++            android:summary="@string/status_bar_weekday_summary"
++            android:entries="@array/entries_status_bar_weekday"
++            android:entryValues="@array/values_status_bar_weekday" />
++
++        <ListPreference
++            android:key="status_bar_daymonth"
++            android:title="@string/status_bar_daymonth_title"
++            android:summary="@string/status_bar_daymonth_summary"
++            android:entries="@array/entries_status_bar_clock"
++            android:entryValues="@array/values_status_bar_clock" />
++
++        <CheckBoxPreference
++            android:key="prevent_statusbar_expand"
++            android:title="@string/statusbar_prevent_expand_title"
++            android:summary="@string/statusbar_prevent_expand_summary"
++            android:defaultValue="false" />
++
++    </PreferenceCategory>
++
++    <PreferenceCategory
++        android:key="bootani"
++        android:title="@string/bootani_cat">
++
++        <Preference
++            android:key="custom_bootanimation"
++            android:title="@string/custom_bootanimation_title"
++            android:summary="@string/custom_bootanimation_summary" />
++
++        <CheckBoxPreference
++            android:key="disable_bootanimation"
++            android:title="@string/disable_bootanimation_title" />
++
++    </PreferenceCategory-->
++
++</PreferenceScreen>
+diff --git a/res/xml/beerbong_dpi_group.xml b/res/xml/beerbong_dpi_group.xml
+new file mode 100644
+index 0000000..fdba3c2
+--- /dev/null
++++ b/res/xml/beerbong_dpi_group.xml
+@@ -0,0 +1,36 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2012 The CyanogenMod Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<!-- @beerbong -->
++<PreferenceScreen
++    xmlns:android="http://schemas.android.com/apk/res/android">
++
++    <PreferenceCategory
++        android:key="dpi_group_fragment_title">
++
++        <PreferenceScreen
++            android:key="add_app"
++            android:fragment="com.android.settings.beerbong.AppListPreference"
++            android:title="@string/dpi_group_add_app" />
++
++    </PreferenceCategory>
++
++    <PreferenceCategory
++        android:key="app_list"
++        android:title="@string/dpi_group_app_list">
++
++    </PreferenceCategory>
++
++</PreferenceScreen>
+diff --git a/res/xml/beerbong_dpi_group_app_list.xml b/res/xml/beerbong_dpi_group_app_list.xml
+new file mode 100644
+index 0000000..9d17693
+--- /dev/null
++++ b/res/xml/beerbong_dpi_group_app_list.xml
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2012 The CyanogenMod Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<!-- @beerbong -->
++<PreferenceScreen
++    xmlns:android="http://schemas.android.com/apk/res/android">
++
++    <PreferenceCategory
++        android:key="dpi_group_app_list"
++        android:title="@string/dpi_group_alert_add_app_title">
++
++    </PreferenceCategory>
++
++</PreferenceScreen>
+diff --git a/res/xml/beerbong_dpi_groups_settings.xml b/res/xml/beerbong_dpi_groups_settings.xml
+new file mode 100644
+index 0000000..bd955af
+--- /dev/null
++++ b/res/xml/beerbong_dpi_groups_settings.xml
+@@ -0,0 +1,58 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2012 The CyanogenMod Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<!-- @beerbong -->
++<PreferenceScreen
++    xmlns:android="http://schemas.android.com/apk/res/android">
++
++    <com.android.settings.beerbong.CustomDpiGroupPreference
++            android:key="customdpigroup"
++            android:title="@string/customdpigroup"
++            android:summary="@string/customdpigroup_summary"
++            android:dialogTitle="@string/customdpigroup" />
++
++    <Preference
++        android:key="dpi_groups_restore_default"
++        android:title="@string/dpi_groups_restore_default_title"
++        android:summary="@string/dpi_groups_restore_default_summary" />
++
++    <PreferenceCategory
++        android:key="dpi_groups_category"
++        android:title="@string/dpi_groups_title">
++
++    </PreferenceCategory>
++
++    <PreferenceCategory
++        android:title="@string/dpi_groups_backuprestore_title">
++
++        <CheckBoxPreference
++            android:key="dpi_groups_auto_backup"
++            android:title="@string/dpi_groups_auto_backup"
++            android:summary="@string/dpi_groups_auto_backup_summary"
++            android:defaultValue="false" />
++
++        <Preference
++            android:key="dpi_groups_backup"
++            android:title="@string/dpi_groups_backup_title"
++            android:summary="@string/dpi_groups_backup_summary" />
++
++        <Preference
++            android:key="dpi_groups_restore"
++            android:title="@string/dpi_groups_restore_title"
++            android:summary="@string/dpi_groups_restore_summary" />
++
++    </PreferenceCategory>
++
++</PreferenceScreen>
+diff --git a/res/xml/beerbong_dpi_settings.xml b/res/xml/beerbong_dpi_settings.xml
+new file mode 100644
+index 0000000..9c07005
+--- /dev/null
++++ b/res/xml/beerbong_dpi_settings.xml
+@@ -0,0 +1,43 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2012 The CyanogenMod Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++<!-- @beerbong -->
++<PreferenceScreen
++    xmlns:android="http://schemas.android.com/apk/res/android">
++
++    <!-- Light sensor filter -->
++    <PreferenceCategory
++        android:title="@string/dpi_settings_title">
++
++        <!-- Dpi window -->
++        <ListPreference
++            android:key="system_dpi_window"
++            android:title="@string/system_dpi_standar_title"
++            android:summary="@string/system_dpi_standar_summary"
++            android:dialogTitle="@string/system_dpi_standar_title"
++            android:entries="@array/entries_dpi_system_window"
++            android:entryValues="@array/values_dpi_system_window" />   
++
++        <EditTextPreference
++            android:key="custom_dpi_text"
++            android:dialogTitle="@string/system_dpi_custom_title"
++            android:hint="@string/system_dpi_custom_hint"
++            android:title="@string/system_dpi_custom_title"
++            android:summary="@string/system_dpi_custom_summary"
++            android:inputType="number" />
++
++    </PreferenceCategory>
++
++</PreferenceScreen>
+diff --git a/res/xml/beerbong_settings.xml b/res/xml/beerbong_settings.xml
+new file mode 100644
+index 0000000..4f44dd2
+--- /dev/null
++++ b/res/xml/beerbong_settings.xml
+@@ -0,0 +1,51 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2010 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++
++<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
++        android:title="@string/beerbong_settings"
++        xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
++
++        <PreferenceScreen
++            android:key="visualization_screen"
++            android:fragment="com.android.settings.beerbong.VisualizationSettings"
++            android:title="@string/beerbong_visualization_title"
++            android:summary="@string/beerbong_visualization_summary" />
++
++        <PreferenceScreen
++            android:key="display_screen"
++            android:fragment="com.android.settings.beerbong.DisplaySettings"
++            android:title="@string/beerbong_display_title"
++            android:summary="@string/beerbong_display_summary" />
++
++        <!--PreferenceScreen
++            android:key="softkeys_screen"
++            android:fragment="com.android.settings.beerbong.NavbarSettings"
++            android:title="@string/softkeys_title"
++            android:summary="@string/softkeys_summary2" /-->
++
++        <!--PreferenceScreen
++            android:key="system_screen"
++            android:fragment="com.android.settings.beerbong.SystemSettings"
++            android:title="@string/beerbong_system_title"
++            android:summary="@string/beerbong_system_summary" /-->
++
++        <!--PreferenceScreen
++            android:key="toggles_screen"
++            android:fragment="com.android.settings.beerbong.StatusBarToggles"
++            android:title="@string/toggles_layout"
++            android:summary="@string/header_summary_toggles" /-->
++
++</PreferenceScreen>
+diff --git a/res/xml/beerbong_visualization_settings.xml b/res/xml/beerbong_visualization_settings.xml
+new file mode 100644
+index 0000000..411b11b
+--- /dev/null
++++ b/res/xml/beerbong_visualization_settings.xml
+@@ -0,0 +1,45 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2010 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++
++<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
++        android:title="@string/beerbong_visualization_title"
++        xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
++
++    <PreferenceCategory
++        android:key="ui"
++        android:title="@string/ui_long">
++
++        <PreferenceScreen
++            android:key="system_dpi"
++            android:fragment="com.android.settings.beerbong.DpiPreferences"
++            android:title="@string/system_dpi_title"
++            android:summary="@string/system_dpi_summary" />
++
++        <ListPreference
++            android:entries="@array/uimode_entries"
++            android:entryValues="@array/uimode_values"
++            android:key="ui_mode"
++            android:title="@string/uimode_title" />
++
++        <PreferenceScreen
++            android:key="dpi_groups"
++            android:fragment="com.android.settings.beerbong.DpiGroups"
++            android:title="@string/dpi_groups_title"
++            android:summary="@string/dpi_groups_summary" />
++
++    </PreferenceCategory>
++
++</PreferenceScreen>
+diff --git a/res/xml/settings_headers.xml b/res/xml/settings_headers.xml
+index 156d63f..8886240 100644
+--- a/res/xml/settings_headers.xml
++++ b/res/xml/settings_headers.xml
+@@ -58,6 +58,14 @@
+         android:fragment="com.android.settings.WirelessSettings"
+         android:icon="@drawable/empty_icon" />
+ 
++    <!-- JellyBeer Settings -->
++    <header android:title="@string/header_category_jellybeer" />
++    <header
++        android:id="@+id/beerbong_settings"
++        android:icon="@drawable/ic_settings_jellybeer"
++        android:fragment="com.android.settings.beerbong.Settings"
++        android:title="@string/beerbong_settings" />
++
+     <!-- INTERFACE -->
+     <header android:id="@+id/interface_section"
+         android:title="@string/header_category_interface" />
+diff --git a/src/com/android/settings/beerbong/AppListPreference.java b/src/com/android/settings/beerbong/AppListPreference.java
+new file mode 100644
+index 0000000..6fdadf6
+--- /dev/null
++++ b/src/com/android/settings/beerbong/AppListPreference.java
+@@ -0,0 +1,63 @@
++package com.android.settings.beerbong;
++
++import android.content.ContentResolver;
++import android.content.Context;
++import android.os.Bundle;
++import android.os.PowerManager;
++import android.preference.EditTextPreference;
++import android.preference.ListPreference;
++import android.preference.Preference;
++import android.preference.Preference.OnPreferenceClickListener;
++import android.preference.PreferenceCategory;
++import android.preference.PreferenceScreen;
++import android.view.View;
++
++import com.android.settings.R;
++import com.android.settings.SettingsPreferenceFragment;
++
++import java.io.*;
++
++public class AppListPreference extends SettingsPreferenceFragment {
++
++       private PreferenceCategory mAppList;
++       private Context mContext;
++
++       @Override
++       public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++           mContext = getActivity();
++
++       Utils.setContext(mContext);
++
++       addPreferencesFromResource(R.xml.beerbong_dpi_group_app_list);
++
++       final PreferenceScreen prefSet = getPreferenceScreen();
++
++       mAppList = (PreferenceCategory)prefSet.findPreference("dpi_group_app_list");
++
++       Applications.BeerbongAppInfo[] items = Applications.getApplicationList(mContext);
++
++        mAppList.removeAll();
++
++        for (int i=0;i<items.length;i++) {
++            Preference pref = new Preference(mContext);
++            Applications.BeerbongAppInfo bAppInfo = items[i];
++
++            pref.setKey(bAppInfo.pack);
++            pref.setTitle(bAppInfo.name);
++            pref.setIcon(bAppInfo.icon);
++            pref.setLayoutResource(R.layout.simple_preference);
++
++            pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
++                public boolean onPreferenceClick(final Preference preference) {
++                    Applications.addApplication(mContext, preference.getKey());
++                    getActivity().getFragmentManager().popBackStackImmediate();
++                    return false;
++                }
++            });
++            mAppList.addPreference(pref);
++        }
++
++   }
++
++}
+diff --git a/src/com/android/settings/beerbong/Applications.java b/src/com/android/settings/beerbong/Applications.java
+new file mode 100644
+index 0000000..ee3427b
+--- /dev/null
++++ b/src/com/android/settings/beerbong/Applications.java
+@@ -0,0 +1,239 @@
++/*
++ * Copyright (C) 2010 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.beerbong;
++
++import android.app.ActivityManagerNative;
++import android.app.IActivityManager;
++import android.app.AlertDialog;
++import android.content.ContentResolver;
++import android.content.Context;
++import android.content.DialogInterface;
++import android.content.pm.*;
++import android.graphics.drawable.Drawable;
++import android.os.Bundle;
++import android.os.PowerManager;
++import android.os.UserHandle;
++import android.provider.Settings;
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++import android.widget.ArrayAdapter;
++import android.widget.ImageView;
++import android.widget.TextView;
++import android.widget.Toast;
++
++import com.android.settings.R;
++import com.android.settings.SettingsPreferenceFragment;
++
++import java.io.*;
++import java.util.*;
++
++public class Applications {
++
++    public static class BeerbongAppInfo {
++        public String name = "";
++        public String pack = "";
++        public Drawable icon;
++        public ApplicationInfo info;
++        public int dpi;
++    }
++
++    private static class AppComparator implements Comparator {
++        public int compare (Object o1, Object o2){
++            BeerbongAppInfo a1 = (BeerbongAppInfo)o1;
++            BeerbongAppInfo a2 = (BeerbongAppInfo)o2;
++            return a1.name.compareTo(a2.name);
++        }
++    }
++
++    private static final String APPEND_CMD = "echo \"%s=%s\" >> /system/etc/beerbong/properties.conf";
++    private static final String REPLACE_CMD = "busybox sed -i \"/%s/ c %<s=%s\" /system/etc/beerbong/properties.conf";
++    private static final String PROP_EXISTS_CMD = "grep -q %s /system/etc/beerbong/properties.conf";
++    private static final String REMOUNT_CMD = "busybox mount -o %s,remount -t yaffs2 /dev/block/mtdblock1 /system";
++
++    private static final CMDProcessor cmd = new CMDProcessor();
++
++    private static List<BeerbongAppInfo> appList = new ArrayList();
++    private static int mLastDpi = 0;
++
++    public static void addApplication(Context mContext, String packageName) {
++        addApplication(mContext, findAppInfo(mContext, packageName), mLastDpi);
++    }
++
++    public static void addApplication(Context mContext, BeerbongAppInfo app, int dpi) {
++
++        if (!mount("rw")) {
++            throw new RuntimeException("Could not remount /system rw");
++        }
++        try {
++            if (propExists(app.pack + ".dpi")) {
++                cmd.su.runWaitFor(String.format(REPLACE_CMD, app.pack + ".dpi", String.valueOf(dpi)));
++            } else {
++                cmd.su.runWaitFor(String.format(APPEND_CMD, app.pack + ".dpi", String.valueOf(dpi)));
++            }
++            if (app.pack.equals("com.android.systemui")) {
++                Utils.restartUI();
++            } else {
++                try {
++                    IActivityManager am = ActivityManagerNative.getDefault();
++                    am.forceStopPackage(app.pack, UserHandle.myUserId());
++                } catch (android.os.RemoteException ex) {
++                    // ignore
++                }
++            }
++        } finally {
++            mount("ro");
++        }
++        checkAutoBackup(mContext);
++    }
++
++    public static void removeApplication(Context mContext, String packageName) {
++        if (!mount("rw")) {
++            throw new RuntimeException("Could not remount /system rw");
++        }
++        try {
++            if (propExists(packageName)) {
++                cmd.su.runWaitFor(String.format(REPLACE_CMD, packageName + ".dpi", "0"));
++            }
++            if (packageName.equals("com.android.systemui")) {
++                Utils.restartUI();
++            } else {
++                try {
++                    IActivityManager am = ActivityManagerNative.getDefault();
++                    am.forceStopPackage(packageName, UserHandle.myUserId());
++                } catch (android.os.RemoteException ex) {
++                    // ignore
++                }
++            }
++        } finally {
++            mount("ro");
++        }
++        checkAutoBackup(mContext);
++    }
++
++    public static BeerbongAppInfo[] getApplicationList(Context mContext, int dpi) {
++
++        mLastDpi = dpi;
++
++        Properties properties = null;
++
++        try {
++            properties = new Properties();
++            properties.load(new FileInputStream("/system/etc/beerbong/properties.conf"));
++        } catch (Throwable t) {
++            throw new RuntimeException(t);
++        }
++
++        String sdpi = String.valueOf(dpi);
++
++        List<BeerbongAppInfo> items = new ArrayList();
++
++        Iterator it = properties.keySet().iterator();
++        while (it.hasNext()) {
++            String packageName = (String)it.next();
++            String currentdpi = properties.getProperty(packageName);
++            if (packageName.endsWith(".dpi") && sdpi.equals(currentdpi)) {
++                BeerbongAppInfo bAppInfo = findAppInfo(mContext, packageName);
++                items.add(bAppInfo);
++            }
++        }
++
++        Collections.sort(items, new AppComparator());
++
++        return items.toArray(new BeerbongAppInfo[items.size()]);
++    }
++
++    public static BeerbongAppInfo[] getApplicationList(Context mContext) {
++
++        Properties properties = null;
++
++        try {
++            properties = new Properties();
++            properties.load(new FileInputStream("/system/etc/beerbong/properties.conf"));
++        } catch (Throwable t) {
++            throw new RuntimeException(t);
++        }
++
++        PackageManager pm = mContext.getPackageManager();
++
++        List<ApplicationInfo> mPackageList = pm.getInstalledApplications(0);
++        BeerbongAppInfo[] items = new BeerbongAppInfo[mPackageList == null ? 0 : mPackageList.size()];
++
++        appList.clear();
++
++        for(int i=0; mPackageList != null && i<mPackageList.size(); i++) {
++            ApplicationInfo app = mPackageList.get(i);
++            items[i] = new BeerbongAppInfo();
++            items[i].name = (String)pm.getApplicationLabel(app);
++            items[i].icon = pm.getApplicationIcon(app);
++            items[i].pack = app.packageName;
++            items[i].info = app;
++            items[i].dpi = properties.getProperty(app.packageName) == null ? 0 : Integer.parseInt(properties.getProperty(app.packageName));
++            appList.add(items[i]);
++        }
++        Arrays.sort(items, new AppComparator());
++        return items;
++    }
++
++    public static void backup(Context mContext) {
++        Utils.execute(new String[] {
++            "cp /system/etc/beerbong/properties.conf /data/data/com.android.settings/files/properties.conf",
++            "chmod 644 /data/data/com.android.settings/files/properties.conf"
++        }, 0);
++        Toast.makeText(mContext, R.string.dpi_groups_backup_done, Toast.LENGTH_SHORT).show();
++    }
++
++    public static void restore(Context mContext) {
++        Utils.execute(new String[] {
++            Utils.MOUNT_SYSTEM_RW,
++            "cp /data/data/com.android.settings/files/properties.conf /system/etc/beerbong/properties.conf",
++            "chmod 644 /system/etc/beerbong/properties.conf",
++            Utils.MOUNT_SYSTEM_RO
++        }, 0);
++        Toast.makeText(mContext, R.string.dpi_groups_restore_done, Toast.LENGTH_SHORT).show();
++    }
++
++    private static void checkAutoBackup(Context mContext) {
++        boolean isAutoBackup = mContext.getSharedPreferences(DpiGroups.PREFS_NAME, 0).getBoolean(DpiGroups.PROPERTY_AUTO_BACKUP, false);
++        if (isAutoBackup) {
++            Utils.execute(new String[] {
++                "cp /system/etc/beerbong/properties.conf /data/data/com.android.settings/files/properties.conf",
++                "chmod 644 /data/data/com.android.settings/files/properties.conf"
++	        }, 0);
++            Toast.makeText(mContext, R.string.dpi_groups_backup_done, Toast.LENGTH_SHORT).show();
++        }
++    }
++    private static boolean mount(String read_value) {
++        return cmd.su.runWaitFor(String.format(REMOUNT_CMD, read_value)).success();
++    }
++    private static boolean propExists(String prop) {
++        return cmd.su.runWaitFor(String.format(PROP_EXISTS_CMD, prop)).success();
++    }
++    private static BeerbongAppInfo findAppInfo(Context mContext, String packageName) {
++        if (packageName.endsWith(".dpi")) {
++            packageName = packageName.substring(0, packageName.lastIndexOf(".dpi"));
++        }
++        if (appList.size() == 0) {
++            getApplicationList(mContext);
++        }
++        for (int i=0;i<appList.size();i++) {
++            BeerbongAppInfo app = appList.get(i);
++            if (app.pack.equals(packageName)) return app;
++        }
++        return null;
++    }
++}
+diff --git a/src/com/android/settings/beerbong/CMDProcessor.java b/src/com/android/settings/beerbong/CMDProcessor.java
+new file mode 100644
+index 0000000..91fd4f6
+--- /dev/null
++++ b/src/com/android/settings/beerbong/CMDProcessor.java
+@@ -0,0 +1,134 @@
++package com.android.settings.beerbong;
++
++import java.io.DataInputStream;
++import java.io.DataOutputStream;
++import java.io.InputStream;
++
++import android.util.Log;
++
++public class CMDProcessor {
++
++    private static final String TAG = "CMD Processor";
++    private Boolean can_su;
++    public SH sh;
++    public SH su;
++
++    public CMDProcessor() {
++        sh = new SH("sh");
++        su = new SH("su");
++    }
++
++    public SH suOrSH() {
++        return canSU() ? su : sh;
++    }
++
++    public boolean canSU() {
++        return canSU(false);
++    }
++
++    public class CommandResult {
++        public final String stdout;
++        public final String stderr;
++        public final Integer exit_value;
++
++        CommandResult(final Integer exit_value_in) {
++            this(exit_value_in, null, null);
++        }
++
++        CommandResult(final Integer exit_value_in, final String stdout_in,
++                final String stderr_in) {
++            exit_value = exit_value_in;
++            stdout = stdout_in;
++            stderr = stderr_in;
++        }
++
++        public boolean success() {
++            return exit_value != null && exit_value == 0;
++        }
++    }
++
++    public class SH {
++        private String SHELL = "sh";
++
++        public SH(final String SHELL_in) {
++            SHELL = SHELL_in;
++        }
++
++        private String getStreamLines(final InputStream is) {
++            String out = null;
++            StringBuffer buffer = null;
++            final DataInputStream dis = new DataInputStream(is);
++
++            try {
++                if (dis.available() > 0) {
++                    buffer = new StringBuffer(dis.readLine());
++                    while (dis.available() > 0) {
++                        buffer.append("\n").append(dis.readLine());
++                    }
++                }
++                dis.close();
++            } catch (final Exception ex) {
++                Log.e(TAG, ex.getMessage());
++            }
++            if (buffer != null) {
++                out = buffer.toString();
++            }
++            return out;
++        }
++
++        public Process run(final String s) {
++            Process process = null;
++            try {
++                process = Runtime.getRuntime().exec(SHELL);
++                final DataOutputStream toProcess = new DataOutputStream(
++                        process.getOutputStream());
++                toProcess.writeBytes("exec " + s + "\n");
++                toProcess.flush();
++            } catch (final Exception e) {
++                Log.e(TAG, "Exception while trying to run: '" + s + "' "
++                        + e.getMessage());
++                process = null;
++            }
++            return process;
++        }
++
++        public CommandResult runWaitFor(final String s) {
++            final Process process = run(s);
++            Integer exit_value = null;
++            String stdout = null;
++            String stderr = null;
++            if (process != null) {
++                try {
++                    exit_value = process.waitFor();
++
++                    stdout = getStreamLines(process.getInputStream());
++                    stderr = getStreamLines(process.getErrorStream());
++
++                } catch (final InterruptedException e) {
++                    Log.e(TAG, "runWaitFor " + e.toString());
++                } catch (final NullPointerException e) {
++                    Log.e(TAG, "runWaitFor " + e.toString());
++                }
++            }
++            return new CommandResult(exit_value, stdout, stderr);
++        }
++    }
++
++    public boolean canSU(final boolean force_check) {
++        if (can_su == null || force_check) {
++            final CommandResult r = su.runWaitFor("id");
++            final StringBuilder out = new StringBuilder();
++
++            if (r.stdout != null) {
++                out.append(r.stdout).append(" ; ");
++            }
++            if (r.stderr != null) {
++                out.append(r.stderr);
++            }
++
++            Log.d(TAG, "canSU() su[" + r.exit_value + "]: " + out);
++            can_su = r.success();
++        }
++        return can_su;
++    }
++}
+diff --git a/src/com/android/settings/beerbong/CustomDpiGroupPreference.java b/src/com/android/settings/beerbong/CustomDpiGroupPreference.java
+new file mode 100644
+index 0000000..a1dd27e
+--- /dev/null
++++ b/src/com/android/settings/beerbong/CustomDpiGroupPreference.java
+@@ -0,0 +1,109 @@
++package com.android.settings.beerbong;
++
++import android.content.Context;
++import android.content.SharedPreferences;
++import android.preference.SeekBarDialogPreference;
++import android.util.AttributeSet;
++import android.view.View;
++import android.widget.SeekBar;
++import android.widget.TextView;
++import android.widget.Toast;
++
++import com.android.settings.R;
++
++import java.util.ArrayList;
++import java.util.Collections;
++
++public class CustomDpiGroupPreference extends SeekBarDialogPreference implements SeekBar.OnSeekBarChangeListener {
++
++    private DpiGroups mDpiGroups;
++    private SeekBar mSeekBar;
++    private TextView mText;
++    private Context mContext;
++
++    private ArrayList<Integer> mGroupsList;
++
++    private int mCustomDpi = -1;
++
++    private static final int SEEK_BAR_RANGE = 480 - 120;
++
++    public CustomDpiGroupPreference(Context context, AttributeSet attrs) {
++        super(context, attrs);
++
++        mContext = context;
++
++        setDialogLayoutResource(R.layout.preference_dialog_dpigroup);
++
++        loadGroups();
++    }
++
++    @Override
++    protected void onBindDialogView(View view) {
++        super.onBindDialogView(view);
++
++        mSeekBar = getSeekBar(view);
++        mSeekBar.setMax(SEEK_BAR_RANGE);
++        mSeekBar.setProgress(213 - 120);
++
++        mSeekBar.setOnSeekBarChangeListener(this);
++
++        mText = (TextView)view.findViewById(R.id.text_dpi);
++        mText.setText(mContext.getResources().getString(R.string.custom_dpi) + " 213");
++    }
++
++    public void onProgressChanged(SeekBar seekBar, int progress,
++            boolean fromTouch) {
++        mCustomDpi = mSeekBar.getProgress() + 120;
++        mText.setText(mContext.getResources().getString(R.string.custom_dpi) + " " + mCustomDpi);
++    }
++    public void onStartTrackingTouch(SeekBar seekBar) {
++        // NA
++    }
++    public void onStopTrackingTouch(SeekBar seekBar) {
++        // NA
++    }
++    @Override
++    protected void onDialogClosed(boolean positiveResult) {
++        super.onDialogClosed(positiveResult);
++
++        if (positiveResult) {
++            // if dpi group exists show toast and return, otherwise create group
++            if (mGroupsList.indexOf(mCustomDpi) >= 0) {
++                Toast.makeText(mContext, R.string.customdpigroup_group_exists, Toast.LENGTH_SHORT).show();
++            } else {
++                mGroupsList.add(mCustomDpi);
++                Collections.sort(mGroupsList);
++                saveGroups();
++            }
++        }
++    }
++    public void setDpiGroups(DpiGroups dpiGroups) {
++        mDpiGroups = dpiGroups;
++    }
++
++    private void loadGroups() {
++        String list = mContext.getSharedPreferences(DpiGroups.PREFS_NAME, 0).getString(DpiGroups.PROPERTY_CUSTOM_DPI_LIST, DpiGroups.DEFAULT_GROUPS);
++        String[] groupsStringArray = list.split("\\|");
++        mGroupsList = new ArrayList<Integer>();
++        for (String s : groupsStringArray) {
++            if(s != null && s != "") {
++                mGroupsList.add(Integer.parseInt(s));
++            }
++        }
++    }
++    private void saveGroups() {
++
++        String groups = "";
++
++        for (int s : mGroupsList)
++            groups += s + "|";
++            
++        SharedPreferences settings = mContext.getSharedPreferences(DpiGroups.PREFS_NAME, 0);
++        SharedPreferences.Editor editor = settings.edit();
++        editor.putString(DpiGroups.PROPERTY_CUSTOM_DPI_LIST, groups);
++        editor.commit();
++
++        mDpiGroups.updateGroups();
++    }
++}
++
+diff --git a/src/com/android/settings/beerbong/DisplaySettings.java b/src/com/android/settings/beerbong/DisplaySettings.java
+new file mode 100644
+index 0000000..28c8349
+--- /dev/null
++++ b/src/com/android/settings/beerbong/DisplaySettings.java
+@@ -0,0 +1,105 @@
++/*
++ * Copyright (C) 2010 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.beerbong;
++
++import android.app.Activity;
++import android.app.ActivityManagerNative;
++import android.app.AlertDialog;
++import android.app.admin.DevicePolicyManager;
++import android.content.ContentResolver;
++import android.content.Context;
++import android.content.Intent;
++import android.content.DialogInterface;
++import android.content.res.Configuration;
++import android.content.res.Resources;
++import android.database.ContentObserver;
++import android.view.Display;
++import android.view.LayoutInflater;
++import android.view.Menu;
++import android.view.MenuInflater;
++import android.view.MenuItem;
++import android.view.Window;
++import android.view.View;
++import android.view.ViewGroup;
++import android.graphics.Rect;
++import android.graphics.Bitmap;
++import android.graphics.BitmapFactory;
++import android.net.Uri;
++import android.os.Bundle;
++import android.os.RemoteException;
++import android.os.Handler;
++import android.preference.CheckBoxPreference;
++import android.preference.ListPreference;
++import android.preference.Preference;
++import android.preference.PreferenceCategory;
++import android.preference.PreferenceScreen;
++import android.provider.MediaStore;
++import android.provider.Settings;
++import android.provider.Settings.SettingNotFoundException;
++import android.widget.EditText;
++import android.widget.AdapterView.AdapterContextMenuInfo;
++import android.text.Spannable;
++import android.util.Log;
++import android.content.pm.PackageManager;
++import android.content.pm.ResolveInfo;
++import android.widget.Toast;
++import android.widget.SeekBar;
++import android.widget.SeekBar.OnSeekBarChangeListener;
++
++import com.android.settings.R;
++import com.android.settings.SettingsPreferenceFragment;
++import com.android.internal.view.RotationPolicy;
++import com.android.settings.DreamSettings;
++import com.android.settings.cyanogenmod.DisplayRotation;
++import java.util.ArrayList;
++import java.util.List;
++import java.io.*;
++
++public class DisplaySettings extends SettingsPreferenceFragment {
++
++    private static final String TAG = "BeerbongDisplaySettings";
++
++    private static final String PREF_FORCE_DUAL_PANEL = "force_dualpanel";
++
++    private CheckBoxPreference mDualpane;
++
++    private Context mContext;
++
++    @Override
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++	    mContext = getActivity();
++	    Utils.setContext(mContext);
++        ContentResolver resolver = getActivity().getContentResolver();
++
++        addPreferencesFromResource(R.xml.beerbong_display_settings);
++
++	    mDualpane = (CheckBoxPreference) findPreference(PREF_FORCE_DUAL_PANEL);
++        mDualpane.setChecked(Settings.System.getBoolean(mContext.getContentResolver(), Settings.System.FORCE_DUAL_PANEL, false));
++
++    }
++
++    @Override
++    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
++        if (preference == mDualpane) {
++            Settings.System.putBoolean(mContext.getContentResolver(), Settings.System.FORCE_DUAL_PANEL, ((CheckBoxPreference) preference).isChecked());
++            return true;
++        }
++
++        return super.onPreferenceTreeClick(preferenceScreen, preference);
++    }
++}
+diff --git a/src/com/android/settings/beerbong/DpiGroupFragment.java b/src/com/android/settings/beerbong/DpiGroupFragment.java
+new file mode 100644
+index 0000000..fde9bc8
+--- /dev/null
++++ b/src/com/android/settings/beerbong/DpiGroupFragment.java
+@@ -0,0 +1,129 @@
++package com.android.settings.beerbong;
++
++import android.app.ActivityManagerNative;
++import android.app.IActivityManager;
++import android.app.AlertDialog;
++import android.content.ContentResolver;
++import android.content.Context;
++import android.content.DialogInterface;
++import android.content.pm.*;
++import android.content.res.TypedArray;
++import android.graphics.drawable.Drawable;
++import android.os.Bundle;
++import android.os.PowerManager;
++import android.preference.EditTextPreference;
++import android.preference.ListPreference;
++import android.preference.Preference;
++import android.preference.PreferenceCategory;
++import android.preference.PreferenceScreen;
++import android.preference.Preference.OnPreferenceClickListener;
++import android.provider.Settings;
++import android.util.AttributeSet;
++import android.view.LayoutInflater;
++import android.view.View;
++import android.view.ViewGroup;
++import android.widget.ArrayAdapter;
++import android.widget.ImageView;
++import android.widget.TextView;
++import android.widget.Toast;
++
++import com.android.settings.R;
++import com.android.settings.SettingsPreferenceFragment;
++
++import java.io.*;
++import java.util.*;
++
++public class DpiGroupFragment extends SettingsPreferenceFragment {
++
++    private PreferenceCategory mAppList;
++    private Context mContext;
++
++    private int mDpi = -1;
++
++    public DpiGroupFragment() {
++
++    }
++
++    @Override
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++
++        //mDpi = getArguments().getInt("dpi");
++
++        mContext = getActivity();
++
++        Utils.setContext(mContext);
++
++        addPreferencesFromResource(R.xml.beerbong_dpi_group);
++
++        PreferenceScreen prefSet = getPreferenceScreen();
++
++        PreferenceCategory tit = (PreferenceCategory)prefSet.findPreference("dpi_group_fragment_title");
++        tit.setTitle(getDpi() + " DPI");
++
++        mAppList = (PreferenceCategory)prefSet.findPreference("app_list");
++
++        updateList();
++    }
++
++    public int getDpi() {
++        return mDpi;
++    }
++    public void setDpi(int dpi) {
++        mDpi = dpi;
++    }
++
++    @Override
++    public void onResume() {
++        super.onResume();
++        updateList();
++    }
++
++    private void updateList() {
++
++        Applications.BeerbongAppInfo[] items = Applications.getApplicationList(mContext, getDpi());
++
++        mAppList.removeAll();
++
++        for (int i=0;i<items.length;i++) {
++            Preference pref = new Preference(mContext);
++            Applications.BeerbongAppInfo bAppInfo = items[i];
++
++            pref.setKey(bAppInfo.pack);
++            pref.setTitle(bAppInfo.name);
++            pref.setIcon(bAppInfo.icon);
++            pref.setLayoutResource(R.layout.simple_preference);
++
++            pref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
++                public boolean onPreferenceClick(final Preference preference) {
++                    AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
++                    alert.setTitle(R.string.dpi_groups_alert_remove_app);
++
++                    String title = (String)preference.getTitle();
++
++                    String summary = mContext.getResources().getString(R.string.dpi_groups_remove_app, new Object[] {title});
++
++                    alert.setMessage(summary);
++
++                    alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
++                        public void onClick(DialogInterface dialog, int whichButton) {
++                            dialog.dismiss();
++                            Applications.removeApplication(mContext, preference.getKey());
++                            updateList();
++                        }
++                    });
++                    alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
++                        public void onClick(DialogInterface dialog, int whichButton) {
++                            dialog.dismiss();
++                        }
++                    });
++
++                    alert.show();
++
++                    return false;
++                }
++            });
++            mAppList.addPreference(pref);
++        }
++    }
++}
+diff --git a/src/com/android/settings/beerbong/DpiGroupPreference.java b/src/com/android/settings/beerbong/DpiGroupPreference.java
+new file mode 100644
+index 0000000..eba1774
+--- /dev/null
++++ b/src/com/android/settings/beerbong/DpiGroupPreference.java
+@@ -0,0 +1,91 @@
++package com.android.settings.beerbong;
++
++import android.app.AlertDialog;
++import android.app.FragmentTransaction;
++import android.content.Context;
++import android.content.DialogInterface;
++import android.content.SharedPreferences;
++import android.preference.*;
++import android.view.View;
++import android.view.ViewGroup;
++import android.view.View.OnClickListener;
++import android.view.View.OnLongClickListener;
++
++import com.android.settings.R;
++
++public class DpiGroupPreference extends Preference {
++
++    private DpiGroups mDpiGroups;
++    private Context mContext;
++
++    private int mDpi = -1;
++
++    public DpiGroupPreference(Context context, DpiGroups dpiGroups, int dpi) {
++        super(context);
++        mContext = context;
++        mDpiGroups = dpiGroups;
++        mDpi = dpi;
++    }
++    public int getDpi() {
++        return mDpi;
++    }
++
++    protected View onCreateView(ViewGroup parent) {
++        View layout = super.onCreateView(parent);
++
++        layout.setOnClickListener(new OnClickListener() {
++            public void onClick(View v) {
++
++                FragmentTransaction ft = mDpiGroups.getFragmentManager().beginTransaction();
++                DpiGroupFragment fragment = new DpiGroupFragment();
++                fragment.setDpi(mDpi);
++                ft.addToBackStack("dpi_group");
++                ft.replace(mDpiGroups.getId(), fragment);
++                ft.commit();
++            }
++         });
++
++        layout.setOnLongClickListener(new OnLongClickListener() {
++            public boolean onLongClick(View v) {
++
++                final int dpi = DpiGroupPreference.this.getDpi();
++
++                AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
++                alert.setTitle(R.string.dpi_groups_delete_title);
++                alert.setMessage(R.string.dpi_groups_delete_summary);
++
++                alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
++                    public void onClick(DialogInterface dialog, int whichButton) {
++                        dialog.dismiss();
++
++                        String list = mContext.getSharedPreferences(DpiGroups.PREFS_NAME, 0).getString(DpiGroups.PROPERTY_CUSTOM_DPI_LIST, DpiGroups.DEFAULT_GROUPS);
++                        String[] groupsStringArray = list.split("\\|");
++                        String groups = "";
++                        for (String s : groupsStringArray) {
++                            if(s != null && s != "" && Integer.parseInt(s) != dpi) {
++                                groups += s + "|";
++                            }
++                        }
++
++                        SharedPreferences settings = mContext.getSharedPreferences(DpiGroups.PREFS_NAME, 0);
++                        SharedPreferences.Editor editor = settings.edit();
++                        editor.putString(DpiGroups.PROPERTY_CUSTOM_DPI_LIST, groups);
++                        editor.commit();
++                        mDpiGroups.updateGroups();
++                    }
++                });
++                alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
++                    public void onClick(DialogInterface dialog, int whichButton) {
++                        dialog.dismiss();
++                    }
++                });
++
++                alert.show();
++
++                return true;
++            }
++        });
++
++        return layout;
++    }
++}
+diff --git a/src/com/android/settings/beerbong/DpiGroups.java b/src/com/android/settings/beerbong/DpiGroups.java
+new file mode 100644
+index 0000000..b2acd7a
+--- /dev/null
++++ b/src/com/android/settings/beerbong/DpiGroups.java
+@@ -0,0 +1,178 @@
++package com.android.settings.beerbong;
++
++import android.app.AlertDialog;
++import android.content.ContentResolver;
++import android.content.Context;
++import android.content.DialogInterface;
++import android.content.SharedPreferences;
++import android.os.Bundle;
++import android.os.PowerManager;
++import android.preference.*;
++import android.preference.Preference.OnPreferenceClickListener;
++import android.provider.Settings;
++import android.view.View;
++import android.widget.Toast;
++
++import com.android.settings.R;
++import com.android.settings.SettingsPreferenceFragment;
++
++import java.io.*;
++import java.util.*;
++
++/**
++ * @author beerbong
++ * @version 1.0
++ */
++
++public class DpiGroups extends SettingsPreferenceFragment {
++
++    protected static final String PREFS_NAME = "custom_dpi_groups_preference";
++    protected static final String PROPERTY_CUSTOM_DPI_LIST = "custom_dpi_groups";
++    protected static final String PROPERTY_AUTO_BACKUP = "auto_backup";
++    protected static final String DEFAULT_GROUPS = "120|160|213|240|320|480";
++
++    private CheckBoxPreference mAutoBackup;
++    private Preference mBackup;
++    private Preference mRestore;
++    private PreferenceCategory mCategory;
++    private CustomDpiGroupPreference mCustomDpi;
++    private Preference mRestoreDefault;
++
++    private Context mContext;
++
++    private Properties properties;
++
++    private String mGroupsString;
++
++    @Override
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        mContext = getActivity();
++
++        Utils.setContext(mContext);
++
++        addPreferencesFromResource(R.xml.beerbong_dpi_groups_settings);
++
++        PreferenceScreen prefSet = getPreferenceScreen();
++        mAutoBackup = (CheckBoxPreference)prefSet.findPreference("dpi_groups_auto_backup");
++        mBackup = prefSet.findPreference("dpi_groups_backup");
++        mRestore = prefSet.findPreference("dpi_groups_restore");
++        mCategory = (PreferenceCategory)prefSet.findPreference("dpi_groups_category");
++        mCustomDpi = (CustomDpiGroupPreference)prefSet.findPreference("customdpigroup");
++        mRestoreDefault = prefSet.findPreference("dpi_groups_restore_default");
++
++        boolean isAutoBackup = mContext.getSharedPreferences(PREFS_NAME, 0).getBoolean(PROPERTY_AUTO_BACKUP, false);
++
++        mAutoBackup.setChecked(isAutoBackup);
++
++        mCustomDpi.setDpiGroups(this);
++    }
++
++    @Override
++    public void onResume() {
++        super.onResume();
++        updateGroups();
++    }
++
++    @Override
++    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
++        if (preference == mBackup) {
++            Applications.backup(mContext);
++            mRestore.setEnabled(true);
++        } else if (preference == mRestore) {
++            Applications.restore(mContext);
++        } else if (preference == mAutoBackup) {
++            SharedPreferences settings = mContext.getSharedPreferences(DpiGroups.PREFS_NAME, 0);
++            SharedPreferences.Editor editor = settings.edit();
++            editor.putBoolean(DpiGroups.PROPERTY_AUTO_BACKUP, ((CheckBoxPreference) preference).isChecked());
++            editor.commit();
++            updateGroups();
++        } else if (preference == mRestoreDefault) {
++            AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
++            alert.setTitle(R.string.dpi_groups_restore_default_title);
++            alert.setMessage(R.string.dpi_groups_restore_default_summary);
++
++            alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
++                public void onClick(DialogInterface dialog, int whichButton) {
++                    dialog.dismiss();
++                    SharedPreferences settings = mContext.getSharedPreferences(DpiGroups.PREFS_NAME, 0);
++                    SharedPreferences.Editor editor = settings.edit();
++                    editor.putString(DpiGroups.PROPERTY_CUSTOM_DPI_LIST, DEFAULT_GROUPS);
++                    editor.commit();
++                    updateGroups();
++                }
++            });
++            alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
++                public void onClick(DialogInterface dialog, int whichButton) {
++                    dialog.dismiss();
++                }
++            });
++
++            alert.show();
++        }
++        return super.onPreferenceTreeClick(preferenceScreen, preference);
++    }
++
++    private void updateProperties() {
++        try {
++            properties = new Properties();
++            properties.load(new FileInputStream("/system/etc/beerbong/properties.conf"));
++        } catch (Throwable t) {
++            throw new RuntimeException(t);
++        }
++    }
++    protected void updateGroups() {
++
++        long time = System.currentTimeMillis();
++
++        File f = new File("/data/data/com.android.settings/files/properties.conf");
++        mRestore.setEnabled(f.exists());
++
++        updateProperties();
++
++        mGroupsString = mContext.getSharedPreferences(PREFS_NAME, 0).getString(PROPERTY_CUSTOM_DPI_LIST, DEFAULT_GROUPS);
++        String[] groupsStringArray = mGroupsString.split("\\|");
++        ArrayList<Integer> mGroupsList = new ArrayList<Integer>();
++        for (String s : groupsStringArray) {
++            if(s != null && s != "") {
++                mGroupsList.add(Integer.parseInt(s));
++            }
++        }
++
++        Map<String, Integer> hashMap = new HashMap();
++        Iterator it = properties.keySet().iterator();
++        while (it.hasNext()) {
++            String packageName = (String)it.next();
++            if (packageName.endsWith(".dpi")) {
++
++                String dpi = properties.getProperty(packageName);
++
++                if (!"0".equals(dpi) && mGroupsList.indexOf(Integer.parseInt(dpi)) < 0) {
++                    Applications.removeApplication(mContext, packageName.substring(0, packageName.indexOf(".dpi")));
++                } else {
++
++                    if (hashMap.get(dpi) == null) hashMap.put(dpi, 0);
++                    int count = hashMap.get(dpi);
++                    count++;
++                    hashMap.put(dpi, count);
++                }
++            }
++        }
++
++        mCategory.removeAll();
++
++        for (int i=0;i<mGroupsList.size();i++) {
++
++            int dpi = mGroupsList.get(i);
++            int count = hashMap.get(String.valueOf(dpi)) == null ? 0 : hashMap.get(String.valueOf(dpi));
++
++            DpiGroupPreference pGroup = new DpiGroupPreference(mContext, this, dpi);
++            pGroup.setOrder(Preference.DEFAULT_ORDER);
++            pGroup.setTitle(dpi + " " + mContext.getResources().getString(R.string.dpi_group_title));
++            pGroup.setSummary(count + " " + getResources().getString(R.string.dpi_groups_apps));
++
++            mCategory.addPreference(pGroup);
++        }
++
++    }    
++}
+diff --git a/src/com/android/settings/beerbong/DpiPreferences.java b/src/com/android/settings/beerbong/DpiPreferences.java
+new file mode 100644
+index 0000000..e548d1a
+--- /dev/null
++++ b/src/com/android/settings/beerbong/DpiPreferences.java
+@@ -0,0 +1,97 @@
++package com.android.settings.beerbong;
++
++import android.content.ContentResolver;
++import android.content.Context;
++import android.os.Bundle;
++import android.os.PowerManager;
++import android.preference.EditTextPreference;
++import android.preference.ListPreference;
++import android.preference.Preference;
++import android.preference.Preference.OnPreferenceChangeListener;
++import android.preference.Preference.OnPreferenceClickListener;
++import android.preference.PreferenceScreen;
++import android.view.View;
++
++import com.android.settings.R;
++import com.android.settings.SettingsPreferenceFragment;
++
++import java.io.*;
++
++/**
++ * @author beerbong
++ * @version 1.0
++ */
++
++public class DpiPreferences extends SettingsPreferenceFragment implements OnPreferenceChangeListener, OnPreferenceClickListener {
++
++    private static final String PROPERTY = "qemu.sf.lcd_density";
++    private static final String TAG = "beerbong/Dpi";
++
++    private static final String DPI_PREF = "system_dpi_window";
++    private static final String CUSTOM_DPI_PREF = "custom_dpi_text";
++
++    private ListPreference mDpiWindow;
++    private EditTextPreference mCustomDpi;
++    private Context mContext;
++
++    @Override
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        mContext = getActivity();
++
++        Utils.setContext(mContext);
++
++        addPreferencesFromResource(R.xml.beerbong_dpi_settings);
++
++        PreferenceScreen prefSet = getPreferenceScreen();
++        ContentResolver cr = getActivity().getApplicationContext().getContentResolver();
++
++        String prop = Utils.getProperty(PROPERTY);
++
++        mDpiWindow = (ListPreference) prefSet.findPreference(DPI_PREF);
++        mDpiWindow.setValue(prop);
++        mDpiWindow.setOnPreferenceChangeListener(this);
++
++        mCustomDpi = (EditTextPreference) findPreference(CUSTOM_DPI_PREF);
++        mCustomDpi.setOnPreferenceClickListener(this);
++
++    }
++    @Override
++    public boolean onPreferenceClick(Preference preference) {
++
++        if (preference == mCustomDpi) {
++            final String prop = Utils.getProperty(PROPERTY);
++            mCustomDpi.getEditText().setText(prop);
++            mCustomDpi.getEditText().setSelection(prop.length());
++            mCustomDpi.getDialog().findViewById(android.R.id.button1).setOnClickListener(new View.OnClickListener() {
++                @Override
++                public void onClick(View v) {
++                    int value = 213;
++                    try {
++                        value = Integer.parseInt(mCustomDpi.getEditText().getText().toString());
++                    } catch (Throwable t) {}
++                    if (value < 120) value = 120;
++                    else if (value > 480) value = 480;
++                    Utils.setProperty(PROPERTY, String.valueOf(value), true);
++                    mCustomDpi.getDialog().dismiss();
++                    if (!prop.equals(String.valueOf(value))) {
++                        Utils.reboot();
++                    }
++                }
++            });
++            return true;
++        }
++        return false;
++    }
++    public boolean onPreferenceChange(Preference preference, Object newValue) {
++        if (preference == mDpiWindow) {
++            String prop = Utils.getProperty(PROPERTY);
++            Utils.setProperty(PROPERTY, newValue.toString(), true);
++            if (!prop.equals(newValue.toString())) {
++                Utils.reboot();
++            }
++            return true;
++        }
++        return false;
++    }
++}
+diff --git a/src/com/android/settings/beerbong/Settings.java b/src/com/android/settings/beerbong/Settings.java
+new file mode 100644
+index 0000000..e2bd35e
+--- /dev/null
++++ b/src/com/android/settings/beerbong/Settings.java
+@@ -0,0 +1,41 @@
++/*
++ * Copyright (C) 2010 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.beerbong;
++
++import android.os.Bundle;
++import android.preference.Preference;
++
++import com.android.settings.R;
++import com.android.settings.SettingsPreferenceFragment;
++
++public class Settings extends SettingsPreferenceFragment implements Preference.OnPreferenceChangeListener {
++
++    private static final String TAG = "BeerbongSettings";
++
++    @Override
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++
++    Utils.setContext(getActivity());
++
++        addPreferencesFromResource(R.xml.beerbong_settings);
++
++    }
++    public boolean onPreferenceChange(Preference preference, Object objValue) {
++        return false;
++    }
++}
+diff --git a/src/com/android/settings/beerbong/Utils.java b/src/com/android/settings/beerbong/Utils.java
+new file mode 100644
+index 0000000..18b3208
+--- /dev/null
++++ b/src/com/android/settings/beerbong/Utils.java
+@@ -0,0 +1,202 @@
++package com.android.settings.beerbong;
++
++import android.content.Context;
++import android.content.DialogInterface;
++import android.app.AlertDialog;
++import android.os.PowerManager;
++
++import com.android.settings.R;
++
++import java.io.*;
++import java.util.*;
++
++public class Utils {
++
++    public static final String MOUNT_SYSTEM_RW = "busybox mount -o rw,remount /system";
++    public static final String MOUNT_SYSTEM_RO = "busybox mount -o ro,remount /system";
++
++    private static Context mContext;
++
++    public static void setContext(Context mc) {
++        mContext = mc;
++    }
++    /*public static int mapChosenDpToPixels(int dp) {
++        switch (dp) {
++            case 48:
++                return mContext.getResources().getDimensionPixelSize(R.dimen.navigation_bar_48);
++            case 44:
++                return mContext.getResources().getDimensionPixelSize(R.dimen.navigation_bar_44);
++            case 42:
++                return mContext.getResources().getDimensionPixelSize(R.dimen.navigation_bar_42);
++            case 40:
++                return mContext.getResources().getDimensionPixelSize(R.dimen.navigation_bar_40);
++            case 36:
++                return mContext.getResources().getDimensionPixelSize(R.dimen.navigation_bar_36);
++            case 30:
++                return mContext.getResources().getDimensionPixelSize(R.dimen.navigation_bar_30);
++            case 24:
++                return mContext.getResources().getDimensionPixelSize(R.dimen.navigation_bar_24);
++        }
++        return -1;
++    }*/
++
++    public static Iterator sortedIterator(Iterator it, Comparator comparator) {
++        List list = new ArrayList();
++        while (it.hasNext()) {
++            list.add(it.next());
++        }
++
++        Collections.sort(list, comparator);
++        return list.iterator();
++    }
++    public static void setProperty(String property, String value){
++    setProperty(property, value, false);
++    }
++    public static void setProperty(String property, String value, boolean toData){
++        if(readFile("/system/build.prop").contains(property + "="))
++            execute(new String[]{
++                MOUNT_SYSTEM_RW,
++                "cd /system",
++                "busybox sed -i 's|^"+property+"=.*|"+property+"=" + value + "|' build.prop",
++                "busybox chmod 644 build.prop",
++                MOUNT_SYSTEM_RO
++            }, 0);
++        else
++            execute(new String[]{
++                MOUNT_SYSTEM_RW,
++                "cd /system",
++                "chmod 777 build.prop",
++                "busybox printf \"\\n%b\" " + property + "=" + value + " >> build.prop",
++                "busybox chmod 644 build.prop",
++                MOUNT_SYSTEM_RO
++            }, 0);
++        if (toData) {
++            String fileName = "/data/local.prop";
++            File file = new File(fileName);
++            if (!file.exists()) {
++                writeFile(fileName, new String[] {property + "=" + value});
++            } else if(readFile(fileName).contains(property + "=")) {
++                execute(new String[]{
++                    "cd /data",
++                    "busybox sed -i 's|^"+property+"=.*|"+property+"=" + value + "|' local.prop",
++                }, 0);
++            } else {
++                execute(new String[]{
++                    "cd /data",
++                    "busybox printf \"\\n%b\" " + property + "=" + value + " >> local.prop"
++                }, 0);
++            }
++        }
++    }
++    public static String getProperty(String prop) {
++        try {
++            String output = null;
++            Process p = Runtime.getRuntime().exec("getprop "+prop);
++            p.waitFor();
++            BufferedReader input = new BufferedReader (new InputStreamReader(p.getInputStream()));
++            output = input.readLine();
++            return output;
++        } catch (Exception e) {
++            e.printStackTrace();
++            return null;
++        }
++    }
++    public static void restartUI() {
++        execute(new String[] {"pkill -TERM -f com.android.systemui"}, 0);
++    }
++    public static void reboot() {
++        AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
++        alert.setTitle(R.string.alert_reboot);
++        alert.setMessage(mContext.getString(R.string.alert_reboot_message));
++        alert.setPositiveButton(R.string.alert_yes, new DialogInterface.OnClickListener() {
++                public void onClick(DialogInterface dialog, int whichButton) {
++                    dialog.dismiss();
++                    PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
++                    pm.reboot("Settings Triggered Reboot");
++                }
++        });
++        alert.setNegativeButton(R.string.alert_no, new DialogInterface.OnClickListener() {
++            public void onClick(DialogInterface dialog, int which) {
++                dialog.dismiss();
++            }
++        });
++        alert.show();
++    }
++    public static boolean execute(String command){
++        return execute(new String[]{
++            MOUNT_SYSTEM_RW,
++            command,
++            MOUNT_SYSTEM_RO
++        },0);
++    }
++    public static boolean execute(String[] command, int wait) {
++        if(wait!=0){
++            try {
++                Thread.sleep(wait);
++            } catch (Exception e) {
++                e.printStackTrace();
++            }
++        }
++        Process proc;
++        try {
++            proc = Runtime.getRuntime().exec("su");
++            DataOutputStream os = new DataOutputStream(proc.getOutputStream());
++            for (String tmpCmd : command) {
++                os.writeBytes(tmpCmd+"\n");
++            }
++            os.flush();
++            os.close();
++            proc.waitFor();
++            return true;
++        } catch (IOException e) {
++            e.printStackTrace();
++            return false;
++        } catch (InterruptedException e) {
++          e.printStackTrace();
++          return false;
++        }
++    }
++    public static void writeFile(String filename, String[] lines) {
++        try {
++            boolean isSystem = filename.indexOf("system/") >= 0;
++            if (isSystem) {
++                execute(new String[]{MOUNT_SYSTEM_RW},0);
++            }
++            FileOutputStream out = null;
++            try {
++                out = new FileOutputStream(filename);
++                for (int i=0;i<lines.length;i++){
++                    out.write((lines[i] + "\n").getBytes());
++                }
++            } finally {
++                if (out != null) {
++                    out.close();
++                }
++                if (isSystem) {
++                    execute(new String[]{MOUNT_SYSTEM_RO},0);
++                }
++            }
++        } catch (Throwable t) {
++            t.printStackTrace();
++        }
++    }
++    public static String readFile(String filename) {
++        try {
++            BufferedReader reader = new BufferedReader(new FileReader(filename), 256);
++            StringBuffer sb = new StringBuffer();
++            try {
++                String linea = reader.readLine();
++                while (linea != null) {
++                    sb.append(linea + "\n");
++                    linea = reader.readLine();
++                }
++            } finally {
++                reader.close();
++            }
++            return sb.toString();
++        } catch (Throwable t) {
++            t.printStackTrace();
++            return "";
++        }
++    }
++}
+diff --git a/src/com/android/settings/beerbong/VisualizationSettings.java b/src/com/android/settings/beerbong/VisualizationSettings.java
+new file mode 100644
+index 0000000..a29826b
+--- /dev/null
++++ b/src/com/android/settings/beerbong/VisualizationSettings.java
+@@ -0,0 +1,127 @@
++/*
++ * Copyright (C) 2010 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.beerbong;
++
++import android.app.Activity;
++import android.app.ActivityManagerNative;
++import android.app.AlertDialog;
++import android.app.admin.DevicePolicyManager;
++import android.content.ContentResolver;
++import android.content.Context;
++import android.content.Intent;
++import android.content.DialogInterface;
++import android.content.res.Configuration;
++import android.content.res.Resources;
++import android.database.ContentObserver;
++import android.view.Display;
++import android.view.LayoutInflater;
++import android.view.Menu;
++import android.view.MenuInflater;
++import android.view.MenuItem;
++import android.view.Window;
++import android.view.View;
++import android.view.ViewGroup;
++import android.graphics.Rect;
++import android.graphics.Bitmap;
++import android.graphics.BitmapFactory;
++import android.net.Uri;
++import android.os.Bundle;
++import android.os.RemoteException;
++import android.os.Handler;
++import android.preference.CheckBoxPreference;
++import android.preference.ListPreference;
++import android.preference.Preference;
++import android.preference.PreferenceCategory;
++import android.preference.PreferenceScreen;
++import android.provider.MediaStore;
++import android.provider.Settings;
++import android.provider.Settings.SettingNotFoundException;
++import android.widget.EditText;
++import android.widget.AdapterView.AdapterContextMenuInfo;
++import android.text.Spannable;
++import android.util.Log;
++import android.content.pm.PackageManager;
++import android.content.pm.ResolveInfo;
++import android.widget.Toast;
++import android.widget.SeekBar;
++import android.widget.SeekBar.OnSeekBarChangeListener;
++
++import com.android.settings.R;
++import com.android.settings.SettingsPreferenceFragment;
++import com.android.internal.view.RotationPolicy;
++import com.android.settings.DreamSettings;
++import com.android.settings.cyanogenmod.DisplayRotation;
++import java.util.ArrayList;
++import java.util.List;
++import java.io.*;
++
++public class VisualizationSettings extends SettingsPreferenceFragment implements Preference.OnPreferenceChangeListener {
++
++    private static final String TAG = "BeerbongVisualizationSettings";
++
++    private static final String PREF_UI_MODE = "ui_mode";
++
++    private PreferenceScreen mDpiScreen;
++    private ListPreference mUimode;
++
++    private Context mContext;
++
++    @Override
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        mContext = getActivity();
++        Utils.setContext(mContext);
++        ContentResolver resolver = getActivity().getContentResolver();
++
++        addPreferencesFromResource(R.xml.beerbong_visualization_settings);
++
++        mDpiScreen = (PreferenceScreen) findPreference("system_dpi");
++        updateDensityTextSummary();
++
++        mUimode = (ListPreference) findPreference(PREF_UI_MODE);
++
++        int uiMode = Settings.System.getInt(getActivity().getApplicationContext().getContentResolver(), Settings.System.UI_MODE, 0);
++        mUimode.setValue(String.valueOf(uiMode));
++        mUimode.setSummary(mUimode.getEntry());
++        mUimode.setOnPreferenceChangeListener(this);
++    }
++
++    @Override
++    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
++        updateDensityTextSummary();
++        return super.onPreferenceTreeClick(preferenceScreen, preference);
++    }
++
++    public boolean onPreferenceChange(Preference preference, Object objValue) {
++        final String key = preference.getKey();
++        if (PREF_UI_MODE.equals(key)) {
++            int uiMode = Integer.valueOf((String) objValue);
++            int index = mUimode.findIndexOfValue((String)objValue);
++            Settings.System.putInt(getActivity().getApplicationContext().getContentResolver(), Settings.System.UI_MODE, uiMode);
++            mUimode.setSummary(mUimode.getEntries()[index]);
++            Utils.reboot();
++        }
++
++        return true;
++    }
++
++    private void updateDensityTextSummary() {
++        String prop = Utils.getProperty("qemu.sf.lcd_density");
++        if (prop == null) prop = Utils.getProperty("ro.sf.lcd_density");
++        mDpiScreen.setSummary(getResources().getString(R.string.system_dpi_summary) + " " + prop);
++    }
++}
+-- 
+1.8.0.3
+

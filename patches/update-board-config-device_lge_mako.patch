@@ -1,0 +1,40 @@
+From d2a2b85669c5406d3c09e822d27227d23863e992 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Mon, 14 Jan 2013 13:35:37 +0200
+Subject: [PATCH] update board config
+
+Change-Id: I1b9e52b0ca61558ecd1ac29bfd6a2c57a237ac05
+---
+ BoardConfig.mk | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index 6d2a9c3..bcca8f1 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -36,6 +36,7 @@ TARGET_KERNEL_CONFIG := mako_defconfig
+ BOARD_USES_ALSA_AUDIO:= true
+ BOARD_USES_FLUENCE_INCALL := true
+ BOARD_USES_SEPERATED_AUDIO_INPUT := true
++BOARD_HAVE_LOW_LATENCY_AUDIO := true
+ 
+ BOARD_HAVE_BLUETOOTH := true
+ BOARD_HAVE_BLUETOOTH_QCOM := true
+@@ -68,7 +69,7 @@ USE_OPENGL_RENDERER := true
+ TARGET_USES_ION := true
+ TARGET_USES_OVERLAY := true
+ TARGET_USES_SF_BYPASS := true
+-TARGET_USES_C2D_COMPOSITON := true
++TARGET_USES_C2D_COMPOSITION := true
+ 
+ TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
+ TARGET_RECOVERY_UI_LIB := librecovery_ui_mako
+@@ -94,3 +95,5 @@ TARGET_NO_RPC := true
+ TARGET_RELEASETOOLS_EXTENSIONS := device/lge/mako
+ 
+ -include vendor/lge/mako/BoardConfigVendor.mk
++
++BOARD_HAS_NO_SELECT_BUTTON := true
+-- 
+1.8.0.3
+

@@ -1,0 +1,46 @@
+From b7aae9bd8c99605359b222c77da3137f5ddcfc0f Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sat, 13 Oct 2012 07:04:28 +0200
+Subject: [PATCH] allow non-cyanogenmod device repos
+
+Change-Id: Ifd50da0062e70820e0abbb8ce07fb1e107aa6802
+---
+ build.sh | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/build.sh b/build.sh
+index 3c43a44..d8e1c5b 100755
+--- a/build.sh
++++ b/build.sh
+@@ -16,7 +16,7 @@ bldblu=${txtbld}$(tput setaf 4) #  blue
+ bldcya=${txtbld}$(tput setaf 6) #  cyan
+ txtrst=$(tput sgr0)             # Reset
+ 
+-THREADS="16"
++THREADS="$(lscpu | awk '/^CPU\(s\).*([0-9]+)/{print $2*2}')"
+ DEVICE="$1"
+ EXTRAS="$2"
+ 
+@@ -26,6 +26,10 @@ MINOR=$(cat $DIR/vendor/pa/config/pa_common.mk | grep 'PA_VERSION_MINOR = *' | s
+ MAINTENANCE=$(cat $DIR/vendor/pa/config/pa_common.mk | grep 'PA_VERSION_MAINTENANCE = *' | sed  's/PA_VERSION_MAINTENANCE = //g')
+ VERSION=$MAJOR.$MINOR$MAINTENANCE
+ 
++# get alternative device repo account or use default
++ACCOUNT=$(set -x; cat $DIR/vendor/pa/products/pa_$DEVICE.mk | grep 'PRODUCT_ACCOUNT := *' | sed  's/PRODUCT_ACCOUNT := //g')
++[ -z "$ACCOUNT" ] && ACCOUNT="CyanogenMod"
++
+ # if we have not extras, reduce parameter index by 1
+ if [ "$EXTRAS" == "true" ] || [ "$EXTRAS" == "false" ]
+ then
+@@ -46,7 +50,7 @@ clear
+ echo -e "${cya}Building ${bldcya}ParanoidAndroid v$VERSION ${txtrst}";
+ 
+ echo -e "${cya}"
+-./vendor/pa/tools/getdevicetree.py $DEVICE
++./vendor/pa/tools/getdevicetree.py $DEVICE $ACCOUNT
+ echo -e "${txtrst}"
+ 
+ # decide what command to execute
+-- 
+1.7.11.3
+

@@ -1,0 +1,74 @@
+From 18a843fc6d829dc9a086fae7d32689ebb466be7f Mon Sep 17 00:00:00 2001
+From: beerbong <yghazi@gmail.com>
+Date: Wed, 19 Dec 2012 12:48:12 +0100
+Subject: [PATCH] Allow using data/local.prop
+
+Change-Id: Ic4c25701c6e97fe42cce97243840c2d42f61e4c6
+---
+ init/Android.mk         |  2 --
+ init/property_service.c |  2 --
+ init/util.c             | 12 ------------
+ 3 files changed, 16 deletions(-)
+
+diff --git a/init/Android.mk b/init/Android.mk
+index a665b9c..6db7c02 100644
+--- a/init/Android.mk
++++ b/init/Android.mk
+@@ -23,9 +23,7 @@ LOCAL_SRC_FILES += bootchart.c
+ LOCAL_CFLAGS    += -DBOOTCHART=1
+ endif
+ 
+-ifneq (,$(filter userdebug eng,$(TARGET_BUILD_VARIANT)))
+ LOCAL_CFLAGS += -DALLOW_LOCAL_PROP_OVERRIDE=1
+-endif
+ 
+ ifeq ($(TARGET_NO_INITLOGO),true)
+ LOCAL_CFLAGS += -DNO_INITLOGO
+diff --git a/init/property_service.c b/init/property_service.c
+index 66d55d0..7ccabce 100755
+--- a/init/property_service.c
++++ b/init/property_service.c
+@@ -601,12 +601,10 @@ int properties_inited(void)
+ }
+ 
+ static void load_override_properties() {
+-#ifdef ALLOW_LOCAL_PROP_OVERRIDE
+     const char *debuggable = property_get("ro.debuggable");
+     if (debuggable && (strcmp(debuggable, "1") == 0)) {
+         load_properties_from_file(PROP_PATH_LOCAL_OVERRIDE);
+     }
+-#endif /* ALLOW_LOCAL_PROP_OVERRIDE */
+ }
+ 
+ 
+diff --git a/init/util.c b/init/util.c
+index 2b993bb..9af0db7 100755
+--- a/init/util.c
++++ b/init/util.c
+@@ -151,23 +151,11 @@ void *read_file(const char *fn, unsigned *_sz)
+     char *data;
+     int sz;
+     int fd;
+-    struct stat sb;
+ 
+     data = 0;
+     fd = open(fn, O_RDONLY);
+     if(fd < 0) return 0;
+ 
+-    // for security reasons, disallow world-writable
+-    // or group-writable files
+-    if (fstat(fd, &sb) < 0) {
+-        ERROR("fstat failed for '%s'\n", fn);
+-        goto oops;
+-    }
+-    if ((sb.st_mode & (S_IWGRP | S_IWOTH)) != 0) {
+-        ERROR("skipping insecure file '%s'\n", fn);
+-        goto oops;
+-    }
+-
+     sz = lseek(fd, 0, SEEK_END);
+     if(sz < 0) goto oops;
+ 
+-- 
+1.8.0.3
+

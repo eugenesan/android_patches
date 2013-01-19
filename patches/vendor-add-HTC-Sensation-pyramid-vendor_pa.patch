@@ -1,0 +1,88 @@
+From 85a3ade77fa18f60a351a10e68b26ed661e2f990 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sun, 14 Oct 2012 08:35:34 +0200
+Subject: [PATCH] vendor: add HTC Sensation (pyramid)
+
+Change-Id: I94cf05ae2cd66a16517f2dc62ebd9955b877a4b9
+---
+ products/AndroidProducts.mk       |  3 +++
+ products/pa_pyramid.mk            | 18 ++++++++++++++++++
+ vendorprops/pyramid.proprietaries | 20 ++++++++++++++++++++
+ vendorsetup.sh                    |  1 +
+ 4 files changed, 42 insertions(+)
+ create mode 100644 products/pa_pyramid.mk
+ create mode 100644 vendorprops/pyramid.proprietaries
+
+diff --git a/products/AndroidProducts.mk b/products/AndroidProducts.mk
+index cec6eb5..377f73c 100644
+--- a/products/AndroidProducts.mk
++++ b/products/AndroidProducts.mk
+@@ -109,3 +109,6 @@ endif
+ ifeq (pa_mint,$(TARGET_PRODUCT))
+     PRODUCT_MAKEFILES += $(LOCAL_DIR)/pa_mint.mk
+ endif
++ifeq (pa_pyramid,$(TARGET_PRODUCT))
++    PRODUCT_MAKEFILES += $(LOCAL_DIR)/pa_pyramid.mk
++endif
+diff --git a/products/pa_pyramid.mk b/products/pa_pyramid.mk
+new file mode 100644
+index 0000000..9cfd797
+--- /dev/null
++++ b/products/pa_pyramid.mk
+@@ -0,0 +1,18 @@
++# Check for target product
++ifeq (pa_pyramid,$(TARGET_PRODUCT))
++
++# OVERLAY_TARGET adds overlay asset source
++OVERLAY_TARGET := pa_hdpi
++
++# include ParanoidAndroid common configuration
++include vendor/pa/config/pa_common.mk
++
++# Inherit CM device configuration
++$(call inherit-product, device/htc/pyramid/cm.mk)
++
++PRODUCT_NAME := pa_pyramid
++PRODUCT_ACCOUNT := DragunKorr
++
++GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
++
++endif
+diff --git a/vendorprops/pyramid.proprietaries b/vendorprops/pyramid.proprietaries
+new file mode 100644
+index 0000000..80b3b73
+--- /dev/null
++++ b/vendorprops/pyramid.proprietaries
+@@ -0,0 +1,20 @@
++[
++    {
++        "account":      "DragunKorr",
++        "repository":   "android_device_htc_pyramid",
++        "target_path":  "device/htc/pyramid",
++        "revision":     "jellybean"
++    },
++    {
++        "account":      "DragunKorr",
++        "repository":   "android_device_htc_msm8660-common",
++        "target_path":  "device/htc/msm8660-common",
++        "revision":     "jellybean"
++    },
++    {
++        "account":      "DragunKorr",
++        "repository":   "proprietary_vendor_htc",
++        "target_path":  "vendor/htc",
++        "revision":     "jellybean"
++    }
++]
+diff --git a/vendorsetup.sh b/vendorsetup.sh
+index 26330a5..6c02686 100644
+--- a/vendorsetup.sh
++++ b/vendorsetup.sh
+@@ -31,3 +31,4 @@ add_lunch_combo pa_p3110-userdebug
+ add_lunch_combo pa_p3100-userdebug
+ add_lunch_combo pa_n7000-userdebug
+ add_lunch_combo pa_mint-userdebug
++add_lunch_combo pa_pyramid-userdebug
+-- 
+1.7.11.3
+

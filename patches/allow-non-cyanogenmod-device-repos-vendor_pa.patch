@@ -1,0 +1,79 @@
+From 4ec119263a4f0647e0935ec09da4215f31a05ecf Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sat, 13 Oct 2012 07:11:46 +0200
+Subject: [PATCH] allow non-cyanogenmod device repos
+
+Change-Id: I173e39295507419b7e7730f95ffbf245861f6904
+---
+ tools/getdependencies.py |  4 +---
+ tools/getdevicetree.py   | 13 ++++++++-----
+ 2 files changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/tools/getdependencies.py b/tools/getdependencies.py
+index b747339..97b5e80 100755
+--- a/tools/getdependencies.py
++++ b/tools/getdependencies.py
+@@ -6,9 +6,7 @@ import json
+ import re
+ from xml.etree import ElementTree
+ 
+-product = sys.argv[1];
+-
+-device = product[product.index("_") + 1:]
++device = sys.argv[1];
+ 
+ def exists_in_tree(lm, repository):
+     for child in lm.getchildren():
+diff --git a/tools/getdevicetree.py b/tools/getdevicetree.py
+index fc70b04..b2d6d3e 100755
+--- a/tools/getdevicetree.py
++++ b/tools/getdevicetree.py
+@@ -7,6 +7,7 @@ import re
+ from xml.etree import ElementTree
+ 
+ device = sys.argv[1];
++repo_account = sys.argv[2];
+ 
+ manufacturer = None
+ 
+@@ -22,8 +23,11 @@ for dirname, dirnames, filenames in os.walk('./device/'):
+ if isNullOrEmpty(manufacturer):
+     manufacturer = raw_input('Manufacturer not found, please write your device manufacturer: ')
+ 
++if isNullOrEmpty(repo_account):
++    repo_account = 'CyanogenMod'
++
+ device_path = 'device/'+manufacturer+'/'+device
+-repo_full = 'CyanogenMod/android_' + device_path.replace('/', '_')
++repo_full = repo_account + '/android_' + device_path.replace('/', '_')
+ 
+ def exists_in_tree(lm, repository):
+     for child in lm.getchildren():
+@@ -68,7 +72,6 @@ def add_to_manifest(repositories):
+         lm = ElementTree.Element('manifest')
+ 
+     for repository in repositories:
+-        repo_account = "CyanogenMod"
+         repo_name = 'android_'+device_path.replace('/', '_')
+         repo_target = device_path
+         if exists_in_tree(lm, repo_full):
+@@ -92,8 +95,8 @@ def add_to_manifest(repositories):
+     f.write(raw_xml)
+     f.close()
+ 
+-def fetch_device(device, manufacturer):
+-    print 'Looking for device files'
++def fetch_device():
++    print 'Looking for files for device (%s)' % device
+ 
+     syncable_repos = []
+ 
+@@ -115,4 +118,4 @@ def fetch_device(device, manufacturer):
+         os.system('repo sync %s' % ' '.join(syncable_repos))
+ 
+ 
+-fetch_device(device, manufacturer)
++fetch_device()
+-- 
+1.7.11.3
+

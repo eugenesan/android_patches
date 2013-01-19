@@ -1,0 +1,58 @@
+From 512def040c303bcfb120b741797d41d86d68c11c Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Thu, 3 Jan 2013 13:02:10 +0200
+Subject: [PATCH] remove cm update add hybrid mako
+
+Change-Id: Iafafd00bb42d98d867f5fab58592fa34a61a4378
+---
+ config/common.mk      |  4 +++-
+ prebuilt/cm_mako.conf | 15 +++++++++++++++
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+ create mode 100644 prebuilt/cm_mako.conf
+
+diff --git a/config/common.mk b/config/common.mk
+index 8239640..28d443a 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -135,6 +135,9 @@ PRODUCT_COPY_FILES += \
+ PRODUCT_COPY_FILES += \
+     vendor/cm/prebuilt/common/etc/mkshrc:system/etc/mkshrc
+ 
++PRODUCT_COPY_FILES += \
++    vendor/cm/prebuilt/$(TARGET_PRODUCT).conf:system/etc/beerbong/properties.conf
++
+ # T-Mobile theme engine
+ include vendor/cm/config/themes_common.mk
+ 
+@@ -162,7 +165,6 @@ PRODUCT_PACKAGES += \
+     audio_effects.conf \
+     CMWallpapers \
+     Apollo \
+-    CMUpdater \
+     CMFileManager \
+     LockClock
+ 
+diff --git a/prebuilt/cm_mako.conf b/prebuilt/cm_mako.conf
+new file mode 100644
+index 0000000..274da24
+--- /dev/null
++++ b/prebuilt/cm_mako.conf
+@@ -0,0 +1,15 @@
++## CONFIGURATION
++%rom_dpi_min=160
++%rom_dpi_max=320
++%rom_default_dpi=213
++
++## CONFIGURATION
++%hybrid_mode=1
++
++## WORKSPACE PREFERENCES
++android.dpi=0
++com.android.systemui.dpi=213
++
++## SYSTEM PREFERENCES
++com.android.settings.dpi=213
++com.android.vending.dpi=0
+-- 
+1.8.0.3
+

@@ -1,0 +1,74 @@
+From f17b4ab90de2fcbecfab677679279e16b2e960ed Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sun, 16 Sep 2012 09:26:01 +0300
+Subject: [PATCH] sysbar swap recent and back buttons
+
+Change-Id: Idb59d6249c03927495ca6fa85317ab1c0899f3fa
+---
+ packages/SystemUI/res/layout/system_bar.xml | 40 ++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 21 deletions(-)
+
+diff --git a/packages/SystemUI/res/layout/system_bar.xml b/packages/SystemUI/res/layout/system_bar.xml
+index 2f4a1cd..b4e7c01 100644
+--- a/packages/SystemUI/res/layout/system_bar.xml
++++ b/packages/SystemUI/res/layout/system_bar.xml
+@@ -53,27 +53,9 @@
+                 android:clipChildren="false"
+                 android:clipToPadding="false"
+                 >
+-                <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/back"
+-                    android:layout_width="@dimen/navigation_key_width"
+-                    android:layout_height="match_parent"
+-                    android:src="@drawable/ic_sysbar_back"
+-                    systemui:keyCode="4"
+-                    android:contentDescription="@string/accessibility_back"
+-                    systemui:glowBackground="@drawable/ic_sysbar_highlight"
+-                    />
+-                <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/home"
+-                    android:layout_width="@dimen/navigation_key_width"
+-                    android:layout_height="match_parent"
+-                    android:src="@drawable/ic_sysbar_home"
+-                    systemui:keyCode="3"
+-                    systemui:keyRepeat="false"
+-                    android:contentDescription="@string/accessibility_home"
+-                    systemui:glowBackground="@drawable/ic_sysbar_highlight"
+-                    />
+-
+                 <RelativeLayout
+                     android:id="@+id/recentsArea"
+-                    android:layout_width="match_parent"
++                    android:layout_width="@dimen/navigation_key_width"
+                     android:layout_height="match_parent"
+                     android:clipChildren="false">
+                     <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/menu"
+@@ -89,9 +71,25 @@
+                         android:layout_height="match_parent"
+                         android:src="@drawable/ic_sysbar_recent"
+                         android:contentDescription="@string/accessibility_recent"
+-                        systemui:glowBackground="@drawable/ic_sysbar_highlight"/>                    
++                        systemui:glowBackground="@drawable/ic_sysbar_highlight"/>
+                 </RelativeLayout>
+-
++                <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/home"
++                    android:layout_width="@dimen/navigation_key_width"
++                    android:layout_height="match_parent"
++                    android:src="@drawable/ic_sysbar_home"
++                    systemui:keyCode="3"
++                    systemui:keyRepeat="false"
++                    android:contentDescription="@string/accessibility_home"
++                    systemui:glowBackground="@drawable/ic_sysbar_highlight"
++                    />
++                <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/back"
++                    android:layout_width="match_parent"
++                    android:layout_height="match_parent"
++                    android:src="@drawable/ic_sysbar_back"
++                    systemui:keyCode="4"
++                    android:contentDescription="@string/accessibility_back"
++                    systemui:glowBackground="@drawable/ic_sysbar_highlight"
++                    />
+             </LinearLayout>
+ 
+             <!-- fake space bar zone -->
+-- 
+1.7.11.3
+

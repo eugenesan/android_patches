@@ -1,0 +1,26 @@
+From dea8bb6911c8e354f5fb029159d3079d1f63406d Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Mon, 14 Jan 2013 13:38:51 +0200
+Subject: [PATCH] allow mako kernel build with 4.7
+
+Change-Id: I7a752666cbb167d0308372fff8c191aecf6c9c14
+---
+ core/combo/TARGET_linux-arm.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/combo/TARGET_linux-arm.mk b/core/combo/TARGET_linux-arm.mk
+index fbd0576..10be551 100644
+--- a/core/combo/TARGET_linux-arm.mk
++++ b/core/combo/TARGET_linux-arm.mk
+@@ -120,7 +120,7 @@ TARGET_GLOBAL_CFLAGS += $(TARGET_ANDROID_CONFIG_CFLAGS)
+ # by turning off the builtin sin function.
+ ifneq ($(filter 4.6 4.6.% 4.7 4.7.%, $(shell $(TARGET_CC) --version)),)
+ TARGET_GLOBAL_CFLAGS += -Wno-unused-but-set-variable -fno-builtin-sin \
+-			-fno-strict-volatile-bitfields
++			-fno-strict-volatile-bitfields -Wno-maybe-uninitialized
+ endif
+ 
+ # This is to avoid the dreaded warning compiler message:
+-- 
+1.8.0.3
+

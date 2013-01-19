@@ -1,0 +1,25 @@
+From 90f145df93f32c3f5d4d283c2ad3b151f035bef0 Mon Sep 17 00:00:00 2001
+From: beerbong <yghazi@gmail.com>
+Date: Wed, 19 Dec 2012 12:43:42 +0100
+Subject: [PATCH] Default density
+
+Change-Id: I38ec4880c62a0efc6f344a356d24ed317fe91d98
+---
+ android/hw-lcd.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/android/hw-lcd.c b/android/hw-lcd.c
+index 27a50dc..c44b862 100644
+--- a/android/hw-lcd.c
++++ b/android/hw-lcd.c
+@@ -32,6 +32,7 @@ hwLcd_setBootProperty(int density)
+         else
+             density = LCD_DENSITY_XHDPI;
+     }
++    density = LCD_DENSITY_LDPI;
+ 
+     snprintf(temp, sizeof temp, "%d", density);
+     boot_property_add("qemu.sf.lcd_density", temp);
+-- 
+1.8.0.3
+

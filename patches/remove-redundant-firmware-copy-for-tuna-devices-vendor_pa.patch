@@ -1,0 +1,60 @@
+From 440c7d1bceecb6ed803a39d4446acc621a3b4dd3 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Thu, 18 Oct 2012 10:51:46 +0200
+Subject: [PATCH] remove redundant firmware for tuna devices
+
+Change-Id: Ife01d52d194df0a6886fafc63e7ec47a5ca4e01c
+---
+ products/pa_maguro.mk   | 4 ----
+ products/pa_toro.mk     | 4 ----
+ products/pa_toroplus.mk | 4 ----
+ 3 files changed, 12 deletions(-)
+
+diff --git a/products/pa_maguro.mk b/products/pa_maguro.mk
+index 0073c8b..bddef54 100644
+--- a/products/pa_maguro.mk
++++ b/products/pa_maguro.mk
+@@ -27,10 +27,6 @@ PREFS_FROM_SOURCE := true
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+ 
+-# Include missing proprietaries
+-PRODUCT_COPY_FILES += \
+-  vendor/pa/proprietary/maguro/bcm4330.hcd:system/vendor/firmware/bcm4330.hcd
+-
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/samsung/maguro/full_maguro.mk)
+ 
+diff --git a/products/pa_toro.mk b/products/pa_toro.mk
+index ab7cb95..b525173 100644
+--- a/products/pa_toro.mk
++++ b/products/pa_toro.mk
+@@ -10,10 +10,6 @@ OVERLAY_TARGET := pa_xhdpi
+ # include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+ 
+-# include missing proprietaries
+-PRODUCT_COPY_FILES += \
+-  vendor/pa/proprietary/toro/bcm4330.hcd:system/vendor/firmware/bcm4330.hcd
+-
+ PRODUCT_NAME := pa_toro
+ 
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+diff --git a/products/pa_toroplus.mk b/products/pa_toroplus.mk
+index c7fea92..e52c8ec 100644
+--- a/products/pa_toroplus.mk
++++ b/products/pa_toroplus.mk
+@@ -10,10 +10,6 @@ OVERLAY_TARGET := pa_xhdpi
+ # include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+ 
+-# include missing proprietaries
+-PRODUCT_COPY_FILES += \
+-  vendor/pa/proprietary/toroplus/bcm4330.hcd:system/vendor/firmware/bcm4330.hcd
+-
+ PRODUCT_NAME := pa_toroplus
+ 
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+-- 
+1.8.0
+

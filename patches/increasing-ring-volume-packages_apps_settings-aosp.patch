@@ -1,0 +1,429 @@
+From 5c335c35dd1d7339e1e23471a544183e46ebf976 Mon Sep 17 00:00:00 2001
+From: Danny Baumann <dannybaumann@web.de>
+Date: Mon, 3 Dec 2012 08:22:36 +0100
+Subject: [PATCH] Increasing ring volume
+
+Change-Id: I97ba5d6f70e670b67888dc73167b9bdc8557ea9f
+Signed-off-by: Petr Reznicek <kecinzer@gmail.com>
+---
+ res/layout/preference_dialog_increasing_ring.xml   |  71 +++++++
+ res/values-cs/strings.xml                          |  12 ++
+ res/values/arrays.xml                              |  20 ++
+ res/values/strings.xml                             |  13 ++
+ res/xml/sound_settings.xml                         |   7 +
+ .../android/settings/IncreasingRingPreference.java | 211 +++++++++++++++++++++
+ src/com/android/settings/SoundSettings.java        |   3 +-
+ 7 files changed, 336 insertions(+), 1 deletion(-)
+ create mode 100644 res/layout/preference_dialog_increasing_ring.xml
+ create mode 100644 src/com/android/settings/IncreasingRingPreference.java
+
+diff --git a/res/layout/preference_dialog_increasing_ring.xml b/res/layout/preference_dialog_increasing_ring.xml
+new file mode 100644
+index 0000000..25bb683
+--- /dev/null
++++ b/res/layout/preference_dialog_increasing_ring.xml
+@@ -0,0 +1,71 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2008 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++
++<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent">
++
++    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++            android:layout_width="match_parent"
++            android:layout_height="match_parent"
++            android:orientation="vertical"
++            android:gravity="center_horizontal"
++            android:padding="10dip">
++
++        <ImageView android:id="@android:id/icon"
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content" />
++
++        <CheckBox android:id="@+id/increasing_ring"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:text="@string/checkbox_increasing_ring"
++                android:textAppearance="?android:attr/textAppearanceSmall" />
++
++        <TextView android:id="@+id/increasing_ring_min_volume_title"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:text="@string/increasing_ring_min_volume_title" />
++
++        <SeekBar android:id="@*android:id/seekbar"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:paddingTop="2dip"
++                android:paddingLeft="14dip"
++                android:paddingRight="14dip" />
++
++        <TextView android:id="@+id/increasing_ring_volume_notice"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:text="@string/increasing_ring_volume_notice"
++                android:paddingTop="8dip" />
++
++        <TextView android:id="@+id/increasing_ring_interval_title"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:text="@string/increasing_ring_interval_title"
++                android:paddingTop="8dip" />
++
++        <Spinner android:id="@+id/increasing_ring_interval"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:prompt="@string/increasing_ring_interval_title"
++                android:entries="@array/increasing_ring_interval_entries"
++                android:paddingTop="6dip"
++                android:paddingBottom="6dip" />
++    </LinearLayout>
++
++</ScrollView>
+\ No newline at end of file
+diff --git a/res/values-cs/strings.xml b/res/values-cs/strings.xml
+index 3c113a5..39ebed0 100644
+--- a/res/values-cs/strings.xml
++++ b/res/values-cs/strings.xml
+@@ -1834,4 +1834,16 @@
+     <string name="user_picture_title" msgid="7297782792000291692">"ID fotografie"</string>
+     <string name="cell_broadcast_settings" msgid="8415582011920085222">"Hromadné zasílání zpráv v rámci buňky"</string>
+     <string name="cell_broadcast_settings_summary" msgid="3301339398950905913">"Vyberte typy mimořádných upozornění, která chcete zobrazovat."</string>
++    <string name="increasing_ring_title">Vzrůstající vyzvánění</string>
++    <string name="checkbox_increasing_ring">Zapnout</string>
++    <string name="increasing_ring_min_volume_title">Počáteční hlasitost vyzvánění</string>
++    <string name="increasing_ring_volume_notice">Upozornění:\nPokud je počáteční hlasitost nastavena na vyšší hodnotu než hlasitost normální, bude při vyzvýnění použita normální (nevzrůstající) hlasitost.</string>
++    <string name="increasing_ring_interval_title">Interval vzrůstání</string>
++    <string name="increasing_ring_interval_eachring">Při každém zazvonění</string>
++    <string name="increasing_ring_interval_half_second">0,5 sekundy</string>
++    <string name="increasing_ring_interval_1second">1 sekunda</string>
++    <string name="increasing_ring_interval_2seconds">2 sekundy</string>
++    <string name="increasing_ring_interval_3seconds">3 sekundy</string>
++    <string name="increasing_ring_interval_5seconds">5 sekund</string>
++    <string name="increasing_ring_interval_10seconds">10 sekund</string>
+ </resources>
+diff --git a/res/values/arrays.xml b/res/values/arrays.xml
+index e494b98..113c4d1 100644
+--- a/res/values/arrays.xml
++++ b/res/values/arrays.xml
+@@ -1001,4 +1001,24 @@
+         <item>1</item>
+         <item>2</item>
+     </string-array>
++
++    <string-array name="increasing_ring_interval_entries" translatable="false">
++        <item>@string/increasing_ring_interval_eachring</item>
++        <item>@string/increasing_ring_interval_half_second</item>
++        <item>@string/increasing_ring_interval_1second</item>
++        <item>@string/increasing_ring_interval_2seconds</item>
++        <item>@string/increasing_ring_interval_3seconds</item>
++        <item>@string/increasing_ring_interval_5seconds</item>
++        <item>@string/increasing_ring_interval_10seconds</item>
++    </string-array>
++
++    <integer-array name="increasing_ring_interval_values" translatable="false">
++        <item>0</item>
++        <item>500</item>
++        <item>1000</item>
++        <item>2000</item>
++        <item>3000</item>
++        <item>5000</item>
++        <item>10000</item>
++    </integer-array>
+ </resources>
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index e63576d..61dad02 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -4643,4 +4643,17 @@
+     <string name="adb_over_network_summary">Enable TCP/IP debugging over network interfaces (Wi-Fi, USB networks). This setting is reset on reboot</string>
+     <!-- Warning for Adb over Network -->
+     <string name="adb_over_network_warning">WARNING: When ADB over network is enabled, your phone is open for intrusions on all connected networks, including GSM data network!\n\nOnly use this feature when you are connected on trusted networks.\n\nDo you really want to enable this function?</string>
++
++    <string name="increasing_ring_title">Ascending ringtone</string>
++    <string name="checkbox_increasing_ring">Enable</string>
++    <string name="increasing_ring_min_volume_title">Ringing start volume</string>
++    <string name="increasing_ring_volume_notice">Notice:\nAs the start volume is set higher than the ringer volume, the ring tone will be played using the ringer volume.</string>
++    <string name="increasing_ring_interval_title">Increase interval</string>
++    <string name="increasing_ring_interval_eachring">On each ring</string>
++    <string name="increasing_ring_interval_half_second">0.5 seconds</string>
++    <string name="increasing_ring_interval_1second">1 second</string>
++    <string name="increasing_ring_interval_2seconds">2 seconds</string>
++    <string name="increasing_ring_interval_3seconds">3 seconds</string>
++    <string name="increasing_ring_interval_5seconds">5 seconds</string>
++    <string name="increasing_ring_interval_10seconds">10 seconds</string>
+ </resources>
+diff --git a/res/xml/sound_settings.xml b/res/xml/sound_settings.xml
+index c845737..8feeec6 100644
+--- a/res/xml/sound_settings.xml
++++ b/res/xml/sound_settings.xml
+@@ -64,6 +64,13 @@
+          android:title="@string/vibrate_when_ringing_title"
+          android:persistent="false" />
+ 
++    <com.android.settings.IncreasingRingPreference
++            android:key="increasing_ring"
++            android:title="@string/increasing_ring_title"
++            android:dialogTitle="@string/increasing_ring_title"
++            android:persistent="false"
++            android:streamType="ring" />
++
+     <PreferenceCategory
+             android:title="@string/sound_category_system_title"/>
+ 
+diff --git a/src/com/android/settings/IncreasingRingPreference.java b/src/com/android/settings/IncreasingRingPreference.java
+new file mode 100644
+index 0000000..fbf83ae
+--- /dev/null
++++ b/src/com/android/settings/IncreasingRingPreference.java
+@@ -0,0 +1,211 @@
++/*
++ * Copyright (C) 2008 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings;
++
++import android.app.Dialog;
++import android.content.Context;
++import android.content.ContentResolver;
++import android.media.AudioManager;
++import android.os.Parcel;
++import android.os.Parcelable;
++import android.preference.VolumePreference;
++import android.provider.Settings;
++import android.util.AttributeSet;
++import android.view.MotionEvent;
++import android.view.View;
++import android.widget.CheckBox;
++import android.widget.CompoundButton;
++import android.widget.SeekBar;
++import android.widget.Spinner;
++import android.widget.TextView;
++
++public class IncreasingRingPreference extends VolumePreference implements
++        CheckBox.OnCheckedChangeListener {
++    private static final String TAG = "IncreasingRingPreference";
++
++    private CheckBox mEnabledCheckbox;
++
++    private TextView mMinVolumeTitle;
++    private SeekBar mMinVolumeSeekBar;
++    private TextView mRingVolumeNotice;
++
++    private TextView mIntervalTitle;
++    private Spinner mInterval;
++    private int[] mIntervalValues;
++
++    public IncreasingRingPreference(Context context, AttributeSet attrs) {
++        super(context, attrs);
++
++        setStreamType(AudioManager.STREAM_RING);
++
++        setDialogLayoutResource(R.layout.preference_dialog_increasing_ring);
++        setDialogIcon(R.drawable.ic_settings_sound);
++    }
++
++    @Override
++    protected void onBindDialogView(View view) {
++        super.onBindDialogView(view);
++
++        ContentResolver cr = getContext().getContentResolver();
++
++        mEnabledCheckbox = (CheckBox) view.findViewById(R.id.increasing_ring);
++        mMinVolumeTitle = (TextView) view.findViewById(R.id.increasing_ring_min_volume_title);
++        mMinVolumeSeekBar = (SeekBar) view.findViewById(com.android.internal.R.id.seekbar);
++        mRingVolumeNotice = (TextView) view.findViewById(R.id.increasing_ring_volume_notice);
++        mIntervalTitle = (TextView) view.findViewById(R.id.increasing_ring_interval_title);
++        mInterval = (Spinner) view.findViewById(R.id.increasing_ring_interval);
++        mIntervalValues = getContext().getResources().getIntArray(R.array.increasing_ring_interval_values);
++
++        mEnabledCheckbox.setOnCheckedChangeListener(this);
++        mEnabledCheckbox.setChecked(Settings.System.getInt(cr, Settings.System.INCREASING_RING, 0) == 1);
++        mMinVolumeSeekBar.setProgress(Settings.System.getInt(
++                    cr, Settings.System.INCREASING_RING_MIN_VOLUME, 1));
++        int interval = Settings.System.getInt(cr, Settings.System.INCREASING_RING_INTERVAL, 0);
++        int index = 0;
++
++        for (int i = 0; i < mIntervalValues.length; i++) {
++            if (mIntervalValues[i] == interval) {
++                index = i;
++                break;
++            }
++        }
++        mInterval.setSelection(index);
++
++        AudioManager am = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
++        mMinVolumeSeekBar.setSecondaryProgress(am.getStreamVolume(AudioManager.STREAM_RING));
++
++        updateVolumeNoticeVisibility(mMinVolumeSeekBar.getProgress());
++        updateEnabledStates();
++    }
++
++    @Override
++    protected void onDialogClosed(boolean positiveResult) {
++        super.onDialogClosed(false);
++
++        if (positiveResult) {
++            boolean checked = mEnabledCheckbox.isChecked();
++            ContentResolver cr = getContext().getContentResolver();
++
++            Settings.System.putInt(cr, Settings.System.INCREASING_RING, checked ? 1 : 0);
++            Settings.System.putInt(cr, Settings.System.INCREASING_RING_INTERVAL,
++                    mIntervalValues[mInterval.getSelectedItemPosition()]);
++            Settings.System.putInt(cr,
++                    Settings.System.INCREASING_RING_MIN_VOLUME,
++                    mMinVolumeSeekBar.getProgress());
++        }
++    }
++
++    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
++        updateVolumeNoticeVisibility(mMinVolumeSeekBar.getProgress());
++        updateEnabledStates();
++    }
++
++    @Override
++    public boolean onVolumeChange(SeekBarVolumizer volumizer, int value) {
++        boolean result = super.onVolumeChange(volumizer, value);
++        if (result) {
++            updateVolumeNoticeVisibility(value);
++        }
++        return result;
++    }
++
++    private void updateVolumeNoticeVisibility(int value) {
++        boolean visible = value > mMinVolumeSeekBar.getSecondaryProgress();
++        if (!mEnabledCheckbox.isChecked()) {
++            visible = false;
++        }
++        mRingVolumeNotice.setVisibility(visible ? View.VISIBLE : View.GONE);
++    }
++
++    private void updateEnabledStates() {
++        boolean enable = mEnabledCheckbox.isChecked();
++        mMinVolumeTitle.setEnabled(enable);
++        mMinVolumeSeekBar.setEnabled(enable);
++        mRingVolumeNotice.setEnabled(enable);
++        mIntervalTitle.setEnabled(enable);
++        mInterval.setEnabled(enable);
++    }
++
++    @Override
++    protected Parcelable onSaveInstanceState() {
++        final Parcelable superState = super.onSaveInstanceState();
++        if (isPersistent()) {
++            // No need to save instance state since it's persistent
++            return superState;
++        }
++
++        final SavedState myState = new SavedState(superState);
++        if (mEnabledCheckbox != null) {
++            myState.mEnabled = mEnabledCheckbox.isChecked();
++        }
++        if (mInterval != null) {
++            myState.mIntervalSelection = mInterval.getSelectedItemPosition();
++        }
++        return myState;
++    }
++
++    @Override
++    protected void onRestoreInstanceState(Parcelable state) {
++        if (state == null || !state.getClass().equals(SavedState.class)) {
++            // Didn't save state for us in onSaveInstanceState
++            super.onRestoreInstanceState(state);
++            return;
++        }
++
++        SavedState myState = (SavedState) state;
++        super.onRestoreInstanceState(myState.getSuperState());
++        if (mEnabledCheckbox != null) {
++            mEnabledCheckbox.setChecked(myState.mEnabled);
++        }
++        if (mInterval != null) {
++            mInterval.setSelection(myState.mIntervalSelection);
++        }
++    }
++
++    private static class SavedState extends BaseSavedState {
++        boolean mEnabled;
++        int mIntervalSelection;
++
++        public SavedState(Parcel source) {
++            super(source);
++            mEnabled = source.readInt() != 0;
++            mIntervalSelection = source.readInt();
++        }
++
++        @Override
++        public void writeToParcel(Parcel dest, int flags) {
++            super.writeToParcel(dest, flags);
++            dest.writeInt(mEnabled ? 1 : 0);
++            dest.writeInt(mIntervalSelection);
++        }
++
++        public SavedState(Parcelable superState) {
++            super(superState);
++        }
++
++        public static final Parcelable.Creator<SavedState> CREATOR =
++                new Parcelable.Creator<SavedState>() {
++            public SavedState createFromParcel(Parcel in) {
++                return new SavedState(in);
++            }
++
++            public SavedState[] newArray(int size) {
++                return new SavedState[size];
++            }
++        };
++    }
++}
+\ No newline at end of file
+diff --git a/src/com/android/settings/SoundSettings.java b/src/com/android/settings/SoundSettings.java
+index 84beed3..5ad8578 100644
+--- a/src/com/android/settings/SoundSettings.java
++++ b/src/com/android/settings/SoundSettings.java
+@@ -65,6 +65,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+     private static final String KEY_SILENT_MODE = "silent_mode";
+     private static final String KEY_VIBRATE = "vibrate_when_ringing";
+     private static final String KEY_RING_VOLUME = "ring_volume";
++    private static final String KEY_INCREASING_RING = "increasing_ring";
+     private static final String KEY_MUSICFX = "musicfx";
+     private static final String KEY_DTMF_TONE = "dtmf_tone";
+     private static final String KEY_SOUND_EFFECTS = "sound_effects";
+@@ -82,7 +83,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+ 
+     private static final String[] NEED_VOICE_CAPABILITY = {
+             KEY_RINGTONE, KEY_DTMF_TONE, KEY_CATEGORY_CALLS,
+-            KEY_EMERGENCY_TONE
++            KEY_EMERGENCY_TONE, KEY_INCREASING_RING
+     };
+ 
+     private static final int MSG_UPDATE_RINGTONE_SUMMARY = 1;
+-- 
+1.8.0.3
+

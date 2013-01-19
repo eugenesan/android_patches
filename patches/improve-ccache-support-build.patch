@@ -1,0 +1,82 @@
+From 581158003f502592651c50f6e6b54dd69c03d4fd Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sat, 19 Jan 2013 09:32:22 +0200
+Subject: [PATCH 1/2] improve ccache support
+
+Change-Id: I5401f7068d6f830adba293eadbbe307e6bf736f8
+---
+ core/combo/select.mk | 21 ++++++++++++++++++---
+ core/tasks/kernel.mk | 10 +++++-----
+ 2 files changed, 23 insertions(+), 8 deletions(-)
+
+diff --git a/core/combo/select.mk b/core/combo/select.mk
+index a74b01f..d0c71ea 100644
+--- a/core/combo/select.mk
++++ b/core/combo/select.mk
+@@ -82,15 +82,30 @@ ifneq ($(USE_CCACHE),)
+   # on a workstation.
+   export CCACHE_BASEDIR := /
+ 
++  # Turn cache statistics off to improve performance.
++  # We do not use it's results anyway.
++  CCACHE_NOSTATS := 1
++
+   CCACHE_HOST_TAG := $(HOST_PREBUILT_TAG)
+   # If we are cross-compiling Windows binaries on Linux
+   # then use the linux ccache binary instead.
+   ifeq ($(HOST_OS)-$(BUILD_OS),windows-linux)
+     CCACHE_HOST_TAG := linux-$(BUILD_ARCH)
+   endif
+-  ccache := prebuilts/misc/$(CCACHE_HOST_TAG)/ccache/ccache
+-  # Check that the executable is here.
+-  ccache := $(strip $(wildcard $(ccache)))
++
++  # Search executable
++  ccache =
++  ifneq ($(strip $(wildcard /usr/bin/ccache)),)
++    ccache := /usr/bin/ccache
++    # Enable compression with host executable
++    export CCACHE_COMPRESS := 1
++  else ifneq ($(strip $(wildcard $(ANDROID_BUILD_TOP)/prebuilts/misc/$(HOST_PREBUILT_EXTRA_TAG)/ccache/ccache)),)
++    ccache := $(ANDROID_BUILD_TOP)/prebuilts/misc/$(HOST_PREBUILT_EXTRA_TAG)/ccache/ccache
++  else ifneq ($(strip $(wildcard $(ANDROID_BUILD_TOP)/prebuilts/misc/$(HOST_PREBUILT_TAG)/ccache/ccache)),)
++    ccache := $(ANDROID_BUILD_TOP)/prebuilts/misc/$(HOST_PREBUILT_TAG)/ccache/ccache
++  endif
++
++  # Configure ccache
+   ifdef ccache
+     # prepend ccache if necessary
+     ifneq ($(ccache),$(firstword $($(combo_target)CC)))
+diff --git a/core/tasks/kernel.mk b/core/tasks/kernel.mk
+index 2659b02..1d5554c 100644
+--- a/core/tasks/kernel.mk
++++ b/core/tasks/kernel.mk
+@@ -116,12 +116,12 @@ ifeq ($(TARGET_ARCH),arm)
+     ifneq ($(USE_CCACHE),)
+      # search executable
+       ccache =
+-      ifneq ($(strip $(wildcard $(ANDROID_BUILD_TOP)/prebuilts/misc/$(HOST_PREBUILT_EXTRA_TAG)/ccache/ccache)),)
++      ifneq ($(strip $(wildcard /usr/bin/ccache)),)
++        ccache := /usr/bin/ccache
++      else ifneq ($(strip $(wildcard $(ANDROID_BUILD_TOP)/prebuilts/misc/$(HOST_PREBUILT_EXTRA_TAG)/ccache/ccache)),)
+         ccache := $(ANDROID_BUILD_TOP)/prebuilts/misc/$(HOST_PREBUILT_EXTRA_TAG)/ccache/ccache
+-      else
+-        ifneq ($(strip $(wildcard $(ANDROID_BUILD_TOP)/prebuilts/misc/$(HOST_PREBUILT_TAG)/ccache/ccache)),)
++      else ifneq ($(strip $(wildcard $(ANDROID_BUILD_TOP)/prebuilts/misc/$(HOST_PREBUILT_TAG)/ccache/ccache)),)
+           ccache := $(ANDROID_BUILD_TOP)/prebuilts/misc/$(HOST_PREBUILT_TAG)/ccache/ccache
+-        endif
+       endif
+     endif
+     ifneq ($(TARGET_KERNEL_CUSTOM_TOOLCHAIN),)
+@@ -133,7 +133,7 @@ ifeq ($(TARGET_ARCH),arm)
+     else
+         ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(ARM_EABI_TOOLCHAIN)/arm-eabi-"
+     endif
+-    ccache = 
++    ccache =
+ endif
+ 
+ ifeq ($(TARGET_KERNEL_MODULES),)
+-- 
+1.8.0.3
+

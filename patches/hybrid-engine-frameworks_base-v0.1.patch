@@ -1,0 +1,1367 @@
+From 9c18073269b50f94458f4e2e835f955cf36a2fcc Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Tue, 1 Jan 2013 10:24:50 +0200
+Subject: [PATCH] frameworks_base: hybrid engine
+
+Change-Id: I9f7884e349c7e08f02fd17fd33a8d028cc571f21
+---
+ core/java/android/app/ActivityThread.java          |   7 +
+ core/java/android/app/ContextImpl.java             |  93 +++-
+ core/java/android/content/res/AssetManager.java    |   3 +-
+ core/java/android/content/res/Configuration.java   |  30 +-
+ core/java/android/content/res/Resources.java       |  21 +-
+ .../android/preference/PreferenceActivity.java     |   5 +-
+ core/java/android/provider/Settings.java           |  53 +++
+ core/java/android/util/DisplayMetrics.java         |  21 +-
+ .../java/android/util/ExtendedPropertiesUtils.java | 487 +++++++++++++++++++++
+ core/java/android/view/DisplayInfo.java            |   3 +
+ core/jni/Android.mk                                |   1 +
+ core/jni/AndroidRuntime.cpp                        |   2 +
+ core/jni/android_util_ExtendedPropertiesUtils.cpp  |  72 +++
+ graphics/java/android/graphics/Bitmap.java         |   3 +-
+ .../android/systemui/recent/RecentsPanelView.java  |  16 +-
+ .../systemui/statusbar/policy/DateView.java        |   4 +-
+ .../internal/policy/impl/PhoneWindowManager.java   |  74 +++-
+ services/java/com/android/server/SystemServer.java |   3 +
+ .../android/server/wm/WindowManagerService.java    |  17 +
+ 19 files changed, 890 insertions(+), 25 deletions(-)
+ create mode 100644 core/java/android/util/ExtendedPropertiesUtils.java
+ create mode 100644 core/jni/android_util_ExtendedPropertiesUtils.cpp
+
+diff --git a/core/java/android/app/ActivityThread.java b/core/java/android/app/ActivityThread.java
+index 3c13fbb..0841a6f 100644
+--- a/core/java/android/app/ActivityThread.java
++++ b/core/java/android/app/ActivityThread.java
+@@ -85,6 +85,7 @@ import android.text.TextUtils;
+ import android.util.AndroidRuntimeException;
+ import android.util.DisplayMetrics;
+ import android.util.EventLog;
++import android.util.ExtendedPropertiesUtils;
+ import android.util.Log;
+ import android.util.LogPrinter;
+ import android.util.PrintWriterPrinter;
+@@ -1710,12 +1711,14 @@ public final class ActivityThread {
+ 
+         AssetManager assets = new AssetManager();
+         assets.setThemeSupport(compInfo.isThemeable);
++        assets.overrideHook(resDir, ExtendedPropertiesUtils.OverrideMode.FullNameExclude);
+         if (assets.addAssetPath(resDir) == 0) {
+             return null;
+         }
+ 
+         //Slog.i(TAG, "Resource: key=" + key + ", display metrics=" + metrics);
+         DisplayMetrics dm = getDisplayMetricsLocked(displayId, null);
++        dm.overrideHook(assets, ExtendedPropertiesUtils.OverrideMode.ExtendedProperties);
+         Configuration config;
+         boolean isDefaultDisplay = (displayId == Display.DEFAULT_DISPLAY);
+         if (!isDefaultDisplay || key.mOverrideConfiguration != null) {
+@@ -4299,6 +4302,8 @@ public final class ActivityThread {
+     private void handleBindApplication(AppBindData data) {
+         mBoundApplication = data;
+         mConfiguration = new Configuration(data.config);
++        mConfiguration.active = true;
++        mConfiguration.overrideHook(data.processName, ExtendedPropertiesUtils.OverrideMode.PackageName);
+         mCompatConfiguration = new Configuration(data.config);
+ 
+         mProfiler = new Profiler();
+@@ -5112,6 +5117,7 @@ public final class ActivityThread {
+         HardwareRenderer.disable(true);
+         ActivityThread thread = new ActivityThread();
+         thread.attach(true);
++        ContextImpl.init(thread);
+         return thread;
+     }
+ 
+@@ -5176,6 +5182,7 @@ public final class ActivityThread {
+ 
+         ActivityThread thread = new ActivityThread();
+         thread.attach(false);
++        ContextImpl.init(thread);
+ 
+         if (sMainThreadHandler == null) {
+             sMainThreadHandler = thread.getHandler();
+diff --git a/core/java/android/app/ContextImpl.java b/core/java/android/app/ContextImpl.java
+index 7439426..2e4b0c1 100644
+--- a/core/java/android/app/ContextImpl.java
++++ b/core/java/android/app/ContextImpl.java
+@@ -96,6 +96,7 @@ import android.os.PowerManager;
+ import android.os.Process;
+ import android.os.RemoteException;
+ import android.os.ServiceManager;
++import android.os.SystemProperties;
+ import android.os.UserHandle;
+ import android.os.SystemVibrator;
+ import android.os.UserManager;
+@@ -103,11 +104,11 @@ import android.os.storage.StorageManager;
+ import android.telephony.TelephonyManager;
+ import android.content.ClipboardManager;
+ import android.util.AndroidRuntimeException;
+-import android.util.Log;
+-import android.util.Slog;
++import android.util.*;
+ import android.view.CompatibilityInfoHolder;
+ import android.view.ContextThemeWrapper;
+ import android.view.Display;
++import android.view.WindowManager;
+ import android.view.WindowManagerImpl;
+ import android.view.accessibility.AccessibilityManager;
+ import android.view.inputmethod.InputMethodManager;
+@@ -1885,6 +1886,94 @@ class ContextImpl extends Context {
+         mOuterContext = this;
+     }
+ 
++    static void init(ActivityThread thread) {
++        if (ExtendedPropertiesUtils.mMainThread == null) {
++            try {
++                // If hybrid is not enabled, we cannot block the rest of the proccess,
++                // because it may cause a lot of misbehaviours, and avoiding initialization
++                // of vital variables used on ExtendedPropertiesUtils, may lead to crashes.
++                // Then we just set all applications to stock configuration. They will be
++                // still runned under hybrid engine.
++                if (ExtendedPropertiesUtils.getProperty(ExtendedPropertiesUtils.BEERBONG_PREFIX
++                        + "hybrid_mode").equals("1")) {
++                    ExtendedPropertiesUtils.mIsHybridModeEnabled = true;
++                }
++
++                // Save current thread into global context
++                ExtendedPropertiesUtils.mMainThread = thread;
++
++                // Load hashmap, in order to get latest properties
++                ExtendedPropertiesUtils.refreshProperties();
++  
++                // Try to get the context for the current thread. If something
++                // goes wrong, we throw an exception.
++                ContextImpl context = createSystemContext(thread);
++                if (context == null) {
++                    throw new NullPointerException();
++                }
++
++                // If we sucessfully created the context, bind it to framework
++                LoadedApk info = new LoadedApk(thread, "android", context, null,
++                    CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO);
++                if (info == null) {
++                    throw new NullPointerException();
++                }
++
++                context.init(info, null, thread);
++                ExtendedPropertiesUtils.mContext = context;
++
++                // Get default display
++                WindowManager wm = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
++                ExtendedPropertiesUtils.mDisplay = wm.getDefaultDisplay();
++                if (ExtendedPropertiesUtils.mDisplay == null) {
++                    throw new NullPointerException();
++                }
++
++                // Load package manager, so it's accessible system wide
++                ExtendedPropertiesUtils.mPackageManager = 
++                    ExtendedPropertiesUtils.mContext.getPackageManager();
++                if (ExtendedPropertiesUtils.mPackageManager == null) {
++                    throw new NullPointerException();
++                }
++
++                // Get package list and fetch PID
++                ExtendedPropertiesUtils.mPackageList = 
++                    ExtendedPropertiesUtils.mPackageManager.getInstalledPackages(0);
++                ExtendedPropertiesUtils.mGlobalHook.pid = android.os.Process.myPid();
++
++                // Initialize constants to be public. mIsTablet constant returns whether if 
++                // workspace we're working on is tablet workspace, or something different
++                ExtendedPropertiesUtils.mIsTablet = Integer.parseInt(ExtendedPropertiesUtils.getProperty
++                    ("com.android.systemui.layout")) >= 720;
++                ExtendedPropertiesUtils.mRomLcdDensity = SystemProperties.getInt("qemu.sf.lcd_density",
++                    SystemProperties.getInt("ro.sf.lcd_density", DisplayMetrics.DENSITY_DEFAULT));
++
++                // After we have PID, we get app info using it
++                ExtendedPropertiesUtils.mGlobalHook.info = 
++                    ExtendedPropertiesUtils.getAppInfoFromPID(ExtendedPropertiesUtils.mGlobalHook.pid);
++                if (ExtendedPropertiesUtils.mGlobalHook.info != null) {
++                    // If the global hook info isn't null, we load the name, package name
++                    // and path for the global hook
++                    ExtendedPropertiesUtils.mGlobalHook.name = 
++                        ExtendedPropertiesUtils.mGlobalHook.info.packageName;
++                    ExtendedPropertiesUtils.mGlobalHook.path = 
++                        ExtendedPropertiesUtils.mGlobalHook.info.sourceDir.substring(0,
++                        ExtendedPropertiesUtils.mGlobalHook.info.sourceDir.lastIndexOf("/"));
++                    ExtendedPropertiesUtils.setAppConfiguration(ExtendedPropertiesUtils.mGlobalHook);
++                } else {
++                    // We're dealing with "android" package. This is framework itself
++                    ExtendedPropertiesUtils.mGlobalHook.name = "android";
++                    ExtendedPropertiesUtils.mGlobalHook.path = "";
++                    ExtendedPropertiesUtils.setAppConfiguration(ExtendedPropertiesUtils.mGlobalHook);
++                }
++            } catch (Exception e) { 
++                // We use global exception to catch a lot of possible crashes.
++                // This is not a dirty workaround, but an expected behaviour
++                ExtendedPropertiesUtils.mMainThread = null;
++            }
++        }
++    }
++
+     final void init(LoadedApk packageInfo, IBinder activityToken, ActivityThread mainThread) {
+         init(packageInfo, activityToken, mainThread, null, null, Process.myUserHandle());
+     }
+diff --git a/core/java/android/content/res/AssetManager.java b/core/java/android/content/res/AssetManager.java
+index 80d0946..44919cc 100644
+--- a/core/java/android/content/res/AssetManager.java
++++ b/core/java/android/content/res/AssetManager.java
+@@ -18,6 +18,7 @@
+ package android.content.res;
+ 
+ import android.os.ParcelFileDescriptor;
++import android.util.ExtendedPropertiesUtils;
+ import android.util.Log;
+ import android.util.SparseArray;
+ import android.util.TypedValue;
+@@ -34,7 +35,7 @@ import java.util.HashMap;
+  * files that have been bundled with the application as a simple stream of
+  * bytes.
+  */
+-public final class AssetManager {
++public final class AssetManager extends ExtendedPropertiesUtils {
+     /* modes used when opening an asset */
+ 
+     /**
+diff --git a/core/java/android/content/res/Configuration.java b/core/java/android/content/res/Configuration.java
+index 3a6d307..77d237b 100644
+--- a/core/java/android/content/res/Configuration.java
++++ b/core/java/android/content/res/Configuration.java
+@@ -18,10 +18,12 @@
+ package android.content.res;
+ 
+ import android.content.pm.ActivityInfo;
++import android.graphics.Point;
+ import android.os.Parcel;
+ import android.os.Parcelable;
+ import android.text.TextUtils;
+ import android.view.View;
++import android.util.ExtendedPropertiesUtils;
+ import android.util.Log;
+ import android.os.SystemProperties;
+ import android.text.TextUtils;
+@@ -38,7 +40,7 @@ import java.util.Locale;
+  * with {@link android.app.Activity#getResources}:</p>
+  * <pre>Configuration config = getResources().getConfiguration();</pre>
+  */
+-public final class Configuration implements Parcelable, Comparable<Configuration> {
++public final class Configuration extends ExtendedPropertiesUtils implements Parcelable, Comparable<Configuration> {
+     /** @hide */
+     public static final Configuration EMPTY = new Configuration();
+ 
+@@ -563,6 +565,30 @@ public final class Configuration implements Parcelable, Comparable<Configuration
+      */
+     public int seq;
+     
++    public boolean active;
++
++    /**
++     * Process layout changes for current hook
++     */
++    public void paranoidHook() {        
++        if (!"com.android.systemui".equals(getName()) && active) {
++            int dpi = getDpi(),
++                layout = 600;
++            if (dpi <= 213) {
++                layout = 720;
++            } else if (layout > 213) {
++                layout = 360;
++            }
++            Point size = new Point();
++            if (mDisplay == null) return;
++            mDisplay.getSize(size);
++            float factor = (float)Math.max(size.x, size.y) / (float)Math.min(size.x, size.y);
++            screenWidthDp = layout;
++            screenHeightDp = (int)(screenWidthDp * factor);
++            smallestScreenWidthDp = layout;
++        }
++    }
++
+     /**
+      * Construct an invalid Configuration.  You must call {@link #setToDefaults}
+      * for this object to be valid.  {@more}
+@@ -606,6 +632,8 @@ public final class Configuration implements Parcelable, Comparable<Configuration
+         if (o.customTheme != null) {
+             customTheme = (CustomTheme) o.customTheme.clone();
+         }
++
++        paranoidHook();
+     }
+     
+     public String toString() {
+diff --git a/core/java/android/content/res/Resources.java b/core/java/android/content/res/Resources.java
+index c271f85..bf5a6ba 100755
+--- a/core/java/android/content/res/Resources.java
++++ b/core/java/android/content/res/Resources.java
+@@ -30,6 +30,7 @@ import android.os.Build;
+ import android.os.Bundle;
+ import android.util.AttributeSet;
+ import android.util.DisplayMetrics;
++import android.util.ExtendedPropertiesUtils;
+ import android.util.Log;
+ import android.util.Slog;
+ import android.util.TypedValue;
+@@ -67,7 +68,7 @@ import libcore.icu.NativePluralRules;
+  * <p>For more information about using resources, see the documentation about <a
+  * href="{@docRoot}guide/topics/resources/index.html">Application Resources</a>.</p>
+  */
+-public class Resources {
++public class Resources extends ExtendedPropertiesUtils {
+     static final String TAG = "Resources";
+     private static final boolean DEBUG_LOAD = false;
+     private static final boolean DEBUG_CONFIG = false;
+@@ -153,6 +154,22 @@ public class Resources {
+             super(name);
+         }
+     }
++
++    /**
++     * Override current object with temp properties stored in enum interface
++     */
++    public void paranoidHook() {
++        mConfiguration.active = true;
++        mConfiguration.overrideHook(this, OverrideMode.ExtendedProperties);
++        mConfiguration.paranoidHook();
++
++        mTmpConfig.active = true;
++        mTmpConfig.overrideHook(this, OverrideMode.ExtendedProperties);
++        mTmpConfig.paranoidHook();
++
++        mMetrics.overrideHook(this, OverrideMode.ExtendedProperties);
++        mMetrics.paranoidHook();
++    }
+ 
+     /**
+      * Create a new Resources object on top of an existing set of assets in an
+@@ -184,6 +201,8 @@ public class Resources {
+             Configuration config, CompatibilityInfo compInfo) {
+         mAssets = assets;
+         mMetrics.setToDefaults();
++        overrideHook(assets, OverrideMode.ExtendedProperties);
++        paranoidHook();
+         mCompatibilityInfo = compInfo;
+         updateConfiguration(config, metrics);
+         assets.ensureStringBlocks();
+diff --git a/core/java/android/preference/PreferenceActivity.java b/core/java/android/preference/PreferenceActivity.java
+index 09ff7be..c4502ce 100644
+--- a/core/java/android/preference/PreferenceActivity.java
++++ b/core/java/android/preference/PreferenceActivity.java
+@@ -26,6 +26,7 @@ import android.content.Intent;
+ import android.content.res.Resources;
+ import android.content.res.TypedArray;
+ import android.content.res.XmlResourceParser;
++import android.provider.Settings;
+ import android.os.Bundle;
+ import android.os.Handler;
+ import android.os.Message;
+@@ -679,9 +680,7 @@ public abstract class PreferenceActivity extends ListActivity implements
+      * enough.
+      */
+     public boolean onIsMultiPane() {
+-        boolean preferMultiPane = getResources().getBoolean(
+-                com.android.internal.R.bool.preferences_prefer_dual_pane);
+-        return preferMultiPane;
++        return Settings.System.getBoolean(getContentResolver(), Settings.System.FORCE_DUAL_PANEL, false);
+     }
+ 
+     /**
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+index a11eb1f..3be0c2f 100644
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -966,6 +966,59 @@ public final class Settings {
+         public static void getNonLegacyMovedKeys(HashSet<String> outKeySet) {
+             outKeySet.addAll(MOVED_TO_GLOBAL);
+         }
++
++        /**
++         * UIMode
++         */
++        public static final String UI_MODE = "ui_mode";
++        /**
++         * Force dual panel for settings
++         */
++        public static final String FORCE_DUAL_PANEL = "force_dualpanel";
++        /**
++         * Navigation bar height
++         */
++        public static final String NAVIGATION_BAR_HEIGHT = "navigation_bar_height";
++        /**
++         * Navigation bar height in landscape mode
++         */
++        public static final String NAVIGATION_BAR_HEIGHT_LANDSCAPE = "navigation_bar_height_landscape";
++
++        /**
++         * Look up a boolean in the database.
++         * @param resolver to access the database with
++         * @param name to look up in the table
++         * @param def Value to return if the setting is not defined.
++         * @return The setting's current value, or 'def' if it is not defined
++         * or not a valid boolean.
++         */
++        public static boolean getBoolean(ContentResolver cr, String name, boolean def) {
++            String v = getString(cr, name);
++            try {
++                if(v != null)
++                    return "1".equals(v);
++                else
++                    return def;
++            } catch (NumberFormatException e) {
++                return def;
++            }
++        }
++        /**
++         * Convenience function for updating a single settings value as a
++         * boolean. This will either create a new entry in the table if the
++         * given name does not exist, or modify the value of the existing row
++         * with that name.  Note that internally setting values are always
++         * stored as strings, so this function converts the given value to a
++         * string before storing it.
++         *
++         * @param cr The ContentResolver to access.
++         * @param name The name of the setting to modify.
++         * @param value The new value for the setting.
++         * @return true if the value was set, false on database errors
++         */
++        public static boolean putBoolean(ContentResolver cr, String name, boolean value) {
++            return putString(cr, name, value ? "1" : "0");
++        }
+ 
+         /**
+          * Look up a name in the database.
+diff --git a/core/java/android/util/DisplayMetrics.java b/core/java/android/util/DisplayMetrics.java
+index 85e4b9d..987002c 100644
+--- a/core/java/android/util/DisplayMetrics.java
++++ b/core/java/android/util/DisplayMetrics.java
+@@ -26,7 +26,7 @@ import android.os.SystemProperties;
+  * <pre> DisplayMetrics metrics = new DisplayMetrics();
+  * getWindowManager().getDefaultDisplay().getMetrics(metrics);</pre>
+  */
+-public class DisplayMetrics {
++public class DisplayMetrics extends ExtendedPropertiesUtils {
+     /**
+      * Standard quantized DPI for low-density screens.
+      */
+@@ -182,6 +182,17 @@ public class DisplayMetrics {
+      * @hide
+      */
+     public float noncompatYdpi;
++
++    /**
++     * Process DPI for current hook.
++     */
++    public void paranoidHook() {
++        if (getActive()) {
++            density = getDensity() == 0 ? density : getDensity();
++            scaledDensity = getScaledDensity() == 0 ? scaledDensity : getScaledDensity();
++            densityDpi = getDpi() == 0 ? densityDpi : getDpi();
++        }
++    }
+ 
+     public DisplayMetrics() {
+     }
+@@ -201,6 +212,7 @@ public class DisplayMetrics {
+         noncompatScaledDensity = o.noncompatScaledDensity;
+         noncompatXdpi = o.noncompatXdpi;
+         noncompatYdpi = o.noncompatYdpi;
++        paranoidHook();
+     }
+     
+     public void setToDefaults() {
+@@ -266,7 +278,10 @@ public class DisplayMetrics {
+         // when running in the emulator, allowing for dynamic configurations.
+         // The reason for this is that ro.sf.lcd_density is write-once and is
+         // set by the init process when it parses build.prop before anything else.
+-        return SystemProperties.getInt("qemu.sf.lcd_density",
+-                SystemProperties.getInt("ro.sf.lcd_density", DENSITY_DEFAULT));
++        if (mGlobalHook.dpi == 0) {
++            return SystemProperties.getInt("qemu.sf.lcd_density",
++                    SystemProperties.getInt("ro.sf.lcd_density", DENSITY_DEFAULT));
++        }
++        return mGlobalHook.dpi;
+     }
+ }
+diff --git a/core/java/android/util/ExtendedPropertiesUtils.java b/core/java/android/util/ExtendedPropertiesUtils.java
+new file mode 100644
+index 0000000..7adbf39
+--- /dev/null
++++ b/core/java/android/util/ExtendedPropertiesUtils.java
+@@ -0,0 +1,487 @@
++/*
++ * Copyright (C) 2012 ParanoidAndroid Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package android.util;
++
++import android.app.ActivityManager;
++import android.app.ActivityThread;
++import android.content.ContentResolver;
++import android.content.Context;
++import android.content.pm.ApplicationInfo;
++import android.content.pm.PackageInfo;
++import android.content.pm.PackageManager;
++import android.content.res.Resources;
++import android.content.res.CompatibilityInfo;
++import android.os.SystemProperties;
++import android.provider.Settings;
++import android.util.Log;
++import android.view.Display;
++
++import java.io.PrintWriter;
++import java.io.StringWriter;
++import java.lang.Math;
++import java.math.BigInteger;
++import java.nio.ByteBuffer;
++import java.nio.channels.FileChannel;
++import java.util.ArrayList;
++import java.util.HashMap;
++import java.util.Iterator;
++import java.util.List;
++
++public class ExtendedPropertiesUtils {
++
++    private static final String TAG = "ExtendedPropertiesUtils";
++
++    /**
++     * Public variables
++     */
++    public static final String BEERBONG_PROPERTIES = "/system/etc/beerbong/properties.conf";
++    public static final String BEERBONG_DIR = "/system/etc/beerbong/";
++    public static final String BEERBONG_MAINCONF = "properties.conf";
++    public static final String BEERBONG_BACKUPCONF = "backup.conf";
++    public static final String BEERBONG_PREFIX_0 = "mod";
++    public static final String BEERBONG_PREFIX_1 = "preferences";
++    public static final String BEERBONG_PREFIX_2 = "ro";
++    public static final String BEERBONG_PREFIX_3 = "com";
++    public static final String BEERBONG_PREFIX_4 = "version";
++    public static final String BEERBONG_PREFIX = "%";
++    public static final String BEERBONG_SEPARATOR = ".";
++    public static final String BEERBONG_STRING_DELIMITER = "\\|";
++    public static final String BEERBONG_DPI_SUFFIX = ".dpi";
++    public static final String BEERBONG_DENSITY_SUFFIX = ".den";
++    public static final String BEERBONG_SCALEDDENSITY_SUFFIX = ".sden";
++
++    public static HashMap<String, String> mPropertyMap = new HashMap<String, String>();
++    public static ActivityThread mMainThread;
++    public static Context mContext;
++    public static PackageManager mPackageManager;    
++    public static Display mDisplay;
++    public static List<PackageInfo> mPackageList;
++
++    public static BeerbongAppInfo mGlobalHook = new BeerbongAppInfo();
++    public BeerbongAppInfo mLocalHook = new BeerbongAppInfo();
++    public static boolean mIsHybridModeEnabled;
++
++    public static boolean mIsTablet;
++    public static int mRomLcdDensity = DisplayMetrics.DENSITY_DEFAULT;
++
++    public static native String readFile(String s);
++
++    /**
++     * Contains all the details for an application
++     */
++    public static class BeerbongAppInfo {
++        public String name = "";
++        public String path = "";
++        public boolean active;
++        public int pid;
++        public ApplicationInfo info;
++        public int dpi;
++        public float scaledDensity;
++        public float density;
++    }
++
++    /**
++     * Enum interface to allow different override modes
++     */
++    public static enum OverrideMode {
++        ExtendedProperties, AppInfo, FullName, FullNameExclude, PackageName
++    }
++
++    /**
++     * Set app configuration for the input argument <code>info</code>.
++     * This is done by fetching properties.conf or our stored {@link HashMap}.
++     *
++     * @param  info  instance containing app details
++     */
++    public static void setAppConfiguration(BeerbongAppInfo info) {
++
++        if(mIsHybridModeEnabled) {// && isEnvironmentSane()){
++            // Load default values to be used in case that property is 
++            // missing from configuration.
++            boolean isSystemApp = info.path.contains("system/app");
++            int defaultDpi = SystemProperties.getInt("qemu.sf.lcd_density", SystemProperties.getInt("ro.sf.lcd_density", DisplayMetrics.DENSITY_DEFAULT));
++
++            // DPI fetching.
++            info.dpi = Integer.parseInt(getProperty(info.name + BEERBONG_DPI_SUFFIX, String.valueOf(defaultDpi)));
++
++            // Extra density fetching.
++            info.density = Float.parseFloat(getProperty(info.name + BEERBONG_DENSITY_SUFFIX));
++            info.scaledDensity = Float.parseFloat(getProperty(info.name + BEERBONG_SCALEDDENSITY_SUFFIX));
++
++            // In case that densities aren't determined in previous step
++            // we calculate it by dividing DPI by default density (160).
++            if (info.dpi != 0) {
++                info.density = info.density == 0 ? info.dpi / (float) DisplayMetrics.DENSITY_DEFAULT : info.density;
++                info.scaledDensity = info.scaledDensity == 0 ? info.dpi / (float) DisplayMetrics.DENSITY_DEFAULT : info.scaledDensity;
++            }
++
++            // If everything went nice, stop parsing.
++            info.active = true;
++        }
++    }
++
++    /**
++     * Overrides current hook with input parameter <code>mode</code>, wich
++     * is an enum interface that stores basic override possibilities.
++     *
++     * @param  input  object to be overriden
++     * @param  mode  enum interface
++     */
++    public void overrideHook(Object input, OverrideMode mode) {
++
++        if (isInitialized() && input != null) {
++
++            ApplicationInfo tempInfo;
++            ExtendedPropertiesUtils tempProps;
++
++            switch (mode) {
++                case ExtendedProperties:
++                    tempProps = (ExtendedPropertiesUtils) input;
++
++                    if (tempProps.mLocalHook.active) {
++                        mLocalHook.active = tempProps.mLocalHook.active;
++                        mLocalHook.pid = tempProps.mLocalHook.pid;
++                        mLocalHook.info = tempProps.mLocalHook.info;
++                        mLocalHook.name = tempProps.mLocalHook.name;
++                        mLocalHook.path = tempProps.mLocalHook.path;
++                        mLocalHook.dpi = tempProps.mLocalHook.dpi;
++                        mLocalHook.scaledDensity = tempProps.mLocalHook.scaledDensity;
++                        mLocalHook.density = tempProps.mLocalHook.density;
++                    }
++                    return;
++                case AppInfo:
++                    mLocalHook.info = (ApplicationInfo)input;
++                    break;
++                case FullName:
++                    mLocalHook.info = getAppInfoFromPath((String) input);
++                    break;
++                case FullNameExclude:
++                    tempInfo = getAppInfoFromPath((String) input);
++                    if (tempInfo != null && (!isHooked())) {
++                        mLocalHook.info = tempInfo;
++                    }
++                    break;
++                case PackageName:
++                    mLocalHook.info = getAppInfoFromPackageName((String) input);
++                    break;
++            }
++
++            if (mLocalHook.info != null) {
++                mLocalHook.pid = android.os.Process.myPid();
++                mLocalHook.name = mLocalHook.info.packageName;
++                mLocalHook.path = mLocalHook.info.sourceDir.substring(0, mLocalHook.info.sourceDir.lastIndexOf("/"));
++
++                setAppConfiguration(mLocalHook);
++            }
++        }
++    }
++
++    /**
++     * This methods are used to retrieve specific information for a hook. 
++     */
++    public static boolean isInitialized() {
++        return (mContext != null);
++    }
++    public static boolean isHooked() {
++        return (isInitialized() && !mGlobalHook.name.equals("android") && !mGlobalHook.name.equals(""));
++    }
++    public boolean getActive() {
++        return mLocalHook.active ? mLocalHook.active : mGlobalHook.active;
++    }
++    public int getPid() {
++        return mLocalHook.active ? mLocalHook.pid : mGlobalHook.pid;
++    }
++    public ApplicationInfo getInfo() {
++        return mLocalHook.active ? mLocalHook.info : mGlobalHook.info;
++    }
++    public String getName() {
++        return mLocalHook.active ? mLocalHook.name : mGlobalHook.name;
++    }
++    public String getPath() {
++        return mLocalHook.active ? mLocalHook.path : mGlobalHook.path;
++    }
++    public int getDpi() {
++        return mLocalHook.active ? mLocalHook.dpi : mGlobalHook.dpi;
++    }
++    public float getScaledDensity() {
++        return mLocalHook.active ? mLocalHook.scaledDensity : mGlobalHook.scaledDensity;
++    }
++    public float getDensity() {
++        return mLocalHook.active ? mLocalHook.density : mGlobalHook.density;
++    }
++
++
++    /**
++     * Returns an {@link ApplicationInfo}, with the given path.
++     *
++     * @param  path  the apk path
++     * @return application info
++     */
++    public static ApplicationInfo getAppInfoFromPath(String path) {
++        if(isInitialized()) {
++            for(int i=0; mPackageList != null && i<mPackageList.size(); i++) {
++                PackageInfo p = mPackageList.get(i);
++                if (p.applicationInfo != null && p.applicationInfo.sourceDir.equals(path)) {
++                    return p.applicationInfo;
++                }
++            }
++        }
++        return null;
++    }
++
++
++    /**
++     * Returns an {@link ApplicationInfo}, with the given package name.
++     *
++     * @param  packageName  the application package name
++     * @return application info
++     */
++    public static ApplicationInfo getAppInfoFromPackageName(String packageName) {
++        if(isInitialized()) {
++            for(int i=0; mPackageList != null && i<mPackageList.size(); i++) {
++                PackageInfo p = mPackageList.get(i);
++                if (p.applicationInfo != null && p.applicationInfo.packageName.equals(packageName)) {
++                    return p.applicationInfo;
++                }
++            }
++        }
++        return null;
++    }
++
++
++    /**
++     * Returns an {@link ApplicationInfo}, with the given PID.
++     *
++     * @param  pid  the application PID
++     * @return application info
++     */
++    public static ApplicationInfo getAppInfoFromPID(int pid) {
++        if (isInitialized()) {
++            List mProcessList = ((ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE)).getRunningAppProcesses();
++            Iterator mProcessListIt = mProcessList.iterator();
++            while(mProcessListIt.hasNext()) {
++                ActivityManager.RunningAppProcessInfo mAppInfo = (ActivityManager.RunningAppProcessInfo)(mProcessListIt.next());
++                if(mAppInfo.pid == pid) {
++                    return getAppInfoFromPackageName(mAppInfo.processName);
++                }
++            }
++        }
++        return null;
++    }
++
++    /**
++     * Traces the input argument <code>msg</code> as a log.
++     * Used for debugging. Should not be used on public classes.
++     *
++     * @param  msg  the message to log
++     */
++    public static void traceMsg(String msg) {
++        StringWriter sw = new StringWriter();
++        new Throwable("").printStackTrace(new PrintWriter(sw));
++        String stackTrace = sw.toString();
++        Log.i(TAG + ":" + msg, "Trace=" + stackTrace);
++    }
++
++    /**
++     * Updates the {@link HashMap} that contains all the properties.
++     */
++    public static void refreshProperties() {
++        mPropertyMap.clear();
++        String[] props = readFile(BEERBONG_PROPERTIES).split("\n");
++        for(int i=0; i<props.length; i++) {
++            if (!props[i].startsWith("#")) {
++                String[] pair = props[i].split("=");
++                if (pair.length == 2) {
++                    mPropertyMap.put(pair[0].trim(), pair[1].trim());
++                }
++            }
++        }
++    }
++
++    /**
++     * Returns a {@link String}, containing the result of the configuration
++     * for the input argument <code>prop</code>. If the property is not found
++     * it returns zero.
++     *
++     * @param  prop  a string containing the property to checkout
++     * @return current stored value of property
++     */
++    public static String getProperty(String prop){
++        return getProperty(prop, String.valueOf(0));
++    }
++
++    /**
++     * Returns a {@link String}, containing the result of the configuration
++     * for the input argument <code>prop</code>. If the property is not found
++     * it returns the input argument <code>def</code>.
++     *
++     * @param  prop  a string containing the property to checkout
++     * @param  def  default value to be returned in case that property is missing
++     * @return current stored value of property
++     */
++    public static String getProperty(String prop, String def) {
++        try {
++            if(mGlobalHook.name.equals(BEERBONG_PREFIX_3 + BEERBONG_SEPARATOR + TAG + BEERBONG_SEPARATOR + BEERBONG_PREFIX_1)) {
++                String property1 = getAnyProperty(BEERBONG_DIR + BEERBONG_BACKUPCONF, BEERBONG_PREFIX_3 + BEERBONG_SEPARATOR + TAG + BEERBONG_SEPARATOR + BEERBONG_PREFIX_1 + BEERBONG_SEPARATOR + BEERBONG_PREFIX_4, "0");
++                String property2 = SystemProperties.get(BEERBONG_PREFIX_2 + BEERBONG_SEPARATOR + BEERBONG_PREFIX_0 + BEERBONG_PREFIX_4, "1");
++                if (!property1.equals(property2))
++                    return "0";
++            }
++
++            if (isInitialized()) {
++                String result = mPropertyMap.get(prop);
++                if (result == null) {
++                    return def;
++                }
++                if (result.startsWith(BEERBONG_PREFIX)) {
++                    result = getProperty(result, def);
++                }
++                return result;
++            } else {
++                String[] props = readFile(BEERBONG_PROPERTIES).split("\n");
++                for(int i=0; i<props.length; i++) {
++                    if(props[i].contains("=")) {
++                        if(props[i].substring(0, props[i].lastIndexOf("=")).equals(prop)) {
++                            String result = props[i].replace(prop+"=", "").trim();  
++                            if (result.startsWith(BEERBONG_PREFIX)) {
++                                result = getProperty(result, def);
++                            }
++                            return result;
++                        }
++                    }
++                }
++                return def;
++            }
++        } catch (NullPointerException e){
++            e.printStackTrace();
++        }
++        return def;
++    }
++
++    /**
++     * Returns a {@link String}, containing the result of the configuration
++     * for the input argument <code>prop</code>. If the property is not found
++     * it returns the input argument <code>def</code>.
++     *
++     * @properties  target property file
++     * @param  prop  a string containing the property to checkout
++     * @param  def  default value to be returned in case that property is missing
++     * @return current stored value of property
++     * TODO: Port to native code
++     */
++    public static String getAnyProperty(String properties, String prop, String def) {
++        try {
++            String[] props = readFile(properties).split("\n");
++            for(int i=0; i<props.length; i++) {
++                if(props[i].contains("=")) {
++                    if(props[i].substring(0, props[i].lastIndexOf("=")).equals(prop)) {
++                        String result = props[i].replace(prop+"=", "").trim();
++                        if (result.startsWith(BEERBONG_PREFIX)) {
++                            result = getProperty(result, def);
++                        }
++                        return result;
++                    }
++                }
++            }
++            return def;
++        } catch (NullPointerException e){
++            e.printStackTrace();
++        }
++        return def;
++    }
++
++    /**
++     * Returns an {@link Integer}, equivalent to what other classes will actually 
++     * load for the input argument <code>property</code>. it differs from 
++     * {@link #getProperty(String, String) getProperty}, because the values
++     * returned will never be zero.
++     *
++     * @param  property  a string containing the property to checkout
++     * @return the actual integer value of the selected property
++     * @see getProperty
++     */
++    public static int getActualProperty(String property) {
++        int result = -1;
++
++        if (property.endsWith(BEERBONG_DPI_SUFFIX)) {
++            ApplicationInfo appInfo = getAppInfoFromPackageName(property.substring(0, property.length() - BEERBONG_DPI_SUFFIX.length()));
++            boolean isSystemApp = appInfo.sourceDir.substring(0, appInfo.sourceDir.lastIndexOf("/")).contains("system/app");
++            result = Integer.parseInt(getProperty(property, "0"));
++        } else if (property.endsWith("_dpi")) {
++            result = Integer.parseInt(getProperty(property));
++        }
++
++        if (result == 0) {
++            result = SystemProperties.getInt("qemu.sf.lcd_density", SystemProperties.getInt("ro.sf.lcd_density", DisplayMetrics.DENSITY_DEFAULT));
++        }
++
++        return result;
++    }
++
++    /**
++     * Stores a boolean that will determine if the environment
++     * is sane and will allow hybrid to run without problems.
++     * We say that environment is sane, when native density
++     * (ro.sf.lcd_density) equals to "rom_default_dpi" parameter,
++     * and it's any of the possible values defined on {@link DisplayMetrics}
++     * class.
++     */
++    public static void getEnvironmentState() {
++        int nativeDensity = SystemProperties.getInt("qemu.sf.lcd_density", SystemProperties
++            .getInt("ro.sf.lcd_density", DisplayMetrics.DENSITY_DEFAULT));
++        switch(nativeDensity) {
++            case DisplayMetrics.DENSITY_LOW:
++            case DisplayMetrics.DENSITY_MEDIUM:
++            case DisplayMetrics.DENSITY_TV:
++            case DisplayMetrics.DENSITY_HIGH:
++            case DisplayMetrics.DENSITY_XHIGH:
++            case DisplayMetrics.DENSITY_XXHIGH:
++                setIsEnvironmentSane(true);
++                return;
++        }
++
++        setIsEnvironmentSane(false);
++    }
++
++
++    /**
++     * Method used by {@link #getEnvironmentState() getEnvironmentState}
++     * for storing whether if environment is sane or not.
++     *
++     * @param  state  environment state
++     * @see getEnvironmentState
++     */
++    public static void setIsEnvironmentSane(boolean state) {
++        SystemProperties.set("sys.environment", Integer.toString(state ? 1 : 0));
++    }
++
++    /**
++     * Returns a {@link Boolean}, if environment is sane.
++     *
++     * @return is environment sane
++     * @see getEnvironmentState
++     */
++    public static boolean isEnvironmentSane() {
++        return Integer.parseInt(SystemProperties.get("sys.environment", Integer.toString(0))) == 1;
++    }
++
++
++    public void debugOut(String msg) {
++        Log.i(TAG + ":" + msg, "Init=" + (mMainThread != null && mContext != null && 
++            mPackageManager != null) + " App=" + getName() + " Dpi=" + getDpi());
++    }
++}
+diff --git a/core/java/android/view/DisplayInfo.java b/core/java/android/view/DisplayInfo.java
+index f3841d5..3d53ecd 100644
+--- a/core/java/android/view/DisplayInfo.java
++++ b/core/java/android/view/DisplayInfo.java
+@@ -303,6 +303,9 @@ public final class DisplayInfo implements Parcelable {
+                 ci.applyToDisplayMetrics(outMetrics);
+             }
+         }
++
++        if (outMetrics.isHooked())
++            outMetrics.paranoidHook();
+     }
+ 
+     // For debugging purposes
+diff --git a/core/jni/Android.mk b/core/jni/Android.mk
+index de1fb4e..38511c3 100644
+--- a/core/jni/Android.mk
++++ b/core/jni/Android.mk
+@@ -81,6 +81,7 @@ LOCAL_SRC_FILES:= \
+ 	android_util_AssetManager.cpp \
+ 	android_util_Binder.cpp \
+ 	android_util_EventLog.cpp \
++	android_util_ExtendedPropertiesUtils.cpp \
+ 	android_util_Log.cpp \
+ 	android_util_FloatMath.cpp \
+ 	android_util_Process.cpp \
+diff --git a/core/jni/AndroidRuntime.cpp b/core/jni/AndroidRuntime.cpp
+index 01ad2f0..abeea13 100644
+--- a/core/jni/AndroidRuntime.cpp
++++ b/core/jni/AndroidRuntime.cpp
+@@ -99,6 +99,7 @@ namespace android {
+ extern int register_android_content_AssetManager(JNIEnv* env);
+ extern int register_android_util_EventLog(JNIEnv* env);
+ extern int register_android_util_Log(JNIEnv* env);
++extern int register_android_util_ExtendedPropertiesUtils(JNIEnv* env);
+ extern int register_android_content_StringBlock(JNIEnv* env);
+ extern int register_android_content_XmlBlock(JNIEnv* env);
+ extern int register_android_emoji_EmojiFactory(JNIEnv* env);
+@@ -1103,6 +1104,7 @@ static const RegJNIRec gRegJNI[] = {
+     REG_JNI(register_android_util_EventLog),
+     REG_JNI(register_android_util_Log),
+     REG_JNI(register_android_util_FloatMath),
++    REG_JNI(register_android_util_ExtendedPropertiesUtils),
+     REG_JNI(register_android_text_format_Time),
+     REG_JNI(register_android_content_AssetManager),
+     REG_JNI(register_android_content_StringBlock),
+diff --git a/core/jni/android_util_ExtendedPropertiesUtils.cpp b/core/jni/android_util_ExtendedPropertiesUtils.cpp
+new file mode 100644
+index 0000000..d76c641
+--- /dev/null
++++ b/core/jni/android_util_ExtendedPropertiesUtils.cpp
+@@ -0,0 +1,72 @@
++/*
++**
++** Copyright 2012, ParanoidAndroid Project
++**
++** Licensed under the Apache License, Version 2.0 (the "License");
++** you may not use this file except in compliance with the License.
++** You may obtain a copy of the License at
++**
++**     http://www.apache.org/licenses/LICENSE-2.0
++**
++** Unless required by applicable law or agreed to in writing, software
++** distributed under the License is distributed on an "AS IS" BASIS,
++** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++** See the License for the specific language governing permissions and
++** limitations under the License.
++*/
++
++#include <android/log.h>
++#include <android_runtime/AndroidRuntime.h>
++#include <jni.h>
++#include <JNIHelp.h>
++#include <string.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <time.h>
++#include <utils/misc.h>
++#include <wctype.h>
++
++namespace android {
++
++/*
++ *  In class android.util.ExtendedPropertiesUtils:
++ *  public static native String readFile(String msg)
++ */
++static jstring android_util_ExtendedPropertiesUtils_readFile(JNIEnv* env, jobject clazz, jstring msgObj)
++{
++    const char* msgString = env->GetStringUTFChars(msgObj, NULL);
++    FILE* file = fopen(msgString, "r");
++    if(file == NULL)
++        return NULL;
++
++    fseek(file, 0, SEEK_END);
++    long int size = ftell(file);
++    rewind(file);
++
++    char* content = (char*) calloc(size + 1, 1);
++
++    fread(content,1,size,file);
++
++    return env->NewStringUTF(content);
++}
++
++/*
++ * JNI registration.
++ */
++static JNINativeMethod gMethods[] = {
++    /* name, signature, funcPtr */
++    { "readFile",      "(Ljava/lang/String;)Ljava/lang/String;", (void*) android_util_ExtendedPropertiesUtils_readFile },
++};
++
++int register_android_util_ExtendedPropertiesUtils(JNIEnv* env)
++{
++    jclass clazz = env->FindClass("android/util/ExtendedPropertiesUtils");
++
++    if (clazz == NULL) {
++        return -1;
++    }
++
++    return AndroidRuntime::registerNativeMethods(env, "android/util/ExtendedPropertiesUtils", gMethods, NELEM(gMethods));
++}
++
++}; // namespace android
+diff --git a/graphics/java/android/graphics/Bitmap.java b/graphics/java/android/graphics/Bitmap.java
+index 688fd7a..6375337 100644
+--- a/graphics/java/android/graphics/Bitmap.java
++++ b/graphics/java/android/graphics/Bitmap.java
+@@ -19,6 +19,7 @@ package android.graphics;
+ import android.os.Parcel;
+ import android.os.Parcelable;
+ import android.util.DisplayMetrics;
++import android.util.ExtendedPropertiesUtils;
+ 
+ import java.io.OutputStream;
+ import java.nio.Buffer;
+@@ -80,7 +81,7 @@ public final class Bitmap implements Parcelable {
+ 
+     static int getDefaultDensity() {
+         if (sDefaultDensity >= 0) {
+-            return sDefaultDensity;
++            return ExtendedPropertiesUtils.mGlobalHook.dpi == 0 ? sDefaultDensity : ExtendedPropertiesUtils.mGlobalHook.dpi;
+         }
+         sDefaultDensity = DisplayMetrics.DENSITY_DEVICE;
+         return sDefaultDensity;
+diff --git a/packages/SystemUI/src/com/android/systemui/recent/RecentsPanelView.java b/packages/SystemUI/src/com/android/systemui/recent/RecentsPanelView.java
+index dcb82d4..07e7379 100644
+--- a/packages/SystemUI/src/com/android/systemui/recent/RecentsPanelView.java
++++ b/packages/SystemUI/src/com/android/systemui/recent/RecentsPanelView.java
+@@ -39,6 +39,8 @@ import android.os.RemoteException;
+ import android.os.UserHandle;
+ import android.provider.Settings;
+ import android.util.AttributeSet;
++import android.util.ExtendedPropertiesUtils;
++import android.util.DisplayMetrics;
+ import android.util.Log;
+ import android.view.LayoutInflater;
+ import android.view.MenuItem;
+@@ -85,10 +87,12 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
+     private ArrayList<TaskDescription> mRecentTaskDescriptions;
+     private TaskDescriptionAdapter mListAdapter;
+     private int mThumbnailWidth;
++    private int mThumbnailHeight;
+     private boolean mFitThumbnailToXY;
+     private int mRecentItemLayoutId;
+     private boolean mHighEndGfx;
+     private ImageView mClearRecents;
++    private int mAndroidDpi = DisplayMetrics.DENSITY_DEVICE;
+ 
+     public static interface RecentsScrollView {
+         public int numItemsInOneScreenful();
+@@ -145,6 +149,10 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
+             holder.thumbnailView = convertView.findViewById(R.id.app_thumbnail);
+             holder.thumbnailViewImage =
+                     (ImageView) convertView.findViewById(R.id.app_thumbnail_image);
++
++            holder.thumbnailViewImage.getLayoutParams().width = mThumbnailWidth;
++            holder.thumbnailViewImage.getLayoutParams().height = mThumbnailHeight;
++
+             // If we set the default thumbnail now, we avoid an onLayout when we update
+             // the thumbnail later (if they both have the same dimensions)
+             updateThumbnail(holder, mRecentTasksLoader.getDefaultThumbnail(), false, false);
+@@ -412,8 +420,11 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
+ 
+     public void updateValuesFromResources() {
+         final Resources res = mContext.getResources();
+-        mThumbnailWidth = Math.round(res.getDimension(R.dimen.status_bar_recents_thumbnail_width));
+-        mFitThumbnailToXY = res.getBoolean(R.bool.config_recents_thumbnail_image_fits_to_xy);
++        mAndroidDpi = ExtendedPropertiesUtils.getActualProperty("com.android.systemui.dpi");
++        mThumbnailWidth = Math.round((float)res.getDimension(R.dimen.status_bar_recents_thumbnail_width) * 
++                DisplayMetrics.DENSITY_DEVICE / mAndroidDpi);
++        mThumbnailHeight = Math.round((float)res.getDimension(R.dimen.status_bar_recents_thumbnail_height) * 
++                DisplayMetrics.DENSITY_DEVICE / mAndroidDpi);
+     }
+ 
+     @Override
+@@ -488,6 +499,7 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
+             // Should remove the default image in the frame
+             // that this now covers, to improve scrolling speed.
+             // That can't be done until the anim is complete though.
++            thumbnail.setDensity(mAndroidDpi);
+             h.thumbnailViewImage.setImageBitmap(thumbnail);
+ 
+             // scale the image to fill the full width of the ImageView. do this only if
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/policy/DateView.java b/packages/SystemUI/src/com/android/systemui/statusbar/policy/DateView.java
+index 7378ade..8a2f633 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/policy/DateView.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/policy/DateView.java
+@@ -42,7 +42,7 @@ import java.util.Date;
+ public class DateView extends TextView implements OnClickListener, OnLongClickListener {
+     private static final String TAG = "DateView";
+ 
+-    private RelativeLayout mParent;
++    private View mParent;
+ 
+     private boolean mAttachedToWindow;
+     private boolean mWindowVisible;
+@@ -88,7 +88,7 @@ public class DateView extends TextView implements OnClickListener, OnLongClickLi
+     @Override
+     protected void onDraw(Canvas canvas) {
+         if (mParent == null) {
+-            mParent = (RelativeLayout) getParent();
++            mParent = (View) getParent();
+             mParent.setOnClickListener(this);
+             mParent.setOnLongClickListener(this);
+         }
+diff --git a/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java b/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
+index 4af592d..7dd1289 100755
+--- a/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
++++ b/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
+@@ -301,6 +301,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
+     boolean mNavigationBarOnBottom = true; // is the navigation bar on the bottom *right now*?
+     int[] mNavigationBarHeightForRotation = new int[4];
+     int[] mNavigationBarWidthForRotation = new int[4];
++    int mUserNavBarHeight;
++    int mUserNavBarHeightLand;
+ 
+     WindowState mKeyguard = null;
+     KeyguardViewMediator mKeyguardMediator;
+@@ -642,6 +644,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
+                     Settings.System.KEY_APP_SWITCH_LONG_PRESS_ACTION), false, this);
+             resolver.registerContentObserver(Settings.System.getUriFor(
+                     Settings.System.HARDWARE_KEY_REBINDING), false, this);
++            resolver.registerContentObserver(Settings.System.getUriFor(
++                    Settings.System.NAVIGATION_BAR_HEIGHT), false, this);
++            resolver.registerContentObserver(Settings.System.getUriFor(
++                    Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE), false, this);
+ 
+             updateSettings();
+         }
+@@ -1224,16 +1230,43 @@ public class PhoneWindowManager implements WindowManagerPolicy {
+ 
+         mStatusBarHeight = mContext.getResources().getDimensionPixelSize(
+                 com.android.internal.R.dimen.status_bar_height);
++
++        int uiMode = Settings.System.getInt(mContext.getContentResolver(), Settings.System.UI_MODE, 0);
++
++        if (uiMode ==3) {
++
++            // Height of the navigation bar when presented horizontally at bottom
++            mNavigationBarHeightForRotation[mPortraitRotation] =
++            mNavigationBarHeightForRotation[mUpsideDownRotation] =
++                    mContext.getResources().getDimensionPixelSize(
++                            com.android.internal.R.dimen.navigation_bar_height);
++            mNavigationBarHeightForRotation[mLandscapeRotation] =
++            mNavigationBarHeightForRotation[mSeascapeRotation] =
++                    mContext.getResources().getDimensionPixelSize(
++                            com.android.internal.R.dimen.navigation_bar_height_landscape);
++
++        } else {
+ 
+-        // Height of the navigation bar when presented horizontally at bottom
+-        mNavigationBarHeightForRotation[mPortraitRotation] =
+-        mNavigationBarHeightForRotation[mUpsideDownRotation] =
+-                mContext.getResources().getDimensionPixelSize(
+-                        com.android.internal.R.dimen.navigation_bar_height);
+-        mNavigationBarHeightForRotation[mLandscapeRotation] =
+-        mNavigationBarHeightForRotation[mSeascapeRotation] =
+-                mContext.getResources().getDimensionPixelSize(
+-                        com.android.internal.R.dimen.navigation_bar_height_landscape);
++            // Height of the navigation bar when presented horizontally at bottom
++            mNavigationBarHeightForRotation[mPortraitRotation] =
++            mNavigationBarHeightForRotation[mUpsideDownRotation] =
++                    Settings.System.getInt(
++                        mContext.getContentResolver(),
++                        Settings.System.NAVIGATION_BAR_HEIGHT,
++                        mContext.getResources()
++                                .getDimensionPixelSize(
++                                        com.android.internal.R.dimen.navigation_bar_height));
++
++            mNavigationBarHeightForRotation[mLandscapeRotation] =
++            mNavigationBarHeightForRotation[mSeascapeRotation] =
++                    Settings.System.getInt(
++                        mContext.getContentResolver(),
++                        Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE,
++                        mContext.getResources()
++                                .getDimensionPixelSize(
++                                        com.android.internal.R.dimen.navigation_bar_height_landscape));
++
++        }
+ 
+         // Width of the navigation bar when presented vertically along one side
+         mNavigationBarWidthForRotation[mPortraitRotation] =
+@@ -1255,6 +1288,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
+             mHasSystemNavBar = false;
+             mNavigationBarCanMove = false;
+         }
++
++        boolean forcePhablet = uiMode == 2;
++        if (forcePhablet) {
++            mHasSystemNavBar = false;
++            mNavigationBarCanMove = false;
++        } else {
++            boolean forceTablet = uiMode == 3;
++            if (forceTablet) {
++                mHasSystemNavBar = true;
++                mNavigationBarCanMove = false;
++            }
++        }
+ 
+         if (!mHasSystemNavBar) {
+             mHasNavigationBar = mContext.getResources().getBoolean(
+@@ -1425,6 +1470,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
+         if (updateRotation) {
+             updateRotation(true);
+         }
++        int NavHeight = Settings.System.getInt(resolver, Settings.System.NAVIGATION_BAR_HEIGHT, 0);
++        int NavHeightLand = Settings.System.getInt(resolver, Settings.System.NAVIGATION_BAR_HEIGHT_LANDSCAPE, 0);
++        if (NavHeight != mUserNavBarHeight || NavHeightLand != mUserNavBarHeightLand) {
++            mUserNavBarHeight = NavHeight;
++            mUserNavBarHeightLand = NavHeightLand;
++            if(mDisplay != null) {
++                setInitialDisplaySize(mDisplay, mUnrestrictedScreenWidth, mUnrestrictedScreenHeight, 
++                        SystemProperties.getInt("qemu.sf.lcd_density",
++                                SystemProperties.getInt("ro.sf.lcd_density", DisplayMetrics.DENSITY_DEFAULT)));
++            }
++        }
+     }
+ 
+     private void enablePointerLocation() {
+diff --git a/services/java/com/android/server/SystemServer.java b/services/java/com/android/server/SystemServer.java
+index 9decd62..c54bc8c 100644
+--- a/services/java/com/android/server/SystemServer.java
++++ b/services/java/com/android/server/SystemServer.java
+@@ -47,6 +47,7 @@ import android.server.search.SearchManagerService;
+ import android.service.dreams.DreamService;
+ import android.util.DisplayMetrics;
+ import android.util.EventLog;
++import android.util.ExtendedPropertiesUtils;
+ import android.util.Log;
+ import android.util.Slog;
+ import android.view.WindowManager;
+@@ -114,6 +115,8 @@ class ServerThread extends Thread {
+ 
+         BinderInternal.disableBackgroundScheduling(true);
+         android.os.Process.setCanSelfBackground(false);
++
++        ExtendedPropertiesUtils.getEnvironmentState();
+ 
+         // Check whether we failed to shut down last time we tried.
+         {
+diff --git a/services/java/com/android/server/wm/WindowManagerService.java b/services/java/com/android/server/wm/WindowManagerService.java
+index 7907931..19f5672 100755
+--- a/services/java/com/android/server/wm/WindowManagerService.java
++++ b/services/java/com/android/server/wm/WindowManagerService.java
+@@ -6838,6 +6838,23 @@ public class WindowManagerService extends IWindowManager.Stub
+         sl = reduceConfigLayout(sl, Surface.ROTATION_270, density, unrotDh, unrotDw);
+         outConfig.smallestScreenWidthDp = (int)(displayInfo.smallestNominalAppWidth / density);
+         outConfig.screenLayout = sl;
++
++        String uiModeStr = Settings.System.getString(mContext.getContentResolver(), Settings.System.UI_MODE);
++        int uiMode = uiModeStr == null ? -1 : Integer.parseInt(uiModeStr);
++        switch (uiMode) {
++            case 1 : // phone
++                outConfig.smallestScreenWidthDp = 401;
++                break;
++            case 2 : // phablet
++                outConfig.smallestScreenWidthDp = 601;
++                break;
++            case 3 : // tablet
++                outConfig.smallestScreenWidthDp = 721;
++                break;
++            case 0 : // none
++            default:
++                break;
++        }
+     }
+ 
+     private int reduceCompatConfigWidthSize(int curSize, int rotation, DisplayMetrics dm,
+-- 
+1.8.0.3
+

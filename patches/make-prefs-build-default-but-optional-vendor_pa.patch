@@ -1,0 +1,174 @@
+From 61c545edb51a79bffbb5499f642db4f6af00ddb3 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Mon, 14 Jan 2013 13:53:56 +0200
+Subject: [PATCH] make prefs build default but optional
+
+Change-Id: Id74bab649ac804b2d9d329419de7f9e10b64c769
+---
+ products/pa_grouper.mk  | 2 +-
+ products/pa_i9100.mk    | 2 +-
+ products/pa_i9300.mk    | 2 +-
+ products/pa_maguro.mk   | 2 +-
+ products/pa_mako.mk     | 2 +-
+ products/pa_manta.mk    | 2 +-
+ products/pa_n7100.mk    | 3 +--
+ products/pa_tf700t.mk   | 2 +-
+ products/pa_tilapia.mk  | 2 +-
+ products/pa_toro.mk     | 2 +-
+ products/pa_toroplus.mk | 2 +-
+ 11 files changed, 11 insertions(+), 12 deletions(-)
+
+diff --git a/products/pa_grouper.mk b/products/pa_grouper.mk
+index c560e91..3bb699a 100644
+--- a/products/pa_grouper.mk
++++ b/products/pa_grouper.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ OVERLAY_TARGET := pa_tvdpi
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE := true
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+diff --git a/products/pa_i9100.mk b/products/pa_i9100.mk
+index efcf640..03275db 100644
+--- a/products/pa_i9100.mk
++++ b/products/pa_i9100.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ OVERLAY_TARGET := pa_xhdpi
+ 
+ # Build paprefs from sources
+-#PREFS_FROM_SOURCE := true
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+diff --git a/products/pa_i9300.mk b/products/pa_i9300.mk
+index f526a13..1dbc358 100644
+--- a/products/pa_i9300.mk
++++ b/products/pa_i9300.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ OVERLAY_TARGET := pa_xhdpi
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE := true
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+diff --git a/products/pa_maguro.mk b/products/pa_maguro.mk
+index 5239b3c..7faee9c 100644
+--- a/products/pa_maguro.mk
++++ b/products/pa_maguro.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ OVERLAY_TARGET := pa_xhdpi
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE := true
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+diff --git a/products/pa_mako.mk b/products/pa_mako.mk
+index 825c798..6cf2ee4 100644
+--- a/products/pa_mako.mk
++++ b/products/pa_mako.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ OVERLAY_TARGET := pa_xhdpi
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE := true
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+diff --git a/products/pa_manta.mk b/products/pa_manta.mk
+index 36bc966..3606168 100644
+--- a/products/pa_manta.mk
++++ b/products/pa_manta.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ OVERLAY_TARGET := pa_manta
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE := true
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+diff --git a/products/pa_n7100.mk b/products/pa_n7100.mk
+index 32c230d..92f09e6 100644
+--- a/products/pa_n7100.mk
++++ b/products/pa_n7100.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ OVERLAY_TARGET := pa_xhdpi
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE := true
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+@@ -30,7 +30,6 @@ include vendor/pa/config/pa_common.mk
+ # Include missing proprietaries
+ #PRODUCT_COPY_FILES += \
+ 
+-
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/samsung/n7100/full_n7100.mk)
+ 
+diff --git a/products/pa_tf700t.mk b/products/pa_tf700t.mk
+index d134bf2..def42ab 100644
+--- a/products/pa_tf700t.mk
++++ b/products/pa_tf700t.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ OVERLAY_TARGET := pa_tf700t
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE := true
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+diff --git a/products/pa_tilapia.mk b/products/pa_tilapia.mk
+index 0a466f1..1ac513e 100644
+--- a/products/pa_tilapia.mk
++++ b/products/pa_tilapia.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ OVERLAY_TARGET := pa_tvdpi
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE := true
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+diff --git a/products/pa_toro.mk b/products/pa_toro.mk
+index d47acaa..6b89f96 100644
+--- a/products/pa_toro.mk
++++ b/products/pa_toro.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ OVERLAY_TARGET := pa_xhdpi
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE := true
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+diff --git a/products/pa_toroplus.mk b/products/pa_toroplus.mk
+index a8a3966..58c9117 100644
+--- a/products/pa_toroplus.mk
++++ b/products/pa_toroplus.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ OVERLAY_TARGET := pa_xhdpi
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE := true
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+-- 
+1.8.0.3
+

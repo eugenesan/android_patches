@@ -1,0 +1,42 @@
+From 97390502035d08e9b150b904f3266ecf5e12ddb9 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sat, 27 Oct 2012 09:56:41 +0200
+Subject: [PATCH] eugenesan pa tweaks
+
+Change-Id: Ia01fab3652d3e71879f6ec120becc38b41b890b3
+---
+ config/pa_common.mk   | 4 ++--
+ products/pa_maguro.mk | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/config/pa_common.mk b/config/pa_common.mk
+index 9b1da87..274a163 100644
+--- a/config/pa_common.mk
++++ b/config/pa_common.mk
+@@ -30,8 +30,8 @@ else
+ endif
+ 
+ # ParanoidAndroid common packages
+-PRODUCT_PACKAGES += \
+-    ParanoidWallpapers
++#PRODUCT_PACKAGES += \
++#    ParanoidWallpapers
+ 
+ # device common prebuilts
+ ifneq ($(DEVICE_COMMON),)
+diff --git a/products/pa_maguro.mk b/products/pa_maguro.mk
+index ad303cd..e71df7c 100644
+--- a/products/pa_maguro.mk
++++ b/products/pa_maguro.mk
+@@ -8,7 +8,7 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ OVERLAY_TARGET := pa_xhdpi
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE := true
++#PREFS_FROM_SOURCE := true
+ 
+ # include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+-- 
+1.8.0
+

@@ -1,0 +1,94 @@
+diff --git a/core/java/android/app/ApplicationThreadNative.java b/core/java/android/app/ApplicationThreadNative.java
+index 63aa5f9..0a30808 100644
+--- a/core/java/android/app/ApplicationThreadNative.java
++++ b/core/java/android/app/ApplicationThreadNative.java
+@@ -40,7 +40,6 @@ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ 
+-/** {@hide} */
+ public abstract class ApplicationThreadNative extends Binder
+         implements IApplicationThread {
+     /**
+diff --git a/core/java/android/app/IApplicationThread.java b/core/java/android/app/IApplicationThread.java
+index 03a26d4..b4e3715 100644
+--- a/core/java/android/app/IApplicationThread.java
++++ b/core/java/android/app/IApplicationThread.java
+@@ -41,7 +41,6 @@ import java.util.Map;
+  * the activity manager by an application  when it starts up, for the activity
+  * manager to tell the application about things it needs to do.
+  *
+- * {@hide}
+  */
+ public interface IApplicationThread extends IInterface {
+     void schedulePauseActivity(IBinder token, boolean finished, boolean userLeaving,
+diff --git a/core/java/android/app/IInstrumentationWatcher.aidl b/core/java/android/app/IInstrumentationWatcher.aidl
+index 6c8c4d6..8544421 100644
+--- a/core/java/android/app/IInstrumentationWatcher.aidl
++++ b/core/java/android/app/IInstrumentationWatcher.aidl
+@@ -20,7 +20,6 @@ package android.app;
+ import android.content.ComponentName;
+ import android.os.Bundle;
+ 
+-/** @hide */
+ interface IInstrumentationWatcher
+ {
+     void instrumentationStatus(in ComponentName name, int resultCode,
+diff --git a/core/java/android/app/ResultInfo.java b/core/java/android/app/ResultInfo.java
+index 48a0fc2..b0aeac1 100644
+--- a/core/java/android/app/ResultInfo.java
++++ b/core/java/android/app/ResultInfo.java
+@@ -24,9 +24,6 @@ import android.os.Bundle;
+ 
+ import java.util.Map;
+ 
+-/**
+- * {@hide}
+- */
+ public class ResultInfo implements Parcelable {
+     public final String mResultWho;
+     public final int mRequestCode;
+diff --git a/core/java/android/content/IIntentSender.aidl b/core/java/android/content/IIntentSender.aidl
+index 7dbd6f2..223f434 100644
+--- a/core/java/android/content/IIntentSender.aidl
++++ b/core/java/android/content/IIntentSender.aidl
+@@ -19,7 +19,6 @@ package android.content;
+ import android.content.IIntentReceiver;
+ import android.content.Intent;
+ 
+-/** @hide */
+ interface IIntentSender {
+     int send(int code, in Intent intent, String resolvedType,
+             IIntentReceiver finishedReceiver, String requiredPermission);
+diff --git a/core/java/android/content/res/CompatibilityInfo.java b/core/java/android/content/res/CompatibilityInfo.java
+index 789d25e..1be2fd2 100644
+--- a/core/java/android/content/res/CompatibilityInfo.java
++++ b/core/java/android/content/res/CompatibilityInfo.java
+@@ -32,7 +32,6 @@ import android.view.WindowManager.LayoutParams;
+  * CompatibilityInfo class keeps the information about compatibility mode that the application is
+  * running under.
+  * 
+- *  {@hide} 
+  */
+ public class CompatibilityInfo implements Parcelable {
+     /** default compatibility info object for compatible applications */
+@@ -292,7 +291,6 @@ public class CompatibilityInfo implements Parcelable {
+ 
+     /**
+      * A helper object to translate the screen and window coordinates back and forth.
+-     * @hide
+      */
+     public class Translator {
+         final public float applicationScale;
+diff --git a/core/java/android/view/CompatibilityInfoHolder.java b/core/java/android/view/CompatibilityInfoHolder.java
+index fc8d684..6bab08d 100644
+--- a/core/java/android/view/CompatibilityInfoHolder.java
++++ b/core/java/android/view/CompatibilityInfoHolder.java
+@@ -18,7 +18,6 @@ package android.view;
+ 
+ import android.content.res.CompatibilityInfo;
+ 
+-/** @hide */
+ public class CompatibilityInfoHolder {
+     private volatile CompatibilityInfo mCompatInfo = CompatibilityInfo.DEFAULT_COMPATIBILITY_INFO;
+ 

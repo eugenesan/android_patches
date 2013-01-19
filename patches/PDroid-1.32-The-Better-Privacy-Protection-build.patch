@@ -1,0 +1,79 @@
+From a8df5786f5f2be40add7f2da386acf68fa26c41b Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Fri, 5 Oct 2012 08:20:00 +0200
+Subject: [PATCH] PDroid 1.32 - The Better Privacy Protection
+
+PDroid allows blocking access for any installed application to the following data separately:
+    Device ID (IMEI/MEID/ESN)
+    Subscriber ID (IMSI)
+    SIM serial (ICCID)
+    Phone and mailbox number
+    Incoming call number
+    Outgoing call number
+    GPS location
+    Network location
+    List of accounts (including your google e-mail address)
+    Account auth tokens
+    Contacts
+    Call logs
+    Calendar
+    SMS
+    MMS
+    Browser bookmarks and history
+    System logs
+    SIM info (operator, country)
+    Network info (operator, country)
+
+For device ID, phone and mailbox number, SIM serial, subscriber ID and device location it also allows supplying custom or random values.
+
+Why you would want to use it:
+    Applicaitons do NOT crash when access to private data is blocked (unlike with Permissions Denied or CM)
+    Fine-grained tuning of access to private data
+    No background service needed
+    Very small memory footprint (~700KB)
+    No impact on battery life
+    No impact on performance (5ms overhead on access to private data; yes, that's 0.005s)
+    100% reliable unlike ROOT applications (LBE), which need to start their background service on boot (see android underground to learn why this is an issue)
+    No ROOT required for the app to run
+    No Android permissions required for the app to run
+    Open-source
+
+Requires configuration application from here: http://goo.gl/DTg31
+
+Credits goes to:
+svyat at http://forum.xda-developers.com/showthread.php?t=1357056
+pastime1971 at http://forum.xda-developers.com/showthread.php?t=1554960
+
+Change-Id: Ia377bd7f7abcbf015b608f65c27e70b9b0a8975b
+---
+ core/pathmap.mk        | 1 +
+ target/product/core.mk | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/core/pathmap.mk b/core/pathmap.mk
+index 91a7fd4..f4a404a 100644
+--- a/core/pathmap.mk
++++ b/core/pathmap.mk
+@@ -95,6 +95,7 @@ FRAMEWORKS_BASE_SUBDIRS := \
+ 	    media/mca/filterpacks \
+ 	    drm \
+ 	    opengl \
++	    privacy \
+ 	    sax \
+ 	    telephony \
+ 	    wifi \
+diff --git a/target/product/core.mk b/target/product/core.mk
+index 276738a..d4c4282 100644
+--- a/target/product/core.mk
++++ b/target/product/core.mk
+@@ -31,6 +31,7 @@ PRODUCT_PACKAGES := \
+     Home \
+     KeyChain \
+     MediaProvider \
++    PDroid \
+     PackageInstaller \
+     PicoTts \
+     SettingsProvider \
+-- 
+1.7.11.3
+

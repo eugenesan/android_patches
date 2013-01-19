@@ -1,0 +1,41 @@
+From 0c52502f2e63ab6150b82f8e503be297168f633d Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Mon, 24 Dec 2012 13:27:49 +0200
+Subject: [PATCH] fix occasional ring volume reset
+
+When PHONE_INCOMING_RING message accidentaly arrives to CallNotifier
+immediately after the user answers the call, the call state is still
+RINGING instead of OFFHOOK, so ring plays again, causing audio
+driver to switch from just entered IN_CALL mode back to RINGING mode,
+which can lead to completely mute phone call - no side of call can be
+heard.
+
+Above also affects increasing ring feature.
+
+Prevent this scenario by calling silenceRinger() instead of stopRing()
+at the beginning of answerCall(), so not only the current ring is
+stopped, but also the possible next ring prevented.
+
+Change-Id: I358ffd93f4233ab1a957af18ec40edc0fef04014
+---
+ src/com/android/phone/PhoneUtils.java | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/com/android/phone/PhoneUtils.java b/src/com/android/phone/PhoneUtils.java
+index 28f0e81..3c4f183 100644
+--- a/src/com/android/phone/PhoneUtils.java
++++ b/src/com/android/phone/PhoneUtils.java
+@@ -250,8 +250,8 @@ public class PhoneUtils {
+         final PhoneGlobals app = PhoneGlobals.getInstance();
+ 
+         // If the ringer is currently ringing and/or vibrating, stop it
+-        // right now (before actually answering the call.)
+-        app.getRinger().stopRing();
++        // right now and prevent new rings (before actually answering the call)
++        app.notifier.silenceRinger();
+ 
+         final Phone phone = ringing.getPhone();
+         final boolean phoneIsCdma = (phone.getPhoneType() == PhoneConstants.PHONE_TYPE_CDMA);
+-- 
+1.8.0
+

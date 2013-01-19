@@ -1,0 +1,18 @@
+diff --git a/config/pa_common.mk b/config/pa_common.mk
+index 4e9d047..8cf7670 100644
+--- a/config/pa_common.mk
++++ b/config/pa_common.mk
+@@ -6,10 +6,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
+ 
+ # Copy specific ROM files
+ PRODUCT_COPY_FILES += \
++    vendor/pa/prebuilt/common/apk/AdobeFlashPlayer.apk:system/app/AdobeFlashPlayer.apk \
++    vendor/pa/prebuilt/common/apk/MarketEnabler.apk:system/app/MarketEnabler.apk \
++    vendor/pa/prebuilt/common/apk/Pdroid.apk:system/app/Pdroid.apk \
+     vendor/pa/prebuilt/common/apk/Term.apk:system/app/Term.apk \
+     vendor/pa/prebuilt/common/lib/armeabi/libjackpal-androidterm4.so:system/lib/libjackpal-androidterm4.so \
+-    vendor/pa/prebuilt/common/apk/MarketEnabler.apk:system/app/MarketEnabler.apk \
+-    vendor/pa/prebuilt/common/apk/AdobeFlashPlayer.apk:system/app/AdobeFlashPlayer.apk \
+     vendor/pa/prebuilt/common/apk/GooManager.apk:system/app/GooManager.apk \
+     vendor/pa/prebuilt/common/apk/SuperSU.apk:system/app/SuperSU.apk \
+     vendor/pa/prebuilt/common/xbin/su:system/xbin/su

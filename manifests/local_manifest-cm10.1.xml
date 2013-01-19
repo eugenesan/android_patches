@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project name="CyanogenMod/android_device_samsung_maguro" path="device/samsung/maguro" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_kernel_samsung_tuna" path="kernel/samsung/tuna" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_device_samsung_tuna" path="device/samsung/tuna" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_device_lge_mako" path="device/lge/mako" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/lge-kernel-mako" path="kernel/lge/mako" remote="github" revision="jellybean" />
+  <project name="TheMuppets/proprietary_vendor_lge.git" path="vendor/lge" remote="github" revision="cm-10.1"/>
+  <project name="TheMuppets/proprietary_vendor_broadcom" path="vendor/broadcom" remote="github" revision="cm-10.1" />
+  <project name="TheMuppets/proprietary_vendor_samsung" path="vendor/samsung" remote="github" revision="cm-10.1" />
+  <project name="TheMuppets/proprietary_vendor_imgtec" path="vendor/imgtec" remote="github" revision="cm-10.1" />
+  <project name="TheMuppets/proprietary_vendor_invensense" path="vendor/invensense" remote="github" revision="cm-10.1" />
+  <project name="TheMuppets/proprietary_vendor_widevine" path="vendor/widevine" remote="github" revision="cm-10.1" />
+<!--  <project name="TheMuppets/proprietary_vendor_nxp" path="vendor/nxp" remote="github" revision="mr1-staging" /> -->
+
+<!-- # Hybrid from JellyBeer
+  <project path="prebuilts/gcc/linux-x86/arm/arm-eabi-4.7" name="platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7" groups="linux,arm" remote="aosp" revision="master" />
+  <project path="prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.7" name="platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.7" groups="linux,arm" remote="aosp" revision="master" />
+
+  <remove-project name="CyanogenMod/android_external_doclava" />
+  <project path="external/doclava" name="BeerGang/android_external_doclava" />
+
+  <remove-project name="CyanogenMod/android_external_qemu" />
+  <project path="external/qemu" name="BeerGang/android_external_qemu" />
+
+  <remove-project name="CyanogenMod/android_frameworks_base" />
+  <project path="frameworks/base" name="BeerGang/android_frameworks_base" />
+  <project path="frameworks/base" name="ThreeBeers/android_frameworks_base" />
+
+  <remove-project name="CyanogenMod/android_packages_apps_Settings" />
+  <project path="packages/apps/Settings" name="BeerGang/android_packages_apps_Settings" />
+  <project path="packages/apps/Settings" name="ThreeBeers/android_packages_apps_Settings" />
+
+
+  <remove-project name="CyanogenMod/android_system_core" />
+  <project path="system/core" name="BeerGang/android_system_core" />
+
+  <remove-project name="CyanogenMod/android_vendor_cm" />
+  <project path="vendor/cm" name="BeerGang/android_vendor_cm" />
+
+  <project path="packages/apps/JellyBeerWallpapers" name="BeerGang/android_packages_apps_JellyBeerWallpapers" revision="master" />
+  <project path="packages/apps/ZipInstaller" name="beerbong/com_beerbong_zipinst" revision="master" />
+-->
+</manifest>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project name="CyanogenMod/android_device_samsung_maguro" path="device/samsung/maguro" remote="github" revision="jellybean" />
+  <project name="CyanogenMod/android_kernel_samsung_tuna" path="kernel/samsung/tuna" remote="github" revision="jb" />
+  <project name="CyanogenMod/android_device_samsung_tuna" path="device/samsung/tuna" remote="github" revision="jellybean" />
+  <project name="TheMuppets/proprietary_vendor_samsung" path="vendor/samsung" remote="github" revision="jellybean" />
+  <project name="TheMuppets/proprietary_vendor_imgtec" path="vendor/imgtec" remote="github" revision="jellybean" />
+  <project name="TheMuppets/proprietary_vendor_invensense" path="vendor/invensense" remote="github" revision="jellybean" />
+
+  <remove-project name="ParanoidAndroid/cm_frameworks_base" />
+<!--  <project path="frameworks/base" name="Utacka/cm_frameworks_base" /> -->
+  <project path="frameworks/base" name="ParanoidAndroid/cm_frameworks_base" revision="865369a0c0a76707f150a9ccea1eae140953239c" />
+<!-- <merge cm/jellybean /> -->
+
+  <remove-project name="ParanoidAndroid/cm_packages_apps_Settings" />
+<!--  <project path="packages/apps/Settings" name="Utacka/cm_packages_apps_Settings" /> -->
+  <project path="packages/apps/Settings" name="ParanoidAndroid/cm_packages_apps_Settings" revision="9ba5e13cc5899c5a6b16b2348f2bd9e19f725539" />
+<!-- <merge cm/jellybean /> -->
+
+  <remove-project name="ParanoidAndroid/paranoid" />
+<!--  <project path="paranoid" name="Utacka/paranoid" /> -->
+  <project path="paranoid" name="ParanoidAndroid/paranoid" revision="28b3260fc29fba126dec74355c681d443f44de99" />
+
+  <remove-project name="ParanoidAndroid/cm_system_core" />
+<!--  <project path="system/core" name="Utacka/cm_system_core" /> -->
+  <project path="system/core" name="ParanoidAndroid/cm_system_core" revision="33806300c635c243acee5fe120dc2b89b4fde46f" />
+<!-- <merge cm/jellybean /> -->
+
+  <remove-project name="ParanoidAndroid/android_vendor_pa" />
+<!--  <project path="vendor/pa" name="Utacka/android_vendor_pa" revision="5616378a9e9010ac7cc83ed1435712b7070e988c" /> -->
+  <project path="vendor/pa" name="ParanoidAndroid/android_vendor_pa" revision="ac5cbde53827272c41e0a022ae9d767d5d0bc4a3" />
+<!-- <cherry-pick 43f9ff084c99cbe2706cbdb5fc485c6597cdbaa2 /> -->
+<!-- <revert fa5bc50fe24ed603cc0ca229be4ac65af03774f4 /> -->
+
+  <remove-project name="ParanoidAndroid/android_packages_apps_ParanoidWallpapers" />
+  <remove-project name="android_packages_apps_paranoidpreferences" />
+
+  <project path="packages/apps/CMFileManager" name="CyanogenMod/android_packages_apps_CMFileManager" />
+  <project path="packages/apps/CMWallpapers" name="CyanogenMod/android_packages_apps_CMWallpapers" />
+</manifest>

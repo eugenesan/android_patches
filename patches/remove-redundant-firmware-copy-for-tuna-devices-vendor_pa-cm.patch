@@ -1,0 +1,57 @@
+From 440c7d1bceecb6ed803a39d4446acc621a3b4dd3 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Thu, 18 Oct 2012 10:51:46 +0200
+Subject: [PATCH] remove redundant firmware for tuna devices
+
+Change-Id: Ife01d52d194df0a6886fafc63e7ec47a5ca4e01c
+---
+ products/pa_maguro.mk   | 4 ----
+ products/pa_toro.mk     | 4 ----
+ products/pa_toroplus.mk | 4 ----
+ 3 files changed, 12 deletions(-)
+
+diff --git a/products/pa_maguro.mk b/products/pa_maguro.mk
+index d3130dd..ad303cd 100644
+--- a/products/pa_maguro.mk
++++ b/products/pa_maguro.mk
+@@ -13,10 +13,6 @@ PREFS_FROM_SOURCE := true
+ # include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+ 
+-# include missing proprietaries
+-PRODUCT_COPY_FILES += \
+-  vendor/pa/proprietary/maguro/bcm4330.hcd:system/vendor/firmware/bcm4330.hcd
+-
+ # Inherit CM device configuration
+ $(call inherit-product, device/samsung/maguro/cm.mk)
+ 
+diff --git a/products/pa_toro.mk b/products/pa_toro.mk
+index b884220..8852dd4 100644
+--- a/products/pa_toro.mk
++++ b/products/pa_toro.mk
+@@ -10,10 +10,6 @@ OVERLAY_TARGET := pa_xhdpi
+ # include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+ 
+-# include missing proprietaries
+-PRODUCT_COPY_FILES += \
+-  vendor/pa/proprietary/toro/bcm4330.hcd:system/vendor/firmware/bcm4330.hcd
+-
+ # Inherit CM device configuration
+ $(call inherit-product, device/samsung/toro/cm.mk)
+ 
+diff --git a/products/pa_toroplus.mk b/products/pa_toroplus.mk
+index 62cad31..fbc870d 100644
+--- a/products/pa_toroplus.mk
++++ b/products/pa_toroplus.mk
+@@ -10,10 +10,6 @@ OVERLAY_TARGET := pa_xhdpi
+ # include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+ 
+-# include missing proprietaries
+-PRODUCT_COPY_FILES += \
+-  vendor/pa/proprietary/toroplus/bcm4330.hcd:system/vendor/firmware/bcm4330.hcd
+-
+ # Inherit CM device configuration
+ $(call inherit-product, device/samsung/toroplus/cm.mk)
+ 

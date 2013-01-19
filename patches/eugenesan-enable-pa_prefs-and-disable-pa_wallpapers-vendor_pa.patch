@@ -1,0 +1,43 @@
+From f8079c6d639507939fef4eb66cc65c65575fb041 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sat, 27 Oct 2012 09:56:41 +0200
+Subject: [PATCH] eugenesan enable pa_prefs and disable pa_wallpapers
+
+Change-Id: Ia01fab3652d3e71879f6ec120becc38b41b890b3
+---
+ config/pa_common.mk   | 4 ----
+ products/pa_maguro.mk | 3 ---
+ 2 files changed, 7 deletions(-)
+
+diff --git a/config/pa_common.mk b/config/pa_common.mk
+index fb1207d..a2014fe 100644
+--- a/config/pa_common.mk
++++ b/config/pa_common.mk
+@@ -29,10 +29,6 @@ else
+         vendor/pa/prebuilt/common/bootanimation/HDPI.zip:system/media/bootanimation.zip
+ endif
+ 
+-# ParanoidAndroid common packages
+-PRODUCT_PACKAGES += \
+-    ParanoidWallpapers
+-
+ # device common prebuilts
+ ifneq ($(DEVICE_COMMON),)
+     -include vendor/pa/prebuilt/$(DEVICE_COMMON)/prebuilt.mk
+diff --git a/products/pa_maguro.mk b/products/pa_maguro.mk
+index ad303cd..9920d4c 100644
+--- a/products/pa_maguro.mk
++++ b/products/pa_maguro.mk
+@@ -7,9 +7,6 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ # OVERLAY_TARGET adds overlay asset source
+ OVERLAY_TARGET := pa_xhdpi
+ 
+-# Build paprefs from sources
+-PREFS_FROM_SOURCE := true
+-
+ # include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+ 
+-- 
+1.8.0
+

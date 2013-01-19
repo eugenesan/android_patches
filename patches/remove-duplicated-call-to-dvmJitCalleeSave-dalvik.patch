@@ -1,0 +1,26 @@
+From c0f355cfc79c4bcf60c17c89480a7e1974fb0d67 Mon Sep 17 00:00:00 2001
+From: Rocky Zhang <zhangyan.hit@gmail.com>
+Date: Thu, 29 Nov 2012 08:02:29 +0800
+Subject: [PATCH] remove duplicated call to dvmJitCalleeSave()
+
+Change-Id: Ib7b5f637a22fd5ba60bdb45cd34ac8c1781c7bd3
+Signed-off-by: Rocky Zhang <zhangyan.hit@gmail.com>
+---
+ vm/interp/Interp.cpp | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/vm/interp/Interp.cpp b/vm/interp/Interp.cpp
+index 0c5efe3..a37e134 100644
+--- a/vm/interp/Interp.cpp
++++ b/vm/interp/Interp.cpp
+@@ -1908,7 +1908,6 @@ void dvmInterpret(Thread* self, const Method* method, JValue* pResult)
+ #endif
+     self->debugIsMethodEntry = true;
+ #if defined(WITH_JIT)
+-    dvmJitCalleeSave(calleeSave);
+     /* Initialize the state to kJitNot */
+     self->jitState = kJitNot;
+ #endif
+-- 
+1.8.0
+

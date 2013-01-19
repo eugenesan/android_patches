@@ -1,0 +1,330 @@
+From f0e116e3abc04e05650cf23b695be64cff6cc172 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sat, 19 Jan 2013 10:04:36 +0200
+Subject: [PATCH 3/3] unify products and packages
+
+Change-Id: I27a76264e7401b030d7a9c0d441f3f3944887bf6
+---
+ packages/cm.mk          | 1 +
+ packages/i9100.mk       | 3 ---
+ packages/maguro.mk      | 3 ---
+ packages/mako.mk        | 3 ---
+ packages/n7100.mk       | 3 ---
+ packages/pa_i9100.mk    | 3 +++
+ packages/pa_maguro.mk   | 3 +++
+ packages/pa_mako.mk     | 3 +++
+ packages/pa_n7100.mk    | 3 +++
+ packages/pa_tf700t.mk   | 3 +++
+ packages/tf700t.mk      | 3 ---
+ products/pa_grouper.mk  | 5 +++++
+ products/pa_i9100.mk    | 3 ++-
+ products/pa_i9300.mk    | 4 +---
+ products/pa_maguro.mk   | 4 +++-
+ products/pa_mako.mk     | 4 +++-
+ products/pa_manta.mk    | 4 +---
+ products/pa_n7100.mk    | 4 +---
+ products/pa_tf700t.mk   | 4 +---
+ products/pa_tilapia.mk  | 4 ++++
+ products/pa_toro.mk     | 4 +---
+ products/pa_toroplus.mk | 4 +---
+ 22 files changed, 39 insertions(+), 36 deletions(-)
+ delete mode 100644 packages/i9100.mk
+ delete mode 100644 packages/maguro.mk
+ delete mode 100644 packages/mako.mk
+ delete mode 100644 packages/n7100.mk
+ create mode 100644 packages/pa_i9100.mk
+ create mode 100644 packages/pa_maguro.mk
+ create mode 100644 packages/pa_mako.mk
+ create mode 100644 packages/pa_n7100.mk
+ create mode 100644 packages/pa_tf700t.mk
+ delete mode 100644 packages/tf700t.mk
+
+diff --git a/packages/cm.mk b/packages/cm.mk
+index 4e303fb..ef96685 100644
+--- a/packages/cm.mk
++++ b/packages/cm.mk
+@@ -3,6 +3,7 @@ PRODUCT_PACKAGES += \
+     DSPManager \
+     libcyanogen-dsp \
+     CMFileManager \
++    CMFileManagerThemes \
+     Torch \
+     openvpn \
+     e2fsck \
+diff --git a/packages/i9100.mk b/packages/i9100.mk
+deleted file mode 100644
+index 5d4a7b9..0000000
+--- a/packages/i9100.mk
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Extra Product Packages
+-PRODUCT_PACKAGES += \
+-    
+diff --git a/packages/maguro.mk b/packages/maguro.mk
+deleted file mode 100644
+index c02a167..0000000
+--- a/packages/maguro.mk
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Extra packages
+-PRODUCT_PACKAGES += \
+-    Torch
+diff --git a/packages/mako.mk b/packages/mako.mk
+deleted file mode 100644
+index c02a167..0000000
+--- a/packages/mako.mk
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Extra packages
+-PRODUCT_PACKAGES += \
+-    Torch
+diff --git a/packages/n7100.mk b/packages/n7100.mk
+deleted file mode 100644
+index 5d4a7b9..0000000
+--- a/packages/n7100.mk
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Extra Product Packages
+-PRODUCT_PACKAGES += \
+-    
+diff --git a/packages/pa_i9100.mk b/packages/pa_i9100.mk
+new file mode 100644
+index 0000000..6157586
+--- /dev/null
++++ b/packages/pa_i9100.mk
+@@ -0,0 +1,3 @@
++# Extra packages
++PRODUCT_PACKAGES += \
++
+diff --git a/packages/pa_maguro.mk b/packages/pa_maguro.mk
+new file mode 100644
+index 0000000..c02a167
+--- /dev/null
++++ b/packages/pa_maguro.mk
+@@ -0,0 +1,3 @@
++# Extra packages
++PRODUCT_PACKAGES += \
++    Torch
+diff --git a/packages/pa_mako.mk b/packages/pa_mako.mk
+new file mode 100644
+index 0000000..c02a167
+--- /dev/null
++++ b/packages/pa_mako.mk
+@@ -0,0 +1,3 @@
++# Extra packages
++PRODUCT_PACKAGES += \
++    Torch
+diff --git a/packages/pa_n7100.mk b/packages/pa_n7100.mk
+new file mode 100644
+index 0000000..6157586
+--- /dev/null
++++ b/packages/pa_n7100.mk
+@@ -0,0 +1,3 @@
++# Extra packages
++PRODUCT_PACKAGES += \
++
+diff --git a/packages/pa_tf700t.mk b/packages/pa_tf700t.mk
+new file mode 100644
+index 0000000..6157586
+--- /dev/null
++++ b/packages/pa_tf700t.mk
+@@ -0,0 +1,3 @@
++# Extra packages
++PRODUCT_PACKAGES += \
++
+diff --git a/packages/tf700t.mk b/packages/tf700t.mk
+deleted file mode 100644
+index 5d4a7b9..0000000
+--- a/packages/tf700t.mk
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Extra Product Packages
+-PRODUCT_PACKAGES += \
+-    
+diff --git a/products/pa_grouper.mk b/products/pa_grouper.mk
+index aa3c4fc..40dbf6c 100644
+--- a/products/pa_grouper.mk
++++ b/products/pa_grouper.mk
+@@ -30,6 +30,10 @@ include vendor/pa/config/pa_common.mk
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/asus/grouper/full_grouper.mk)
+ 
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
++
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_grouper
+ PRODUCT_BRAND := Google
+@@ -37,6 +41,7 @@ PRODUCT_MODEL := Nexus 7
+ PRODUCT_MANUFACTURER := Asus
+ PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=nakasi BUILD_FINGERPRINT="google/nakasi/grouper:4.2.1/JOP40D/533553:user/release-keys" PRIVATE_BUILD_DESC="nakasi-user 4.2.1 JOP40D 533553 release-keys"
+ 
++# Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+ 
+ endif
+diff --git a/products/pa_i9100.mk b/products/pa_i9100.mk
+index c4f69c8..3871074 100644
+--- a/products/pa_i9100.mk
++++ b/products/pa_i9100.mk
+@@ -31,7 +31,8 @@ include vendor/pa/config/pa_common.mk
+ $(call inherit-product, device/samsung/i9100/full_i9100.mk)
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/i9100.mk
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
+ 
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_i9100
+diff --git a/products/pa_i9300.mk b/products/pa_i9300.mk
+index 97c95f7..1e42739 100644
+--- a/products/pa_i9300.mk
++++ b/products/pa_i9300.mk
+@@ -31,9 +31,7 @@ include vendor/pa/config/pa_common.mk
+ $(call inherit-product, device/samsung/i9300/full_i9300.mk)
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/i9300.mk
+-
+-# CM Package Extras
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
+ -include vendor/pa/packages/cm.mk
+ 
+ # Override AOSP build properties
+diff --git a/products/pa_maguro.mk b/products/pa_maguro.mk
+index f1382e8..ea97ae4 100644
+--- a/products/pa_maguro.mk
++++ b/products/pa_maguro.mk
+@@ -31,7 +31,8 @@ include vendor/pa/config/pa_common.mk
+ $(call inherit-product, device/samsung/maguro/full_maguro.mk)
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/maguro.mk
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
+ 
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_maguro
+@@ -44,5 +45,6 @@ PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=yakju BUILD_FINGERPRINT="google/yak
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+ GET_PROJECT_RMS := $(shell vendor/pa/tools/removeprojects.py $(PRODUCT_NAME))
+ GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
++GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+diff --git a/products/pa_mako.mk b/products/pa_mako.mk
+index 200437c..2f43339 100644
+--- a/products/pa_mako.mk
++++ b/products/pa_mako.mk
+@@ -31,7 +31,8 @@ include vendor/pa/config/pa_common.mk
+ $(call inherit-product, device/lge/mako/full_mako.mk)
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/mako.mk
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
+ 
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_mako
+@@ -44,5 +45,6 @@ PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=occam BUILD_FINGERPRINT="google/occ
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+ GET_PROJECT_RMS := $(shell vendor/pa/tools/removeprojects.py $(PRODUCT_NAME))
+ GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
++GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+diff --git a/products/pa_manta.mk b/products/pa_manta.mk
+index 3606168..ae0a25a 100644
+--- a/products/pa_manta.mk
++++ b/products/pa_manta.mk
+@@ -31,9 +31,7 @@ include vendor/pa/config/pa_common.mk
+ $(call inherit-product, device/samsung/manta/full_manta.mk)
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/manta.mk
+-
+-# CM Package Extras
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
+ -include vendor/pa/packages/cm.mk
+ 
+ # Override AOSP build properties
+diff --git a/products/pa_n7100.mk b/products/pa_n7100.mk
+index f371125..3da6218 100644
+--- a/products/pa_n7100.mk
++++ b/products/pa_n7100.mk
+@@ -34,9 +34,7 @@ include vendor/pa/config/pa_common.mk
+ $(call inherit-product, device/samsung/n7100/full_n7100.mk)
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/n7100.mk
+-
+-# CM Package Extras
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
+ -include vendor/pa/packages/cm.mk
+ 
+ # Override AOSP build properties
+diff --git a/products/pa_tf700t.mk b/products/pa_tf700t.mk
+index 7b560eb..f9bb4e8 100644
+--- a/products/pa_tf700t.mk
++++ b/products/pa_tf700t.mk
+@@ -31,9 +31,7 @@ include vendor/pa/config/pa_common.mk
+ $(call inherit-product, device/asus/tf700t/full_tf700t.mk)
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/tf700t.mk
+-
+-# CM Package Extras
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
+ -include vendor/pa/packages/cm.mk
+ 
+ # Override AOSP build properties
+diff --git a/products/pa_tilapia.mk b/products/pa_tilapia.mk
+index 5849141..0cc74d7 100644
+--- a/products/pa_tilapia.mk
++++ b/products/pa_tilapia.mk
+@@ -30,6 +30,10 @@ include vendor/pa/config/pa_common.mk
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/asus/tilapia/full_tilapia.mk)
+ 
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
++
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_tilapia
+ PRODUCT_BRAND := Google
+diff --git a/products/pa_toro.mk b/products/pa_toro.mk
+index 6b89f96..aab1ba3 100644
+--- a/products/pa_toro.mk
++++ b/products/pa_toro.mk
+@@ -35,9 +35,7 @@ include vendor/pa/config/pa_common.mk
+ $(call inherit-product, device/samsung/toro/full_toro.mk)
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/toro.mk
+-
+-# CM Package Extras
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
+ -include vendor/pa/packages/cm.mk
+ 
+ # Override AOSP build properties
+diff --git a/products/pa_toroplus.mk b/products/pa_toroplus.mk
+index 58c9117..a314d9c 100644
+--- a/products/pa_toroplus.mk
++++ b/products/pa_toroplus.mk
+@@ -31,9 +31,7 @@ include vendor/pa/config/pa_common.mk
+ $(call inherit-product, device/samsung/toroplus/full_toroplus.mk)
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/toroplus.mk
+-
+-# CM Package Extras
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
+ -include vendor/pa/packages/cm.mk
+ 
+ # Override AOSP build properties
+-- 
+1.8.0.3
+

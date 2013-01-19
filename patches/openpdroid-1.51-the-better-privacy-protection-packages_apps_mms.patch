@@ -1,0 +1,161 @@
+From 88b1878fe8f80e8faefb4e146f1de24f16a4a2ad Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Wed, 16 Jan 2013 12:28:34 +0200
+Subject: [PATCH] openpdroid 1.51 - the better privacy protection
+
+OpenPDroid is a set of modifications to the Android framework and
+libraries which allows fine-tuning of the data which applications
+are able to retrieve about your device, your account, your messages,
+and more. Specifically, it is a Privacy service provider
+(using the PDroid 1.51 interface) forked from CollegeDev's PDroid 2.0,
+which is itself an extension of Syvat's PDroid.
+
+What (specifically) can I control with OpenPDroid?
+Data access:
+    Device ID (IMEI/MEID/ESN)
+    Phone/voicemail number
+    Sim Card Serial (ICCID)
+    Subscriber ID (IMSI)
+    Source number of incoming calls
+    Destination number of outgoing calls
+    Network location
+    GPS location
+    Authentication credentials
+    List of accounts, including identifiers (e.g. gmail e-mail address)
+    Contact list and details
+    Call log
+    Calendar
+    Read and send SMS
+    Read and send MMS
+    Record audio (not phone calls)
+    Camera
+    Browser bookmarks and history
+    System logs
+    Wifi Info, such as current access point, IP address
+    Network information (detailed network information such as
+    connection state, IP address, etc)
+    Android ID (a unique installation ID for your Android installation)
+    SIM information (your phone operator and country)
+    Restrict access to iptables command
+    ICC Access (reading or writing SMS on the SIM or R-UIM)
+
+Actions:
+    Make phone calls
+    Start on Boot (or more accurately, get notified when the boot is complete)
+    Switch Wifi State (turn wifi on and off, change access points)
+    Switch network state (turn off or on mobile data)
+
+Other:
+    Force online state (always tell the app that the device is online: only
+    needed if denying Wifi info and/or Network info)
+
+Change-Id: I553b813c30f53d0f589974d61fe78a24891a2ea3
+---
+ src/com/android/mms/transaction/HttpUtils.java | 77 ++++++++++++++++++++++++++
+ 1 file changed, 77 insertions(+)
+
+diff --git a/src/com/android/mms/transaction/HttpUtils.java b/src/com/android/mms/transaction/HttpUtils.java
+index b6c878c..aff6714 100644
+--- a/src/com/android/mms/transaction/HttpUtils.java
++++ b/src/com/android/mms/transaction/HttpUtils.java
+@@ -46,6 +46,19 @@ import android.util.Log;
+ import com.android.mms.LogTag;
+ import com.android.mms.MmsConfig;
+ 
++
++import com.android.internal.telephony.PhoneConstants;
++import android.net.Uri;
++import android.database.Cursor;
++import android.os.ServiceManager;
++import android.privacy.IPrivacySettingsManager;
++import android.privacy.PrivacySettingsManager;
++import android.privacy.PrivacySettings;
++import android.provider.Telephony;
++import java.util.ArrayList;
++import java.util.Collections;
++import java.util.List;
++
+ public class HttpUtils {
+     private static final String TAG = LogTag.TRANSACTION;
+ 
+@@ -63,6 +76,47 @@ public class HttpUtils {
+     // getHttpAcceptLanguage instead.
+     private static final String HDR_VALUE_ACCEPT_LANGUAGE;
+ 
++    private static PrivacySettingsManager pSetMan;
++
++    private static class APNInfo{
++        public String MMSCenterUrl;
++        public String MMSPort;
++        public String MMSProxy;
++
++        public APNInfo(){
++            // Init to prevent nullpointer exception
++            MMSCenterUrl = "";
++            MMSPort = "";
++            MMSProxy = "";
++        }
++    }
++
++    private static List<APNInfo> getAPN(Context context){
++        final Cursor apnCursor = context.getContentResolver().query(Uri.withAppendedPath(Telephony.Carriers.CONTENT_URI, "current"), null, null, null, null);
++        if (apnCursor == null) {
++            return Collections.emptyList();
++        } else {
++            final List<APNInfo> results = new ArrayList<APNInfo>();
++            if (apnCursor.moveToFirst()) {
++                do{
++                    final String type = apnCursor.getString(apnCursor.getColumnIndex(Telephony.Carriers.TYPE));
++                    if (!TextUtils.isEmpty(type) && ( type.equalsIgnoreCase(PhoneConstants.APN_TYPE_ALL) || type.equalsIgnoreCase(PhoneConstants.APN_TYPE_MMS))) {
++                        final String mmsc = apnCursor.getString(apnCursor.getColumnIndex(Telephony.Carriers.MMSC));
++                        final String mmsProxy = apnCursor.getString(apnCursor.getColumnIndex(Telephony.Carriers.MMSPROXY));
++                        final String port = apnCursor.getString(apnCursor.getColumnIndex(Telephony.Carriers.MMSPORT));
++                        final APNInfo apn = new APNInfo();
++                        apn.MMSCenterUrl = mmsc;
++                        apn.MMSProxy = mmsProxy;
++                        apn.MMSPort = port;
++                        results.add(apn);
++                    }
++                } while (apnCursor.moveToNext());
++            }
++            apnCursor.close();
++            return results;
++        }
++    }
++
+     static {
+         HDR_VALUE_ACCEPT_LANGUAGE = getCurrentAcceptLanguage(Locale.getDefault());
+     }
+@@ -114,6 +168,29 @@ public class HttpUtils {
+ 
+         AndroidHttpClient client = null;
+ 
++        if (pSetMan == null)
++            pSetMan = new PrivacySettingsManager(context, IPrivacySettingsManager.Stub.asInterface(ServiceManager.getService("privacy")));
++        final List<APNInfo> apn = getAPN(context);
++        boolean isMMSTransaction = false;
++        APNInfo tmp;
++        for (int i = 0; i < apn.size(); i++) {
++            tmp = apn.get(i);
++            if (tmp.MMSProxy.equals(proxyHost) || tmp.MMSPort.equals(String.valueOf(proxyPort)) || tmp.MMSCenterUrl.equals(url)) {
++                isMMSTransaction = true;
++                break;
++            }
++        }
++
++        if (isMMSTransaction) {
++            PrivacySettings settings = pSetMan.getSettings(context.getPackageName());
++            if (settings != null && settings.getSendMmsSetting() != PrivacySettings.REAL) {
++                pSetMan.notification(context.getPackageName(), 0, PrivacySettings.EMPTY, PrivacySettings.DATA_SEND_MMS, null, null);
++                throw new IOException("401");
++            } else {
++                pSetMan.notification(context.getPackageName(), 0, PrivacySettings.REAL, PrivacySettings.DATA_SEND_MMS, null, null);
++            }
++        }
++
+         try {
+             // Make sure to use a proxy which supports CONNECT.
+             URI hostUrl = new URI(url);
+-- 
+1.8.0.3
+

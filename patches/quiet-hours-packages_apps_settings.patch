@@ -1,0 +1,692 @@
+From 281fde644591747c644856a8f814ac36174f3de7 Mon Sep 17 00:00:00 2001
+From: sethyx <sethyx@gmail.com>
+Date: Sat, 14 Apr 2012 19:04:03 +0200
+Subject: [PATCH] Quiet Hours
+
+Change-Id: Ibce695532cd918920ff4a2b2111040591e9975a6
+Signed-off-by: sethyx <sethyx@gmail.com>
+---
+ res/layout/preference_time_range.xml              |  80 +++++++++
+ res/values/strings.xml                            |  19 +++
+ res/xml/quiet_hours_settings.xml                  |  51 ++++++
+ res/xml/sound_settings.xml                        |   5 +
+ src/com/android/settings/QuietHours.java          | 134 +++++++++++++++
+ src/com/android/settings/SoundSettings.java       |  69 ++++++++
+ src/com/android/settings/TimeRangePreference.java | 190 ++++++++++++++++++++++
+ 7 files changed, 548 insertions(+)
+ create mode 100644 res/layout/preference_time_range.xml
+ create mode 100644 res/xml/quiet_hours_settings.xml
+ create mode 100644 src/com/android/settings/QuietHours.java
+ create mode 100644 src/com/android/settings/TimeRangePreference.java
+
+diff --git a/res/layout/preference_time_range.xml b/res/layout/preference_time_range.xml
+new file mode 100644
+index 0000000..0392636
+--- /dev/null
++++ b/res/layout/preference_time_range.xml
+@@ -0,0 +1,80 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:minHeight="?android:attr/listPreferredItemHeight"
++    android:gravity="center_vertical">
++
++        <LinearLayout
++            android:id="@+id/start_time"
++            android:layout_width="fill_parent"
++            android:layout_height="match_parent"
++            android:layout_weight="1"
++            android:orientation="vertical"
++            android:clickable="true"
++            android:focusable="true"
++            android:background="?android:attr/selectableItemBackground">
++
++            <TextView
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:orientation="vertical"
++                android:paddingLeft="16dip"
++                android:paddingTop="6dip"
++                android:text="@string/start_time_title"
++                android:focusable="false"
++                android:textAppearance="?android:attr/textAppearanceSmall" />
++
++            <TextView
++                android:id="@+id/start_time_text"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:gravity="center_horizontal"
++                android:orientation="vertical"
++                android:paddingBottom="6dip"
++                android:focusable="false"
++                android:textAppearance="?android:attr/textAppearanceMedium" />
++
++        </LinearLayout>
++
++        <View
++            android:layout_width="1dip"
++            android:layout_height="match_parent"
++            android:layout_marginTop="5dip"
++            android:layout_marginBottom="5dip"
++            android:background="@android:drawable/divider_horizontal_dark" />
++
++        <LinearLayout
++            android:id="@+id/end_time"
++            android:layout_width="fill_parent"
++            android:layout_height="match_parent"
++            android:layout_weight="1"
++            android:orientation="vertical"
++            android:clickable="true"
++            android:focusable="true"
++            android:background="?android:attr/selectableItemBackground">
++
++            <TextView
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:orientation="vertical"
++                android:paddingLeft="16dip"
++                android:paddingTop="6dip"
++                android:text="@string/end_time_title"
++                android:focusable="false"
++                android:textAppearance="?android:attr/textAppearanceSmall" />
++
++            <TextView
++                android:id="@+id/end_time_text"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:gravity="center_horizontal"
++                android:orientation="vertical"
++                android:paddingBottom="6dip"
++                android:focusable="false"
++                android:textAppearance="?android:attr/textAppearanceMedium" />
++
++        </LinearLayout>
++
++</LinearLayout>
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index 61dad02..5bd4b8f 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -4656,4 +4656,23 @@
+     <string name="increasing_ring_interval_3seconds">3 seconds</string>
+     <string name="increasing_ring_interval_5seconds">5 seconds</string>
+     <string name="increasing_ring_interval_10seconds">10 seconds</string>
++
++    <!-- Quiet hours #CM -->
++    <string name="quiet_hours_title">Quiet hours</string>
++    <string name="quiet_hours_summary">Configure the hours the device should be quiet</string>
++    <string name="quiet_hours_enabled_title">Enable quiet hours</string>
++    <string name="quiet_hours_start">Start of quiet hours</string>
++    <string name="quiet_hours_start_summary">When to start enforcing quiet hours</string>
++    <string name="quiet_hours_end">End of quiet hours</string>
++    <string name="quiet_hours_end_summary">When to stop enforcing quiet hours</string>
++    <string name="quiet_hours_notifications_title">Mute notification sounds</string>
++    <string name="quiet_hours_ringer_title">Mute phone ringtones</string>
++    <string name="quiet_hours_still_title">Disable vibrations</string>
++    <string name="quiet_hours_dim_title">Disable notification light</string>
++    <string name="quiet_hours_active_from">Active from</string>
++    <string name="quiet_hours_active_to">to</string>
++
++    <!-- time range preference -->
++    <string name="start_time_title">Start</string>
++    <string name="end_time_title">End</string>
+ </resources>
+diff --git a/res/xml/quiet_hours_settings.xml b/res/xml/quiet_hours_settings.xml
+new file mode 100644
+index 0000000..a7ae549
+--- /dev/null
++++ b/res/xml/quiet_hours_settings.xml
+@@ -0,0 +1,51 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!-- Copyright (C) 2012 The CyanogenMod Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++
++<PreferenceScreen
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:title="@string/quiet_hours_title"
++    xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
++
++    <CheckBoxPreference
++        android:key="quiet_hours_enabled"
++        android:title="@string/quiet_hours_enabled_title"
++        android:defaultValue="false" />
++
++    <com.android.settings.TimeRangePreference
++        android:key="quiet_hours_timerange"
++        android:dependency="quiet_hours_enabled" />
++
++    <CheckBoxPreference
++        android:key="quiet_hours_notifications"
++        android:title="@string/quiet_hours_notifications_title"
++        android:dependency="quiet_hours_enabled" />
++
++    <CheckBoxPreference
++        android:key="quiet_hours_ringer"
++        android:title="@string/quiet_hours_ringer_title"
++        android:dependency="quiet_hours_enabled" />
++
++    <CheckBoxPreference
++        android:key="quiet_hours_still"
++        android:title="@string/quiet_hours_still_title"
++        android:dependency="quiet_hours_enabled" />
++
++    <CheckBoxPreference
++        android:key="quiet_hours_dim"
++        android:title="@string/quiet_hours_dim_title"
++        android:dependency="quiet_hours_enabled" />
++
++</PreferenceScreen>
+diff --git a/res/xml/sound_settings.xml b/res/xml/sound_settings.xml
+index 8feeec6..b054ce7 100644
+--- a/res/xml/sound_settings.xml
++++ b/res/xml/sound_settings.xml
+@@ -46,6 +46,11 @@
+         <intent android:targetPackage="com.android.musicfx"
+                 android:targetClass="com.android.musicfx.ControlPanelPicker" />
+     </Preference>
++    
++    <PreferenceScreen
++            android:key="quiet_hours"
++            android:fragment="com.android.settings.QuietHours"
++            android:title="@string/quiet_hours_title" />
+ 
+     <PreferenceCategory
+             android:key="category_calls_and_notification"
+diff --git a/src/com/android/settings/QuietHours.java b/src/com/android/settings/QuietHours.java
+new file mode 100644
+index 0000000..7e514a7
+--- /dev/null
++++ b/src/com/android/settings/QuietHours.java
+@@ -0,0 +1,134 @@
++/*
++ * Copyright (C) 2012 The CyanogenMod Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings;
++
++import android.content.ContentResolver;
++import android.os.Bundle;
++import android.preference.CheckBoxPreference;
++import android.preference.Preference;
++import android.preference.PreferenceScreen;
++import android.provider.Settings;
++
++import com.android.settings.R;
++import com.android.settings.SettingsPreferenceFragment;
++
++public class QuietHours extends SettingsPreferenceFragment implements
++        Preference.OnPreferenceChangeListener  {
++
++    private static final String TAG = "QuietHours";
++
++    private static final String KEY_QUIET_HOURS_ENABLED = "quiet_hours_enabled";
++
++    private static final String KEY_QUIET_HOURS_NOTIFICATIONS = "quiet_hours_notifications";
++    
++    private static final String KEY_QUIET_HOURS_RINGER = "quiet_hours_ringer";
++
++    private static final String KEY_QUIET_HOURS_STILL = "quiet_hours_still";
++
++    private static final String KEY_QUIET_HOURS_DIM = "quiet_hours_dim";
++
++    private static final String KEY_QUIET_HOURS_TIMERANGE = "quiet_hours_timerange";
++
++    private CheckBoxPreference mQuietHoursEnabled;
++
++    private CheckBoxPreference mQuietHoursNotifications;
++    
++    private CheckBoxPreference mQuietHoursRinger;
++
++    private CheckBoxPreference mQuietHoursStill;
++
++    private CheckBoxPreference mQuietHoursDim;
++
++    private TimeRangePreference mQuietHoursTimeRange;
++
++    @Override
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++
++        if (getPreferenceManager() != null) {
++            addPreferencesFromResource(R.xml.quiet_hours_settings);
++
++            ContentResolver resolver = getActivity().getApplicationContext().getContentResolver();
++
++            PreferenceScreen prefSet = getPreferenceScreen();
++
++            // Load the preferences
++            mQuietHoursEnabled = (CheckBoxPreference) prefSet.findPreference(KEY_QUIET_HOURS_ENABLED);
++            mQuietHoursTimeRange = (TimeRangePreference) prefSet.findPreference(KEY_QUIET_HOURS_TIMERANGE);
++            mQuietHoursNotifications = (CheckBoxPreference) prefSet.findPreference(KEY_QUIET_HOURS_NOTIFICATIONS);
++            mQuietHoursRinger = (CheckBoxPreference) prefSet.findPreference(KEY_QUIET_HOURS_RINGER);
++            mQuietHoursStill = (CheckBoxPreference) prefSet.findPreference(KEY_QUIET_HOURS_STILL);
++            mQuietHoursDim = (CheckBoxPreference) findPreference(KEY_QUIET_HOURS_DIM);
++
++            // Set the preference state and listeners where applicable
++            mQuietHoursEnabled.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_ENABLED, 0) == 1);
++            mQuietHoursTimeRange.setTimeRange(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_START, 0),
++                    Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_END, 0));
++            mQuietHoursTimeRange.setOnPreferenceChangeListener(this);
++            mQuietHoursNotifications.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_NOTIFICATIONS, 0) == 1);
++            mQuietHoursRinger.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_RINGER, 0) == 1);
++            mQuietHoursStill.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_STILL, 0) == 1);
++
++            // Remove the notification light setting if the device does not support it 
++            if (mQuietHoursDim != null && getResources().getBoolean(com.android.internal.R.bool.config_intrusiveNotificationLed) == false) {
++                getPreferenceScreen().removePreference(mQuietHoursDim);
++            } else {
++                mQuietHoursDim.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_DIM, 0) == 1);
++            }
++        }
++    }
++
++    @Override
++    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
++        ContentResolver resolver = getActivity().getApplicationContext().getContentResolver();
++
++        if (preference == mQuietHoursEnabled) {
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_ENABLED,
++                    mQuietHoursEnabled.isChecked() ? 1 : 0);
++            return true;
++        } else if (preference == mQuietHoursNotifications) {
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_NOTIFICATIONS,
++                    mQuietHoursNotifications.isChecked() ? 1 : 0);
++            return true;
++        } else if (preference == mQuietHoursRinger) {
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_RINGER,
++                    mQuietHoursRinger.isChecked() ? 1 : 0);
++            return true;
++        } else if (preference == mQuietHoursStill) {
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_STILL,
++                    mQuietHoursStill.isChecked() ? 1 : 0);
++            return true;
++        } else if (preference == mQuietHoursDim) {
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_DIM,
++                    mQuietHoursDim.isChecked() ? 1 : 0);
++            return true;
++        }
++        return super.onPreferenceTreeClick(preferenceScreen, preference);
++    }
++
++    public boolean onPreferenceChange(Preference preference, Object newValue) {
++        ContentResolver resolver = getActivity().getApplicationContext().getContentResolver();
++        if (preference == mQuietHoursTimeRange) {
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_START,
++                    mQuietHoursTimeRange.getStartTime());
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_END,
++                    mQuietHoursTimeRange.getEndTime());
++            return true;
++        }
++        return false;
++    }
++}
+diff --git a/src/com/android/settings/SoundSettings.java b/src/com/android/settings/SoundSettings.java
+index 5ad8578..fd52576 100644
+--- a/src/com/android/settings/SoundSettings.java
++++ b/src/com/android/settings/SoundSettings.java
+@@ -46,9 +46,12 @@ import android.preference.PreferenceScreen;
+ import android.provider.MediaStore;
+ import android.provider.Settings;
+ import android.telephony.TelephonyManager;
++import android.text.format.DateFormat;
+ import android.util.Log;
+ import android.view.VolumePanel;
+ 
++import java.util.Calendar;
++import java.util.Date;
+ import java.util.List;
+ 
+ public class SoundSettings extends SettingsPreferenceFragment implements
+@@ -80,6 +83,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+     private static final String KEY_DOCK_AUDIO_SETTINGS = "dock_audio";
+     private static final String KEY_DOCK_SOUNDS = "dock_sounds";
+     private static final String KEY_DOCK_AUDIO_MEDIA_ENABLED = "dock_audio_media_enabled";
++    private static final String KEY_QUIET_HOURS = "quiet_hours";
+ 
+     private static final String[] NEED_VOICE_CAPABILITY = {
+             KEY_RINGTONE, KEY_DTMF_TONE, KEY_CATEGORY_CALLS,
+@@ -99,6 +103,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+     private CheckBoxPreference mLockSounds;
+     private Preference mRingtonePreference;
+     private Preference mNotificationPreference;
++    private PreferenceScreen mQuietHours;
+ 
+     private Runnable mRingtoneLookupRunnable;
+ 
+@@ -127,6 +132,8 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+         public void onReceive(Context context, Intent intent) {
+             if (intent.getAction().equals(Intent.ACTION_DOCK_EVENT)) {
+                 handleDockChange(intent);
++            } else if (intent.getAction().equals(AudioManager.RINGER_MODE_CHANGED_ACTION)) {
++                updateState(false);
+             }
+         }
+     };
+@@ -169,6 +176,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+         mVibrateWhenRinging.setPersistent(false);
+         mVibrateWhenRinging.setChecked(Settings.System.getInt(resolver,
+                 Settings.System.VIBRATE_WHEN_RINGING, 0) != 0);
++        mVibrateWhenRinging.setOnPreferenceChangeListener(this);
+ 
+         mDtmfTone = (CheckBoxPreference) findPreference(KEY_DTMF_TONE);
+         mDtmfTone.setPersistent(false);
+@@ -189,6 +197,16 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+ 
+         mRingtonePreference = findPreference(KEY_RINGTONE);
+         mNotificationPreference = findPreference(KEY_NOTIFICATION_SOUND);
++        
++        mQuietHours = (PreferenceScreen) findPreference(KEY_QUIET_HOURS);
++        if (Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_ENABLED, 0) == 1) {
++            mQuietHours.setSummary(getString(R.string.quiet_hours_active_from) + " " + 
++                    returnTime(Settings.System.getString(resolver, Settings.System.QUIET_HOURS_START)) 
++                    + " " + getString(R.string.quiet_hours_active_to) + " " +
++                    returnTime(Settings.System.getString(resolver, Settings.System.QUIET_HOURS_END)));
++        } else {
++            mQuietHours.setSummary(getString(R.string.quiet_hours_summary));
++        }
+ 
+         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+         if (vibrator == null || !vibrator.hasVibrator()) {
+@@ -251,6 +269,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+     public void onResume() {
+         super.onResume();
+ 
++        updateState(true);
+         lookupRingtoneNames();
+ 
+         IntentFilter filter = new IntentFilter(Intent.ACTION_DOCK_EVENT);
+@@ -268,6 +287,37 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+         getActivity().unregisterReceiver(mReceiver);
+     }
+ 
++    /**
++     * Put the audio system into the correct vibrate setting
++     */
++    private void setPhoneVibrateSettingValue(boolean vibeOnRing) {
++        // If vibrate-on-ring is checked, use VIBRATE_SETTING_ON
++        // Otherwise vibrate is off when ringer is silent
++        int vibrateMode = vibeOnRing ? AudioManager.VIBRATE_SETTING_ON
++                : AudioManager.VIBRATE_SETTING_ONLY_SILENT;
++        mAudioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER, vibrateMode);
++        mAudioManager.setVibrateSetting(AudioManager.VIBRATE_TYPE_NOTIFICATION, vibrateMode);
++    }
++
++    // updateState in fact updates the UI to reflect the system state
++    private void updateState(boolean force) {
++        if (getActivity() == null) return;
++        ContentResolver resolver = getContentResolver();
++
++        final int vibrateMode = mAudioManager.getVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER);
++        
++        if (Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_ENABLED, 0) == 1) {
++            mQuietHours.setSummary(getString(R.string.quiet_hours_active_from) + " " +
++                    returnTime(Settings.System.getString(resolver, Settings.System.QUIET_HOURS_START))
++                    + " " + getString(R.string.quiet_hours_active_to) + " " +
++                    returnTime(Settings.System.getString(resolver, Settings.System.QUIET_HOURS_END)));
++        } else {
++            mQuietHours.setSummary(getString(R.string.quiet_hours_summary));
++        }
++
++        mVibrateWhenRinging.setChecked(vibrateMode == AudioManager.VIBRATE_SETTING_ON);
++    }
++
+     private void updateRingtoneName(int type, Preference preference, int msg) {
+         if (preference == null) return;
+         Context context = getActivity();
+@@ -358,6 +408,9 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+         } else if (preference == mDockAudioMediaEnabled) {
+             Settings.Global.putInt(getContentResolver(), Settings.Global.DOCK_AUDIO_MEDIA_ENABLED,
+                     mDockAudioMediaEnabled.isChecked() ? 1 : 0);
++        } else {
++            // If we didn't handle it, let preferences handle it.
++            return super.onPreferenceTreeClick(preferenceScreen, preference);
+         }
+         return true;
+     }
+@@ -472,5 +525,21 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+         ab.setPositiveButton(android.R.string.ok, null);
+         return ab.create();
+     }
++
++    private String returnTime(String t) {
++        if (t == null || t.equals("")) {
++            return "";
++        }
++        int hr = Integer.parseInt(t.trim());
++        int mn = hr;
++
++        hr = hr / 60;
++        mn = mn % 60;
++        Calendar cal = Calendar.getInstance();
++        cal.set(Calendar.HOUR_OF_DAY, hr);
++        cal.set(Calendar.MINUTE, mn);
++        Date date = cal.getTime();
++        return DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(date);
++    }
+ }
+ 
+diff --git a/src/com/android/settings/TimeRangePreference.java b/src/com/android/settings/TimeRangePreference.java
+new file mode 100644
+index 0000000..1c9f399
+--- /dev/null
++++ b/src/com/android/settings/TimeRangePreference.java
+@@ -0,0 +1,190 @@
++/*
++ * Copyright (C) 2012 The CyanogenMod Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings;
++
++import java.util.Calendar;
++import java.util.Date;
++
++import android.app.TimePickerDialog;
++import android.content.Context;
++import android.preference.Preference;
++import android.text.format.DateFormat;
++import android.util.AttributeSet;
++import android.view.View;
++import android.widget.CheckBox;
++import android.widget.CompoundButton;
++import android.widget.LinearLayout;
++import android.widget.TextView;
++import android.widget.TimePicker;
++
++import com.android.settings.R;
++
++public class TimeRangePreference extends Preference implements
++    View.OnClickListener {
++    private static final String TAG = TimeRangePreference.class.getSimpleName();
++
++    private static final int DIALOG_START_TIME = 1;
++
++    private static final int DIALOG_END_TIME = 2;
++
++    private TextView mStartTimeText;
++
++    private TextView mEndTimeText;
++
++    private int mStartTime;
++
++    private int mEndTime;
++
++    /**
++     * @param context
++     * @param attrs
++     */
++    public TimeRangePreference(Context context, AttributeSet attrs) {
++        super(context, attrs);
++        init();
++    }
++
++    /**
++     * @param context
++     * @param stime
++     * @param etime
++     */
++    public TimeRangePreference(Context context, int stime, int etime) {
++        super(context);
++        mStartTime = stime;
++        mEndTime = etime;
++        init();
++    }
++
++    @Override
++    protected void onBindView(View view) {
++        super.onBindView(view);
++
++        View startTimeLayout = view.findViewById(R.id.start_time);
++        if ((startTimeLayout != null) && startTimeLayout instanceof LinearLayout) {
++            startTimeLayout.setOnClickListener(this);
++        }
++
++        View endTimeLayout = view.findViewById(R.id.end_time);
++        if ((endTimeLayout != null) && endTimeLayout instanceof LinearLayout) {
++            endTimeLayout.setOnClickListener(this);
++        }
++
++        mStartTimeText = (TextView) view.findViewById(R.id.start_time_text);
++        mEndTimeText = (TextView) view.findViewById(R.id.end_time_text);
++
++        updatePreferenceViews();
++    }
++
++    private void init() {
++        setLayoutResource(R.layout.preference_time_range);
++    }
++
++    private void updatePreferenceViews() {
++        if (mStartTimeText != null) {
++            mStartTimeText.setText(returnTime(mStartTime));
++        }
++        if (mEndTimeText != null) {
++            mEndTimeText.setText(returnTime(mEndTime));
++        }
++    }
++
++    public void setStartTime(int time) {
++        mStartTime = time;
++        updatePreferenceViews();
++    }
++
++    public void setEndTime(int time) {
++        mEndTime = time;
++        updatePreferenceViews();
++    }
++
++    public void setTimeRange(int stime, int etime) {
++        mStartTime = stime;
++        mEndTime = etime;
++        updatePreferenceViews();
++    }
++
++    public int getStartTime() {
++        return(mStartTime);
++    }
++
++    public int getEndTime() {
++        return(mEndTime);
++    }
++
++    @Override
++    public void onClick(android.view.View v) {
++        if (v != null) {
++            if (R.id.start_time == v.getId()) {
++                TimePicker(DIALOG_START_TIME);
++            } else if (R.id.end_time == v.getId()) {
++                TimePicker(DIALOG_END_TIME);
++            }
++        }
++    }
++
++    private void TimePicker(final int key) {
++        int hour;
++        int minutes;
++        int value = (key == DIALOG_START_TIME ? mStartTime : mEndTime);
++
++        if (value < 0) {
++            Calendar calendar = Calendar.getInstance();
++            hour = calendar.get(Calendar.HOUR_OF_DAY);
++            minutes = calendar.get(Calendar.MINUTE);
++        } else {
++            hour = value / 60;
++            minutes = value % 60;
++        }
++
++        Context context = getContext();
++        TimePickerDialog dlg = new TimePickerDialog(context,
++        new TimePickerDialog.OnTimeSetListener() {
++            @Override
++            public void onTimeSet(TimePicker v, int hours, int minutes) {
++                int time = hours * 60 + minutes;
++                if (key == DIALOG_START_TIME) {
++                    mStartTime = time;
++                    mStartTimeText.setText(returnTime(time));
++                } else {
++                    mEndTime = time;
++                    mEndTimeText.setText(returnTime(time));
++                }
++                callChangeListener(this);
++            };
++        }, hour, minutes, DateFormat.is24HourFormat(context));
++        dlg.show();
++    }
++
++    private String returnTime(int t) {
++        if (t < 0) {
++            return "";
++        }
++
++        int hr = t;
++        int mn = t;
++
++        hr = hr / 60;
++        mn = mn % 60;
++        Calendar cal = Calendar.getInstance();
++        cal.set(Calendar.HOUR_OF_DAY, hr);
++        cal.set(Calendar.MINUTE, mn);
++        Date date = cal.getTime();
++        return DateFormat.getTimeFormat(getContext()).format(date);
++    }
++}
+-- 
+1.8.0.3
+

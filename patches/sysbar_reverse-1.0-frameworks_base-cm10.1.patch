@@ -1,0 +1,49 @@
+From c21faeb354291894405aa6c78cdd2012beb3f5d0 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sun, 16 Sep 2012 09:26:01 +0300
+Subject: [PATCH] sysbar swap recent and back buttons
+
+Change-Id: Idb59d6249c03927495ca6fa85317ab1c0899f3fa
+---
+ packages/SystemUI/res/layout/system_bar.xml | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/packages/SystemUI/res/layout/system_bar.xml b/packages/SystemUI/res/layout/system_bar.xml
+index c13b113..2defa88 100644
+--- a/packages/SystemUI/res/layout/system_bar.xml
++++ b/packages/SystemUI/res/layout/system_bar.xml
+@@ -53,12 +53,11 @@
+                 android:clipChildren="false"
+                 android:clipToPadding="false"
+                 >
+-                <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/back"
++                <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/recent_apps"
+                     android:layout_width="@dimen/navigation_key_width"
+                     android:layout_height="match_parent"
+-                    android:src="@drawable/ic_sysbar_back"
+-                    systemui:keyCode="4"
+-                    android:contentDescription="@string/accessibility_back"
++                    android:src="@drawable/ic_sysbar_recent"
++                    android:contentDescription="@string/accessibility_recent"
+                     systemui:glowBackground="@drawable/ic_sysbar_highlight"
+                     />
+                 <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/home"
+@@ -69,11 +68,12 @@
+                     android:contentDescription="@string/accessibility_home"
+                     systemui:glowBackground="@drawable/ic_sysbar_highlight"
+                     />
+-                <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/recent_apps"
++                <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/back"
+                     android:layout_width="@dimen/navigation_key_width"
+                     android:layout_height="match_parent"
+-                    android:src="@drawable/ic_sysbar_recent"
+-                    android:contentDescription="@string/accessibility_recent"
++                    android:src="@drawable/ic_sysbar_back"
++                    systemui:keyCode="4"
++                    android:contentDescription="@string/accessibility_back"
+                     systemui:glowBackground="@drawable/ic_sysbar_highlight"
+                     />
+                 <com.android.systemui.statusbar.policy.KeyButtonView android:id="@+id/menu"
+-- 
+1.8.0.3
+

@@ -1,0 +1,26 @@
+From 16b8bb45cebd73d98120e5ff9a1b1287cf8db2ac Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Mon, 14 Jan 2013 19:54:59 +0200
+Subject: [PATCH] use paranoid mako kernel with gcc-4.7 fix
+
+Change-Id: I04d28402611cb73a72a066de01f39b779549904f
+---
+ vendorprops/mako.proprietaries | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/vendorprops/mako.proprietaries b/vendorprops/mako.proprietaries
+index afee10d..921147a 100644
+--- a/vendorprops/mako.proprietaries
++++ b/vendorprops/mako.proprietaries
+@@ -8,7 +8,7 @@
+     },
+     {
+         "remote":       "github",
+-        "account":      "CyanogenMod",
++        "account":      "ParanoidAndroid",
+         "repository":   "lge-kernel-mako",
+         "target_path":  "kernel/lge/mako",
+         "branch":       "jellybean"
+-- 
+1.8.0.3
+

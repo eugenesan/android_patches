@@ -1,0 +1,55 @@
+From 6961f66ff08bd5caf81b0d7c563a4411f62ca690 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Thu, 10 Jan 2013 20:25:22 +0200
+Subject: [PATCH] sync elfutils, oprofile and gcc-4.7 to AOSP master Should
+ prevent future de-synchronization of components directly related to upstream
+ GCC-4.7.
+
+Change-Id: Ib5eee5a021234665d9cf432f7b6b7e37f33d857d
+---
+ default.xml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/default.xml b/default.xml
+index c7b443e..723f865 100644
+--- a/default.xml
++++ b/default.xml
+@@ -72,7 +72,7 @@
+   <project path="external/easymock" name="platform/external/easymock" />
+   <project path="external/eclipse-basebuilder" name="platform/external/eclipse-basebuilder" />
+   <project path="external/eclipse-windowbuilder" name="platform/external/eclipse-windowbuilder" />
+-  <project path="external/elfutils" name="platform/external/elfutils" remote="aosp" revision="cd7a9917db9ad4a4f56cca5153ea2a7b8fecfde9" />
++  <project path="external/elfutils" name="platform/external/elfutils" revision="master" />
+   <project path="external/embunit" name="platform/external/embunit" />
+   <project path="external/emma" name="platform/external/emma" />
+   <project path="external/esd" name="platform/external/esd" />
+@@ -154,7 +154,7 @@
+   <project path="external/openfst" name="platform/external/openfst" />
+   <project path="external/openssh" name="platform/external/openssh" />
+   <project path="external/openssl" name="platform/external/openssl" />
+-  <project path="external/oprofile" name="platform/external/oprofile" remote="aosp" revision="e36e25b6032bb8d194792e77d78f212997b40713" />
++  <project path="external/oprofile" name="platform/external/oprofile" revision="master" />
+   <project path="external/ping" name="platform/external/ping" />
+   <project path="external/ping6" name="platform/external/ping6" />
+   <project path="external/ppp" name="platform/external/ppp" />
+@@ -184,7 +184,7 @@
+   <project path="external/tinyxml" name="platform/external/tinyxml" />
+   <project path="external/tinyxml2" name="platform/external/tinyxml2" />
+   <project path="external/tremolo" name="platform/external/tremolo" />
+-  <project path="external/v8" name="platform/external/v8" remote="aosp" revision="master" />
++  <project path="external/v8" name="platform/external/v8" revision="master" />
+   <project path="external/valgrind" name="platform/external/valgrind" />
+   <project path="external/webkit" name="ParanoidAndroid/android_external_webkit" remote="github" revision="jellybean" />
+   <project path="external/webp" name="platform/external/webp" />
+@@ -307,7 +307,7 @@
+   <project path="prebuilts/gcc/linux-x86/arm/arm-eabi-4.6" name="platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6" groups="linux,arm" />
+   <project path="prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6" name="platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6" groups="linux,arm" />
+   <project path="prebuilts/gcc/linux-x86/arm/arm-eabi-4.7" name="platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7" revision="master" groups="linux,arm" />
+-  <project path="prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.7" name="platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.7" revision="648935d507e178c8c0d6dfb74df4ff082eb2a9a4" groups="linux,arm" />
++  <project path="prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.7" name="platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.7" revision="master" groups="linux,arm" />
+   <project path="prebuilts/gcc/linux-x86/host/i686-linux-glibc2.7-4.4.3" name="platform/prebuilts/gcc/linux-x86/host/i686-linux-glibc2.7-4.4.3" groups="linux" />
+   <project path="prebuilts/gcc/linux-x86/host/i686-linux-glibc2.7-4.6" name="platform/prebuilts/gcc/linux-x86/host/i686-linux-glibc2.7-4.6" groups="linux" />
+   <project path="prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.7-4.6" name="platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.7-4.6" groups="linux" />
+-- 
+1.8.0.3
+

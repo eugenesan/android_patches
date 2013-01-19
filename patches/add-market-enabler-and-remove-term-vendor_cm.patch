@@ -1,0 +1,59 @@
+From 79859375ba0a2a8a6de657f977fca6224591f03c Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sun, 23 Dec 2012 18:34:38 +0200
+Subject: [PATCH] add market enabler and remove term
+
+Change-Id: I56c4c08c83a6c2f6d1822375252fd3cedbc640a3
+---
+ config/common.mk | 19 ++-----------------
+ get-prebuilts    |  6 ++----
+ 2 files changed, 4 insertions(+), 21 deletions(-)
+
+diff --git a/config/common.mk b/config/common.mk
+index 3a42ca2..6f98e69 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -99,24 +99,9 @@ PRODUCT_COPY_FILES += \
+ PRODUCT_COPY_FILES += \
+     vendor/cm/prebuilt/common/bin/modelid_cfg.sh:system/bin/modelid_cfg.sh
+ 
+-PRODUCT_COPY_FILES += \
+-    vendor/cm/proprietary/Term.apk:system/app/Term.apk
+-
+-# Copy JNI libarary of Term
+-ifeq ($(TARGET_ARCH),arm)
+-PRODUCT_COPY_FILES +=  \
+-    vendor/cm/proprietary/lib/armeabi/libjackpal-androidterm4.so:system/lib/libjackpal-androidterm4.so
+-endif
+-
+-ifeq ($(TARGET_ARCH),mips)
++# Market Enabler
+ PRODUCT_COPY_FILES +=  \
+-    vendor/cm/proprietary/lib/mips/libjackpal-androidterm4.so:system/lib/libjackpal-androidterm4.so
+-endif
+-
+-ifeq ($(TARGET_ARCH),x86)
+-PRODUCT_COPY_FILES +=  \
+-    vendor/cm/proprietary/lib/x86/libjackpal-androidterm4.so:system/lib/libjackpal-androidterm4.so
+-endif
++    vendor/cm/proprietary/MarketEnabler.apk:system/app/MarketEnabler.apk
+ 
+ # Bring in camera effects
+ PRODUCT_COPY_FILES +=  \
+diff --git a/get-prebuilts b/get-prebuilts
+index 1d2b6df..135cad5 100755
+--- a/get-prebuilts
++++ b/get-prebuilts
+@@ -3,7 +3,5 @@ BASEDIR=`dirname $0`
+ 
+ mkdir -p $BASEDIR/proprietary
+ 
+-# Get Android Terminal Emulator (we use a prebuilt so it can update from the Market)
+-curl -L -o $BASEDIR/proprietary/Term.apk -O -L http://jackpal.github.com/Android-Terminal-Emulator/downloads/Term.apk
+-unzip -o -d $BASEDIR/proprietary $BASEDIR/proprietary/Term.apk lib/*
+-
++# Get Market Enabler (Source: https://code.google.com/p/market-enabler/downloads/list)
++curl -L -o $BASEDIR/proprietary/MarketEnabler.apk -O -L "http://market-enabler.googlecode.com/files/MarketEnabler_v3113.apk"
+-- 
+1.8.0
+

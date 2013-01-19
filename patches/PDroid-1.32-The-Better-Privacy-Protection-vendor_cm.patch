@@ -1,0 +1,79 @@
+From fd201e70471264c217613c0ddfbf6051b88a8f8f Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Mon, 15 Oct 2012 18:20:03 +0200
+Subject: [PATCH] PDroid 1.32 - The Better Privacy Protection
+
+PDroid allows blocking access for any installed application to the following data separately:
+    Device ID (IMEI/MEID/ESN)
+    Subscriber ID (IMSI)
+    SIM serial (ICCID)
+    Phone and mailbox number
+    Incoming call number
+    Outgoing call number
+    GPS location
+    Network location
+    List of accounts (including your google e-mail address)
+    Account auth tokens
+    Contacts
+    Call logs
+    Calendar
+    SMS
+    MMS
+    Browser bookmarks and history
+    System logs
+    SIM info (operator, country)
+    Network info (operator, country)
+
+For device ID, phone and mailbox number, SIM serial, subscriber ID and device location it also allows supplying custom or random values.
+
+Why you would want to use it:
+    Applicaitons do NOT crash when access to private data is blocked (unlike with Permissions Denied or CM)
+    Fine-grained tuning of access to private data
+    No background service needed
+    Very small memory footprint (~700KB)
+    No impact on battery life
+    No impact on performance (5ms overhead on access to private data; yes, that's 0.005s)
+    100% reliable unlike ROOT applications (LBE), which need to start their background service on boot (see android underground to learn why this is an issue)
+    No ROOT required for the app to run
+    No Android permissions required for the app to run
+    Open-source
+
+Requires configuration application from here: http://goo.gl/DTg31
+
+Credits goes to:
+svyat at http://forum.xda-developers.com/showthread.php?t=1357056
+pastime1971 at http://forum.xda-developers.com/showthread.php?t=1554960
+
+Change-Id: I6016bf6febfa209e9c61a1bdb3ecda20cc7a1d11
+---
+ config/common.mk | 3 ++-
+ get-prebuilts    | 2 ++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/config/common.mk b/config/common.mk
+index 1f69feb..da3ef81 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -97,7 +97,8 @@ PRODUCT_COPY_FILES += \
+ 
+ PRODUCT_COPY_FILES +=  \
+     vendor/cm/proprietary/Term.apk:system/app/Term.apk \
+-    vendor/cm/proprietary/lib/armeabi/libjackpal-androidterm4.so:system/lib/libjackpal-androidterm4.so
++    vendor/cm/proprietary/lib/armeabi/libjackpal-androidterm4.so:system/lib/libjackpal-androidterm4.so \
++    vendor/cm/proprietary/Pdroid.apk:system/app/Pdroid.apk
+ 
+ # Bring in camera effects
+ PRODUCT_COPY_FILES +=  \
+diff --git a/get-prebuilts b/get-prebuilts
+index 1d9493f..9ec2d08 100755
+--- a/get-prebuilts
++++ b/get-prebuilts
+@@ -7,3 +7,5 @@ mkdir -p $BASEDIR/proprietary
+ curl -L -o $BASEDIR/proprietary/Term.apk -O -L https://github.com/downloads/jackpal/Android-Terminal-Emulator/Term.apk
+ unzip -o -d $BASEDIR/proprietary $BASEDIR/proprietary/Term.apk lib/armeabi/libjackpal-androidterm4.so
+ 
++# Get Privacy droid (we use a prebuilt so it can update from the Market, and currently this the only option ;-()
++curl -L -o $BASEDIR/proprietary/Pdroid.apk -O -L "https://dl.dropbox.com/s/d1elu8ekqh8bjkj/PDroid_release.apk?dl=1"
+-- 
+1.7.11.3
+

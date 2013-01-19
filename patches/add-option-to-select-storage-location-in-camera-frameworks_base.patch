@@ -1,0 +1,42 @@
+From 3c3bc5fece44574c9ea128e9cc5bf2d9dd0058bf Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sat, 3 Nov 2012 18:43:42 +0200
+Subject: [PATCH] add option to select storage location in camera
+
+Based on:
+        http://gerrit.sudoservers.com/#/c/3325/
+        http://gerrit.sudoservers.com/#/c/3326/
+
+Change-Id: Ice0249a46a996723524def56c22585f0cf1c0d11
+---
+ core/java/android/os/Environment.java | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/core/java/android/os/Environment.java b/core/java/android/os/Environment.java
+index 679cf1a..6c181fe 100644
+--- a/core/java/android/os/Environment.java
++++ b/core/java/android/os/Environment.java
+@@ -427,11 +427,18 @@ public class Environment {
+      * <p>See {@link #getExternalStorageDirectory()} for more information.
+      */
+     public static String getExternalStorageState() {
++        return getExternalStorageState(getExternalStorageDirectory().toString());
++    }
++
++    /**
++     * Gets the current state of the specified "external" storage device.
++     * @hide
++     */
++    public static String getExternalStorageState(String path) {
+         try {
+             IMountService mountService = IMountService.Stub.asInterface(ServiceManager
+                     .getService("mount"));
+-            return mountService.getVolumeState(getExternalStorageDirectory()
+-                    .toString());
++            return mountService.getVolumeState(path);
+         } catch (Exception rex) {
+             return Environment.MEDIA_REMOVED;
+         }
+-- 
+1.8.0
+
