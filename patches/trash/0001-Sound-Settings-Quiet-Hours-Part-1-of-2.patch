@@ -1,0 +1,586 @@
+From 533f6a70fb3997e4e40a908fe88bd4b4489c058d Mon Sep 17 00:00:00 2001
+From: DvTonder <david.vantonder@gmail.com>
+Date: Sun, 12 Feb 2012 19:49:10 -0500
+Subject: [PATCH] Sound Settings - Quiet Hours (Part 1 of 2)
+
+This is the settings part of the Quiet Hours settings, ported from
+CM7.
+
+Patch set 4 - Moved the setting to the Sound Settings screen.
+Patch set 5 - Make it work in the new location :-)
+Patch set 6 - Cleanup of some spacing issues
+Patch set 7 - Added Dutch translations
+Patch set 8 - Changed commit name
+
+Change-Id: I8a37b4cf9051135248ab9259376b9b023fcc1a6c
+---
+ res/values-nl/strings.xml                          |  28 +++
+ res/values/strings.xml                             |  27 ++-
+ res/xml/profiles_settings.xml                      |  12 +-
+ res/xml/quiet_hours_settings.xml                   |  76 +++++++
+ res/xml/sound_settings.xml                         |   9 +-
+ src/com/android/settings/SoundSettings.java        |   8 +
+ .../settings/cyanogenmod/ProfilesSettings.java     |  27 +--
+ .../android/settings/cyanogenmod/QuietHours.java   | 249 +++++++++++++++++++++
+ 8 files changed, 407 insertions(+), 29 deletions(-)
+ create mode 100644 res/xml/quiet_hours_settings.xml
+ create mode 100644 src/com/android/settings/cyanogenmod/QuietHours.java
+
+diff --git a/res/values-nl/strings.xml b/res/values-nl/strings.xml
+index 83e07ff..f84c8f2 100644
+--- a/res/values-nl/strings.xml
++++ b/res/values-nl/strings.xml
+@@ -1579,4 +1579,32 @@
+     <string name="backup_pw_cancel_button_text" msgid="8845630125391744615">"Annuleren"</string>
+     <string name="percentage" msgid="5866131581207788624">"<xliff:g id="NUMBER">%d</xliff:g>%%"</string>
+     <string name="additional_system_update_settings_list_item_title" msgid="214987609894661992">"Aanvullende systeemupdates"</string>
++
++    <!-- Profiles -->
++    <string name="profiles_settings_title">Profielen</string>
++
++    <!-- Profiles - Quiet hours -->
++    <string name="quiet_hours_title">Stille uren</string>
++    <string name="quiet_hours_summary">Toon/verander uren wanneer apparaat stil moet zijn</string>
++    <string name="quiet_hours_note_title">Opmerking</string>
++    <string name="quiet_hours_note_summary">Inkomende oproepen zullen normaal functioneren tijdens stille uren</string>
++    <string name="quiet_hours_enabled">Schakel stille uren in</string>
++    <string name="quiet_hours_enabled_on">Stille uren worden geforceerd</string>
++    <string name="quiet_hours_enabled_off">Notificaties zullen normaal functioneren</string>
++    <string name="quiet_hours_start">Begin stille uren</string>
++    <string name="quiet_hours_start_summary">Wanneer beginnen met het forceren van stille uren</string>
++    <string name="quiet_hours_end">Einde stille uren</string>
++    <string name="quiet_hours_end_summary">Wanneer stoppen met het forceren van stille uren</string>
++    <string name="quiet_hours_mute">Demp notificaties</string>
++    <string name="quiet_hours_mute_on">Er zullen geen geluiden worden afgespeeld</string>
++    <string name="quiet_hours_mute_off">Geluiden zullen normaal worden afgespeeld</string>
++    <string name="quiet_hours_still">Schakel trillen uit</string>
++    <string name="quiet_hours_still_on">Apparaat zal niet trillen</string>
++    <string name="quiet_hours_still_off">Apparaat zal normaal trillen</string>
++    <string name="quiet_hours_dim">Schakel notificatie-LED uit</string>
++    <string name="quiet_hours_dim_on">Notificatie-LED zal worden uitgeschakeld</string>
++    <string name="quiet_hours_dim_off">Notificatie-LED zal normaal functioneren</string>
++    <string name="quiet_hours_haptic">Schakel haptische feedback uit</string>
++    <string name="quiet_hours_haptic_on">Haptische feedback zal worden uitgeschakeld</string>
++    <string name="quiet_hours_haptic_off">Haptische feedback zal normaal functioneren</string>
+ </resources>
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index 71e14c8..c6df0d4 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -842,7 +842,32 @@
+     
+     <!-- Profiles settings #CM -->
+     <string name="profiles_settings_title">Profiles</string>
+-    
++
++    <!-- Profiles - Quiet hours -->
++    <string name="quiet_hours_title">Quiet hours</string>
++    <string name="quiet_hours_summary">View or change the hours the device should be quiet</string>
++    <string name="quiet_hours_note_title">Note</string>
++    <string name="quiet_hours_note_summary">Incoming calls will behave like usual during quiet hours</string>
++    <string name="quiet_hours_enabled">Enable quiet hours</string>
++    <string name="quiet_hours_enabled_on">Quiet hours will be enforced</string>
++    <string name="quiet_hours_enabled_off">Notifications will function as normal</string>
++    <string name="quiet_hours_start">Start of quiet hours</string>
++    <string name="quiet_hours_start_summary">When to start enforcing quiet hours</string>
++    <string name="quiet_hours_end">End of quiet hours</string>
++    <string name="quiet_hours_end_summary">When to stop enforcing quiet hours</string>
++    <string name="quiet_hours_mute">Mute notifications</string>
++    <string name="quiet_hours_mute_on">No sounds will be played</string>
++    <string name="quiet_hours_mute_off">Sounds will play like normal</string>
++    <string name="quiet_hours_still">Disable vibrations</string>
++    <string name="quiet_hours_still_on">Device will not vibrate</string>
++    <string name="quiet_hours_still_off">Device will vibrate normally</string>
++    <string name="quiet_hours_dim">Disable notification light</string>
++    <string name="quiet_hours_dim_on">Notification light will be disabled</string>
++    <string name="quiet_hours_dim_off">Notification light will function as normal</string>
++    <string name="quiet_hours_haptic">Disable haptic feedback</string>
++    <string name="quiet_hours_haptic_on">Haptic feedback will be disabled</string>
++    <string name="quiet_hours_haptic_off">Haptic feedback will function as normal</string>
++
+     <!-- Security Settings --><skip />
+     <!-- Security settings screen when using face unlock, setting option name to start an activity that allows the user to improve accuracy by adding additional enrollment faces -->
+     <string name="biometric_weak_improve_matching_title">Improve face matching</string>
+diff --git a/res/xml/profiles_settings.xml b/res/xml/profiles_settings.xml
+index 2e72e0a..c2ba9e1 100644
+--- a/res/xml/profiles_settings.xml
++++ b/res/xml/profiles_settings.xml
+@@ -14,16 +14,14 @@
+      limitations under the License.
+ -->
+ 
+-<!-- This is a placeholder stub for the preference screen -->
+-
+ <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+         android:title="@string/profiles_settings_title"
+         xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
+ 
+-        <!-- Temporary - Preference stub -->
+-        <Preference android:key="stubbed"
+-                style="?android:preferenceInformationStyle"
+-                android:title="@string/stubbed"
+-                android:summary="@string/stubbed_summary" />
++    <!-- Temporary - Preference stub -->
++    <Preference android:key="stubbed"
++            style="?android:preferenceInformationStyle"
++            android:title="@string/stubbed"
++            android:summary="@string/stubbed_summary" />
+ 
+ </PreferenceScreen>
+\ No newline at end of file
+diff --git a/res/xml/quiet_hours_settings.xml b/res/xml/quiet_hours_settings.xml
+new file mode 100644
+index 0000000..84a22da
+--- /dev/null
++++ b/res/xml/quiet_hours_settings.xml
+@@ -0,0 +1,76 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!-- Copyright (C) 2012 The CyanogenMod Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++
++<PreferenceScreen
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:title="@string/quiet_hours_title"
++    xmlns:settings="http://schemas.android.com/apk/res/com.android.settings">
++
++    <Preference
++        android:key="quiet_hours_note"
++        style="?android:preferenceInformationStyle"
++        android:title="@string/quiet_hours_note_title"
++        android:summary="@string/quiet_hours_note_summary"
++        android:selectable="false" />
++
++    <CheckBoxPreference
++        android:key="quiet_hours_enabled"
++        android:title="@string/quiet_hours_enabled"
++        android:summaryOn="@string/quiet_hours_enabled_on"
++        android:summaryOff="@string/quiet_hours_enabled_off"
++        android:defaultValue="false" />
++
++    <Preference
++        android:key="quiet_hours_start"
++        android:title="@string/quiet_hours_start"
++        android:summary="@string/quiet_hours_start_summary"
++        android:dependency="quiet_hours_enabled" />
++
++    <Preference
++        android:key="quiet_hours_end"
++        android:title="@string/quiet_hours_end"
++        android:summary="@string/quiet_hours_end_summary"
++        android:dependency="quiet_hours_enabled" />
++
++    <CheckBoxPreference
++        android:key="quiet_hours_mute"
++        android:title="@string/quiet_hours_mute"
++        android:summaryOn="@string/quiet_hours_mute_on"
++        android:summaryOff="@string/quiet_hours_mute_off"
++        android:dependency="quiet_hours_enabled" />
++
++    <CheckBoxPreference
++        android:key="quiet_hours_haptic"
++        android:title="@string/quiet_hours_haptic"
++        android:summaryOn="@string/quiet_hours_haptic_on"
++        android:summaryOff="@string/quiet_hours_haptic_off"
++        android:dependency="quiet_hours_enabled" />
++
++    <CheckBoxPreference
++        android:key="quiet_hours_still"
++        android:title="@string/quiet_hours_still"
++        android:summaryOn="@string/quiet_hours_still_on"
++        android:summaryOff="@string/quiet_hours_still_off"
++        android:dependency="quiet_hours_enabled" />
++
++    <CheckBoxPreference
++        android:key="quiet_hours_dim"
++        android:title="@string/quiet_hours_dim"
++        android:summaryOn="@string/quiet_hours_dim_on"
++        android:summaryOff="@string/quiet_hours_dim_off"
++        android:dependency="quiet_hours_enabled" />
++
++</PreferenceScreen>
+\ No newline at end of file
+diff --git a/res/xml/sound_settings.xml b/res/xml/sound_settings.xml
+index a61e0e1..5cabc47 100644
+--- a/res/xml/sound_settings.xml
++++ b/res/xml/sound_settings.xml
+@@ -35,10 +35,17 @@
+     <Preference
+             android:key="musicfx"
+             android:title="@string/musicfx_title">
+-        <intent android:targetPackage="com.android.musicfx"
++            <intent android:targetPackage="com.android.musicfx"
+                 android:targetClass="com.android.musicfx.ControlPanelPicker" />
+     </Preference>
+ 
++    <!-- Quiet hours -->
++    <PreferenceScreen
++            android:key="quiet_hours"
++            android:fragment="com.android.settings.cyanogenmod.QuietHours"
++            android:title="@string/quiet_hours_title"
++            android:summary="@string/quiet_hours_summary" />
++
+     <PreferenceCategory
+             android:key="category_calls_and_notification"
+             android:title="@string/sound_category_calls_and_notification_title"/>
+diff --git a/src/com/android/settings/SoundSettings.java b/src/com/android/settings/SoundSettings.java
+index cf7cd0a..8374b97 100644
+--- a/src/com/android/settings/SoundSettings.java
++++ b/src/com/android/settings/SoundSettings.java
+@@ -68,6 +68,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+     private static final String KEY_RINGTONE = "ringtone";
+     private static final String KEY_NOTIFICATION_SOUND = "notification_sound";
+     private static final String KEY_CATEGORY_CALLS = "category_calls";
++    private static final String KEY_QUIET_HOURS = "quiet_hours";
+ 
+     private static final String SILENT_MODE_OFF = "off";
+     private static final String SILENT_MODE_VIBRATE = "vibrate";
+@@ -90,6 +91,7 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+     private CheckBoxPreference mLockSounds;
+     private Preference mRingtonePreference;
+     private Preference mNotificationPreference;
++    private PreferenceScreen mQuietHours;
+ 
+     private Runnable mRingtoneLookupRunnable;
+ 
+@@ -142,6 +144,8 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+             mSilentMode.setOnPreferenceChangeListener(this);
+         }
+ 
++        mQuietHours = (PreferenceScreen) findPreference(KEY_QUIET_HOURS);
++
+         mVibrateOnRing = (CheckBoxPreference) findPreference(KEY_VIBRATE);
+         mVibrateOnRing.setOnPreferenceChangeListener(this);
+ 
+@@ -338,6 +342,10 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+         } else if (preference == mMusicFx) {
+             // let the framework fire off the intent
+             return false;
++
++        } else {
++            // If we didn't handle it, let preferences handle it.
++            return super.onPreferenceTreeClick(preferenceScreen, preference);
+         }
+ 
+         return true;
+diff --git a/src/com/android/settings/cyanogenmod/ProfilesSettings.java b/src/com/android/settings/cyanogenmod/ProfilesSettings.java
+index f9763bc..20cee5f 100644
+--- a/src/com/android/settings/cyanogenmod/ProfilesSettings.java
++++ b/src/com/android/settings/cyanogenmod/ProfilesSettings.java
+@@ -29,29 +29,17 @@ public class ProfilesSettings extends SettingsPreferenceFragment implements
+         Preference.OnPreferenceChangeListener {
+     private static final String TAG = "ProfilesSettings";
+ 
+-    private final Configuration mCurConfig = new Configuration();
+-    
+     @Override
+     public void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+-        ContentResolver resolver = getActivity().getContentResolver();
+ 
+-        addPreferencesFromResource(R.xml.profiles_settings);
+-    }
+-
+-    @Override
+-    public void onResume() {
+-        super.onResume();
++        if (getPreferenceManager() != null) {
+ 
+-        updateState();
+-    }
++            addPreferencesFromResource(R.xml.profiles_settings);
+ 
+-    @Override
+-    public void onPause() {
+-        super.onPause();
+-    }
++            PreferenceScreen prefSet = getPreferenceScreen();
+ 
+-    private void updateState() {
++        }
+     }
+ 
+     @Override
+@@ -59,9 +47,8 @@ public class ProfilesSettings extends SettingsPreferenceFragment implements
+         return super.onPreferenceTreeClick(preferenceScreen, preference);
+     }
+ 
+-    public boolean onPreferenceChange(Preference preference, Object objValue) {
+-        final String key = preference.getKey();
+-
+-        return true;
++    public boolean onPreferenceChange(Preference preference, Object newValue) {
++        return false;
+     }
++
+ }
+diff --git a/src/com/android/settings/cyanogenmod/QuietHours.java b/src/com/android/settings/cyanogenmod/QuietHours.java
+new file mode 100644
+index 0000000..cc60fde
+--- /dev/null
++++ b/src/com/android/settings/cyanogenmod/QuietHours.java
+@@ -0,0 +1,249 @@
++/*
++ * Copyright (C) 2012 The CyanogenMod Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.cyanogenmod;
++
++import java.util.Calendar;
++import java.util.Date;
++
++import android.app.Dialog;
++import android.app.TimePickerDialog;
++import android.content.ContentResolver;
++import android.content.DialogInterface;
++import android.os.Bundle;
++import android.preference.CheckBoxPreference;
++import android.preference.Preference;
++import android.preference.PreferenceScreen;
++import android.provider.Settings;
++import android.provider.Settings.SettingNotFoundException;
++import android.text.format.DateFormat;
++import android.util.Log;
++import android.widget.TimePicker;
++
++import com.android.settings.R;
++import com.android.settings.SettingsPreferenceFragment;
++
++public class QuietHours extends SettingsPreferenceFragment implements
++        Preference.OnPreferenceChangeListener  {
++
++    private static final String TAG = "QuietHours";
++
++    private static final int DIALOG_QUIET_HOURS_START = 1;
++
++    private static final int DIALOG_QUIET_HOURS_END = 2;
++
++    private static final String KEY_QUIET_HOURS_ENABLED = "quiet_hours_enabled";
++
++    private static final String KEY_QUIET_HOURS_START = "quiet_hours_start";
++
++    private static final String KEY_QUIET_HOURS_END = "quiet_hours_end";
++
++    private static final String KEY_QUIET_HOURS_MUTE = "quiet_hours_mute";
++
++    private static final String KEY_QUIET_HOURS_STILL = "quiet_hours_still";
++
++    private static final String KEY_QUIET_HOURS_DIM = "quiet_hours_dim";
++
++    private static final String KEY_QUIET_HOURS_HAPTIC = "quiet_hours_haptic";
++
++    private static final String KEY_QUIET_HOURS_NOTE = "quiet_hours_note";
++
++    private CheckBoxPreference mQuietHoursEnabled;
++
++    private Preference mQuietHoursStart;
++
++    private Preference mQuietHoursEnd;
++
++    private Preference mQuietHoursNote;
++
++    private CheckBoxPreference mQuietHoursMute;
++
++    private CheckBoxPreference mQuietHoursStill;
++
++    private CheckBoxPreference mQuietHoursDim;
++
++    private CheckBoxPreference mQuietHoursHaptic;
++
++    private String returnTime(String t) {
++        if (t == null || t.equals("")) {
++            return "";
++        }
++        int hr = Integer.parseInt(t.trim());
++        int mn = hr;
++
++        hr = hr / 60;
++        mn = mn % 60;
++        Calendar cal = Calendar.getInstance();
++        cal.set(Calendar.HOUR_OF_DAY, hr);
++        cal.set(Calendar.MINUTE, mn);
++        Date date = cal.getTime();
++        return DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(date);
++    }
++
++    @Override
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++
++        if (getPreferenceManager() != null) {
++            addPreferencesFromResource(R.xml.quiet_hours_settings);
++
++            ContentResolver resolver = getActivity().getApplicationContext().getContentResolver();
++
++            PreferenceScreen prefSet = getPreferenceScreen();
++
++            // Load the preferences
++            mQuietHoursNote = prefSet.findPreference(KEY_QUIET_HOURS_NOTE);
++            mQuietHoursEnabled = (CheckBoxPreference) prefSet.findPreference(KEY_QUIET_HOURS_ENABLED);
++            mQuietHoursStart = prefSet.findPreference(KEY_QUIET_HOURS_START);
++            mQuietHoursEnd = prefSet.findPreference(KEY_QUIET_HOURS_END);
++            mQuietHoursMute = (CheckBoxPreference) prefSet.findPreference(KEY_QUIET_HOURS_MUTE);
++            mQuietHoursStill = (CheckBoxPreference) prefSet.findPreference(KEY_QUIET_HOURS_STILL);
++            mQuietHoursHaptic = (CheckBoxPreference) prefSet.findPreference(KEY_QUIET_HOURS_HAPTIC);
++            mQuietHoursDim = (CheckBoxPreference) findPreference(KEY_QUIET_HOURS_DIM);
++
++            // Remove the "Incoming calls behaviour" note if the device does not support phone calls
++            if (mQuietHoursNote != null && getResources().getBoolean(com.android.internal.R.bool.config_voice_capable) == false) {
++                getPreferenceScreen().removePreference(mQuietHoursNote);
++            }
++
++            // Set the preference state and listeners where applicable
++            mQuietHoursEnabled.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_ENABLED, 0) == 1);
++            mQuietHoursStart.setSummary(returnTime(Settings.System.getString(resolver, Settings.System.QUIET_HOURS_START)));
++            mQuietHoursStart.setOnPreferenceChangeListener(this);
++            mQuietHoursEnd.setSummary(returnTime(Settings.System.getString(resolver, Settings.System.QUIET_HOURS_END)));
++            mQuietHoursEnd.setOnPreferenceChangeListener(this);
++            mQuietHoursMute.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_MUTE, 0) == 1);
++            mQuietHoursStill.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_STILL, 0) == 1);
++            mQuietHoursHaptic.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_HAPTIC, 0) == 1);
++
++            // Remove the notification light setting if the device does not support it 
++            if (mQuietHoursDim != null && getResources().getBoolean(com.android.internal.R.bool.config_intrusiveNotificationLed) == false) {
++                getPreferenceScreen().removePreference(mQuietHoursDim);
++            } else {
++                mQuietHoursDim.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_DIM, 0) == 1);
++            }
++        }
++    }
++
++    @Override
++    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
++        ContentResolver resolver = getActivity().getApplicationContext().getContentResolver();
++
++        if (preference == mQuietHoursEnabled) {
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_ENABLED,
++                    mQuietHoursEnabled.isChecked() ? 1 : 0);
++            return true;
++        } else if (preference == mQuietHoursMute) {
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_MUTE,
++                    mQuietHoursMute.isChecked() ? 1 : 0);
++            return true;
++        } else if (preference == mQuietHoursStill) {
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_STILL,
++                    mQuietHoursStill.isChecked() ? 1 : 0);
++            return true;
++        } else if (preference == mQuietHoursDim) {
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_DIM,
++                    mQuietHoursDim.isChecked() ? 1 : 0);
++            return true;
++        } else if (preference == mQuietHoursStart) {
++            showDialog(DIALOG_QUIET_HOURS_START);
++            mQuietHoursStart.setSummary(returnTime(Settings.System.getString(resolver,
++                    Settings.System.QUIET_HOURS_START)));
++            return true;
++        } else if (preference == mQuietHoursEnd) {
++            showDialog(DIALOG_QUIET_HOURS_END);
++            mQuietHoursEnd.setSummary(returnTime(Settings.System.getString(resolver,
++                    Settings.System.QUIET_HOURS_END)));
++            return true;
++        } else if (preference == mQuietHoursHaptic) {
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_HAPTIC,
++                    mQuietHoursHaptic.isChecked() ? 1 : 0);
++            return true;
++        }
++        return super.onPreferenceTreeClick(preferenceScreen, preference);
++    }
++
++    public boolean onPreferenceChange(Preference preference, Object newValue) {
++        String key = preference.getKey();
++        ContentResolver resolver = getActivity().getApplicationContext().getContentResolver();
++
++        if (key.equals(KEY_QUIET_HOURS_START)) {
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_START,
++                    getBoolean(newValue) ? 1 : 0);
++            mQuietHoursStart.setSummary(returnTime(Settings.System.getString(resolver,
++                    Settings.System.QUIET_HOURS_START)));
++            return true;
++        } else if (key.equals(KEY_QUIET_HOURS_END)) {
++            Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_END,
++                    getBoolean(newValue) ? 1 : 0);
++            mQuietHoursEnd.setSummary(returnTime(Settings.System.getString(resolver,
++                    Settings.System.QUIET_HOURS_END)));
++            return true;
++        }
++        return false;
++    }
++
++    @Override
++    public Dialog onCreateDialog(int id) {
++        switch (id) {
++            case DIALOG_QUIET_HOURS_START:
++                return createTimePicker(Settings.System.QUIET_HOURS_START);
++            case DIALOG_QUIET_HOURS_END:
++                return createTimePicker(Settings.System.QUIET_HOURS_END);
++        }
++        return super.onCreateDialog(id);
++    }
++
++    private TimePickerDialog createTimePicker(final String key) {
++        ContentResolver resolver = getActivity().getApplicationContext().getContentResolver();
++        int value = Settings.System.getInt(resolver, key, -1);
++        int hour;
++        int minutes;
++
++        if (value < 0) {
++            Calendar calendar = Calendar.getInstance();
++            hour = calendar.get(Calendar.HOUR_OF_DAY);
++            minutes = calendar.get(Calendar.MINUTE);
++        } else {
++            hour = value / 60;
++            minutes = value % 60;
++        }
++
++        TimePickerDialog dlg = new TimePickerDialog(getActivity(),
++        new TimePickerDialog.OnTimeSetListener() {
++            @Override
++            public void onTimeSet(TimePicker v, int hours, int minutes) {
++                ContentResolver resolver = getActivity().getApplicationContext().getContentResolver();
++                // Set the appropriate time setting
++                Settings.System.putInt(resolver, key, hours * 60 + minutes);
++                // Set the summary to reflect the set time
++                if (key.equals(KEY_QUIET_HOURS_START)) {
++                    mQuietHoursStart.setSummary(returnTime(Settings.System.getString(
++                            resolver, Settings.System.QUIET_HOURS_START)));
++                } else {
++                    mQuietHoursEnd.setSummary(returnTime(Settings.System.getString(
++                            resolver, Settings.System.QUIET_HOURS_END)));
++                }
++            };
++        }, hour, minutes, DateFormat.is24HourFormat(getActivity()));
++
++        return dlg;
++    }
++
++    private boolean getBoolean(Object o) {
++        return Boolean.valueOf(o.toString());
++    }
++}
+\ No newline at end of file
+-- 
+1.8.0.3
+

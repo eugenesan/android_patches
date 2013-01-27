@@ -1,0 +1,668 @@
+From 1bfe48ac4fe6afbf5b41e0ca1e87827335981085 Mon Sep 17 00:00:00 2001
+From: DvTonder <david.vantonder@gmail.com>
+Date: Fri, 23 Mar 2012 21:15:44 -0400
+Subject: [PATCH] Quiet Hours: Add new Time Range preference and summary text
+
+This commit introduces a new Time Range preference to be used for selecting
+the start end end time of Quiet Hours.  It also adds the ability to show the
+current status (Enabled from xx:xx to yy:yy) on the top level (Sound Settings)
+screen.
+
+Change-Id: I7738d1147517c0c7e3a4a2d7dc62ee470e9f3b72
+---
+ res/layout/preference_time_range.xml               |  80 +++++++++
+ res/values/strings.xml                             |   8 +-
+ res/xml/quiet_hours_settings.xml                   |  12 +-
+ res/xml/sound_settings.xml                         |   3 +-
+ src/com/android/settings/SoundSettings.java        |  44 ++++-
+ .../android/settings/cyanogenmod/QuietHours.java   | 125 ++------------
+ .../settings/cyanogenmod/TimeRangePreference.java  | 190 +++++++++++++++++++++
+ 7 files changed, 329 insertions(+), 133 deletions(-)
+ create mode 100644 res/layout/preference_time_range.xml
+ create mode 100644 src/com/android/settings/cyanogenmod/TimeRangePreference.java
+
+diff --git a/res/layout/preference_time_range.xml b/res/layout/preference_time_range.xml
+new file mode 100644
+index 0000000..0392636
+--- /dev/null
++++ b/res/layout/preference_time_range.xml
+@@ -0,0 +1,80 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:minHeight="?android:attr/listPreferredItemHeight"
++    android:gravity="center_vertical">
++
++        <LinearLayout
++            android:id="@+id/start_time"
++            android:layout_width="fill_parent"
++            android:layout_height="match_parent"
++            android:layout_weight="1"
++            android:orientation="vertical"
++            android:clickable="true"
++            android:focusable="true"
++            android:background="?android:attr/selectableItemBackground">
++
++            <TextView
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:orientation="vertical"
++                android:paddingLeft="16dip"
++                android:paddingTop="6dip"
++                android:text="@string/start_time_title"
++                android:focusable="false"
++                android:textAppearance="?android:attr/textAppearanceSmall" />
++
++            <TextView
++                android:id="@+id/start_time_text"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:gravity="center_horizontal"
++                android:orientation="vertical"
++                android:paddingBottom="6dip"
++                android:focusable="false"
++                android:textAppearance="?android:attr/textAppearanceMedium" />
++
++        </LinearLayout>
++
++        <View
++            android:layout_width="1dip"
++            android:layout_height="match_parent"
++            android:layout_marginTop="5dip"
++            android:layout_marginBottom="5dip"
++            android:background="@android:drawable/divider_horizontal_dark" />
++
++        <LinearLayout
++            android:id="@+id/end_time"
++            android:layout_width="fill_parent"
++            android:layout_height="match_parent"
++            android:layout_weight="1"
++            android:orientation="vertical"
++            android:clickable="true"
++            android:focusable="true"
++            android:background="?android:attr/selectableItemBackground">
++
++            <TextView
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:orientation="vertical"
++                android:paddingLeft="16dip"
++                android:paddingTop="6dip"
++                android:text="@string/end_time_title"
++                android:focusable="false"
++                android:textAppearance="?android:attr/textAppearanceSmall" />
++
++            <TextView
++                android:id="@+id/end_time_text"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:gravity="center_horizontal"
++                android:orientation="vertical"
++                android:paddingBottom="6dip"
++                android:focusable="false"
++                android:textAppearance="?android:attr/textAppearanceMedium" />
++
++        </LinearLayout>
++
++</LinearLayout>
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index 4df1dfb..f22b926 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -639,7 +639,7 @@
+ 
+     <!-- Quiet hours #CM -->
+     <string name="quiet_hours_title">Quiet hours</string>
+-    <string name="quiet_hours_summary">View or change the hours the device should be quiet</string>
++    <string name="quiet_hours_summary">Configure the hours the device should be quiet</string>
+     <string name="quiet_hours_note_title">Note</string>
+     <string name="quiet_hours_note_summary">Incoming calls will behave like usual during quiet hours</string>
+     <string name="quiet_hours_enabled">Enable quiet hours</string>
+@@ -661,6 +661,12 @@
+     <string name="quiet_hours_haptic">Disable haptic feedback</string>
+     <string name="quiet_hours_haptic_on">Haptic feedback will be disabled</string>
+     <string name="quiet_hours_haptic_off">Haptic feedback will function as normal</string>
++    <string name="quiet_hours_active_from">Active from</string>
++    <string name="quiet_hours_active_to">to</string>
++
++    <!-- time range preference -->
++    <string name="start_time_title">Start</string>
++    <string name="end_time_title">End</string>
+ 
+     <!-- Display settings --><skip/>
+     <!-- Sound & display settings screen, section header for settings related to display -->
+diff --git a/res/xml/quiet_hours_settings.xml b/res/xml/quiet_hours_settings.xml
+index 84a22da..8a859b0 100644
+--- a/res/xml/quiet_hours_settings.xml
++++ b/res/xml/quiet_hours_settings.xml
+@@ -33,16 +33,8 @@
+         android:summaryOff="@string/quiet_hours_enabled_off"
+         android:defaultValue="false" />
+ 
+-    <Preference
+-        android:key="quiet_hours_start"
+-        android:title="@string/quiet_hours_start"
+-        android:summary="@string/quiet_hours_start_summary"
+-        android:dependency="quiet_hours_enabled" />
+-
+-    <Preference
+-        android:key="quiet_hours_end"
+-        android:title="@string/quiet_hours_end"
+-        android:summary="@string/quiet_hours_end_summary"
++    <com.android.settings.cyanogenmod.TimeRangePreference
++        android:key="quiet_hours_timerange"
+         android:dependency="quiet_hours_enabled" />
+ 
+     <CheckBoxPreference
+diff --git a/res/xml/sound_settings.xml b/res/xml/sound_settings.xml
+index 2c8c512..0ce591f 100644
+--- a/res/xml/sound_settings.xml
++++ b/res/xml/sound_settings.xml
+@@ -43,8 +43,7 @@
+     <PreferenceScreen
+             android:key="quiet_hours"
+             android:fragment="com.android.settings.cyanogenmod.QuietHours"
+-            android:title="@string/quiet_hours_title"
+-            android:summary="@string/quiet_hours_summary" />
++            android:title="@string/quiet_hours_title" />
+ 
+     <PreferenceCategory
+             android:key="category_calls_and_notification"
+diff --git a/src/com/android/settings/SoundSettings.java b/src/com/android/settings/SoundSettings.java
+index 684e180..9fd967d 100644
+--- a/src/com/android/settings/SoundSettings.java
++++ b/src/com/android/settings/SoundSettings.java
+@@ -16,6 +16,10 @@
+ 
+ package com.android.settings;
+ 
++import java.util.Calendar;
++import java.util.Date;
++import java.util.List;
++
+ import android.content.BroadcastReceiver;
+ import android.content.ContentResolver;
+ import android.content.Context;
+@@ -26,7 +30,6 @@ import android.content.pm.ResolveInfo;
+ import android.database.Cursor;
+ import android.database.sqlite.SQLiteException;
+ import android.media.AudioManager;
+-import android.media.Ringtone;
+ import android.media.RingtoneManager;
+ import android.media.audiofx.AudioEffect;
+ import android.net.Uri;
+@@ -41,13 +44,10 @@ import android.preference.PreferenceGroup;
+ import android.preference.PreferenceScreen;
+ import android.provider.MediaStore;
+ import android.provider.Settings;
+-import android.provider.MediaStore.Images.Media;
+-import android.provider.Settings.SettingNotFoundException;
+ import android.telephony.TelephonyManager;
++import android.text.format.DateFormat;
+ import android.util.Log;
+ 
+-import java.util.List;
+-
+ public class SoundSettings extends SettingsPreferenceFragment implements
+         Preference.OnPreferenceChangeListener {
+     private static final String TAG = "SoundSettings";
+@@ -147,6 +147,14 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+         }
+ 
+         mQuietHours = (PreferenceScreen) findPreference(KEY_QUIET_HOURS);
++        if (Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_ENABLED, 0) == 1) {
++            mQuietHours.setSummary(getString(R.string.quiet_hours_active_from) + " " + 
++                    returnTime(Settings.System.getString(resolver, Settings.System.QUIET_HOURS_START)) 
++                    + " " + getString(R.string.quiet_hours_active_to) + " " +
++                    returnTime(Settings.System.getString(resolver, Settings.System.QUIET_HOURS_END)));
++        } else {
++            mQuietHours.setSummary(getString(R.string.quiet_hours_summary));
++        }
+ 
+         mVibrateOnRing = (CheckBoxPreference) findPreference(KEY_VIBRATE);
+         mVibrateOnRing.setOnPreferenceChangeListener(this);
+@@ -282,12 +290,22 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+     // updateState in fact updates the UI to reflect the system state
+     private void updateState(boolean force) {
+         if (getActivity() == null) return;
++        ContentResolver resolver = getContentResolver();
+ 
+         final int vibrateMode = mAudioManager.getVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER);
+ 
+         mVibrateOnRing.setChecked(vibrateMode == AudioManager.VIBRATE_SETTING_ON);
+         mSilentMode.setValue(getPhoneSilentModeSettingValue());
+ 
++        if (Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_ENABLED, 0) == 1) {
++            mQuietHours.setSummary(getString(R.string.quiet_hours_active_from) + " " +
++                    returnTime(Settings.System.getString(resolver, Settings.System.QUIET_HOURS_START))
++                    + " " + getString(R.string.quiet_hours_active_to) + " " +
++                    returnTime(Settings.System.getString(resolver, Settings.System.QUIET_HOURS_END)));
++        } else {
++            mQuietHours.setSummary(getString(R.string.quiet_hours_summary));
++        }
++
+         mSilentMode.setSummary(mSilentMode.getEntry());
+     }
+ 
+@@ -379,4 +397,20 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+ 
+         return true;
+     }
++
++    private String returnTime(String t) {
++        if (t == null || t.equals("")) {
++            return "";
++        }
++        int hr = Integer.parseInt(t.trim());
++        int mn = hr;
++
++        hr = hr / 60;
++        mn = mn % 60;
++        Calendar cal = Calendar.getInstance();
++        cal.set(Calendar.HOUR_OF_DAY, hr);
++        cal.set(Calendar.MINUTE, mn);
++        Date date = cal.getTime();
++        return DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(date);
++    }
+ }
+diff --git a/src/com/android/settings/cyanogenmod/QuietHours.java b/src/com/android/settings/cyanogenmod/QuietHours.java
+index cc60fde..c139369 100644
+--- a/src/com/android/settings/cyanogenmod/QuietHours.java
++++ b/src/com/android/settings/cyanogenmod/QuietHours.java
+@@ -16,22 +16,12 @@
+ 
+ package com.android.settings.cyanogenmod;
+ 
+-import java.util.Calendar;
+-import java.util.Date;
+-
+-import android.app.Dialog;
+-import android.app.TimePickerDialog;
+ import android.content.ContentResolver;
+-import android.content.DialogInterface;
+ import android.os.Bundle;
+ import android.preference.CheckBoxPreference;
+ import android.preference.Preference;
+ import android.preference.PreferenceScreen;
+ import android.provider.Settings;
+-import android.provider.Settings.SettingNotFoundException;
+-import android.text.format.DateFormat;
+-import android.util.Log;
+-import android.widget.TimePicker;
+ 
+ import com.android.settings.R;
+ import com.android.settings.SettingsPreferenceFragment;
+@@ -41,16 +31,8 @@ public class QuietHours extends SettingsPreferenceFragment implements
+ 
+     private static final String TAG = "QuietHours";
+ 
+-    private static final int DIALOG_QUIET_HOURS_START = 1;
+-
+-    private static final int DIALOG_QUIET_HOURS_END = 2;
+-
+     private static final String KEY_QUIET_HOURS_ENABLED = "quiet_hours_enabled";
+ 
+-    private static final String KEY_QUIET_HOURS_START = "quiet_hours_start";
+-
+-    private static final String KEY_QUIET_HOURS_END = "quiet_hours_end";
+-
+     private static final String KEY_QUIET_HOURS_MUTE = "quiet_hours_mute";
+ 
+     private static final String KEY_QUIET_HOURS_STILL = "quiet_hours_still";
+@@ -61,11 +43,9 @@ public class QuietHours extends SettingsPreferenceFragment implements
+ 
+     private static final String KEY_QUIET_HOURS_NOTE = "quiet_hours_note";
+ 
+-    private CheckBoxPreference mQuietHoursEnabled;
+-
+-    private Preference mQuietHoursStart;
++    private static final String KEY_QUIET_HOURS_TIMERANGE = "quiet_hours_timerange";
+ 
+-    private Preference mQuietHoursEnd;
++    private CheckBoxPreference mQuietHoursEnabled;
+ 
+     private Preference mQuietHoursNote;
+ 
+@@ -77,21 +57,7 @@ public class QuietHours extends SettingsPreferenceFragment implements
+ 
+     private CheckBoxPreference mQuietHoursHaptic;
+ 
+-    private String returnTime(String t) {
+-        if (t == null || t.equals("")) {
+-            return "";
+-        }
+-        int hr = Integer.parseInt(t.trim());
+-        int mn = hr;
+-
+-        hr = hr / 60;
+-        mn = mn % 60;
+-        Calendar cal = Calendar.getInstance();
+-        cal.set(Calendar.HOUR_OF_DAY, hr);
+-        cal.set(Calendar.MINUTE, mn);
+-        Date date = cal.getTime();
+-        return DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(date);
+-    }
++    private TimeRangePreference mQuietHoursTimeRange;
+ 
+     @Override
+     public void onCreate(Bundle savedInstanceState) {
+@@ -107,8 +73,7 @@ public class QuietHours extends SettingsPreferenceFragment implements
+             // Load the preferences
+             mQuietHoursNote = prefSet.findPreference(KEY_QUIET_HOURS_NOTE);
+             mQuietHoursEnabled = (CheckBoxPreference) prefSet.findPreference(KEY_QUIET_HOURS_ENABLED);
+-            mQuietHoursStart = prefSet.findPreference(KEY_QUIET_HOURS_START);
+-            mQuietHoursEnd = prefSet.findPreference(KEY_QUIET_HOURS_END);
++            mQuietHoursTimeRange = (TimeRangePreference) prefSet.findPreference(KEY_QUIET_HOURS_TIMERANGE);
+             mQuietHoursMute = (CheckBoxPreference) prefSet.findPreference(KEY_QUIET_HOURS_MUTE);
+             mQuietHoursStill = (CheckBoxPreference) prefSet.findPreference(KEY_QUIET_HOURS_STILL);
+             mQuietHoursHaptic = (CheckBoxPreference) prefSet.findPreference(KEY_QUIET_HOURS_HAPTIC);
+@@ -121,10 +86,9 @@ public class QuietHours extends SettingsPreferenceFragment implements
+ 
+             // Set the preference state and listeners where applicable
+             mQuietHoursEnabled.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_ENABLED, 0) == 1);
+-            mQuietHoursStart.setSummary(returnTime(Settings.System.getString(resolver, Settings.System.QUIET_HOURS_START)));
+-            mQuietHoursStart.setOnPreferenceChangeListener(this);
+-            mQuietHoursEnd.setSummary(returnTime(Settings.System.getString(resolver, Settings.System.QUIET_HOURS_END)));
+-            mQuietHoursEnd.setOnPreferenceChangeListener(this);
++            mQuietHoursTimeRange.setTimeRange(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_START, 0),
++                    Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_END, 0));
++            mQuietHoursTimeRange.setOnPreferenceChangeListener(this);
+             mQuietHoursMute.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_MUTE, 0) == 1);
+             mQuietHoursStill.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_STILL, 0) == 1);
+             mQuietHoursHaptic.setChecked(Settings.System.getInt(resolver, Settings.System.QUIET_HOURS_HAPTIC, 0) == 1);
+@@ -158,16 +122,6 @@ public class QuietHours extends SettingsPreferenceFragment implements
+             Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_DIM,
+                     mQuietHoursDim.isChecked() ? 1 : 0);
+             return true;
+-        } else if (preference == mQuietHoursStart) {
+-            showDialog(DIALOG_QUIET_HOURS_START);
+-            mQuietHoursStart.setSummary(returnTime(Settings.System.getString(resolver,
+-                    Settings.System.QUIET_HOURS_START)));
+-            return true;
+-        } else if (preference == mQuietHoursEnd) {
+-            showDialog(DIALOG_QUIET_HOURS_END);
+-            mQuietHoursEnd.setSummary(returnTime(Settings.System.getString(resolver,
+-                    Settings.System.QUIET_HOURS_END)));
+-            return true;
+         } else if (preference == mQuietHoursHaptic) {
+             Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_HAPTIC,
+                     mQuietHoursHaptic.isChecked() ? 1 : 0);
+@@ -177,73 +131,14 @@ public class QuietHours extends SettingsPreferenceFragment implements
+     }
+ 
+     public boolean onPreferenceChange(Preference preference, Object newValue) {
+-        String key = preference.getKey();
+         ContentResolver resolver = getActivity().getApplicationContext().getContentResolver();
+-
+-        if (key.equals(KEY_QUIET_HOURS_START)) {
++        if (preference == mQuietHoursTimeRange) {
+             Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_START,
+-                    getBoolean(newValue) ? 1 : 0);
+-            mQuietHoursStart.setSummary(returnTime(Settings.System.getString(resolver,
+-                    Settings.System.QUIET_HOURS_START)));
+-            return true;
+-        } else if (key.equals(KEY_QUIET_HOURS_END)) {
++                    mQuietHoursTimeRange.getStartTime());
+             Settings.System.putInt(resolver, Settings.System.QUIET_HOURS_END,
+-                    getBoolean(newValue) ? 1 : 0);
+-            mQuietHoursEnd.setSummary(returnTime(Settings.System.getString(resolver,
+-                    Settings.System.QUIET_HOURS_END)));
++                    mQuietHoursTimeRange.getEndTime());
+             return true;
+         }
+         return false;
+     }
+-
+-    @Override
+-    public Dialog onCreateDialog(int id) {
+-        switch (id) {
+-            case DIALOG_QUIET_HOURS_START:
+-                return createTimePicker(Settings.System.QUIET_HOURS_START);
+-            case DIALOG_QUIET_HOURS_END:
+-                return createTimePicker(Settings.System.QUIET_HOURS_END);
+-        }
+-        return super.onCreateDialog(id);
+-    }
+-
+-    private TimePickerDialog createTimePicker(final String key) {
+-        ContentResolver resolver = getActivity().getApplicationContext().getContentResolver();
+-        int value = Settings.System.getInt(resolver, key, -1);
+-        int hour;
+-        int minutes;
+-
+-        if (value < 0) {
+-            Calendar calendar = Calendar.getInstance();
+-            hour = calendar.get(Calendar.HOUR_OF_DAY);
+-            minutes = calendar.get(Calendar.MINUTE);
+-        } else {
+-            hour = value / 60;
+-            minutes = value % 60;
+-        }
+-
+-        TimePickerDialog dlg = new TimePickerDialog(getActivity(),
+-        new TimePickerDialog.OnTimeSetListener() {
+-            @Override
+-            public void onTimeSet(TimePicker v, int hours, int minutes) {
+-                ContentResolver resolver = getActivity().getApplicationContext().getContentResolver();
+-                // Set the appropriate time setting
+-                Settings.System.putInt(resolver, key, hours * 60 + minutes);
+-                // Set the summary to reflect the set time
+-                if (key.equals(KEY_QUIET_HOURS_START)) {
+-                    mQuietHoursStart.setSummary(returnTime(Settings.System.getString(
+-                            resolver, Settings.System.QUIET_HOURS_START)));
+-                } else {
+-                    mQuietHoursEnd.setSummary(returnTime(Settings.System.getString(
+-                            resolver, Settings.System.QUIET_HOURS_END)));
+-                }
+-            };
+-        }, hour, minutes, DateFormat.is24HourFormat(getActivity()));
+-
+-        return dlg;
+-    }
+-
+-    private boolean getBoolean(Object o) {
+-        return Boolean.valueOf(o.toString());
+-    }
+ }
+\ No newline at end of file
+diff --git a/src/com/android/settings/cyanogenmod/TimeRangePreference.java b/src/com/android/settings/cyanogenmod/TimeRangePreference.java
+new file mode 100644
+index 0000000..40d3527
+--- /dev/null
++++ b/src/com/android/settings/cyanogenmod/TimeRangePreference.java
+@@ -0,0 +1,190 @@
++/*
++ * Copyright (C) 2012 The CyanogenMod Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.cyanogenmod;
++
++import java.util.Calendar;
++import java.util.Date;
++
++import android.app.TimePickerDialog;
++import android.content.Context;
++import android.preference.Preference;
++import android.text.format.DateFormat;
++import android.util.AttributeSet;
++import android.view.View;
++import android.widget.CheckBox;
++import android.widget.CompoundButton;
++import android.widget.LinearLayout;
++import android.widget.TextView;
++import android.widget.TimePicker;
++
++import com.android.settings.R;
++
++public class TimeRangePreference extends Preference implements
++    View.OnClickListener {
++    private static final String TAG = TimeRangePreference.class.getSimpleName();
++
++    private static final int DIALOG_START_TIME = 1;
++
++    private static final int DIALOG_END_TIME = 2;
++
++    private TextView mStartTimeText;
++
++    private TextView mEndTimeText;
++
++    private int mStartTime;
++
++    private int mEndTime;
++
++    /**
++     * @param context
++     * @param attrs
++     */
++    public TimeRangePreference(Context context, AttributeSet attrs) {
++        super(context, attrs);
++        init();
++    }
++
++    /**
++     * @param context
++     * @param stime
++     * @param etime
++     */
++    public TimeRangePreference(Context context, int stime, int etime) {
++        super(context);
++        mStartTime = stime;
++        mEndTime = etime;
++        init();
++    }
++
++    @Override
++    protected void onBindView(View view) {
++        super.onBindView(view);
++
++        View startTimeLayout = view.findViewById(R.id.start_time);
++        if ((startTimeLayout != null) && startTimeLayout instanceof LinearLayout) {
++            startTimeLayout.setOnClickListener(this);
++        }
++
++        View endTimeLayout = view.findViewById(R.id.end_time);
++        if ((endTimeLayout != null) && endTimeLayout instanceof LinearLayout) {
++            endTimeLayout.setOnClickListener(this);
++        }
++
++        mStartTimeText = (TextView) view.findViewById(R.id.start_time_text);
++        mEndTimeText = (TextView) view.findViewById(R.id.end_time_text);
++
++        updatePreferenceViews();
++    }
++
++    private void init() {
++        setLayoutResource(R.layout.preference_time_range);
++    }
++
++    private void updatePreferenceViews() {
++        if (mStartTimeText != null) {
++            mStartTimeText.setText(returnTime(mStartTime));
++        }
++        if (mEndTimeText != null) {
++            mEndTimeText.setText(returnTime(mEndTime));
++        }
++    }
++
++    public void setStartTime(int time) {
++        mStartTime = time;
++        updatePreferenceViews();
++    }
++
++    public void setEndTime(int time) {
++        mEndTime = time;
++        updatePreferenceViews();
++    }
++
++    public void setTimeRange(int stime, int etime) {
++        mStartTime = stime;
++        mEndTime = etime;
++        updatePreferenceViews();
++    }
++
++    public int getStartTime() {
++        return(mStartTime);
++    }
++
++    public int getEndTime() {
++        return(mEndTime);
++    }
++
++    @Override
++    public void onClick(android.view.View v) {
++        if (v != null) {
++            if (R.id.start_time == v.getId()) {
++                TimePicker(DIALOG_START_TIME);
++            } else if (R.id.end_time == v.getId()) {
++                TimePicker(DIALOG_END_TIME);
++            }
++        }
++    }
++
++    private void TimePicker(final int key) {
++        int hour;
++        int minutes;
++        int value = (key == DIALOG_START_TIME ? mStartTime : mEndTime);
++
++        if (value < 0) {
++            Calendar calendar = Calendar.getInstance();
++            hour = calendar.get(Calendar.HOUR_OF_DAY);
++            minutes = calendar.get(Calendar.MINUTE);
++        } else {
++            hour = value / 60;
++            minutes = value % 60;
++        }
++
++        Context context = getContext();
++        TimePickerDialog dlg = new TimePickerDialog(context,
++        new TimePickerDialog.OnTimeSetListener() {
++            @Override
++            public void onTimeSet(TimePicker v, int hours, int minutes) {
++                int time = hours * 60 + minutes;
++                if (key == DIALOG_START_TIME) {
++                    mStartTime = time;
++                    mStartTimeText.setText(returnTime(time));
++                } else {
++                    mEndTime = time;
++                    mEndTimeText.setText(returnTime(time));
++                }
++                callChangeListener(this);
++            };
++        }, hour, minutes, DateFormat.is24HourFormat(context));
++        dlg.show();
++    }
++
++    private String returnTime(int t) {
++        if (t < 0) {
++            return "";
++        }
++
++        int hr = t;
++        int mn = t;
++
++        hr = hr / 60;
++        mn = mn % 60;
++        Calendar cal = Calendar.getInstance();
++        cal.set(Calendar.HOUR_OF_DAY, hr);
++        cal.set(Calendar.MINUTE, mn);
++        Date date = cal.getTime();
++        return DateFormat.getTimeFormat(getContext()).format(date);
++    }
++}
+-- 
+1.8.0.3
+

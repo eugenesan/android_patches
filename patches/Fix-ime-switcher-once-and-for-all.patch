@@ -1,0 +1,134 @@
+From 2c30b6a7bb001f1cfebe4589e6ddd8ab4c7bd6fa Mon Sep 17 00:00:00 2001
+From: D4rKn3sSyS <jedga_95@outlook.com>
+Date: Fri, 5 Oct 2012 08:17:03 -0500
+Subject: [PATCH] Fix ime switcher once and for all
+
+Fixes implementation of phonemode ime switcher toggle on tablet
+Unified both implementations on a same option aswell.
+
+Change-Id: I4874c5967203e6b0e410f4cf680056530af1e3e2
+---
+ core/res/res/values/config.xml                             |  3 ---
+ core/res/res/values/public.xml                             |  1 -
+ .../systemui/statusbar/tablet/InputMethodButton.java       |  3 ++-
+ .../android/systemui/statusbar/tablet/TabletStatusBar.java |  8 ++++----
+ .../java/com/android/server/InputMethodManagerService.java | 14 +++++++++-----
+ 5 files changed, 15 insertions(+), 14 deletions(-)
+
+diff --git a/core/res/res/values/config.xml b/core/res/res/values/config.xml
+index a4317dd..1b873ba 100755
+--- a/core/res/res/values/config.xml
++++ b/core/res/res/values/config.xml
+@@ -898,9 +898,6 @@
+     <!-- Workaround for devices with broken keyboards -->
+     <bool name="config_forceDisableHardwareKeyboard">false</bool>
+ 
+-    <!-- Setting to false will disable CM's IME switcher implementation for tablets -->
+-    <bool name="config_show_cmIMESwitcher">true</bool>
+-
+     <!-- Flag indicating whether we should enable automatic brightness for
+          the button and keyboard backlights. -->
+     <bool name="config_autoBrightnessButtonKeyboard">true</bool>
+diff --git a/core/res/res/values/public.xml b/core/res/res/values/public.xml
+index 37acab5..a501d01 100644
+--- a/core/res/res/values/public.xml
++++ b/core/res/res/values/public.xml
+@@ -264,7 +264,6 @@
+   <java-symbol type="bool" name="config_useMasterVolume" />
+   <java-symbol type="bool" name="config_enableWallpaperService" />
+   <java-symbol type="bool" name="config_sendAudioBecomingNoisy" />
+-  <java-symbol type="bool" name="config_show_cmIMESwitcher"/>
+   <java-symbol type="bool" name="config_enableScreenshotChord" />
+   <java-symbol type="bool" name="config_bluetooth_default_profiles" />
+   <java-symbol type="bool" name="config_wifiApFirmwareReload" />
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/tablet/InputMethodButton.java b/packages/SystemUI/src/com/android/systemui/statusbar/tablet/InputMethodButton.java
+index fa8aa6d..b8c5244 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/tablet/InputMethodButton.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/tablet/InputMethodButton.java
+@@ -136,7 +136,8 @@ public class InputMethodButton extends ImageView {
+         if (mIcon == null) {
+             return;
+         }
+-        if (!needsToShowIMEButton()) {
++        if (!needsToShowIMEButton() || Settings.System.getInt(mContext.getContentResolver(),
++                   Settings.System.STATUS_BAR_IME_SWITCHER, 1) == 0) {
+             setVisibility(View.GONE);
+             return;
+         } else {
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/tablet/TabletStatusBar.java b/packages/SystemUI/src/com/android/systemui/statusbar/tablet/TabletStatusBar.java
+index 834d2e5..7a37902 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/tablet/TabletStatusBar.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/tablet/TabletStatusBar.java
+@@ -282,7 +282,7 @@ public class TabletStatusBar extends BaseStatusBar implements
+ 
+         @Override
+         public void onChange(boolean selfChange) {
+-            loadDimens();
++            loadResources();
+             recreateStatusBar();
+         }
+     }
+@@ -484,7 +484,7 @@ public class TabletStatusBar extends BaseStatusBar implements
+             mCurrentTheme = (CustomTheme)newTheme.clone();
+             recreateStatusBar();
+         }
+-        loadDimens();
++        loadResources();
+         mNotificationPanelParams.height = getNotificationPanelHeight();
+         WindowManagerImpl.getDefault().updateViewLayout(mNotificationPanel,
+                 mNotificationPanelParams);
+@@ -494,7 +494,7 @@ public class TabletStatusBar extends BaseStatusBar implements
+         updateSearchPanel();
+     }
+ 
+-    protected void loadDimens() {
++    protected void loadResources() {
+         final Resources res = mContext.getResources();
+ 
+         mNaturalBarHeight = res.getDimensionPixelSize(
+@@ -573,7 +573,7 @@ public class TabletStatusBar extends BaseStatusBar implements
+             mCurrentTheme = (CustomTheme)currentTheme.clone();
+         }
+ 
+-        loadDimens();
++        loadResources();
+ 
+         final TabletStatusBarView sb = (TabletStatusBarView)View.inflate(
+                 context, R.layout.system_bar, null);
+diff --git a/services/java/com/android/server/InputMethodManagerService.java b/services/java/com/android/server/InputMethodManagerService.java
+index 2aaf5ac..aa7a27c 100644
+--- a/services/java/com/android/server/InputMethodManagerService.java
++++ b/services/java/com/android/server/InputMethodManagerService.java
+@@ -76,6 +76,7 @@ import android.provider.Settings.SettingNotFoundException;
+ import android.text.TextUtils;
+ import android.text.style.SuggestionSpan;
+ import android.util.EventLog;
++import android.util.ExtendedPropertiesUtils;
+ import android.util.LruCache;
+ import android.util.Pair;
+ import android.util.PrintWriterPrinter;
+@@ -1438,13 +1439,16 @@ public class InputMethodManagerService extends IInputMethodManager.Stub
+             mCurMethodId = null;
+             unbindCurrentMethodLocked(true);
+         }
+-        // code to disable the CM Phone IME switcher with config_show_cmIMESwitcher set = false
++
+         try {
+-            mShowOngoingImeSwitcherForPhones = Settings.System.getInt(mContext.getContentResolver(),
+-            Settings.System.STATUS_BAR_IME_SWITCHER) == 1;
++            if(ExtendedPropertiesUtils.getActualProperty("com.android.systemui.layout") < 720) {
++                mShowOngoingImeSwitcherForPhones = Settings.System.getInt(mContext.getContentResolver(),
++                        Settings.System.STATUS_BAR_IME_SWITCHER) == 1;
++            } else {
++                mShowOngoingImeSwitcherForPhones = false;
++            }
+         } catch (SettingNotFoundException e) {
+-            mShowOngoingImeSwitcherForPhones = mRes.getBoolean(
+-            com.android.internal.R.bool.config_show_cmIMESwitcher);
++            mShowOngoingImeSwitcherForPhones = false;
+         }
+     }
+ 
+-- 
+1.8.0.3
+

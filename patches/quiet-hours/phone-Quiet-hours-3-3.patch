@@ -1,0 +1,66 @@
+From 698cbd9ed162c7b9f91f15171b37724a5b17ed12 Mon Sep 17 00:00:00 2001
+From: iceandfire <arhamjamal@gmail.com>
+Date: Sat, 14 Apr 2012 19:04:53 +0200
+Subject: [PATCH] Quiet hours (3/3)
+
+Change-Id: I49c2cbbce29e338ae0995d9c6b9b583e70923786
+
+Conflicts:
+	src/com/android/phone/Ringer.java
+---
+ src/com/android/phone/Ringer.java | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
+
+diff --git a/src/com/android/phone/Ringer.java b/src/com/android/phone/Ringer.java
+index ca03739..2043b8f 100644
+--- a/src/com/android/phone/Ringer.java
++++ b/src/com/android/phone/Ringer.java
+@@ -36,6 +36,8 @@ import android.os.Vibrator;
+ import android.provider.Settings;
+ import android.util.Log;
+ 
++import java.util.Calendar;
++
+ import com.android.internal.telephony.Phone;
+ /**
+  * Ringer manager for the Phone app.
+@@ -176,7 +178,7 @@ public class Ringer {
+                     (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+ 
+             int ringerVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_RING);
+-            if (ringerVolume == 0 && mRingerVolumeSetting <= 0) {
++            if ( ((ringerVolume == 0) && (mRingerVolumeSetting <= 0)) || inQuietHours() ) {
+                 if (DBG) log("skipping ring because volume is zero");
+                 return;
+             }
+@@ -415,4 +417,27 @@ public class Ringer {
+     private static void log(String msg) {
+         Log.d(LOG_TAG, msg);
+     }
++    
++    private boolean inQuietHours() {
++        boolean quietHoursEnabled = Settings.System.getInt(mContext.getContentResolver(),
++                Settings.System.QUIET_HOURS_ENABLED, 0) != 0;
++        int quietHoursStart = Settings.System.getInt(mContext.getContentResolver(),
++                Settings.System.QUIET_HOURS_START, 0);
++        int quietHoursEnd = Settings.System.getInt(mContext.getContentResolver(),
++                Settings.System.QUIET_HOURS_END, 0);
++        boolean quietHoursRinger = Settings.System.getInt(mContext.getContentResolver(),
++                Settings.System.QUIET_HOURS_RINGER, 0) != 0;
++        if (quietHoursEnabled && quietHoursRinger && (quietHoursStart != quietHoursEnd)) {
++            // Get the date in "quiet hours" format.
++            Calendar calendar = Calendar.getInstance();
++            int minutes = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE);
++            if (quietHoursEnd < quietHoursStart) {
++                // Starts at night, ends in the morning.
++                return (minutes > quietHoursStart) || (minutes < quietHoursEnd);
++            } else {
++                return (minutes > quietHoursStart) && (minutes < quietHoursEnd);
++            }
++        }
++        return false;
++    }
+ }
+-- 
+1.8.0.3
+

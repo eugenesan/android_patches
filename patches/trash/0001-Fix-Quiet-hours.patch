@@ -1,0 +1,34 @@
+From b6969cdc76a57690093f11e158415495f0fd8346 Mon Sep 17 00:00:00 2001
+From: flappjaxxx <flappjaxxx@gmail.com>
+Date: Mon, 17 Dec 2012 14:57:58 -0500
+Subject: [PATCH] Fix Quiet hours?
+
+Change-Id: I4f8cf58d5ecdc909238681106998593fdabb7c93
+---
+ src/com/android/settings/SoundSettings.java | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/src/com/android/settings/SoundSettings.java b/src/com/android/settings/SoundSettings.java
+index 971e05b..5fa5a5c 100644
+--- a/src/com/android/settings/SoundSettings.java
++++ b/src/com/android/settings/SoundSettings.java
+@@ -361,16 +361,10 @@ public class SoundSettings extends SettingsPreferenceFragment implements
+         } else if (preference == mMusicFx) {
+             // let the framework fire off the intent
+             return false;
+-<<<<<<< HEAD
+             } else if (preference == mVolBtnMusicCtrl) {
+                 Settings.System.putInt(getContentResolver(), Settings.System.VOLBTN_MUSIC_CONTROLS,
+                         mVolBtnMusicCtrl.isChecked() ? 1 : 0);
+-		} else {
+-            // If we didn't handle it, let preferences handle it.
+-            return super.onPreferenceTreeClick(preferenceScreen, preference);
+-=======
+ 
+->>>>>>> ca3490d... Fix maybe
+         } else if (preference == mDockAudioSettings) {
+             int dockState = mDockIntent != null
+                     ? mDockIntent.getIntExtra(Intent.EXTRA_DOCK_STATE, 0)
+-- 
+1.8.0.3
+
