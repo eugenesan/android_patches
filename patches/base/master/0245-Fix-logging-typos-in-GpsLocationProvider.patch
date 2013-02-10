@@ -1,0 +1,45 @@
+From 160c1ca11702137dc8a760c529a25bd6e765fb83 Mon Sep 17 00:00:00 2001
+From: Magnus Eriksson <eriksson.mag@gmail.com>
+Date: Fri, 21 Dec 2012 21:07:28 +0100
+Subject: [PATCH 245/283] Fix logging typos in GpsLocationProvider
+
+Change-Id: Ibf12947f3758defee990fbf685323334b8d1eeda
+Signed-off-by: Magnus Eriksson <eriksson.mag@gmail.com>
+---
+ services/jni/com_android_server_location_GpsLocationProvider.cpp | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/services/jni/com_android_server_location_GpsLocationProvider.cpp b/services/jni/com_android_server_location_GpsLocationProvider.cpp
+index 50bd46e..036fc43 100644
+--- a/services/jni/com_android_server_location_GpsLocationProvider.cpp
++++ b/services/jni/com_android_server_location_GpsLocationProvider.cpp
+@@ -490,7 +490,7 @@ static void android_location_GpsLocationProvider_agps_data_conn_open(JNIEnv* env
+ static void android_location_GpsLocationProvider_agps_data_conn_closed(JNIEnv* env, jobject obj)
+ {
+     if (!sAGpsInterface) {
+-        ALOGE("no AGPS interface in agps_data_conn_open");
++        ALOGE("no AGPS interface in agps_data_conn_closed");
+         return;
+     }
+     sAGpsInterface->data_conn_closed();
+@@ -499,7 +499,7 @@ static void android_location_GpsLocationProvider_agps_data_conn_closed(JNIEnv* e
+ static void android_location_GpsLocationProvider_agps_data_conn_failed(JNIEnv* env, jobject obj)
+ {
+     if (!sAGpsInterface) {
+-        ALOGE("no AGPS interface in agps_data_conn_open");
++        ALOGE("no AGPS interface in agps_data_conn_failed");
+         return;
+     }
+     sAGpsInterface->data_conn_failed();
+@@ -509,7 +509,7 @@ static void android_location_GpsLocationProvider_set_agps_server(JNIEnv* env, jo
+         jint type, jstring hostname, jint port)
+ {
+     if (!sAGpsInterface) {
+-        ALOGE("no AGPS interface in agps_data_conn_open");
++        ALOGE("no AGPS interface in set_agps_server");
+         return;
+     }
+     const char *c_hostname = env->GetStringUTFChars(hostname, NULL);
+-- 
+1.8.1.1
+

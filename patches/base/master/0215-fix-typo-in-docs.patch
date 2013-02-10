@@ -1,0 +1,29 @@
+From 4a68e3c26dd2512c319071dc20074baa6e7d171f Mon Sep 17 00:00:00 2001
+From: Hai Guo <deliberatekids@gmail.com>
+Date: Wed, 5 Dec 2012 21:50:28 +0800
+Subject: [PATCH 215/283] fix typo in docs
+
+description of 'android/hardware/Camera.Parameters.html#
+    setPreviewFpsRange(int, int)' not right
+
+Change-Id: Ic83c0f404710a0125138df1e2b7663994301aee7
+---
+ core/java/android/hardware/Camera.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/java/android/hardware/Camera.java b/core/java/android/hardware/Camera.java
+index a300776..483e9de 100644
+--- a/core/java/android/hardware/Camera.java
++++ b/core/java/android/hardware/Camera.java
+@@ -2338,7 +2338,7 @@ public class Camera {
+         }
+ 
+         /**
+-         * Sets the maximum and maximum preview fps. This controls the rate of
++         * Sets the minimum and maximum preview fps. This controls the rate of
+          * preview frames received in {@link PreviewCallback}. The minimum and
+          * maximum preview fps must be one of the elements from {@link
+          * #getSupportedPreviewFpsRange}.
+-- 
+1.8.1.1
+

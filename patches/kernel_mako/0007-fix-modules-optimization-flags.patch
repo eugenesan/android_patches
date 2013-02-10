@@ -1,0 +1,28 @@
+From 9cbe5aa47e9bd04d45958d8c48d0192b6935e5e1 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Fri, 1 Feb 2013 09:55:18 +0200
+Subject: fix modules optimiztion
+
+---
+ Makefile                        |  4 ++--
+ arch/arm/configs/mako_defconfig | 31 +++++++++++++++++++++++--------
+ 2 files changed, 25 insertions(+), 10 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index d2129bb..8c05dbd 100644
+--- a/Makefile
++++ b/Makefile
+@@ -351,8 +351,8 @@ CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
+ 
+ CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
+ 		  -Wbitwise -Wno-return-void $(CF)
+-CFLAGS_MODULE   =
+-AFLAGS_MODULE   =
++CFLAGS_MODULE   = -mcpu=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize -Wno-maybe-uninitialized
++AFLAGS_MODULE   = -mcpu=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize -Wno-maybe-uninitialized
+ LDFLAGS_MODULE  =
+ CFLAGS_KERNEL	= -mcpu=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize -Wno-maybe-uninitialized
+ AFLAGS_KERNEL	= -mcpu=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize -Wno-maybe-uninitialized
+-- 
+1.8.1.1
+

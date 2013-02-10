@@ -1,0 +1,43 @@
+From a607223f34d436619132597bc0174223a6611bbb Mon Sep 17 00:00:00 2001
+From: Sangkyu Lee <sk82.lee@lge.com>
+Date: Fri, 7 Dec 2012 17:06:15 +0900
+Subject: [PATCH 221/283] Ensure running mTouchModeReset when AbsListView is
+ detached
+
+mTouchModeReset should be executed when AbsListView is detached from window.
+If not, when the AbsListView is re-attaced to window,
+the child can retain a pressed state.
+
+You can see this problem easily when you double-touch an item of
+option menu very quickly.
+
+Change-Id: I5aaa1fd5b95847efb2f5f1b5ec7cabe8eb85b237
+Signed-off-by: Sangkyu Lee <sk82.lee@lge.com>
+---
+ core/java/android/widget/AbsListView.java | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/core/java/android/widget/AbsListView.java b/core/java/android/widget/AbsListView.java
+index 33a8531..a6b7dba 100644
+--- a/core/java/android/widget/AbsListView.java
++++ b/core/java/android/widget/AbsListView.java
+@@ -2637,7 +2637,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
+ 
+         if (mTouchModeReset != null) {
+             removeCallbacks(mTouchModeReset);
+-            mTouchModeReset = null;
++            mTouchModeReset.run();
+         }
+         mIsAttached = false;
+     }
+@@ -3422,6 +3422,7 @@ public abstract class AbsListView extends AdapterView<ListAdapter> implements Te
+                                     if (!mDataChanged) {
+                                         performClick.run();
+                                     }
++                                    mTouchModeReset = null;
+                                 }
+                             };
+                             postDelayed(mTouchModeReset,
+-- 
+1.8.1.1
+

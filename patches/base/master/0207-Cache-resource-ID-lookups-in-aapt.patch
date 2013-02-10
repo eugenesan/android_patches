@@ -1,0 +1,231 @@
+From d8dde13a63565dcd72bcf03a5088407b737ba793 Mon Sep 17 00:00:00 2001
+From: Christopher Tate <ctate@google.com>
+Date: Fri, 16 Nov 2012 15:58:08 -0800
+Subject: [PATCH 207/283] Cache resource ID lookups in aapt
+
+This speeds up certain workloads considerably, particularly
+those involved in buildling apps via the SDK.  Windows-based
+use should particularly benefit from the change.
+
+Change-Id: I29f4b3a77400b201ee219729cc28a5e359c0c5e8
+---
+ tools/aapt/Android.mk          |   1 +
+ tools/aapt/ResourceIdCache.cpp | 107 +++++++++++++++++++++++++++++++++++++++++
+ tools/aapt/ResourceIdCache.h   |  30 ++++++++++++
+ tools/aapt/ResourceTable.cpp   |  15 ++++--
+ 4 files changed, 148 insertions(+), 5 deletions(-)
+ create mode 100644 tools/aapt/ResourceIdCache.cpp
+ create mode 100644 tools/aapt/ResourceIdCache.h
+
+diff --git a/tools/aapt/Android.mk b/tools/aapt/Android.mk
+index d9b0681..5b88669 100644
+--- a/tools/aapt/Android.mk
++++ b/tools/aapt/Android.mk
+@@ -20,6 +20,7 @@ LOCAL_SRC_FILES := \
+ 	StringPool.cpp \
+ 	XMLNode.cpp \
+ 	ResourceFilter.cpp \
++	ResourceIdCache.cpp \
+ 	ResourceTable.cpp \
+ 	Images.cpp \
+ 	Resource.cpp \
+diff --git a/tools/aapt/ResourceIdCache.cpp b/tools/aapt/ResourceIdCache.cpp
+new file mode 100644
+index 0000000..e03f4f6
+--- /dev/null
++++ b/tools/aapt/ResourceIdCache.cpp
+@@ -0,0 +1,107 @@
++//
++// Copyright 2012 The Android Open Source Project
++//
++// Manage a resource ID cache.
++
++#define LOG_TAG "ResourceIdCache"
++
++#include <utils/String16.h>
++#include <utils/Log.h>
++#include "ResourceIdCache.h"
++#include <map>
++using namespace std;
++
++
++static size_t mHits = 0;
++static size_t mMisses = 0;
++static size_t mCollisions = 0;
++
++static const size_t MAX_CACHE_ENTRIES = 2048;
++static const android::String16 TRUE16("1");
++static const android::String16 FALSE16("0");
++
++struct CacheEntry {
++    // concatenation of the relevant strings into a single instance
++    android::String16 hashedName;
++    uint32_t id;
++
++    CacheEntry() {}
++    CacheEntry(const android::String16& name, uint32_t resId) : hashedName(name), id(resId) { }
++};
++
++static map< uint32_t, CacheEntry > mIdMap;
++
++
++// djb2; reasonable choice for strings when collisions aren't particularly important
++static inline uint32_t hashround(uint32_t hash, int c) {
++    return ((hash << 5) + hash) + c;    /* hash * 33 + c */
++}
++
++static uint32_t hash(const android::String16& hashableString) {
++    uint32_t hash = 5381;
++    const char16_t* str = hashableString.string();
++    while (int c = *str++) hash = hashround(hash, c);
++    return hash;
++}
++
++namespace android {
++
++static inline String16 makeHashableName(const android::String16& package,
++        const android::String16& type,
++        const android::String16& name,
++        bool onlyPublic) {
++    String16 hashable = String16(name);
++    hashable += type;
++    hashable += package;
++    hashable += (onlyPublic ? TRUE16 : FALSE16);
++    return hashable;
++}
++
++uint32_t ResourceIdCache::lookup(const android::String16& package,
++        const android::String16& type,
++        const android::String16& name,
++        bool onlyPublic) {
++    const String16 hashedName = makeHashableName(package, type, name, onlyPublic);
++    const uint32_t hashcode = hash(hashedName);
++    map<uint32_t, CacheEntry>::iterator item = mIdMap.find(hashcode);
++    if (item == mIdMap.end()) {
++        // cache miss
++        mMisses++;
++        return 0;
++    }
++
++    // legit match?
++    if (hashedName == (*item).second.hashedName) {
++        mHits++;
++        return (*item).second.id;
++    }
++
++    // collision
++    mCollisions++;
++    mIdMap.erase(hashcode);
++    return 0;
++}
++
++// returns the resource ID being stored, for callsite convenience
++uint32_t ResourceIdCache::store(const android::String16& package,
++        const android::String16& type,
++        const android::String16& name,
++        bool onlyPublic,
++        uint32_t resId) {
++    if (mIdMap.size() < MAX_CACHE_ENTRIES) {
++        const String16 hashedName = makeHashableName(package, type, name, onlyPublic);
++        const uint32_t hashcode = hash(hashedName);
++        mIdMap[hashcode] = CacheEntry(hashedName, resId);
++    }
++    return resId;
++}
++
++void ResourceIdCache::dump() {
++    printf("ResourceIdCache dump:\n");
++    printf("Size: %ld\n", mIdMap.size());
++    printf("Hits:   %ld\n", mHits);
++    printf("Misses: %ld\n", mMisses);
++    printf("(Collisions: %ld)\n", mCollisions);
++}
++
++}
+diff --git a/tools/aapt/ResourceIdCache.h b/tools/aapt/ResourceIdCache.h
+new file mode 100644
+index 0000000..65f7781
+--- /dev/null
++++ b/tools/aapt/ResourceIdCache.h
+@@ -0,0 +1,30 @@
++//
++// Copyright 2012 The Android Open Source Project
++//
++// Manage a resource ID cache.
++
++#ifndef RESOURCE_ID_CACHE_H
++#define RESOURCE_ID_CACHE_H
++
++namespace android {
++class android::String16;
++
++class ResourceIdCache {
++public:
++    static uint32_t lookup(const android::String16& package,
++            const android::String16& type,
++            const android::String16& name,
++            bool onlyPublic);
++
++    static uint32_t store(const android::String16& package,
++            const android::String16& type,
++            const android::String16& name,
++            bool onlyPublic,
++            uint32_t resId);
++
++    static void dump(void);
++};
++
++}
++
++#endif
+diff --git a/tools/aapt/ResourceTable.cpp b/tools/aapt/ResourceTable.cpp
+index 3d7b088..52ebaf0 100644
+--- a/tools/aapt/ResourceTable.cpp
++++ b/tools/aapt/ResourceTable.cpp
+@@ -8,6 +8,7 @@
+ 
+ #include "XMLNode.h"
+ #include "ResourceFilter.h"
++#include "ResourceIdCache.h"
+ 
+ #include <androidfw/ResourceTypes.h>
+ #include <utils/ByteOrder.h>
+@@ -1998,6 +1999,9 @@ uint32_t ResourceTable::getResId(const String16& package,
+                                  const String16& name,
+                                  bool onlyPublic) const
+ {
++    uint32_t id = ResourceIdCache::lookup(package, type, name, onlyPublic);
++    if (id != 0) return id;     // cache hit
++
+     sp<Package> p = mPackages.valueFor(package);
+     if (p == NULL) return 0;
+ 
+@@ -2016,11 +2020,10 @@ uint32_t ResourceTable::getResId(const String16& package,
+         }
+         
+         if (Res_INTERNALID(rid)) {
+-            return rid;
++            return ResourceIdCache::store(package, type, name, onlyPublic, rid);
+         }
+-        return Res_MAKEID(p->getAssignedId()-1,
+-                          Res_GETTYPE(rid),
+-                          Res_GETENTRY(rid));
++        return ResourceIdCache::store(package, type, name, onlyPublic,
++                Res_MAKEID(p->getAssignedId()-1, Res_GETTYPE(rid), Res_GETENTRY(rid)));
+     }
+ 
+     sp<Type> t = p->getTypes().valueFor(type);
+@@ -2029,7 +2032,9 @@ uint32_t ResourceTable::getResId(const String16& package,
+     if (c == NULL) return 0;
+     int32_t ei = c->getEntryIndex();
+     if (ei < 0) return 0;
+-    return getResId(p, t, ei);
++
++    return ResourceIdCache::store(package, type, name, onlyPublic,
++            getResId(p, t, ei));
+ }
+ 
+ uint32_t ResourceTable::getResId(const String16& ref,
+-- 
+1.8.1.1
+

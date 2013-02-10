@@ -1,0 +1,28 @@
+From 308613ff73469e174a0a1646665438a7d1385679 Mon Sep 17 00:00:00 2001
+From: Sungmin Choi <sungmin.choi@lge.com>
+Date: Thu, 20 Dec 2012 14:08:59 +0900
+Subject: [PATCH 32/51] add reply.writeNoException() for quick response
+
+In case of SET_ACTIVITY_CONTROLLER_TRANSACTION, there is no reply transaction.
+So makes same to other transactions.
+
+Change-Id: I3b9527682662a12f78cc96b6084904f18178fee7
+---
+ core/java/android/app/ActivityManagerNative.java | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/core/java/android/app/ActivityManagerNative.java b/core/java/android/app/ActivityManagerNative.java
+index 67d3930..bc7ac32 100644
+--- a/core/java/android/app/ActivityManagerNative.java
++++ b/core/java/android/app/ActivityManagerNative.java
+@@ -1147,6 +1147,7 @@ public abstract class ActivityManagerNative extends Binder implements IActivityM
+             IActivityController watcher = IActivityController.Stub.asInterface(
+                     data.readStrongBinder());
+             setActivityController(watcher);
++            reply.writeNoException();
+             return true;
+         }
+ 
+-- 
+1.8.1.1
+

@@ -1,0 +1,29 @@
+From f54df840fb31772bfabb5d4ac604897da19cf619 Mon Sep 17 00:00:00 2001
+From: Tim Hutt <tdhutt@gmail.com>
+Date: Fri, 2 Nov 2012 15:13:09 +0000
+Subject: [PATCH 118/283] Clarify ViewStub.setVisibility() documentation to
+ state that it works after inflation.
+
+Change-Id: I8414b7002af1a51a10db95758e36c471b51e6355
+Signed-off-by: Tim Hutt <tdhutt@gmail.com>
+---
+ core/java/android/view/ViewStub.java | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/core/java/android/view/ViewStub.java b/core/java/android/view/ViewStub.java
+index 69a26c2..a5dc3ae 100644
+--- a/core/java/android/view/ViewStub.java
++++ b/core/java/android/view/ViewStub.java
+@@ -212,7 +212,8 @@ public final class ViewStub extends View {
+     /**
+      * When visibility is set to {@link #VISIBLE} or {@link #INVISIBLE},
+      * {@link #inflate()} is invoked and this StubbedView is replaced in its parent
+-     * by the inflated layout resource.
++     * by the inflated layout resource. After that calls to this function are passed
++     * through to the inflated view.
+      *
+      * @param visibility One of {@link #VISIBLE}, {@link #INVISIBLE}, or {@link #GONE}.
+      *
+-- 
+1.8.1.1
+

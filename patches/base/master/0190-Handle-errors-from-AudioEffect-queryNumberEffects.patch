@@ -1,0 +1,41 @@
+From 4526f0de0a5698832719f16158bed57ad209d4f2 Mon Sep 17 00:00:00 2001
+From: Peter Karlsson <peter1.karlsson@sonyericsson.com>
+Date: Fri, 16 Nov 2012 16:14:15 +0100
+Subject: [PATCH 190/283] Handle errors from AudioEffect::queryNumberEffects
+
+There may be cases where queryNumberEffects fails leading
+to the usage of the uninitialized numEffects.
+
+Change-Id: If6d46987021ff6f0c9a2123d8714ff5fdf9ced45
+---
+ media/jni/audioeffect/android_media_AudioEffect.cpp | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/media/jni/audioeffect/android_media_AudioEffect.cpp b/media/jni/audioeffect/android_media_AudioEffect.cpp
+index 3b325b7..bcab4f3 100644
+--- a/media/jni/audioeffect/android_media_AudioEffect.cpp
++++ b/media/jni/audioeffect/android_media_AudioEffect.cpp
+@@ -705,7 +705,7 @@ android_media_AudioEffect_native_queryEffects(JNIEnv *env, jclass clazz)
+ {
+     effect_descriptor_t desc;
+     char str[EFFECT_STRING_LEN_MAX];
+-    uint32_t numEffects;
++    uint32_t numEffects = 0;
+     uint32_t i = 0;
+     jstring jdescType;
+     jstring jdescUuid;
+@@ -714,7 +714,10 @@ android_media_AudioEffect_native_queryEffects(JNIEnv *env, jclass clazz)
+     jstring jdescImplementor;
+     jobject jdesc;
+ 
+-    AudioEffect::queryNumberEffects(&numEffects);
++    if (AudioEffect::queryNumberEffects(&numEffects) != NO_ERROR) {
++        return NULL;
++    }
++
+     jobjectArray ret = env->NewObjectArray(numEffects, fields.clazzDesc, NULL);
+     if (ret == NULL) {
+         return ret;
+-- 
+1.8.1.1
+

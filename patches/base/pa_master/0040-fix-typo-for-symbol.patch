@@ -1,0 +1,27 @@
+From 90854cecb17577d4ce1456110de52684ff484e3f Mon Sep 17 00:00:00 2001
+From: Sungmin Choi <sungmin.choi@lge.com>
+Date: Thu, 17 Jan 2013 10:19:22 +0900
+Subject: [PATCH 40/51] fix typo for symbol
+
+remove duplicated symbol (sliding_layout)
+
+Change-Id: I401de3832328731d554dd4cda991b77b99454579
+---
+ core/res/res/values/symbols.xml | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/core/res/res/values/symbols.xml b/core/res/res/values/symbols.xml
+index d43ca60..f3ca0fd 100644
+--- a/core/res/res/values/symbols.xml
++++ b/core/res/res/values/symbols.xml
+@@ -1350,7 +1350,6 @@
+   <java-symbol type="id" name="sliding_layout" />
+   <java-symbol type="id" name="keyguard_add_widget" />
+   <java-symbol type="id" name="keyguard_add_widget_view" />
+-  <java-symbol type="id" name="sliding_layout" />
+   <java-symbol type="id" name="multi_pane_challenge" />
+   <java-symbol type="id" name="keyguard_user_selector" />
+   <java-symbol type="id" name="key_enter" />
+-- 
+1.8.1.1
+

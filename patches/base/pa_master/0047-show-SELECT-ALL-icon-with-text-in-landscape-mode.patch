@@ -1,0 +1,58 @@
+From a3c10739ec506254c04a3fc0ba7afad0cf716dfb Mon Sep 17 00:00:00 2001
+From: Sungmin Choi <sungmin.choi@lge.com>
+Date: Fri, 25 Jan 2013 21:39:01 +0900
+Subject: [PATCH 47/51] show SELECT ALL icon with text in landscape mode
+
+Though set config_allowActionMenuItemTextWithIcon as true,
+icon for the "SELECT ALL" menu on ActionBar is not shown as staring
+in landscape mode.
+To fix it, use "SELECT ALL" icon in onCreateActionMode() to show the
+icon and text together.
+
+To show or hide text is decided by updateTextButtonVisibility() of
+core/java/com/android/internal/view/menu/ActionMenuItemView.java
+
+STEPS TO REPRODUCE: (please be specific)
+1. launch Browser/Chrome and go to google.com
+2. rotate to landscape mode
+3. long press on URL address
+
+Bug: 8073761
+Change-Id: Ie0e0aa45f0dff609ed8c03e4423b163bad5452ed
+---
+ core/java/android/widget/Editor.java | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
+
+diff --git a/core/java/android/widget/Editor.java b/core/java/android/widget/Editor.java
+index 8815593..c8d320b 100644
+--- a/core/java/android/widget/Editor.java
++++ b/core/java/android/widget/Editor.java
+@@ -2658,23 +2658,14 @@ public class Editor {
+             TypedArray styledAttributes = mTextView.getContext().obtainStyledAttributes(
+                     com.android.internal.R.styleable.SelectionModeDrawables);
+ 
+-            boolean allowText = mTextView.getContext().getResources().getBoolean(
+-                    com.android.internal.R.bool.config_allowActionMenuItemTextWithIcon);
+-
+             mode.setTitle(mTextView.getContext().getString(
+                     com.android.internal.R.string.textSelectionCABTitle));
+             mode.setSubtitle(null);
+             mode.setTitleOptionalHint(true);
+ 
+-            int selectAllIconId = 0; // No icon by default
+-            if (!allowText) {
+-                // Provide an icon, text will not be displayed on smaller screens.
+-                selectAllIconId = styledAttributes.getResourceId(
+-                        R.styleable.SelectionModeDrawables_actionModeSelectAllDrawable, 0);
+-            }
+-
+             menu.add(0, TextView.ID_SELECT_ALL, 0, com.android.internal.R.string.selectAll).
+-                    setIcon(selectAllIconId).
++                    setIcon(styledAttributes.getResourceId(
++                            R.styleable.SelectionModeDrawables_actionModeSelectAllDrawable, 0)).
+                     setAlphabeticShortcut('a').
+                     setShowAsAction(
+                             MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+-- 
+1.8.1.1
+

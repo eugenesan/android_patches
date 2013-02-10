@@ -1,0 +1,35 @@
+From b1477739b0225027e70b11d9a2876f0210ddc6ab Mon Sep 17 00:00:00 2001
+From: Daniel Sandler <dsandler@android.com>
+Date: Tue, 16 Oct 2012 19:54:02 -0400
+Subject: [PATCH 076/283] Fix NPE in quick settings tiles.
+
+Bug: 7360759
+Change-Id: I5b000e063baa1b7e2dddaa25be5b9bcdafa1a974
+---
+ .../src/com/android/systemui/statusbar/phone/PhoneStatusBar.java       | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+index 64bce22..d4ccf96 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+@@ -541,8 +541,6 @@ public class PhoneStatusBar extends BaseStatusBar {
+                 }
+ 
+                 if (mSettingsPanel != null) {
+-                    mSettingsPanel.setBar(mStatusBarView);
+-                    
+                     if (!ActivityManager.isHighEndGfx()) {
+                         mSettingsPanel.setBackground(new FastColorDrawable(context.getResources().getColor(
+                                 R.color.notification_panel_solid_background)));
+@@ -563,6 +561,7 @@ public class PhoneStatusBar extends BaseStatusBar {
+                     mSettingsPanel.setQuickSettings(mQS);
+                 }
+                 mQS.setService(this);
++                mQS.setBar(mStatusBarView);
+                 mQS.setup(mNetworkController, mBluetoothController, mBatteryController,
+                         mLocationController);
+             } else {
+-- 
+1.8.1.1
+

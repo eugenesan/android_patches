@@ -1,0 +1,31 @@
+From d10f1e29d4d341e8a77fa9bec6e502ea688315b5 Mon Sep 17 00:00:00 2001
+From: Daniel Sandler <dsandler@android.com>
+Date: Wed, 17 Oct 2012 16:42:36 -0400
+Subject: [PATCH 087/283] Show clear all when returning from flip quick
+ settings.
+
+Bug: 7367906
+Change-Id: I3c6d227d223f11c60a44ceee4cdf698aa2a0acc9
+---
+ .../src/com/android/systemui/statusbar/phone/PhoneStatusBar.java     | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+index 5a9d12e..ee28c8c 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+@@ -1081,8 +1081,9 @@ public class PhoneStatusBar extends BaseStatusBar {
+ 
+         if (mHasFlipSettings 
+                 && mFlipSettingsView != null 
+-                && mFlipSettingsView.getVisibility() == View.VISIBLE) {
+-            // the flip settings panel is showing; we should not be shown
++                && mFlipSettingsView.getVisibility() == View.VISIBLE
++                && mScrollView.getVisibility() != View.VISIBLE) {
++            // the flip settings panel is unequivocally showing; we should not be shown
+             mClearButton.setVisibility(View.INVISIBLE);
+         } else if (mClearButton.isShown()) {
+             if (clearable != (mClearButton.getAlpha() == 1.0f)) {
+-- 
+1.8.1.1
+

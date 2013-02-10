@@ -1,0 +1,26 @@
+From b16672000830cbe273c85d110cfef52bcb1d9043 Mon Sep 17 00:00:00 2001
+From: Elliott Hughes <enh@google.com>
+Date: Thu, 17 Jan 2013 09:24:47 -0800
+Subject: [PATCH 41/51] Track a typo fix in hidden libcore API.
+
+Change-Id: I6fa3c2ef7f4d73bbf6557560e46c7c11bff74a32
+---
+ core/java/com/android/internal/os/SamplingProfilerIntegration.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/java/com/android/internal/os/SamplingProfilerIntegration.java b/core/java/com/android/internal/os/SamplingProfilerIntegration.java
+index df0fcd9..6429aa4 100644
+--- a/core/java/com/android/internal/os/SamplingProfilerIntegration.java
++++ b/core/java/com/android/internal/os/SamplingProfilerIntegration.java
+@@ -106,7 +106,7 @@ public class SamplingProfilerIntegration {
+         }
+ 
+         ThreadGroup group = Thread.currentThread().getThreadGroup();
+-        SamplingProfiler.ThreadSet threadSet = SamplingProfiler.newThreadGroupTheadSet(group);
++        SamplingProfiler.ThreadSet threadSet = SamplingProfiler.newThreadGroupThreadSet(group);
+         samplingProfiler = new SamplingProfiler(samplingProfilerDepth, threadSet);
+         samplingProfiler.start(samplingProfilerMilliseconds);
+         startMillis = System.currentTimeMillis();
+-- 
+1.8.1.1
+

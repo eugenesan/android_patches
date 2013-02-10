@@ -1,0 +1,256 @@
+From e4ba91d2287adb497f9f47d5b8d7ae609d67b30d Mon Sep 17 00:00:00 2001
+From: Joe Fernandez <joefernandez@google.com>
+Date: Wed, 24 Oct 2012 15:36:10 -0700
+Subject: [PATCH 103/283] docs: JOBB tool help page
+
+Change-Id: I0651c0080cb8bb2436591247d72dfe7be66061f5
+---
+ docs/html/guide/google/play/expansion-files.jd |  31 ++++----
+ docs/html/tools/help/jobb.jd                   | 102 +++++++++++++++++++++++++
+ docs/html/tools/tools_toc.cs                   |   1 +
+ 3 files changed, 119 insertions(+), 15 deletions(-)
+ create mode 100644 docs/html/tools/help/jobb.jd
+
+diff --git a/docs/html/guide/google/play/expansion-files.jd b/docs/html/guide/google/play/expansion-files.jd
+index 750e958..e680497 100644
+--- a/docs/html/guide/google/play/expansion-files.jd
++++ b/docs/html/guide/google/play/expansion-files.jd
+@@ -114,9 +114,10 @@ yourself or be able to distinguish between the two files.</p>
+ 
+ <h3 id="Filename">File name format</h3>
+ 
+-<p>Each expansion file you upload can be any format you choose (ZIP, PDF, MP4, etc.). Regardless of
+-the file type, Google Play considers them opaque binary blobs and renames the files
+-using the following scheme:</p>
++<p>Each expansion file you upload can be any format you choose (ZIP, PDF, MP4, etc.). You can also
++use the <a href="{@docRoot}tools/help/jobb.html">JOBB</a> tool to encapsulate and encrypt a set
++of resource files and subsequent patches for that set. Regardless of the file type, Google Play
++considers them opaque binary blobs and renames the files using the following scheme:</p>
+ 
+ <pre class="classic no-pretty-print">
+ [main|patch].&lt;expansion-version&gt;.&lt;package-name&gt;.obb
+@@ -136,7 +137,7 @@ value).
+     <p>"First" is emphasized because although the Developer Console allows you to
+ re-use an uploaded expansion file with a new APK, the expansion file's name does not change&mdash;it
+ retains the version applied to it when you first uploaded the file.</p></dd>
+-  <dt>{@code &lt;package-name&gt;}</dt> 
++  <dt>{@code &lt;package-name&gt;}</dt>
+     <dd>Your application's Java-style package name.</dd>
+ </dl>
+ 
+@@ -253,7 +254,7 @@ expansion file, you can use the patch file for the rest of your assets.</p>
+   <li>Develop your application such that it uses the resources from your expansion files in the
+ device's <a href="#StorageLocation">shared storage location</a>.
+     <p>Remember that you must not delete, move, or rename the expansion files.</p>
+-    <p>If your application doesn't demand a specific format, we suggest you create ZIP files for 
++    <p>If your application doesn't demand a specific format, we suggest you create ZIP files for
+ your expansion files, then read them using the <a href="#ZipLib">APK Expansion Zip
+ Library</a>.</p>
+   </li>
+@@ -347,7 +348,7 @@ href="#StorageLocation">shared storage location</a> (in the
+         <ol>
+           <li>Perform a request using Google Play's <a
+ href="{@docRoot}guide/google/play/licensing/index.html">Application Licensing</a> to get your
+-app's expansion file names, sizes, and URLs.</li> 
++app's expansion file names, sizes, and URLs.</li>
+           <li>Use the URLs provided by Google Play to download the expansion files and save
+ the expansion files. You <strong>must</strong> save the files to the <a
+ href="#StorageLocation">shared storage location</a>
+@@ -651,7 +652,7 @@ public class SampleAlarmReceiver extends BroadcastReceiver {
+                     SampleDownloaderService.class);
+         } catch (NameNotFoundException e) {
+             e.printStackTrace();
+-        }      
++        }
+     }
+ }
+ </pre>
+@@ -698,7 +699,7 @@ boolean expansionFilesDelivered() {
+             return false;
+     }
+     return true;
+-}        
++}
+ </pre>
+     <p>In this case, each {@code XAPKFile} object holds the version number and file size of a known
+ expansion file and a boolean as to whether it's the main expansion file. (See the sample
+@@ -749,7 +750,7 @@ public void onCreate(Bundle savedInstanceState) {
+         ...
+         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                 notifierIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+-        
++
+         // Start the download service (if required)
+         int startResult = DownloaderClientMarshaller.startDownloadServiceIfRequired(this,
+                         pendingIntent, SampleDownloaderService.class);
+@@ -1050,9 +1051,9 @@ your ZIP expansion files as a virtual file system.</p>
+ <dl>
+   <dt>{@code APKExpansionSupport}</dt>
+     <dd>Provides some methods to access expansion file names and ZIP files:
+-      
++
+       <dl style="margin-top:1em">
+-        <dt>{@code getAPKExpansionFiles()}</dt> 
++        <dt>{@code getAPKExpansionFiles()}</dt>
+           <dd>The same method shown above that returns the complete file path to both expansion
+ files.</dd>
+         <dt>{@code getAPKExpansionZipFile(Context ctx, int mainVersion, int
+@@ -1063,7 +1064,7 @@ patch file. That is, if you specify both the <code>mainVersion</code> and the
+ all the data, with the patch file's data merged on top of the main file.</dd>
+       </dl>
+     </dd>
+-    
++
+   <dt>{@code ZipResourceFile}</dt>
+     <dd>Represents a ZIP file on the shared storage and performs all the work to provide a virtual
+ file system based on your ZIP files. You can get an instance using {@code
+@@ -1083,7 +1084,7 @@ the root of the ZIP file contents. This is useful for certain Android APIs that
+ android.content.res.AssetFileDescriptor}, such as some {@link android.media.MediaPlayer} APIs.</dd>
+       </dl>
+     </dd>
+-    
++
+   <dt>{@code APEZProvider}</dt>
+     <dd>Most applications don't need to use this class. This class defines a {@link
+ android.content.ContentProvider} that marshals the data from the ZIP files through a content
+@@ -1101,7 +1102,7 @@ following:</p>
+ // Get a ZipResourceFile representing a merger of both the main and patch files
+ ZipResourceFile expansionFile = APKExpansionSupport.getAPKExpansionZipFile(appContext,
+         mainVersion, patchVersion);
+-        
++
+ // Get an input stream for a known file inside the expansion file ZIPs
+ InputStream fileStream = expansionFile.getInputStream(pathToFileInsideZip);
+ </pre>
+@@ -1254,7 +1255,7 @@ you can easily read all the expansion file data.</li>
+ 
+ 
+ <!-- Tools are not ready.
+-     
++
+ <h3>Using OBB tool and APIs</h3>
+ 
+ <pre>
+diff --git a/docs/html/tools/help/jobb.jd b/docs/html/tools/help/jobb.jd
+new file mode 100644
+index 0000000..d390ac9
+--- /dev/null
++++ b/docs/html/tools/help/jobb.jd
+@@ -0,0 +1,102 @@
++page.title=JOBB
++@jd:body
++
++
++<p>The {@code jobb} tool allows you to build encrypted and unencrypted APK expansion files in
++  Opaque Binary Blob (OBB) format. You can download and mount these expansion files in your
++  application using {@link android.os.storage.StorageManager} on devices with Android 2.3 (API
++  Level 9) or higher. OBB files are used to provide additional file assets for Android applications
++  (such as graphics, sounds and video), separate from an application's APK file. For more
++  information on using expansion files, see
++  <a href="{@docRoot}guide/google/play/expansion-files.html">APK Expansion Files</a>.</p>
++
++
++<h2 id="usage">Usage</h2>
++
++<p>The syntax for running {@code jobb} is as follows:</p>
++
++<pre>
++jobb [-d &lt;directory&gt;][-o &lt;filename&gt;][-pn &lt;package&gt;][-pv &lt;version&gt;] \
++     [-k &lt;key&gt;][-ov][-dump &lt;filename&gt;][-v][-about]
++</pre>
++
++<p>You can use the {@code jobb} tool to create an OBB file or extract the contents of an
++existing OBB. The following example command creates an OBB file from source files.</p>
++
++<pre>
++$ jobb -d /temp/assets/ -o my-app-assets.obb -k secret-key -pn com.my.app.package -pv 11
++</pre>
++
++<p>This example shows how to dump (extract) the contents of an existing OBB file:</p>
++
++<pre>
++$ jobb -d /temp/obb-output/ -o my-app-assets.obb -k secret-key
++</pre>
++
++
++<h2 id="options">Options</h2>
++
++<p>The table below lists the command line options for the {@code jobb} tool.</p>
++
++<table>
++  <tr>
++    <th>Option</th>
++    <th>Description</th>
++  </tr>
++  <tr>
++    <td>{@code -d &lt;directory&gt;}</td>
++    <td>Set the input directory for creating an OBB file, or the output directory when extracting
++      ({@code -dump}) an existing file. When creating an OBB file, the contents of the specified
++      directory and all its sub-directories are included in the OBB file system.
++    </td>
++  </tr>
++  <tr>
++    <td>{@code -o &lt;filename&gt;}</td>
++    <td>Specify the filename for the OBB file. This parameter is required when
++    creating an OBB and extracting (dumping) its contents.</td>
++  </tr>
++  <tr>
++    <td>{@code -pn &lt;package&gt;}</td>
++    <td>Specify the package name for the application that mounts the OBB file, which corresponds
++    to the {@code package} value specified in your application's manifest. This parameter is
++    required when creating an OBB file.</td>
++  </tr>
++  <tr>
++    <td>{@code -pv &lt;version&gt;}</td>
++    <td>Set the minimum version for the application that can mount the OBB file, which corresponds
++    to the {@code android:versionCode} value in your application's manifest. This parameter is
++    required when creating an OBB file.</td>
++  </tr>
++  <tr>
++    <td>{@code -k &lt;key&gt;}</td>
++    <td>Specify a password for encrypting a new OBB file or decrypting an existing, encypted
++      OBB file.</td>
++  </tr>
++  <tr>
++    <td>{@code -ov}</td>
++    <td>Create OBB file that is an overlay of an existing OBB file structure. This option allows
++      the new package contents to be mounted into the same location as a previous package and is
++      intended for creating patch versions of previously generated OBB files. Files within an
++      overlay OBB file replace files that have the same path.</td>
++  </tr>
++  <tr>
++    <td style="white-space: nowrap">{@code -dump &lt;filename&gt;}</td>
++    <td><p>Extract the contents of the specified OBB file. When using this option, you must also
++      specify the output directory for the contents using the {@code -d &lt;directory&gt;}
++      parameter.</p>
++
++      <p class="note"><strong>Note:</strong> When dumping an existing OBB file, you can omit the
++      {@code -d &lt;directory&gt;} parameter to get a listing of the directories inside the file,
++      without extracting the contents.</p>
++    </td>
++  </tr>
++  <tr>
++    <td>{@code -v}</td>
++    <td>Set verbose output for the tool.</td>
++  </tr>
++  <tr>
++    <td>{@code -about}</td>
++    <td>Display version and help information for the {@code jobb} tool.</td>
++  </tr>
++
++</table>
+diff --git a/docs/html/tools/tools_toc.cs b/docs/html/tools/tools_toc.cs
+index cca9433..0e6535e 100644
+--- a/docs/html/tools/tools_toc.cs
++++ b/docs/html/tools/tools_toc.cs
+@@ -143,6 +143,7 @@ class="en">Tools Help</span></a></div>
+       <li><a href="<?cs var:toroot ?>tools/help/etc1tool.html">etc1tool</a></li>
+       <li><a href="<?cs var:toroot ?>tools/help/hierarchy-viewer.html">Hierarchy Viewer</a></li>
+       <li><a href="<?cs var:toroot ?>tools/help/hprof-conv.html">hprof-conv</a></li>
++      <li><a href="<?cs var:toroot ?>tools/help/jobb.html">jobb</a></li>
+       <li><a href="<?cs var:toroot ?>tools/help/lint.html">lint</span></a></li>
+       <li><a href="<?cs var:toroot ?>tools/help/logcat.html">logcat</a></li>
+       <li><a href="<?cs var:toroot ?>tools/help/mksdcard.html">mksdcard</a></li>
+-- 
+1.8.1.1
+

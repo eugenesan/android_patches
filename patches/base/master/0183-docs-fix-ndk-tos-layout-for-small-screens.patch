@@ -1,0 +1,28 @@
+From 9886540d88d195fdaea7baac2b2d84893fce71e5 Mon Sep 17 00:00:00 2001
+From: Scott Main <smain@google.com>
+Date: Thu, 15 Nov 2012 11:03:46 -0800
+Subject: [PATCH 183/283] docs: fix ndk tos layout for small screens
+
+Change-Id: I95e11481cdfe759416b4a661580ee9e6b0dd24d2
+---
+ docs/html/tools/sdk/ndk/index.jd | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/docs/html/tools/sdk/ndk/index.jd b/docs/html/tools/sdk/ndk/index.jd
+index 8b26032..ad4fd7c 100644
+--- a/docs/html/tools/sdk/ndk/index.jd
++++ b/docs/html/tools/sdk/ndk/index.jd
+@@ -24,8 +24,8 @@ page.title=Android NDK
+ <div class="ndk" style="
+ z-index: 99;
+ width: 720px;
+-position: fixed;
+-margin: -20px 0;
++position: absolute;
++margin: -70px 0;
+ padding: 14px;
+ background: white;
+ border: 1px solid #999;
+-- 
+1.8.1.1
+

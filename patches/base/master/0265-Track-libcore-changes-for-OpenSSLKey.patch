@@ -1,0 +1,109 @@
+From cc1fc6b6adc1edc2acaa42205b4ec5ca00bfd353 Mon Sep 17 00:00:00 2001
+From: Kenny Root <kroot@google.com>
+Date: Tue, 22 Jan 2013 13:25:38 -0800
+Subject: [PATCH 265/283] Track libcore changes for OpenSSLKey
+
+Change-Id: I39f60c34daa9ccc633efb02988ea238a84e6bbf1
+---
+ core/java/android/webkit/BrowserFrame.java             | 13 +++++--------
+ core/java/android/webkit/ClientCertRequestHandler.java | 15 ++++++---------
+ keystore/java/android/security/AndroidKeyStore.java    |  9 +++------
+ 3 files changed, 14 insertions(+), 23 deletions(-)
+
+diff --git a/core/java/android/webkit/BrowserFrame.java b/core/java/android/webkit/BrowserFrame.java
+index 4dbca23..c3a1a17 100644
+--- a/core/java/android/webkit/BrowserFrame.java
++++ b/core/java/android/webkit/BrowserFrame.java
+@@ -56,8 +56,8 @@ import java.util.Map;
+ import java.util.Set;
+ 
+ import org.apache.harmony.security.provider.cert.X509CertImpl;
+-import org.apache.harmony.xnet.provider.jsse.OpenSSLDSAPrivateKey;
+-import org.apache.harmony.xnet.provider.jsse.OpenSSLRSAPrivateKey;
++import org.apache.harmony.xnet.provider.jsse.OpenSSLKey;
++import org.apache.harmony.xnet.provider.jsse.OpenSSLKeyHolder;
+ 
+ class BrowserFrame extends Handler {
+ 
+@@ -1129,13 +1129,10 @@ class BrowserFrame extends Handler {
+         if (table.IsAllowed(hostAndPort)) {
+             // previously allowed
+             PrivateKey pkey = table.PrivateKey(hostAndPort);
+-            if (pkey instanceof OpenSSLRSAPrivateKey) {
++            if (pkey instanceof OpenSSLKeyHolder) {
++                OpenSSLKey sslKey = ((OpenSSLKeyHolder) pkey).getOpenSSLKey();
+                 nativeSslClientCert(handle,
+-                                    ((OpenSSLRSAPrivateKey)pkey).getPkeyContext(),
+-                                    table.CertificateChain(hostAndPort));
+-            } else if (pkey instanceof OpenSSLDSAPrivateKey) {
+-                nativeSslClientCert(handle,
+-                                    ((OpenSSLDSAPrivateKey)pkey).getPkeyContext(),
++                                    sslKey.getPkeyContext(),
+                                     table.CertificateChain(hostAndPort));
+             } else {
+                 nativeSslClientCert(handle,
+diff --git a/core/java/android/webkit/ClientCertRequestHandler.java b/core/java/android/webkit/ClientCertRequestHandler.java
+index 6570a9b8..dac1510 100644
+--- a/core/java/android/webkit/ClientCertRequestHandler.java
++++ b/core/java/android/webkit/ClientCertRequestHandler.java
+@@ -21,8 +21,8 @@ import java.security.PrivateKey;
+ import java.security.cert.CertificateEncodingException;
+ import java.security.cert.X509Certificate;
+ import org.apache.harmony.xnet.provider.jsse.NativeCrypto;
+-import org.apache.harmony.xnet.provider.jsse.OpenSSLDSAPrivateKey;
+-import org.apache.harmony.xnet.provider.jsse.OpenSSLRSAPrivateKey;
++import org.apache.harmony.xnet.provider.jsse.OpenSSLKey;
++import org.apache.harmony.xnet.provider.jsse.OpenSSLKeyHolder;
+ 
+ /**
+  * ClientCertRequestHandler: class responsible for handling client
+@@ -56,14 +56,11 @@ public final class ClientCertRequestHandler extends Handler {
+             byte[][] chainBytes = NativeCrypto.encodeCertificates(chain);
+             mTable.Allow(mHostAndPort, privateKey, chainBytes);
+ 
+-            if (privateKey instanceof OpenSSLRSAPrivateKey) {
+-                setSslClientCertFromCtx(((OpenSSLRSAPrivateKey)privateKey).getPkeyContext(),
+-                           chainBytes);
+-            } else if (privateKey instanceof OpenSSLDSAPrivateKey) {
+-                setSslClientCertFromCtx(((OpenSSLDSAPrivateKey)privateKey).getPkeyContext(),
+-                           chainBytes);
++            if (privateKey instanceof OpenSSLKeyHolder) {
++                OpenSSLKey pkey = ((OpenSSLKeyHolder) privateKey).getOpenSSLKey();
++                setSslClientCertFromCtx(pkey.getPkeyContext(), chainBytes);
+             } else {
+-                setSslClientCertFromPKCS8(privateKey.getEncoded(),chainBytes);
++                setSslClientCertFromPKCS8(privateKey.getEncoded(), chainBytes);
+             }
+         } catch (CertificateEncodingException e) {
+             post(new Runnable() {
+diff --git a/keystore/java/android/security/AndroidKeyStore.java b/keystore/java/android/security/AndroidKeyStore.java
+index aabfcae..65d7b8f 100644
+--- a/keystore/java/android/security/AndroidKeyStore.java
++++ b/keystore/java/android/security/AndroidKeyStore.java
+@@ -16,9 +16,8 @@
+ 
+ package android.security;
+ 
+-import org.apache.harmony.xnet.provider.jsse.OpenSSLDSAPrivateKey;
+ import org.apache.harmony.xnet.provider.jsse.OpenSSLEngine;
+-import org.apache.harmony.xnet.provider.jsse.OpenSSLRSAPrivateKey;
++import org.apache.harmony.xnet.provider.jsse.OpenSSLKeyHolder;
+ 
+ import android.util.Log;
+ 
+@@ -210,10 +209,8 @@ public class AndroidKeyStore extends KeyStoreSpi {
+         byte[] keyBytes = null;
+ 
+         final String pkeyAlias;
+-        if (key instanceof OpenSSLRSAPrivateKey) {
+-            pkeyAlias = ((OpenSSLRSAPrivateKey) key).getPkeyAlias();
+-        } else if (key instanceof OpenSSLDSAPrivateKey) {
+-            pkeyAlias = ((OpenSSLDSAPrivateKey) key).getPkeyAlias();
++        if (key instanceof OpenSSLKeyHolder) {
++            pkeyAlias = ((OpenSSLKeyHolder) key).getOpenSSLKey().getAlias();
+         } else {
+             pkeyAlias = null;
+         }
+-- 
+1.8.1.1
+

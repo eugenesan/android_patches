@@ -1,0 +1,178 @@
+From eb1e7eac9f0e1e8ac68da736b9ed92c9729ede08 Mon Sep 17 00:00:00 2001
+From: && repo sync -j8 <kmccormick@google.com>
+Date: Thu, 18 Oct 2012 14:55:29 -0700
+Subject: [PATCH 095/283] Doc change: GCM category & dry_run params
+
+Bug # 7171849
+
+Change-Id: Ifde95a058fc90b777faf3d43d34a72b048e20126
+---
+ docs/html/guide/google/gcm/adv.jd  |  2 +-
+ docs/html/guide/google/gcm/c2dm.jd |  6 +++---
+ docs/html/guide/google/gcm/demo.jd |  4 ++--
+ docs/html/guide/google/gcm/gcm.jd  | 35 +++++++++++++++++++++++++++++++----
+ docs/html/guide/google/gcm/gs.jd   |  2 +-
+ 5 files changed, 38 insertions(+), 11 deletions(-)
+
+diff --git a/docs/html/guide/google/gcm/adv.jd b/docs/html/guide/google/gcm/adv.jd
+index f01953b..640fb52 100644
+--- a/docs/html/guide/google/gcm/adv.jd
++++ b/docs/html/guide/google/gcm/adv.jd
+@@ -258,7 +258,7 @@ registerReceiver(mRetryReceiver, filter);
+ 
+ <h2 id="multi-senders">Receiving Messages from Multiple Senders</h2>
+ <p>GCM allows multiple parties to send messages to the same application. For example, suppose your application is an articles aggregator with multiple contributors, and you want each of them to be able to send a message when they publish a new article. This message might contain a URL so that the application can download the article. Instead of having to centralize all sending activity in one location, GCM gives you the ability to let each of these contributors send its own messages.</p>
+-<p>To make this possible, all you need to do is have each sender generate its own project ID. Then include those IDs in the sender field, separated by commas, when requesting a registration. Finally, share the registration ID with your partners, and they'll be able to send messages to your application using their own authentication keys.</p>
++<p>To make this possible, all you need to do is have each sender generate its own project number. Then include those IDs in the sender field, separated by commas, when requesting a registration. Finally, share the registration ID with your partners, and they'll be able to send messages to your application using their own authentication keys.</p>
+ <p>This code snippet illustrates this feature. Senders are passed as an intent extra in a comma-separated list:</p>
+ <pre class="prettyprint pretty-java">Intent intent = new Intent(GCMConstants.INTENT_TO_GCM_REGISTRATION);
+ intent.setPackage(GSF_PACKAGE);
+diff --git a/docs/html/guide/google/gcm/c2dm.jd b/docs/html/guide/google/gcm/c2dm.jd
+index ecc08c1..e80a41f 100644
+--- a/docs/html/guide/google/gcm/c2dm.jd
++++ b/docs/html/guide/google/gcm/c2dm.jd
+@@ -55,7 +55,7 @@ page.title=Migration
+ <dd>To use the GCM service, you need to obtain a Simple API Key from Google APIs console page. For more information, see <a href="gs.html">Getting Started</a>. Note that GCM <em>only</em> accepts Simple API Key&mdash;using ClientLogin or OAuth2 tokens will not work.
+ </dd>
+ <dt><strong>Sender ID</strong></dt>
+-<dd>In C2DM, the Sender ID is an email address. In GCM, the Sender ID is a project ID that you acquire from the API console, as described in <a href="gs.html#create-proj">Getting Started</a>. </dd>
++<dd>In C2DM, the Sender ID is an email address. In GCM, the Sender ID is a project number that you acquire from the API console, as described in <a href="gs.html#create-proj">Getting Started</a>. </dd>
+ 
+ <dt><strong>JSON format</strong></dt>
+ <dd>GCM HTTP requests support JSON format in addition to plain text. For more information, see the <a href="gcm.html#send-msg">Architectural Overview</a>.</dd>
+@@ -82,12 +82,12 @@ page.title=Migration
+ <p>C2DM and GCM are not interoperable. For example, you cannot post notifications from GCM to C2DM registration IDs, nor can you use C2DM registration IDs as GCM registration IDs. From your server-side application, you must keep keep track of whether a registration ID is from C2DM or GCM and use the proper endpoint. </p>
+ 
+ <p>As you transition from C2DM to GCM, your server needs to be aware of whether a given registration ID
+-contains an old C2DM sender or a new GCM project ID. This is the approach we recommend: have the new app version (the one that uses GCM) send a bit along with the registration ID. This bit tells your server that this registration ID is for GCM. If you don't get the extra bit, you mark the registration ID as C2DM. Once no more valid registration IDs are marked as C2DM, you can complete the migration.</p>
++contains an old C2DM sender or a new GCM project number. This is the approach we recommend: have the new app version (the one that uses GCM) send a bit along with the registration ID. This bit tells your server that this registration ID is for GCM. If you don't get the extra bit, you mark the registration ID as C2DM. Once no more valid registration IDs are marked as C2DM, you can complete the migration.</p>
+ 
+ <h2 id="migrating">Migrating Your Apps</h2>
+ <p>This section describes how to move existing C2DM apps to GCM.</p>
+ <h3 id="client">Client changes</h3>
+-<p>Migration is simple! The only change required in the application is replacing the email account passed in the sender parameter of the registration intent with the project ID generated when signing up for the new service. For example:</p>
++<p>Migration is simple! The only change required in the application is replacing the email account passed in the sender parameter of the registration intent with the project number generated when signing up for the new service. For example:</p>
+ <pre class="prettyprint pretty-java">Intent registrationIntent = new Intent(&quot;com.google.android.c2dm.intent.REGISTER&quot;);
+ // sets the app name in the intent
+ registrationIntent.putExtra(&quot;app&quot;, PendingIntent.getBroadcast(this, 0, new Intent(), 0));
+diff --git a/docs/html/guide/google/gcm/demo.jd b/docs/html/guide/google/gcm/demo.jd
+index d66cbbc..7e35fd6 100644
+--- a/docs/html/guide/google/gcm/demo.jd
++++ b/docs/html/guide/google/gcm/demo.jd
+@@ -62,7 +62,7 @@ page.title=GCM Demo Application
+ <p>For the Android application:</p>
+ <ul>
+   <li>Emulator (or device) running Android 2.2 with Google APIs.</li>
+-  <li>The Google API project ID of the account registered to use GCM.</li>
++  <li>The Google API project number of the account registered to use GCM.</li>
+ </ul>
+ <h2 id="gcm-setup">Setting Up GCM</h2>
+ <p>Before proceeding with the server and client setup, it's necessary to register a Google account with the Google API Console, enable Google Cloud Messaging in GCM, and obtain an API key from the <a href="https://code.google.com/apis/console">Google API Console</a>.</p>
+@@ -175,7 +175,7 @@ runserver:
+ <pre class="prettyprint pretty-java">
+ static final String SERVER_URL = &quot;http://192.168.1.10:8080/gcm-demo&quot;;
+ static final String SENDER_ID = &quot;4815162342&quot;;</pre>
+-<p>Note that the <code>SERVER_URL</code> is the URL for the server and the application's context (or just server, if you are using App Engine), and it does not include the forward slash (<code>/</code>). Also note that <code>SENDER_ID</code> is the Google API project ID you obtained in the server setup steps above.</p>
++<p>Note that the <code>SERVER_URL</code> is the URL for the server and the application's context (or just server, if you are using App Engine), and it does not include the forward slash (<code>/</code>). Also note that <code>SENDER_ID</code> is the Google API project number you obtained in the server setup steps above.</p>
+ 
+   <li>In a shell window, go to the <code>gcm-demo-client</code> directory.</li>
+   <li>Use the SDK's <code>android</code> tool to generate the <code>ant</code> build files:</li>
+diff --git a/docs/html/guide/google/gcm/gcm.jd b/docs/html/guide/google/gcm/gcm.jd
+index 1439437..04bf015 100644
+--- a/docs/html/guide/google/gcm/gcm.jd
++++ b/docs/html/guide/google/gcm/gcm.jd
+@@ -127,7 +127,7 @@ application server and sending them to the device. </td>
+   </tr>
+   <tr>
+     <td><strong>Sender ID</strong></td>
+-    <td>A project ID you acquire from the API console, as described in <a href="gs.html#create-proj">Getting Started</a>. The sender
++    <td>A project number you acquire from the API console, as described in <a href="gs.html#create-proj">Getting Started</a>. The sender
+ ID is used in the <a href="#registering">registration process</a> to identify an
+ Android application that is permitted to send messages to the device.</td>
+   </tr>
+@@ -354,7 +354,7 @@ could not run properly. </li>
+ </p>
+ 
+ <ul>
+-  <li><code>sender</code> is the project ID of the account authorized to send messages
++  <li><code>sender</code> is the project number of the account authorized to send messages
+ to the Android application. </li>
+   <li><code>app</code> is the Android application's ID, set with a <code>PendingIntent</code> to
+ allow the registration service to extract Android application information. </li>
+@@ -667,6 +667,16 @@ sent. Optional. The default value is <code>false</code>, and must be a JSON bool
+     <td><code>time_to_live</code></td>
+     <td>How long (in seconds) the message should be kept on GCM storage if the device is offline. Optional (default time-to-live is 4 weeks, and must be set as a JSON number). </td>
+   </tr>
++<tr>
++  <td><code>category</code></td>
++  <td>A string containing the package name of your application. When set, messages will only be sent to registration IDs that match the category. Optional.
++  </td>
++</tr>
++<tr>
++  <td><code>dry_run</code></td>
++  <td>If included, allows developers to test their request without actually sending a message. Optional. The default value is <code>false</code>, and must be a JSON boolean.
++  </td>
++</tr>
+ </table>
+ 
+ <p>If you are using plain text instead of JSON, the message fields must be set as HTTP parameters sent in the body, and their syntax is slightly different, as described below:
+@@ -696,9 +706,19 @@ sent. Optional. The default value is <code>false</code>, and must be a JSON bool
+     <td><code>time_to_live</code></td>
+     <td>Same as JSON (see previous table). Optional.</td>
+   </tr>
++<tr>
++  <td><code>category</code></td>
++  <td>Same as JSON (see previous table). Optional.
++  </td>
++</tr>
++<tr>
++  <td><code>dry_run</code></td>
++  <td>Same as JSON (see previous table). Optional.
++  </td>
++</tr>
+ </table>
+ 
+-<p>If you want to test your request (either JSON or plain text) without delivering the message to the devices, you can set an optional HTTP parameter called <code>dry_run</code> with the value <code>true</code>. The result will be almost identical to running the request without this parameter, except that the message will not be delivered to the devices. Consequently, the response will contain fake IDs for the message and multicast fields (see <a href="#response">Response format</a>).</p>
++<p>If you want to test your request (either JSON or plain text) without delivering the message to the devices, you can set an optional HTTP or JSON parameter called <code>dry_run</code> with the value <code>true</code>. The result will be almost identical to running the request without this parameter, except that the message will not be delivered to the devices. Consequently, the response will contain fake IDs for the message and multicast fields (see <a href="#response">Response format</a>).</p>
+ 
+   <h4 id="example-requests">Example requests</h4>
+   <p>Here is the smallest possible request (a message without any parameters and just one recipient) using JSON:</p>
+@@ -879,7 +899,7 @@ Happens when the error code is <code>InvalidDataKey</code>.</dd>
+   <dt id="auth_error"><strong>Authentication Error</strong></dt>
+   <dd>The sender account that you're trying to use to send a message couldn't be authenticated. Possible causes are: <ul>
+ <li>Authorization header missing or with invalid syntax.</li>
+-<li>Invalid project ID sent as key.</li>
++<li>Invalid project number sent as key.</li>
+ <li>Key valid but with GCM service disabled.</li>
+ <li>Request originated from a server not whitelisted in the Server Key IPs.</li>
+ 
+@@ -936,6 +956,13 @@ Happens when the HTTP status code is 500, or when the <code>error</code> field o
+ object in the results array is <code>InternalServerError</code>.
+ </dd>
+ 
++<dt id="invalid_category"><strong>Invalid Category</strong></dt>
++
++<dd>
++A message was addressed to a registration ID whose category did not match the value passed in the request. Happens when error code is 
++<code>InvalidCategory</code>.
++</dd>
++
+ 
+ </dl>
+ <h4>Example responses</h4>
+diff --git a/docs/html/guide/google/gcm/gs.jd b/docs/html/guide/google/gcm/gs.jd
+index 0749279..beef281 100644
+--- a/docs/html/guide/google/gcm/gs.jd
++++ b/docs/html/guide/google/gcm/gs.jd
+@@ -41,7 +41,7 @@ page.title=GCM: Getting Started
+ 
+ <pre> https://code.google.com/apis/console/#project:<strong>4815162342</strong></pre>
+ 
+-  <li> Take note of the value after <code>#project:</code> (4815162342 in this example). This is your project ID, and it will be used later on as the GCM sender ID.</li>
++  <li> Take note of the value after <code>#project:</code> (4815162342 in this example). This is your project number, and it will be used later on as the GCM sender ID.</li>
+   
+ </ol>
+ <h2 id="gcm-service">Enabling the GCM Service</h2>
+-- 
+1.8.1.1
+

@@ -1,0 +1,57 @@
+From 1129a85203ac3f238b95c4795397d84c81c01094 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B6rn=20Lund=C3=A9n?= <blunden2@gmail.com>
+Date: Thu, 20 Sep 2012 13:58:51 +0200
+Subject: [PATCH 181/283] Framework: Use holo alert drawables
+
+Replaces the current usage of the GB alert
+drawable with theme-consistent holo ones.
+
+Change-Id: I8594ef8276db5bb0e192f3a541937d7281321043
+---
+ core/java/android/webkit/WebCoreThreadWatchdog.java                     | 2 +-
+ packages/VpnDialogs/src/com/android/vpndialogs/ConfirmDialog.java       | 2 +-
+ .../com/android/server/accessibility/AccessibilityManagerService.java   | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/core/java/android/webkit/WebCoreThreadWatchdog.java b/core/java/android/webkit/WebCoreThreadWatchdog.java
+index a22e6e8..c27bb5f 100644
+--- a/core/java/android/webkit/WebCoreThreadWatchdog.java
++++ b/core/java/android/webkit/WebCoreThreadWatchdog.java
+@@ -270,7 +270,7 @@ class WebCoreThreadWatchdog implements Runnable {
+                                             SUBSEQUENT_TIMEOUT_PERIOD);
+                                 }
+                             })
+-                    .setIcon(android.R.drawable.ic_dialog_alert)
++                    .setIconAttribute(android.R.attr.alertDialogIcon)
+                     .show();
+         }
+     }
+diff --git a/packages/VpnDialogs/src/com/android/vpndialogs/ConfirmDialog.java b/packages/VpnDialogs/src/com/android/vpndialogs/ConfirmDialog.java
+index 13d8019..7a1e66c 100644
+--- a/packages/VpnDialogs/src/com/android/vpndialogs/ConfirmDialog.java
++++ b/packages/VpnDialogs/src/com/android/vpndialogs/ConfirmDialog.java
+@@ -66,7 +66,7 @@ public class ConfirmDialog extends AlertActivity implements
+                     getString(R.string.prompt, app.loadLabel(pm)));
+             ((CompoundButton) view.findViewById(R.id.check)).setOnCheckedChangeListener(this);
+ 
+-            mAlertParams.mIconId = android.R.drawable.ic_dialog_alert;
++            mAlertParams.mIconAttrId = android.R.attr.alertDialogIcon;
+             mAlertParams.mTitle = getText(android.R.string.dialog_alert_title);
+             mAlertParams.mPositiveButtonText = getText(android.R.string.ok);
+             mAlertParams.mPositiveButtonListener = this;
+diff --git a/services/java/com/android/server/accessibility/AccessibilityManagerService.java b/services/java/com/android/server/accessibility/AccessibilityManagerService.java
+index 671cbfe..a34d44c 100644
+--- a/services/java/com/android/server/accessibility/AccessibilityManagerService.java
++++ b/services/java/com/android/server/accessibility/AccessibilityManagerService.java
+@@ -1123,7 +1123,7 @@ public class AccessibilityManagerService extends IAccessibilityManager.Stub {
+                 return;
+             }
+             mEnableTouchExplorationDialog = new AlertDialog.Builder(mContext)
+-                .setIcon(android.R.drawable.ic_dialog_alert)
++                .setIconAttribute(android.R.attr.alertDialogIcon)
+                 .setPositiveButton(android.R.string.ok, new OnClickListener() {
+                     @Override
+                     public void onClick(DialogInterface dialog, int which) {
+-- 
+1.8.1.1
+

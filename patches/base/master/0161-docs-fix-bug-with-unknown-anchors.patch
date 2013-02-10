@@ -1,0 +1,33 @@
+From 3a535a47c3ea4f7de60ea38fb2d4664ae6eb9904 Mon Sep 17 00:00:00 2001
+From: Scott Main <smain@google.com>
+Date: Tue, 13 Nov 2012 05:58:23 -0800
+Subject: [PATCH 161/283] docs: fix bug with unknown anchors
+
+Change-Id: I70f978ffd2248973a43ff1fe1dec2b0ac78cb63b
+---
+ docs/html/about/versions/jelly-bean.jd | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/docs/html/about/versions/jelly-bean.jd b/docs/html/about/versions/jelly-bean.jd
+index 1e21e0f..2680100 100644
+--- a/docs/html/about/versions/jelly-bean.jd
++++ b/docs/html/about/versions/jelly-bean.jd
+@@ -42,8 +42,13 @@ function revealSection(hashy) {
+     link = $("#version-tabs a[href$="+sectionId+"]");
+     link.parent().addClass("selected");
+     link.parent().siblings().removeClass("selected");
+-    $(".version-section").hide();
+-    $(link.attr("href")).show();
++    
++    sectionDiv = $(".version-section"+link.attr("href"));
++    if (sectionDiv.length) {
++      $(".version-section").hide();
++      sectionDiv.show();
++    }
++    
+     $('html, body').animate({
+          scrollTop: $(hashy).offset().top
+      }, 100);
+-- 
+1.8.1.1
+

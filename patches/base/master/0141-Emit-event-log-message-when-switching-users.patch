@@ -1,0 +1,37 @@
+From 86597df79fdc793d72d2e491f0a7a51ced31fdd3 Mon Sep 17 00:00:00 2001
+From: Jeff Sharkey <jsharkey@android.com>
+Date: Fri, 9 Nov 2012 15:00:31 -0800
+Subject: [PATCH 141/283] Emit event log message when switching users.
+
+Change-Id: I8e521e177b0e17e2ab9e033e0ff8bc421cd5f784
+---
+ services/java/com/android/server/am/ActivityManagerService.java | 1 +
+ services/java/com/android/server/am/EventLogTags.logtags        | 3 +++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/services/java/com/android/server/am/ActivityManagerService.java b/services/java/com/android/server/am/ActivityManagerService.java
+index d2cd646..db64a9a 100644
+--- a/services/java/com/android/server/am/ActivityManagerService.java
++++ b/services/java/com/android/server/am/ActivityManagerService.java
+@@ -14229,6 +14229,7 @@ public final class ActivityManagerService extends ActivityManagerNative
+                     startHomeActivityLocked(userId);
+                 }
+ 
++                EventLogTags.writeAmSwitchUser(userId);
+                 getUserManagerLocked().userForeground(userId);
+                 sendUserSwitchBroadcastsLocked(oldUserId, userId);
+                 if (needStart) {
+diff --git a/services/java/com/android/server/am/EventLogTags.logtags b/services/java/com/android/server/am/EventLogTags.logtags
+index 6ee7507..88c0c03 100644
+--- a/services/java/com/android/server/am/EventLogTags.logtags
++++ b/services/java/com/android/server/am/EventLogTags.logtags
+@@ -83,3 +83,6 @@ option java_package com.android.server.am
+ 30039 am_crash (User|1|5),(PID|1|5),(Process Name|3),(Flags|1|5),(Exception|3),(Message|3),(File|3),(Line|1|5)
+ # Log.wtf() called
+ 30040 am_wtf (User|1|5),(PID|1|5),(Process Name|3),(Flags|1|5),(Tag|3),(Message|3)
++
++# User switched
++30041 am_switch_user (id|1|5)
+-- 
+1.8.1.1
+

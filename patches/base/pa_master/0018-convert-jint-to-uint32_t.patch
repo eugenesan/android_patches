@@ -1,0 +1,31 @@
+From fb88dd02832c29579388bf870e101ce43f88a306 Mon Sep 17 00:00:00 2001
+From: Nick Kralevich <nnk@google.com>
+Date: Fri, 7 Dec 2012 16:56:47 -0800
+Subject: [PATCH 18/51] convert jint to uint32_t.
+
+This works around a compiler bug, and is probably more
+correct anyway.
+
+Change-Id: I1c49064bd64c31dafae560e416c665de0449f245
+---
+ core/jni/android_util_EventLog.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/core/jni/android_util_EventLog.cpp b/core/jni/android_util_EventLog.cpp
+index a3981ce..6ee504d 100644
+--- a/core/jni/android_util_EventLog.cpp
++++ b/core/jni/android_util_EventLog.cpp
+@@ -71,8 +71,8 @@ static jint android_util_EventLog_writeEvent_String(JNIEnv* env, jobject clazz,
+     // Don't throw NPE -- I feel like it's sort of mean for a logging function
+     // to be all crashy if you pass in NULL -- but make the NULL value explicit.
+     const char *str = value != NULL ? env->GetStringUTFChars(value, NULL) : "NULL";
+-    jint len = strlen(str);
+-    const int max = sizeof(buf) - sizeof(len) - 2;  // Type byte, final newline
++    uint32_t len = strlen(str);
++    size_t max = sizeof(buf) - sizeof(len) - 2;  // Type byte, final newline
+     if (len > max) len = max;
+ 
+     buf[0] = EVENT_TYPE_STRING;
+-- 
+1.8.1.1
+

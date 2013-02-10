@@ -1,0 +1,35 @@
+From 6180dee0ed60e31803fe728a30592943a56328bd Mon Sep 17 00:00:00 2001
+From: Geremy Condra <gcondra@google.com>
+Date: Tue, 11 Sep 2012 16:57:17 -0700
+Subject: [PATCH 008/283] DO NOT MERGE Added event logging for config
+ installation failures.
+
+This just logs the directory the data is being written to, which
+will tell us whether we've pushed a bad update and are about to
+start wedging devices.
+
+Change-Id: Iaaef6d41b2ab18bcce295c583ee13f49e337ed65
+
+Conflicts:
+
+	services/java/com/android/server/updatable/ConfigUpdateInstallReceiver.java
+---
+ services/java/com/android/server/EventLogTags.logtags | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/services/java/com/android/server/EventLogTags.logtags b/services/java/com/android/server/EventLogTags.logtags
+index 39355d5..840e006 100644
+--- a/services/java/com/android/server/EventLogTags.logtags
++++ b/services/java/com/android/server/EventLogTags.logtags
+@@ -156,3 +156,8 @@ option java_package com.android.server
+ 51200 lockdown_vpn_connecting (egress_net|1)
+ 51201 lockdown_vpn_connected (egress_net|1)
+ 51202 lockdown_vpn_error (egress_net|1)
++
++# ---------------------------
++# ConfigUpdateInstallReceiver.java
++# ---------------------------
++51300 config_install_failed (dir|3)
+-- 
+1.8.1.1
+

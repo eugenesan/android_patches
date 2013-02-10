@@ -1,0 +1,32 @@
+From 0b6cc9ace43b116ab74414f042429957fef439a0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?L=C3=A1szl=C3=B3=20D=C3=A1vid?= <laszlo.david@gmail.com>
+Date: Thu, 25 Oct 2012 00:00:18 +0200
+Subject: [PATCH 101/283] NullPointerException in SQLiteSession
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+I have found this bug with the FindBugs tool
+
+Change-Id: Ia167882f98c3cdb24332f420e0505e1af929b770
+Signed-off-by: László Dávid <laszlo.david@gmail.com>
+---
+ core/java/android/database/sqlite/SQLiteSession.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/java/android/database/sqlite/SQLiteSession.java b/core/java/android/database/sqlite/SQLiteSession.java
+index beb5b3a..d80ab1f 100644
+--- a/core/java/android/database/sqlite/SQLiteSession.java
++++ b/core/java/android/database/sqlite/SQLiteSession.java
+@@ -926,7 +926,7 @@ public final class SQLiteSession {
+     }
+ 
+     private void throwIfNestedTransaction() {
+-        if (mTransactionStack == null && mTransactionStack.mParent != null) {
++        if (hasNestedTransaction()) {
+             throw new IllegalStateException("Cannot perform this operation because "
+                     + "a nested transaction is in progress.");
+         }
+-- 
+1.8.1.1
+

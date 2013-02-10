@@ -1,0 +1,29 @@
+From d7663955d0e00ddc7e93e1cc70559857c3fdb2eb Mon Sep 17 00:00:00 2001
+From: You Kim <you.kim72@gmail.com>
+Date: Sun, 28 Oct 2012 22:13:48 +0900
+Subject: [PATCH 105/283] return value of String.replace() is ignored.
+
+Change-Id: Id7330e1ffc9f429b22f153d8e644fa7c64354173
+Signed-off-by: You Kim <you.kim72@gmail.com>
+---
+ services/java/com/android/server/NativeDaemonEvent.java | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/services/java/com/android/server/NativeDaemonEvent.java b/services/java/com/android/server/NativeDaemonEvent.java
+index f11ae1d..2095152 100644
+--- a/services/java/com/android/server/NativeDaemonEvent.java
++++ b/services/java/com/android/server/NativeDaemonEvent.java
+@@ -223,8 +223,8 @@ public class NativeDaemonEvent {
+                 current++;  // skip the trailing quote
+             }
+             // unescape stuff within the word
+-            word.replace("\\\\", "\\");
+-            word.replace("\\\"", "\"");
++            word = word.replace("\\\\", "\\");
++            word = word.replace("\\\"", "\"");
+ 
+             if (DEBUG_ROUTINE) Slog.e(LOGTAG, "found '" + word + "'");
+             parsed.add(word);
+-- 
+1.8.1.1
+

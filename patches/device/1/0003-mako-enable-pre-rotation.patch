@@ -1,0 +1,46 @@
+From 8bc3e5049346a9d94d0dd5b0fbb133c2dbf8e809 Mon Sep 17 00:00:00 2001
+From: Iliyan Malchev <malchev@google.com>
+Date: Mon, 5 Nov 2012 16:32:02 -0800
+Subject: [PATCH 3/7] mako: enable pre-rotation
+
+Bug: 7435860
+Change-Id: I4f063edd322d308485ec9c74b57ac6091da75b92
+Signed-off-by: Iliyan Malchev <malchev@google.com>
+---
+ CleanSpec.mk | 3 +++
+ device.mk    | 5 +----
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/CleanSpec.mk b/CleanSpec.mk
+index f26b51e..3ce1c8b 100644
+--- a/CleanSpec.mk
++++ b/CleanSpec.mk
+@@ -58,6 +58,9 @@ $(call add-clean-step, rm -f $(OUT_DIR)/target/product/mako/system/build.prop)
+ $(call add-clean-step, rm -f $(OUT_DIR)/target/product/mako/root/default.prop)
+ $(call add-clean-step, rm -f $(OUT_DIR)/target/product/mako/recovery/root/default.prop)
+ $(call add-clean-step, rm -f $(OUT_DIR)/target/product/mako/system/build.prop)
++$(call add-clean-step, rm -f $(OUT_DIR)/target/product/mako/root/default.prop)
++$(call add-clean-step, rm -f $(OUT_DIR)/target/product/mako/recovery/root/default.prop)
++$(call add-clean-step, rm -f $(OUT_DIR)/target/product/mako/system/build.prop)
+ 
+ $(call add-clean-step, rm -f $(OUT_DIR)/target/product/mako/root/default.prop)
+ $(call add-clean-step, rm -f $(OUT_DIR)/target/product/mako/recovery/root/default.prop)
+diff --git a/device.mk b/device.mk
+index 2940b0e..3b8ce0e 100644
+--- a/device.mk
++++ b/device.mk
+@@ -241,10 +241,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
+ 
+ # Enable AAC 5.1 output
+ PRODUCT_PROPERTY_OVERRIDES += \
+-	media.aac_51_output_enabled=true
+-
+-PRODUCT_PROPERTY_OVERRIDES += \
+-	debug.prerotation.disable=1
++    media.aac_51_output_enabled=true
+ 
+ PRODUCT_PROPERTY_OVERRIDES += \
+         debug.egl.recordable.rgba8888=1
+-- 
+1.8.1.1
+

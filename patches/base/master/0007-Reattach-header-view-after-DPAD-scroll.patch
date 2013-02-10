@@ -1,0 +1,85 @@
+From 158d6b70ac2f0c8fd7dafe0f865112090fb31699 Mon Sep 17 00:00:00 2001
+From: Mattias Niklewski <mattias.niklewski@sonyericsson.com>
+Date: Wed, 2 Feb 2011 15:52:37 +0100
+Subject: [PATCH 007/283] Reattach header view after DPAD scroll.
+
+A header view that was scrolled off screen using the DPAD would not be
+reattached properly when scrolled back into view, due to the flag
+recycledHeaderFooter. Solved this by using detachViewFromParent()
+instead of removeViewInLayout(). Compare to
+AbsListView.trackMotionScroll().
+
+Change-Id: I0ac0ec0f9bf23bc62430c1f62ae7d1a8570b0a24
+---
+ core/java/android/widget/ListView.java                |  8 ++------
+ .../listview/focus/ListWithEditTextHeaderTest.java    | 19 +++++++++++++++++++
+ 2 files changed, 21 insertions(+), 6 deletions(-)
+
+diff --git a/core/java/android/widget/ListView.java b/core/java/android/widget/ListView.java
+index d2e55d9..6129ca3 100644
+--- a/core/java/android/widget/ListView.java
++++ b/core/java/android/widget/ListView.java
+@@ -2919,11 +2919,9 @@ public class ListView extends AbsListView {
+             while (first.getBottom() < listTop) {
+                 AbsListView.LayoutParams layoutParams = (LayoutParams) first.getLayoutParams();
+                 if (recycleBin.shouldRecycleViewType(layoutParams.viewType)) {
+-                    detachViewFromParent(first);
+                     recycleBin.addScrapView(first, mFirstPosition);
+-                } else {
+-                    removeViewInLayout(first);
+                 }
++                detachViewFromParent(first);
+                 first = getChildAt(0);
+                 mFirstPosition++;
+             }
+@@ -2950,11 +2948,9 @@ public class ListView extends AbsListView {
+             while (last.getTop() > listBottom) {
+                 AbsListView.LayoutParams layoutParams = (LayoutParams) last.getLayoutParams();
+                 if (recycleBin.shouldRecycleViewType(layoutParams.viewType)) {
+-                    detachViewFromParent(last);
+                     recycleBin.addScrapView(last, mFirstPosition+lastIndex);
+-                } else {
+-                    removeViewInLayout(last);
+                 }
++                detachViewFromParent(last);
+                 last = getChildAt(--lastIndex);
+             }
+         }
+diff --git a/core/tests/coretests/src/android/widget/listview/focus/ListWithEditTextHeaderTest.java b/core/tests/coretests/src/android/widget/listview/focus/ListWithEditTextHeaderTest.java
+index b9051e9..532b9d1 100644
+--- a/core/tests/coretests/src/android/widget/listview/focus/ListWithEditTextHeaderTest.java
++++ b/core/tests/coretests/src/android/widget/listview/focus/ListWithEditTextHeaderTest.java
+@@ -22,6 +22,7 @@ import android.test.TouchUtils;
+ import android.test.suitebuilder.annotation.LargeTest;
+ import android.test.suitebuilder.annotation.MediumTest;
+ import android.view.KeyEvent;
++import android.view.View;
+ import android.widget.AbsListView;
+ import android.widget.ListView;
+ import android.widget.listview.ListWithEditTextHeader;
+@@ -63,4 +64,22 @@ public class ListWithEditTextHeaderTest extends ActivityInstrumentationTestCase2
+         assertTrue("header does not have focus", mListView.getChildAt(0).isFocused());
+         assertEquals("something is selected", AbsListView.INVALID_POSITION, mListView.getSelectedItemPosition());
+     }
++
++    @LargeTest
++    public void testScrollingDoesNotDetachHeaderViewFromWindow() {
++        View header = mListView.getChildAt(0);
++        assertNotNull("header is not attached to a window (?!)", header.getWindowToken());
++
++        // Scroll header off the screen and back onto the screen
++        int numItemsOnScreen = mListView.getChildCount();
++        for (int i = 0; i < numItemsOnScreen; i++) {
++            sendKeys(KeyEvent.KEYCODE_DPAD_DOWN);
++        }
++        for (int i = 0; i < numItemsOnScreen; i++) {
++            sendKeys(KeyEvent.KEYCODE_DPAD_UP);
++        }
++
++        // Make sure the header was not accidentally left detached from its window
++        assertNotNull("header has lost its window", header.getWindowToken());
++    }
+ }
+-- 
+1.8.1.1
+

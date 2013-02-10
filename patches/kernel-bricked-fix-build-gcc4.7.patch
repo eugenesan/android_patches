@@ -1,0 +1,33 @@
+From 337e53971fec14fd2a01526d2714dd00def13bba Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Tue, 29 Jan 2013 20:14:21 +0200
+Subject: [PATCH] fix build
+
+Change-Id: I004c426466b4fd254d867f78c2dcf84f919a5238
+---
+ Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 1cafa1f..2f9dc58 100644
+--- a/Makefile
++++ b/Makefile
+@@ -351,12 +351,12 @@ CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
+ 
+ CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
+ 		  -Wbitwise -Wno-return-void $(CF)
+-MODFLAGS	= -DMODULE -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mtune=cortex-a15 -marm -march=armv7-a -mfpu=neon -ftree-vectorize -mvectorize-with-neon-quad -funroll-loops
++MODFLAGS	= -DMODULE -mcpu=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize -Wno-maybe-uninitialized -Wframe-larger-than=2048
+ CFLAGS_MODULE   = $(MODFLAGS)
+ AFLAGS_MODULE   = $(MODFLAGS)
+ LDFLAGS_MODULE  = -T $(srctree)/scripts/module-common.lds
+-CFLAGS_KERNEL	= -fgcse-lm -fgcse-sm -fsched-spec-load -fforce-addr -ffast-math -fsingle-precision-constant -mtune=cortex-a15 -marm -march=armv7-a -mfpu=neon -ftree-vectorize -mvectorize-with-neon-quad -funroll-loops
+-AFLAGS_KERNEL	=
++CFLAGS_KERNEL	= -mcpu=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize -Wno-maybe-uninitialized -Wframe-larger-than=2048
++AFLAGS_KERNEL	= -mcpu=cortex-a9 -march=armv7-a -mfpu=neon -ftree-vectorize -Wno-maybe-uninitialized -Wframe-larger-than=2048
+ CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
+ 
+ 
+-- 
+1.8.1.1
+

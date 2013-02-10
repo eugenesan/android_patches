@@ -1,0 +1,172 @@
+From 7127af5bf4f539c39add3f35906c65c4557dad83 Mon Sep 17 00:00:00 2001
+From: Jim Miller <jaggies@google.com>
+Date: Mon, 15 Oct 2012 15:58:01 -0700
+Subject: [PATCH 067/283] Fix inoperative "Forgot pattern" button when face
+ unlock enabled
+
+This fixes a bug where the forgot pattern button wasn't working because
+the logic for face unlock was interfering with determining the proper
+backup to use.
+
+The fix:
+- adds a new state to SecurityMode so we have an initial condition
+we can check for.
+- passes the current mode to SecurityModel.getBackupSecurityMode() so
+it relies on the current state.
+- prevents face unlock from invoking callbacks that change state
+once we're no longer showing face unlock.
+
+Fixes bug 7346989
+
+Change-Id: I4e64515efbbad712f11c820e690b458f352bf46c
+---
+ .../policy/impl/keyguard/KeyguardHostView.java     | 57 +++++++++++++++++++---
+ .../impl/keyguard/KeyguardSecurityModel.java       | 13 ++---
+ 2 files changed, 54 insertions(+), 16 deletions(-)
+
+diff --git a/policy/src/com/android/internal/policy/impl/keyguard/KeyguardHostView.java b/policy/src/com/android/internal/policy/impl/keyguard/KeyguardHostView.java
+index eca8618..ebc54b3 100644
+--- a/policy/src/com/android/internal/policy/impl/keyguard/KeyguardHostView.java
++++ b/policy/src/com/android/internal/policy/impl/keyguard/KeyguardHostView.java
+@@ -79,7 +79,7 @@ public class KeyguardHostView extends KeyguardViewBase {
+     private boolean mEnableMenuKey;
+     private boolean mIsVerifyUnlockOnly;
+     private boolean mEnableFallback; // TODO: This should get the value from KeyguardPatternView
+-    private SecurityMode mCurrentSecuritySelection = SecurityMode.None;
++    private SecurityMode mCurrentSecuritySelection = SecurityMode.Invalid;
+ 
+     protected Runnable mLaunchRunnable;
+ 
+@@ -433,7 +433,8 @@ public class KeyguardHostView extends KeyguardViewBase {
+      */
+     private void showBackupSecurityScreen() {
+         if (DEBUG) Log.d(TAG, "showBackupSecurity()");
+-        showSecurityScreen(mSecurityModel.getBackupSecurityMode());
++        SecurityMode backup = mSecurityModel.getBackupSecurityMode(mCurrentSecuritySelection);
++        showSecurityScreen(backup);
+     }
+ 
+     public boolean showNextSecurityScreenIfPresent() {
+@@ -543,6 +544,45 @@ public class KeyguardHostView extends KeyguardViewBase {
+ 
+     private KeyguardStatusViewManager mKeyguardStatusViewManager;
+ 
++    // Used to ignore callbacks from methods that are no longer current (e.g. face unlock).
++    // This avoids unwanted asynchronous events from messing with the state.
++    private KeyguardSecurityCallback mNullCallback = new KeyguardSecurityCallback() {
++
++        @Override
++        public void userActivity(long timeout) {
++        }
++
++        @Override
++        public void showBackupSecurity() {
++        }
++
++        @Override
++        public void setOnDismissRunnable(Runnable runnable) {
++        }
++
++        @Override
++        public void reportSuccessfulUnlockAttempt() {
++        }
++
++        @Override
++        public void reportFailedUnlockAttempt() {
++        }
++
++        @Override
++        public boolean isVerifyUnlockOnly() {
++            return false;
++        }
++
++        @Override
++        public int getFailedAttempts() {
++            return 0;
++        }
++
++        @Override
++        public void dismiss(boolean securityVerified) {
++        }
++    };
++
+     @Override
+     public void reset() {
+         mIsVerifyUnlockOnly = false;
+@@ -568,9 +608,10 @@ public class KeyguardHostView extends KeyguardViewBase {
+             }
+         }
+         boolean simPukFullScreen = getResources().getBoolean(R.bool.kg_sim_puk_account_full_screen);
+-        if (view == null) {
++        int layoutId = getLayoutIdFor(securityMode);
++        if (view == null && layoutId != 0) {
+             final LayoutInflater inflater = LayoutInflater.from(mContext);
+-            View v = inflater.inflate(getLayoutIdFor(securityMode), this, false);
++            View v = inflater.inflate(layoutId, this, false);
+             mSecurityViewContainer.addView(v);
+             updateSecurityView(v);
+ 
+@@ -617,8 +658,12 @@ public class KeyguardHostView extends KeyguardViewBase {
+         KeyguardSecurityView newView = getSecurityView(securityMode);
+ 
+         // Emulate Activity life cycle
+-        oldView.onPause();
++        if (oldView != null) {
++            oldView.onPause();
++            oldView.setKeyguardCallback(mNullCallback); // ignore requests from old view
++        }
+         newView.onResume();
++        newView.setKeyguardCallback(mCallback);
+ 
+         final boolean needsInput = newView.needsInput();
+         if (mViewMediatorCallback != null) {
+@@ -749,7 +794,7 @@ public class KeyguardHostView extends KeyguardViewBase {
+             case SimPin: return R.layout.keyguard_sim_pin_view;
+             case SimPuk: return R.layout.keyguard_sim_puk_view;
+             default:
+-                throw new RuntimeException("No layout for securityMode " + securityMode);
++                return 0;
+         }
+     }
+ 
+diff --git a/policy/src/com/android/internal/policy/impl/keyguard/KeyguardSecurityModel.java b/policy/src/com/android/internal/policy/impl/keyguard/KeyguardSecurityModel.java
+index 80282c1..59e2ca9 100644
+--- a/policy/src/com/android/internal/policy/impl/keyguard/KeyguardSecurityModel.java
++++ b/policy/src/com/android/internal/policy/impl/keyguard/KeyguardSecurityModel.java
+@@ -28,6 +28,7 @@ public class KeyguardSecurityModel {
+      * @see com.android.internal.policy.impl.LockPatternKeyguardView#getUnlockMode()
+      */
+     enum SecurityMode {
++        Invalid, // NULL state
+         None, // No security enabled
+         Pattern, // Unlock by drawing a pattern.
+         Password, // Unlock by entering a password or PIN
+@@ -53,7 +54,7 @@ public class KeyguardSecurityModel {
+      * Returns true if biometric unlock is installed and selected.  If this returns false there is
+      * no need to even construct the biometric unlock.
+      */
+-    private boolean isBiometricUnlockEnabled() {
++    boolean isBiometricUnlockEnabled() {
+         return mLockPatternUtils.usingBiometricWeak()
+                 && mLockPatternUtils.isBiometricWeakInstalled();
+     }
+@@ -128,15 +129,7 @@ public class KeyguardSecurityModel {
+      *
+      * @return backup method or current security mode
+      */
+-    SecurityMode getBackupSecurityMode() {
+-        SecurityMode mode = getSecurityMode();
+-
+-        // Note that getAlternateFor() cannot be called here because we want to get the backup for
+-        // biometric unlock even if it's suppressed; it just has to be enabled.
+-        if (isBiometricUnlockEnabled()
+-                && (mode == SecurityMode.Password || mode == SecurityMode.Pattern)) {
+-            mode = SecurityMode.Biometric;
+-        }
++    SecurityMode getBackupSecurityMode(SecurityMode mode) {
+         switch(mode) {
+             case Biometric:
+                 return getSecurityMode();
+-- 
+1.8.1.1
+

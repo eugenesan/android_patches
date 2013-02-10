@@ -1,0 +1,33 @@
+From 6d7a4737643afe05034a36e6ebcd5da1085fbbdc Mon Sep 17 00:00:00 2001
+From: Magnus Hallqvist <magnus.hallqvist@sonymobile.com>
+Date: Tue, 11 Sep 2012 12:46:15 +0200
+Subject: [PATCH 006/283] Sensors could be disabled by any application
+
+In the SensorManager API unregisterListener any application could
+unregister any sensor. This lets any application disable a sensor
+which another application is using.
+This fix restricts the applications to only be able to unregister
+a sensor it has previously registered to.
+
+Change-Id: Ief926dd29f480dd97626160810dff87a8d3ac8dc
+---
+ core/java/android/hardware/SystemSensorManager.java | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/core/java/android/hardware/SystemSensorManager.java b/core/java/android/hardware/SystemSensorManager.java
+index 0204e94..7375e7d 100644
+--- a/core/java/android/hardware/SystemSensorManager.java
++++ b/core/java/android/hardware/SystemSensorManager.java
+@@ -373,7 +373,8 @@ public class SystemSensorManager extends SensorManager {
+                         for (Sensor s : l.getSensors()) {
+                             disableSensorLocked(s);
+                         }
+-                    } else if (l.removeSensor(sensor) == 0) {
++                    // Check if the ListenerDelegate has the sensor it is trying to unregister.
++                    } else if (l.hasSensor(sensor) && l.removeSensor(sensor) == 0) {
+                         // if we have no more sensors enabled on this listener,
+                         // take it off the list.
+                         sListeners.remove(i);
+-- 
+1.8.1.1
+

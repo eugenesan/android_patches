@@ -1,0 +1,54 @@
+From fd02074fdd12039e905a515941ffd9a757f671c2 Mon Sep 17 00:00:00 2001
+From: Tim Roes <tim.roes88@googlemail.com>
+Date: Tue, 22 Jan 2013 23:12:11 +0100
+Subject: [PATCH 273/283] Complete documentation of whereArgs (Issue #43061)
+
+Complete the missing documentation for the
+whereArgs argument in delete, update and
+updateWithOnConflict
+
+Update: Removed trailing spaces
+
+Change-Id: I451ec9e0747c7655c612a4506f40152af0adcf3a
+Signed-off-by: Tim Roes <tim.roes88@googlemail.com>
+---
+ core/java/android/database/sqlite/SQLiteDatabase.java | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/core/java/android/database/sqlite/SQLiteDatabase.java b/core/java/android/database/sqlite/SQLiteDatabase.java
+index e2d44f2..60ccc61 100644
+--- a/core/java/android/database/sqlite/SQLiteDatabase.java
++++ b/core/java/android/database/sqlite/SQLiteDatabase.java
+@@ -1481,6 +1481,9 @@ public final class SQLiteDatabase extends SQLiteClosable {
+      * @param table the table to delete from
+      * @param whereClause the optional WHERE clause to apply when deleting.
+      *            Passing null will delete all rows.
++     * @param whereArgs You may include ?s in the where clause, which
++     *            will be replaced by the values from whereArgs. The values
++     *            will be bound as Strings.
+      * @return the number of rows affected if a whereClause is passed in, 0
+      *         otherwise. To remove all rows and get a count pass "1" as the
+      *         whereClause.
+@@ -1508,6 +1511,9 @@ public final class SQLiteDatabase extends SQLiteClosable {
+      *            valid value that will be translated to NULL.
+      * @param whereClause the optional WHERE clause to apply when updating.
+      *            Passing null will update all rows.
++     * @param whereArgs You may include ?s in the where clause, which
++     *            will be replaced by the values from whereArgs. The values
++     *            will be bound as Strings.
+      * @return the number of rows affected
+      */
+     public int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
+@@ -1522,6 +1528,9 @@ public final class SQLiteDatabase extends SQLiteClosable {
+      *            valid value that will be translated to NULL.
+      * @param whereClause the optional WHERE clause to apply when updating.
+      *            Passing null will update all rows.
++     * @param whereArgs You may include ?s in the where clause, which
++     *            will be replaced by the values from whereArgs. The values
++     *            will be bound as Strings.
+      * @param conflictAlgorithm for update conflict resolver
+      * @return the number of rows affected
+      */
+-- 
+1.8.1.1
+

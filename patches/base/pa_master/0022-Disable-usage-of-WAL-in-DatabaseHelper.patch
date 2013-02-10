@@ -1,0 +1,34 @@
+From 425202ef8dffab2088ff292643bebf9cde28095e Mon Sep 17 00:00:00 2001
+From: Yevgen Pronenko <yevgen.pronenko@sonymobile.com>
+Date: Mon, 13 Aug 2012 13:52:21 +0200
+Subject: [PATCH 22/51] Disable usage of WAL in DatabaseHelper
+
+According to SQLite documentation, WAL can not be used when database
+partition is not accessible for writing (even when the client just
+performs read operation).
+However, such situation may happen when the partition is full.
+As SettingsProvider should always be able to read a value of ANDROID_ID
+from corresponding database, this commit disables usage of WAL.
+Without this we risk ending up in a situation where /data is full
+and the phone is unable to boot properly.
+
+Change-Id: I1f79bbcd8d0f64bf35dc9d7b846bcfb2664d2eac
+---
+ .../src/com/android/providers/settings/DatabaseHelper.java               | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java b/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+index b649b43..cc52a83 100644
+--- a/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
++++ b/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+@@ -109,7 +109,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
+         super(context, dbNameForUser(userHandle), null, DATABASE_VERSION);
+         mContext = context;
+         mUserHandle = userHandle;
+-        setWriteAheadLoggingEnabled(true);
+     }
+ 
+     public static boolean isValidTable(String name) {
+-- 
+1.8.1.1
+

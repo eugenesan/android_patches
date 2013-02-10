@@ -1,0 +1,35 @@
+From c6e1705dc9efd92233e941e522beb7f451f3d638 Mon Sep 17 00:00:00 2001
+From: Vitaly Wool <vitaly.wool@sonymobile.com>
+Date: Tue, 4 Sep 2012 15:03:13 +0200
+Subject: [PATCH 11/51] Prevent scanning during DHCP process
+
+Wi-Fi should be in active state during the entire DHCP process, and
+shouldn't go to IEEE 802.11 power save mode. If the framework requests
+scan during the DHCP process, the Wi-Fi chip has to start scanning
+on channels different from the current one, and going to power save
+mode is a prerequisite for scan. The result directly impacts user
+experience: DHCP process takes longer, and even can fail.
+
+Change-Id: I8171388bb70072e4c42cb3c074dd955da84e494b
+---
+ wifi/java/android/net/wifi/WifiStateMachine.java | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/wifi/java/android/net/wifi/WifiStateMachine.java b/wifi/java/android/net/wifi/WifiStateMachine.java
+index ed393c6..9a9cad2 100644
+--- a/wifi/java/android/net/wifi/WifiStateMachine.java
++++ b/wifi/java/android/net/wifi/WifiStateMachine.java
+@@ -3416,6 +3416,10 @@ public class WifiStateMachine extends StateMachine {
+               case CMD_SET_HIGH_PERF_MODE:
+                   deferMessage(message);
+                   break;
++                  /* Defer scan request since we should not switch to other channels at DHCP */
++              case CMD_START_SCAN:
++                  deferMessage(message);
++                  break;
+               default:
+                   return NOT_HANDLED;
+           }
+-- 
+1.8.1.1
+

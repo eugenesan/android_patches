@@ -1,0 +1,29 @@
+From 4bbc6155170df6678292890f68ac751d989166fb Mon Sep 17 00:00:00 2001
+From: Christopher Tate <ctate@google.com>
+Date: Tue, 16 Oct 2012 17:14:34 -0700
+Subject: [PATCH 077/283] Fix ApplicationInfo copy ctor
+
+Need to copy ALL the fields!
+
+Bug 7360899
+
+Change-Id: Ie6ed2d6f41c2efaf793ebf111adc8fa5e8b57d7c
+---
+ core/java/android/content/pm/ApplicationInfo.java | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/core/java/android/content/pm/ApplicationInfo.java b/core/java/android/content/pm/ApplicationInfo.java
+index a0283d3..32cc7fd 100644
+--- a/core/java/android/content/pm/ApplicationInfo.java
++++ b/core/java/android/content/pm/ApplicationInfo.java
+@@ -554,6 +554,7 @@ public class ApplicationInfo extends PackageItemInfo implements Parcelable {
+         manageSpaceActivityName = orig.manageSpaceActivityName;
+         descriptionRes = orig.descriptionRes;
+         uiOptions = orig.uiOptions;
++        backupAgentName = orig.backupAgentName;
+     }
+ 
+ 
+-- 
+1.8.1.1
+

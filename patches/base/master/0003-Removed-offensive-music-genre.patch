@@ -1,0 +1,39 @@
+From c3ea477e2111f199d10341b121791cb2ec91eca3 Mon Sep 17 00:00:00 2001
+From: Johan Redestig <johan.redestig@sonymobile.com>
+Date: Wed, 29 Aug 2012 12:16:30 +0200
+Subject: [PATCH 003/283] Removed offensive music genre
+
+The genre is a bad joke, not a real thing.
+
+See http://en.wikipedia.org/wiki/Negerpunk
+
+Change-Id: I073c89e286ef4b8f9d678e1b137c657b26066099
+---
+ media/java/android/media/MediaScanner.java | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/media/java/android/media/MediaScanner.java b/media/java/android/media/MediaScanner.java
+index 6f8b809..a37d8b3 100644
+--- a/media/java/android/media/MediaScanner.java
++++ b/media/java/android/media/MediaScanner.java
+@@ -283,7 +283,7 @@ public class MediaScanner
+         "Terror",
+         "Indie",
+         "Britpop",
+-        "Negerpunk",
++        null,
+         "Polsk Punk",
+         "Beat",
+         "Christian Gangsta",
+@@ -683,7 +683,7 @@ public class MediaScanner
+                     try {
+                         short genreIndex = Short.parseShort(number.toString());
+                         if (genreIndex >= 0) {
+-                            if (genreIndex < ID3_GENRES.length) {
++                            if (genreIndex < ID3_GENRES.length && ID3_GENRES[genreIndex] != null) {
+                                 return ID3_GENRES[genreIndex];
+                             } else if (genreIndex == 0xFF) {
+                                 return null;
+-- 
+1.8.1.1
+

@@ -1,0 +1,26 @@
+From 53acad9970885de5ff22c4831bd770d0437c48fe Mon Sep 17 00:00:00 2001
+From: "R. Andrew Ohana" <andrew.ohana@gmail.com>
+Date: Wed, 23 Jan 2013 17:40:15 -0800
+Subject: [PATCH 6/6] update fingerprint to JOP40D
+
+Change-Id: I3e6972d085287e6fa8ed5dfdb400231af282ed2d
+---
+ cm.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cm.mk b/cm.mk
+index 7d0a1d3..0287a3b 100644
+--- a/cm.mk
++++ b/cm.mk
+@@ -21,7 +21,7 @@ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Nexus 4
+ PRODUCT_MANUFACTURER := LGE
+ 
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=occam BUILD_FINGERPRINT=google/occam/mako:4.2/JOP40C/527662:user/release-keys PRIVATE_BUILD_DESC="occam-user 4.2 JOP40C 527662 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=occam BUILD_FINGERPRINT=google/occam/mako:4.2.1/JOP40D/533553:user/release-keys PRIVATE_BUILD_DESC="occam-user 4.2.1 JOP40D 533553 release-keys"
+ 
+ # Enable Torch
+ PRODUCT_PACKAGES += Torch
+-- 
+1.8.1.1
+

@@ -1,0 +1,58 @@
+From ad6a9c992b0088be635fbf369489f890caeff3e1 Mon Sep 17 00:00:00 2001
+From: Ben Pietrzak <bpietrzak@google.com>
+Date: Mon, 5 Nov 2012 13:10:14 -0800
+Subject: [PATCH 121/283] Support new touchpad event protocol.
+
+Change-Id: Ib690f7a1abd367870c8b633d77d2c18d6ada9b05
+---
+ core/java/android/view/SimulatedTrackball.java | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/core/java/android/view/SimulatedTrackball.java b/core/java/android/view/SimulatedTrackball.java
+index 5314019..123cfcd 100644
+--- a/core/java/android/view/SimulatedTrackball.java
++++ b/core/java/android/view/SimulatedTrackball.java
+@@ -127,7 +127,7 @@ class SimulatedTrackball {
+         // Store what time the touchpad event occurred
+         final long time = SystemClock.uptimeMillis();
+         switch (event.getAction()) {
+-            case MotionEvent.ACTION_HOVER_ENTER:
++            case MotionEvent.ACTION_DOWN:
+                 mLastTouchPadStartTimeMs = time;
+                 mAlwaysInTapRegion = true;
+                 mTouchpadEnterXPosition = event.getX();
+@@ -145,7 +145,7 @@ class SimulatedTrackball {
+                 mHandler.removeMessages(FLICK_MSG_ID);
+ 
+                 break;
+-            case MotionEvent.ACTION_HOVER_MOVE:
++            case MotionEvent.ACTION_MOVE:
+                 // Determine whether the move is slop or an intentional move
+                 float deltaX = event.getX() - mTouchpadEnterXPosition;
+                 float deltaY = event.getY() - mTouchpadEnterYPosition;
+@@ -214,19 +214,19 @@ class SimulatedTrackball {
+                     mLastTouchPadKeySendTimeMs = time;
+                 }
+                 break;
+-            case MotionEvent.ACTION_HOVER_EXIT:
++            case MotionEvent.ACTION_UP:
+                 if (time - mLastTouchPadStartTimeMs < MAX_TAP_TIME && mAlwaysInTapRegion) {
+                     // Trackball Down
+                     MotionEvent trackballEvent = MotionEvent.obtain(mLastTouchPadStartTimeMs, time,
+                             MotionEvent.ACTION_DOWN, 0, 0, 0, 0, event.getMetaState(),
+                             10f, 10f, event.getDeviceId(), 0);
+-                    trackballEvent.setSource(InputDevice.SOURCE_CLASS_TRACKBALL);
++                    trackballEvent.setSource(InputDevice.SOURCE_TRACKBALL);
+                     viewroot.enqueueInputEvent(trackballEvent);
+                     // Trackball Release
+                     trackballEvent = MotionEvent.obtain(mLastTouchPadStartTimeMs, time,
+                             MotionEvent.ACTION_UP, 0, 0, 0, 0, event.getMetaState(),
+                             10f, 10f, event.getDeviceId(), 0);
+-                    trackballEvent.setSource(InputDevice.SOURCE_CLASS_TRACKBALL);
++                    trackballEvent.setSource(InputDevice.SOURCE_TRACKBALL);
+                     viewroot.enqueueInputEvent(trackballEvent);
+                 } else {
+                     float xMoveSquared = mLastMoveX * mLastMoveX;
+-- 
+1.8.1.1
+

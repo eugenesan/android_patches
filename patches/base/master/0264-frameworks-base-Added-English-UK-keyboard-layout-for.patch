@@ -1,0 +1,382 @@
+From 4037ce3c019262c7f70342ef612c90807b429dfe Mon Sep 17 00:00:00 2001
+From: HeyRatFans <matt@heyratfans.co.uk>
+Date: Tue, 22 Jan 2013 11:58:40 +0000
+Subject: [PATCH 264/283] frameworks/base: Added English UK keyboard layout for
+ physical keyboards
+
+Change-Id: Id6feb128964c76ebd74b3e0d67d8f90fedb91dda
+---
+ .../res/raw/keyboard_layout_english_uk.kcm         | 331 +++++++++++++++++++++
+ packages/InputDevices/res/values/strings.xml       |   3 +
+ packages/InputDevices/res/xml/keyboard_layouts.xml |   4 +
+ 3 files changed, 338 insertions(+)
+ create mode 100644 packages/InputDevices/res/raw/keyboard_layout_english_uk.kcm
+
+diff --git a/packages/InputDevices/res/raw/keyboard_layout_english_uk.kcm b/packages/InputDevices/res/raw/keyboard_layout_english_uk.kcm
+new file mode 100644
+index 0000000..6d9c2e5
+--- /dev/null
++++ b/packages/InputDevices/res/raw/keyboard_layout_english_uk.kcm
+@@ -0,0 +1,331 @@
++# Copyright (C) 2012 The Android Open Source Project
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
++#
++# English (UK) keyboard layout.
++#
++
++type OVERLAY
++
++map key 43 POUND
++
++### ROW 1
++
++key GRAVE {
++    label:                              '`'
++    base:                               '`'
++    shift:                              '\u00AC'
++    ralt:                               '\u00A6'
++}
++
++key 1 {
++    label:                              '1'
++    base:                               '1'
++    shift:                              '!'
++}
++
++key 2 {
++    label:                              '2'
++    base:                               '2'
++    shift:                              '"'
++}
++
++key 3 {
++    label:                              '3'
++    base:                               '3'
++    shift:                              '\u00A3'
++}
++
++key 4 {
++    label:                              '4'
++    base:                               '4'
++    shift:                              '$'
++    ralt:                               '\u20AC'
++}
++
++key 5 {
++    label:                              '5'
++    base:                               '5'
++    shift:                              '%'
++}
++
++key 6 {
++    label:                              '6'
++    base:                               '6'
++    shift:                              '^'
++}
++
++key 7 {
++    label:                              '7'
++    base:                               '7'
++    shift:                              '&'
++}
++
++key 8 {
++    label:                              '8'
++    base:                               '8'
++    shift:                              '*'
++}
++
++key 9 {
++    label:                              '9'
++    base:                               '9'
++    shift:                              '('
++}
++
++key 0 {
++    label:                              '0'
++    base:                               '0'
++    shift:                              ')'
++}
++
++key MINUS {
++    label:                              '-'
++    base:                               '-'
++    shift:                              '_'
++}
++
++key EQUALS {
++    label:                              '='
++    base:                               '='
++    shift:                              '+'
++}
++
++### ROW 2
++
++key Q {
++    label:                              'Q'
++    base:                               'q'
++    shift, capslock:                    'Q'
++}
++
++key W {
++    label:                              'W'
++    base:                               'w'
++    shift, capslock:                    'W'
++}
++
++key E {
++    label:                              'E'
++    base:                               'e'
++    shift, capslock:                    'E'
++    ralt:                               '\u00e9'
++    shift+ralt:                         '\u00c9'
++}
++
++key R {
++    label:                              'R'
++    base:                               'r'
++    shift, capslock:                    'R'
++}
++
++key T {
++    label:                              'T'
++    base:                               't'
++    shift, capslock:                    'T'
++}
++
++key Y {
++    label:                              'Y'
++    base:                               'y'
++    shift, capslock:                    'Y'
++}
++
++key U {
++    label:                              'U'
++    base:                               'u'
++    shift, capslock:                    'U'
++    ralt:                               '\u00fa'
++    shift+ralt:                         '\u00da'
++}
++
++key I {
++    label:                              'I'
++    base:                               'i'
++    shift, capslock:                    'I'
++    ralt:                               '\u00ed'
++    shift+ralt:                         '\u00cd'
++}
++
++key O {
++    label:                              'O'
++    base:                               'o'
++    shift, capslock:                    'O'
++    ralt:                               '\u00f3'
++    shift+ralt:                         '\u00d3'
++}
++
++key P {
++    label:                              'P'
++    base:                               'p'
++    shift, capslock:                    'P'
++}
++
++key LEFT_BRACKET {
++    label:                              '['
++    base:                               '['
++    shift:                              '{'
++}
++
++key RIGHT_BRACKET {
++    label:                              ']'
++    base:                               ']'
++    shift:                              '}'
++}
++
++### ROW 3
++
++key A {
++    label:                              'A'
++    base:                               'a'
++    shift, capslock:                    'A'
++    ralt:                               '\u00e1'
++    shift+ralt:                         '\u00c1'
++}
++
++key S {
++    label:                              'S'
++    base:                               's'
++    shift, capslock:                    'S'
++}
++
++key D {
++    label:                              'D'
++    base:                               'd'
++    shift, capslock:                    'D'
++}
++
++key F {
++    label:                              'F'
++    base:                               'f'
++    shift, capslock:                    'F'
++}
++
++key G {
++    label:                              'G'
++    base:                               'g'
++    shift, capslock:                    'G'
++}
++
++key H {
++    label:                              'H'
++    base:                               'h'
++    shift, capslock:                    'H'
++}
++
++key J {
++    label:                              'J'
++    base:                               'j'
++    shift, capslock:                    'J'
++}
++
++key K {
++    label:                              'K'
++    base:                               'k'
++    shift, capslock:                    'K'
++}
++
++key L {
++    label:                              'L'
++    base:                               'l'
++    shift, capslock:                    'L'
++}
++
++key SEMICOLON {
++    label:                              ';'
++    base:                               ';'
++    shift:                              ':'
++}
++
++key APOSTROPHE {
++    label:                              '\''
++    base:                               '\''
++    shift:                              '@'
++}
++
++key POUND {
++    label:                              '#'
++    base:                               '#'
++    shift:                              '~'
++    ralt:                               '\\'
++    shift+ralt:                         '|'
++}
++
++### ROW 4
++
++key BACKSLASH {
++    label:                              '\\'
++    base:                               '\\'
++    shift:                              '|'
++}
++
++key Z {
++    label:                              'Z'
++    base:                               'z'
++    shift, capslock:                    'Z'
++}
++
++key X {
++    label:                              'X'
++    base:                               'x'
++    shift, capslock:                    'X'
++}
++
++key C {
++    label:                              'C'
++    base:                               'c'
++    shift, capslock:                    'C'
++}
++
++key V {
++    label:                              'V'
++    base:                               'v'
++    shift, capslock:                    'V'
++}
++
++key B {
++    label:                              'B'
++    base:                               'b'
++    shift, capslock:                    'B'
++}
++
++key N {
++    label:                              'N'
++    base:                               'n'
++    shift, capslock:                    'N'
++}
++
++key M {
++    label:                              'M'
++    base:                               'm'
++    shift, capslock:                    'M'
++}
++
++key COMMA {
++    label:                              ','
++    base:                               ','
++    shift:                              '<'
++}
++
++key PERIOD {
++    label:                              '.'
++    base:                               '.'
++    shift:                              '>'
++}
++
++key SLASH {
++    label:                              '/'
++    base:                               '/'
++    shift:                              '?'
++}
+diff --git a/packages/InputDevices/res/values/strings.xml b/packages/InputDevices/res/values/strings.xml
+index c13e606..65d3304 100644
+--- a/packages/InputDevices/res/values/strings.xml
++++ b/packages/InputDevices/res/values/strings.xml
+@@ -6,6 +6,9 @@
+     <!-- Keyboard layouts label, used to describe the set of all built-in layouts in the UI. [CHAR LIMIT=35] -->
+     <string name="keyboard_layouts_label">Android keyboard</string>
+ 
++    <!-- UK English keyboard layout label. [CHAR LIMIT=35] -->
++    <string name="keyboard_layout_english_uk_label">English (UK)</string>
++
+     <!-- US English keyboard layout label. [CHAR LIMIT=35] -->
+     <string name="keyboard_layout_english_us_label">English (US)</string>
+ 
+diff --git a/packages/InputDevices/res/xml/keyboard_layouts.xml b/packages/InputDevices/res/xml/keyboard_layouts.xml
+index c2a2ecc..3cfa170 100644
+--- a/packages/InputDevices/res/xml/keyboard_layouts.xml
++++ b/packages/InputDevices/res/xml/keyboard_layouts.xml
+@@ -1,5 +1,9 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <keyboard-layouts xmlns:android="http://schemas.android.com/apk/res/android">
++    <keyboard-layout android:name="keyboard_layout_english_uk"
++            android:label="@string/keyboard_layout_english_uk_label"
++            android:keyboardLayout="@raw/keyboard_layout_english_uk" />
++
+     <keyboard-layout android:name="keyboard_layout_english_us"
+             android:label="@string/keyboard_layout_english_us_label"
+             android:keyboardLayout="@raw/keyboard_layout_english_us" />
+-- 
+1.8.1.1
+

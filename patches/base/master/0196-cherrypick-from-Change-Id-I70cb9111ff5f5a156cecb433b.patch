@@ -1,0 +1,36 @@
+From ff5941399e710d24fd4d8e8ae41e87df50ebd181 Mon Sep 17 00:00:00 2001
+From: Jaewan Kim <jaewan@google.com>
+Date: Fri, 16 Nov 2012 15:59:55 +0900
+Subject: [PATCH 196/283] cherrypick from Change-Id:
+ I70cb9111ff5f5a156cecb433b3baf7925a6be1a8 Fix typo
+
+Change-Id: Idd09f7fea890dbc290589b1ebe4a1a139f98c740
+---
+ docs/html/guide/topics/resources/more-resources.jd | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/docs/html/guide/topics/resources/more-resources.jd b/docs/html/guide/topics/resources/more-resources.jd
+index d37b9f8..9fa1a2d 100644
+--- a/docs/html/guide/topics/resources/more-resources.jd
++++ b/docs/html/guide/topics/resources/more-resources.jd
+@@ -540,7 +540,7 @@ resource ID.</dd>
+ 
+ <dt>resource reference:</dt>
+ <dd>
+-In Java: <code>R.array.<em>string_array_name</em></code><br/>
++In Java: <code>R.array.<em>integer_array_name</em></code><br/>
+ In XML: <code>@[<em>package</em>:]array.<em>integer_array_name</em></code>
+ </dd>
+ 
+@@ -565,7 +565,7 @@ In XML: <code>@[<em>package</em>:]array.<em>integer_array_name</em></code>
+     <dd><strong>Required.</strong> This must be the root node.
+       <p>No attributes.</p>
+     </dd>
+-  <dt id="integer-array-element"><code>&lt;string-array&gt;</code></dt>
++  <dt id="integer-array-element"><code>&lt;integer-array&gt;</code></dt>
+     <dd>Defines an array of integers. Contains one or more child {@code &lt;item>} elements.
+       <p class="caps">attributes:</p>
+       <dl class="atn-list">
+-- 
+1.8.1.1
+

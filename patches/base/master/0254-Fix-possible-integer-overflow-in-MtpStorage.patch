@@ -1,0 +1,32 @@
+From 6393b07134f99ee827ebac2d339b0f5449addb0b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Henrik=20Engstr=C3=B6m?= <henrik.engstrom@sonymobile.com>
+Date: Thu, 29 Nov 2012 15:29:35 +0100
+Subject: [PATCH 254/283] Fix possible integer overflow in MtpStorage
+
+When converting the MB value MtpReserveSpace value to bytes there is a
+possible integer overflow since 3 integer values are multiplied, even
+though the result is stored in a long variable. This would be visible when
+the value is more than 2 GB. This is solved by making the constants
+longs instead of ints.
+
+Change-Id: I799129f7076a6e331cece17b5c05aed210499648
+---
+ media/java/android/mtp/MtpStorage.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/media/java/android/mtp/MtpStorage.java b/media/java/android/mtp/MtpStorage.java
+index 9cf65a3..e20eabc 100644
+--- a/media/java/android/mtp/MtpStorage.java
++++ b/media/java/android/mtp/MtpStorage.java
+@@ -39,7 +39,7 @@ public class MtpStorage {
+         mStorageId = volume.getStorageId();
+         mPath = volume.getPath();
+         mDescription = context.getResources().getString(volume.getDescriptionId());
+-        mReserveSpace = volume.getMtpReserveSpace() * 1024 * 1024;
++        mReserveSpace = volume.getMtpReserveSpace() * 1024L * 1024L;
+         mRemovable = volume.isRemovable();
+         mMaxFileSize = volume.getMaxFileSize();
+     }
+-- 
+1.8.1.1
+

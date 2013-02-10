@@ -1,0 +1,29 @@
+From 870d2a298857274a676bda60ae867f00106750a0 Mon Sep 17 00:00:00 2001
+From: Gulshan Singh <gsingh2011@gmail.com>
+Date: Fri, 21 Dec 2012 17:13:43 -0500
+Subject: [PATCH 246/283] Fixed typo in Recreating an Activity documentation
+
+The word although was spelled as althought. This is now fixed.
+Signed-off-by: Gulshan Singh <gsingh2011@gmail.com>
+
+Change-Id: Ia28a081bf9d8ab8be831c685cbfa4ddad3618a87
+---
+ docs/html/training/basics/activity-lifecycle/recreating.jd | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs/html/training/basics/activity-lifecycle/recreating.jd b/docs/html/training/basics/activity-lifecycle/recreating.jd
+index 1b88e19..1a65e71 100644
+--- a/docs/html/training/basics/activity-lifecycle/recreating.jd
++++ b/docs/html/training/basics/activity-lifecycle/recreating.jd
+@@ -39,7 +39,7 @@ resources so the system must shut down background processes to recover memory.</
+ <p>When your activity is destroyed because the user presses <em>Back</em> or the activity finishes
+ itself, the system's concept of that {@link android.app.Activity} instance is gone forever because
+ the behavior indicates the activity is no longer needed. However, if the system destroys
+-the activity due to system constraints (rather than normal app behavior), then althought the actual
++the activity due to system constraints (rather than normal app behavior), then although the actual
+ {@link android.app.Activity} instance is gone, the system remembers that it existed such that if
+ the user navigates back to it, the system creates a new instance of the activity using a set of
+ saved data that describes the state of the activity when it was destroyed. The saved data that the
+-- 
+1.8.1.1
+

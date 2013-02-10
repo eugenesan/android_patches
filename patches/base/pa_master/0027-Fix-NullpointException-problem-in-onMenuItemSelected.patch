@@ -1,0 +1,51 @@
+From 21446f30303081e50e6837a7f5a6b38b3984e5f6 Mon Sep 17 00:00:00 2001
+From: zobject <zbjection@gmail.com>
+Date: Fri, 14 Dec 2012 21:11:08 +0900
+Subject: [PATCH 27/51] Fix NullpointException problem in onMenuItemSelected
+
+If both title and condensed title is null,
+item.getTitleCondensed() could be return null value
+in onMenuItemSelected. therefore need to check
+whether retun value is null or not.
+
+Change-Id: Ib08f52b949a794aa7bd6cc25414041e820f62969
+---
+ core/java/android/app/Activity.java | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/core/java/android/app/Activity.java b/core/java/android/app/Activity.java
+index f9d0afd..75962dd 100644
+--- a/core/java/android/app/Activity.java
++++ b/core/java/android/app/Activity.java
+@@ -2543,12 +2543,16 @@ public class Activity extends ContextThemeWrapper
+      * Activity don't need to deal with feature codes.
+      */
+     public boolean onMenuItemSelected(int featureId, MenuItem item) {
++        CharSequence titleCondensed = item.getTitleCondensed();
++
+         switch (featureId) {
+             case Window.FEATURE_OPTIONS_PANEL:
+                 // Put event logging here so it gets called even if subclass
+                 // doesn't call through to superclass's implmeentation of each
+                 // of these methods below
+-                EventLog.writeEvent(50000, 0, item.getTitleCondensed().toString());
++                if(titleCondensed != null) {
++                    EventLog.writeEvent(50000, 0, titleCondensed.toString());
++                }
+                 if (onOptionsItemSelected(item)) {
+                     return true;
+                 }
+@@ -2566,7 +2570,9 @@ public class Activity extends ContextThemeWrapper
+                 return false;
+                 
+             case Window.FEATURE_CONTEXT_MENU:
+-                EventLog.writeEvent(50000, 1, item.getTitleCondensed().toString());
++                if(titleCondensed != null) {
++                    EventLog.writeEvent(50000, 1, titleCondensed.toString());
++                }
+                 if (onContextItemSelected(item)) {
+                     return true;
+                 }
+-- 
+1.8.1.1
+

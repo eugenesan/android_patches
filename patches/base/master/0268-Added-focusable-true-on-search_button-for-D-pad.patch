@@ -1,0 +1,32 @@
+From 6855733b7f95bcf31a24488ca9129bf409694782 Mon Sep 17 00:00:00 2001
+From: Ki-Hwan Lee <kihwanl@google.com>
+Date: Tue, 8 Jan 2013 18:15:56 +0900
+Subject: [PATCH 268/283] Added focusable true on search_button for D-pad.
+
+To give focus to search_button on ActionBar by using D-pad,
+the search_button should be set focusable true.
+
+How to reproduce:
+(1) Open "API Demos" application -> App -> Action Bar -> Action Bar Usage
+(2) Try to focus the Search View, using the D-pad.
+
+Change-Id: Idc0b8e8d88391c152e0fc20467c23d03ab558f62
+---
+ core/res/res/layout/search_view.xml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/core/res/res/layout/search_view.xml b/core/res/res/layout/search_view.xml
+index a281fcc..29c0576 100644
+--- a/core/res/res/layout/search_view.xml
++++ b/core/res/res/layout/search_view.xml
+@@ -45,6 +45,7 @@
+         android:layout_height="match_parent"
+         android:layout_gravity="center_vertical"
+         android:src="?android:attr/searchViewSearchIcon"
++        android:focusable="true"
+         android:contentDescription="@string/searchview_description_search"
+     />
+ 
+-- 
+1.8.1.1
+

@@ -1,0 +1,29 @@
+From 32d6aef11abd4660fc764ffa53bd88c7589f2d35 Mon Sep 17 00:00:00 2001
+From: Kenny Root <kroot@google.com>
+Date: Wed, 10 Oct 2012 10:23:47 -0700
+Subject: [PATCH 056/283] Reject bad ResXMLTree::setTo calls
+
+Bug: http://code.google.com/p/android/issues/detail?id=21838
+Change-Id: I1092499906f0cafe5a3c42ab2579edf3763cedb7
+---
+ libs/androidfw/ResourceTypes.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/libs/androidfw/ResourceTypes.cpp b/libs/androidfw/ResourceTypes.cpp
+index 8cce191..79cd5bb 100644
+--- a/libs/androidfw/ResourceTypes.cpp
++++ b/libs/androidfw/ResourceTypes.cpp
+@@ -1209,6 +1209,10 @@ status_t ResXMLTree::setTo(const void* data, size_t size, bool copyData)
+     uninit();
+     mEventCode = START_DOCUMENT;
+ 
++    if (!data || !size) {
++        return (mError=BAD_TYPE);
++    }
++
+     if (copyData) {
+         mOwnedData = malloc(size);
+         if (mOwnedData == NULL) {
+-- 
+1.8.1.1
+

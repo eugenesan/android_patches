@@ -1,0 +1,870 @@
+From 576552550d2a5c52d767429c4fbf885981d25ff9 Mon Sep 17 00:00:00 2001
+From: Scott Main <smain@google.com>
+Date: Tue, 13 Nov 2012 00:44:17 -0800
+Subject: [PATCH 156/283] docs: add jb mr1 api overview
+
+Change-Id: I05db9daa6b9b96fef2debabdf35bcbe169fed007
+---
+ docs/html/about/about_toc.cs               |   1 +
+ docs/html/about/versions/android-2.3.3.jd  |   3 +-
+ docs/html/about/versions/android-2.3.4.jd  |   3 +-
+ docs/html/about/versions/android-2.3.jd    |   3 +-
+ docs/html/about/versions/android-3.0.jd    |   3 +-
+ docs/html/about/versions/android-3.1.jd    |   3 +-
+ docs/html/about/versions/android-3.2.jd    |   2 +-
+ docs/html/about/versions/android-4.0.3.jd  |   3 +-
+ docs/html/about/versions/android-4.0.jd    |   3 +-
+ docs/html/about/versions/android-4.1.jd    |  14 +-
+ docs/html/about/versions/android-4.2.jd    | 543 +++++++++++++++++++++++++++++
+ docs/html/guide/topics/appwidgets/index.jd |  28 +-
+ docs/html/sdk/index.jd                     |  23 +-
+ docs/html/sdk/installing/bundle.jd         |   3 +-
+ docs/html/sdk/installing/index.jd          |   2 +-
+ 15 files changed, 580 insertions(+), 57 deletions(-)
+ create mode 100644 docs/html/about/versions/android-4.2.jd
+
+diff --git a/docs/html/about/about_toc.cs b/docs/html/about/about_toc.cs
+index 86c5c00..64cdadf 100644
+--- a/docs/html/about/about_toc.cs
++++ b/docs/html/about/about_toc.cs
+@@ -10,6 +10,7 @@
+     <div class="nav-section-header"><a href="<?cs var:toroot ?>about/versions/jelly-bean.html">
+       <span class="en">Jelly Bean</span></a></div>
+       <ul>
++        <li><a href="<?cs var:toroot ?>about/versions/android-4.2.html">Android 4.2 APIs</a></li>
+         <li><a href="<?cs var:toroot ?>about/versions/android-4.1.html">Android 4.1 APIs</a></li>
+       </ul>
+   </li>
+diff --git a/docs/html/about/versions/android-2.3.3.jd b/docs/html/about/versions/android-2.3.3.jd
+index 7a9711d..3b40831 100644
+--- a/docs/html/about/versions/android-2.3.3.jd
++++ b/docs/html/about/versions/android-2.3.3.jd
+@@ -27,7 +27,8 @@ Differences Report &raquo;</a> </li>
+ <p>
+ <em>API Level:</em>&nbsp;<strong>{@sdkPlatformApiLevel}</strong></p>
+ 
+-<p>Android 2.3.3 is a small feature release that adds several improvements
++<p>Android 2.3.3 ({@link android.os.Build.VERSION_CODES#GINGERBREAD_MR1})
++is a small feature release that adds several improvements
+ and APIs to the Android 2.3 platform.</p>
+ 
+ <p>For developers, the Android {@sdkPlatformVersion} platform is available as a
+diff --git a/docs/html/about/versions/android-2.3.4.jd b/docs/html/about/versions/android-2.3.4.jd
+index 3bb0d7b..b80b4b2 100644
+--- a/docs/html/about/versions/android-2.3.4.jd
++++ b/docs/html/about/versions/android-2.3.4.jd
+@@ -28,7 +28,8 @@ Differences Report &raquo;</a> </li>
+ <p>
+ <em>API Level:</em>&nbsp;<strong>{@sdkPlatformApiLevel}</strong></p>
+ 
+-<p>Android 2.3.4 is a maintenance release that adds several bug fixes and patches
++<p>Android 2.3.4 ({@link android.os.Build.VERSION_CODES#GINGERBREAD_MR1})
++is a maintenance release that adds several bug fixes and patches
+ to the Android 2.3 platform, without any API changes from Android 2.3.3. Additionally, 
+ Android 2.3.4 brings support for the Open Accessory API to mobile devices,
+ through the optional <a href="#usb">Open Accessory Library</a>. </p>
+diff --git a/docs/html/about/versions/android-2.3.jd b/docs/html/about/versions/android-2.3.jd
+index 89bf432..4feff51 100644
+--- a/docs/html/about/versions/android-2.3.jd
++++ b/docs/html/about/versions/android-2.3.jd
+@@ -27,7 +27,8 @@ Differences Report &raquo;</a> </li>
+ <p>
+ <em>API Level:</em>&nbsp;<strong>{@sdkPlatformApiLevel}</strong></p>
+ 
+-<p>For developers, the Android {@sdkPlatformVersion} platform is available as a
++<p>For developers, the Android {@sdkPlatformVersion}
++({@link android.os.Build.VERSION_CODES#GINGERBREAD})platform is available as a
+ downloadable component for the Android SDK. The downloadable platform includes
+ an Android library and system image, as well as a set of emulator skins and
+ more. To get started developing or testing against Android {@sdkPlatformVersion},
+diff --git a/docs/html/about/versions/android-3.0.jd b/docs/html/about/versions/android-3.0.jd
+index 5bfdffc..68ac03a 100644
+--- a/docs/html/about/versions/android-3.0.jd
++++ b/docs/html/about/versions/android-3.0.jd
+@@ -25,7 +25,8 @@ Differences Report &raquo;</a> </li>
+ 
+ <p><em>API Level:</em>&nbsp;<strong>{@sdkPlatformApiLevel}</strong></p>
+ 
+-<p>For developers, the Android {@sdkPlatformVersion} platform is available as a downloadable
++<p>For developers, the Android {@sdkPlatformVersion} platform
++({@link android.os.Build.VERSION_CODES#HONEYCOMB}) is available as a downloadable
+ component for the Android SDK. The downloadable platform includes an Android library and system
+ image, as well as a set of emulator skins and more. The downloadable platform includes no external
+ libraries.</p>
+diff --git a/docs/html/about/versions/android-3.1.jd b/docs/html/about/versions/android-3.1.jd
+index b0e2f08..c39f174 100644
+--- a/docs/html/about/versions/android-3.1.jd
++++ b/docs/html/about/versions/android-3.1.jd
+@@ -25,7 +25,8 @@ Differences Report &raquo;</a> </li>
+ 
+ <p><em>API Level:</em>&nbsp;<strong>{@sdkPlatformApiLevel}</strong></p>
+ 
+-<p>For developers, the Android {@sdkPlatformVersion} platform is available as a
++<p>For developers, the Android {@sdkPlatformVersion} platform
++({@link android.os.Build.VERSION_CODES#HONEYCOMB_MR1}) is available as a
+ downloadable component for the Android SDK. The downloadable platform includes
+ an Android library and system image, as well as a set of emulator skins and
+ more. The downloadable platform includes no external libraries.</p>
+diff --git a/docs/html/about/versions/android-3.2.jd b/docs/html/about/versions/android-3.2.jd
+index e0f0125..17f4d85 100644
+--- a/docs/html/about/versions/android-3.2.jd
++++ b/docs/html/about/versions/android-3.2.jd
+@@ -26,7 +26,7 @@ Differences Report &raquo;</a> </li>
+ 
+ <p><em>API Level:</em>&nbsp;<strong>{@sdkPlatformApiLevel}</strong></p>
+ 
+-<p>Android 3.2 is an incremental platform release that adds new
++<p>Android 3.2 ({@link android.os.Build.VERSION_CODES#HONEYCOMB_MR2}) is an incremental platform release that adds new
+ capabilities for users and developers. The sections below provide an overview
+ of the new features and developer APIs.</p>
+ 
+diff --git a/docs/html/about/versions/android-4.0.3.jd b/docs/html/about/versions/android-4.0.3.jd
+index a773b6e..dc69c99 100644
+--- a/docs/html/about/versions/android-4.0.3.jd
++++ b/docs/html/about/versions/android-4.0.3.jd
+@@ -25,7 +25,8 @@ Differences Report &raquo;</a> </li>
+ 
+ <p><em>API Level:</em>&nbsp;<strong>{@sdkPlatformApiLevel}</strong></p>
+ 
+-<p>Android {@sdkPlatformVersion} is an incremental release of the Android 4.x
++<p>Android {@sdkPlatformVersion} ({@link android.os.Build.VERSION_CODES#ICE_CREAM_SANDWICH_MR1})
++is an incremental release of the Android 4.x
+ (Ice Cream Sandwich) platform family. This release includes new features for
+ users and developers, API changes, and various bug fixes.</p>
+ 
+diff --git a/docs/html/about/versions/android-4.0.jd b/docs/html/about/versions/android-4.0.jd
+index 8595eee..f2fd0c4 100644
+--- a/docs/html/about/versions/android-4.0.jd
++++ b/docs/html/about/versions/android-4.0.jd
+@@ -26,7 +26,8 @@ Differences Report &raquo;</a> </li>
+ 
+ <p><em>API Level:</em>&nbsp;<strong>{@sdkPlatformApiLevel}</strong></p>
+ 
+-<p>Android 4.0 is a major platform release that adds a variety of new features for users and app
++<p>Android 4.0 ({@link android.os.Build.VERSION_CODES#ICE_CREAM_SANDWICH})
++is a major platform release that adds a variety of new features for users and app
+ developers. Besides all the new features and APIs discussed below, Android 4.0 is an important
+ platform release because it brings the extensive set of APIs and Holographic themes from Android 3.x
+ to smaller screens. As an app developer, you now have a single platform and unified API framework
+diff --git a/docs/html/about/versions/android-4.1.jd b/docs/html/about/versions/android-4.1.jd
+index 3677860..60ed7f0 100644
+--- a/docs/html/about/versions/android-4.1.jd
++++ b/docs/html/about/versions/android-4.1.jd
+@@ -35,7 +35,8 @@ Differences Report &raquo;</a> </li>
+ 
+ <p>API Level: 16</p>
+ 
+-<p>Android 4.1 (Jelly Bean) is a progression of the platform that offers improved
++<p>Android 4.1 ({@link android.os.Build.VERSION_CODES#JELLY_BEAN})
++is a progression of the platform that offers improved
+ performance and enhanced user experience. It adds new features for users and app
+ developers. This document provides an introduction to the most notable and
+ useful new APIs for app developers.</p>
+@@ -70,11 +71,12 @@ Level?</a></p>
+ </div>
+ 
+ 
+-<p>As an app developer, Android 4.1 is available to you with an SDK platform you can use to build
+-your app against Android 4.1 and with a system image you can run in the Android emulator. You
+-should download download the platform and system image as soon as possible to build and test your
+-app on Android 4.1. To get started developing and testing against Android
+-4.1, use the Android SDK Manager to download the platform into your SDK.</p>
++
++<p>As an app developer, Android 4.1 is available to you from the
++<a href="{@docRoot}tools/help/sdk-manager.html">SDK Manager</a> as a system image you can
++run in the Android emulator and an SDK platform against which you can build your app. You should
++download the system image and platform as soon as possible to build and test your
++app on Android 4.1.</p>
+ 
+ 
+ 
+diff --git a/docs/html/about/versions/android-4.2.jd b/docs/html/about/versions/android-4.2.jd
+new file mode 100644
+index 0000000..1e64c41
+--- /dev/null
++++ b/docs/html/about/versions/android-4.2.jd
+@@ -0,0 +1,543 @@
++page.title=Android 4.2 APIs
++sdk.platform.version=4.2
++sdk.platform.apiLevel=17
++@jd:body
++
++<div id="qv-wrapper">
++<div id="qv">
++  
++<h2>In this document</h2>
++<ol>
++  <li><a href="#Behaviors">Important Behavior Changes</a></li>
++  <li><a href="#Daydream">Android Daydream</a></li>
++  <li><a href="#SecondaryDisplays">Secondary Displays</a></li>
++  <li><a href="#Lockscreen">Lockscreen Widgets</a></li>
++  <li><a href="#MultipleUsers">Multiple Users</a></li>
++  <li><a href="#RTL">RTL Layout Support</a></li>
++  <li><a href="#NestedFragments">Nested Fragments</a></li>
++  <li><a href="#Renderscript">Renderscript</a></li>
++</ol>
++
++<h2>See also</h2>
++<ol>
++<li><a
++href="{@docRoot}sdk/api_diff/17/changes.html">API
++Differences Report &raquo;</a> </li>
++</ol>
++
++</div>
++</div>
++
++
++<p>API Level: 17</p>
++
++<p>Android 4.2 ({@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR1})
++is an incremental release for Jelly Bean that offers new features for users and app
++developers. This document provides an introduction to the most notable and
++useful new APIs for app developers.</p>
++
++
++<div class="sidebox-wrapper">
++<div class="sidebox">  
++  
++<h3 id="ApiLevel">Declare your app API Level</h3>
++
++<p>To better optimize your app for devices running Android {@sdkPlatformVersion},
++  you should set your <a
++href="{@docRoot}guide/topics/manifest/uses-sdk-element.html#target">{@code targetSdkVersion}</a> to
++<code>"{@sdkPlatformApiLevel}"</code>, install it on an Android {@sdkPlatformVersion} system image,
++test it, then publish an update with this change.</p>
++
++<p>You
++can use APIs in Android {@sdkPlatformVersion} while also supporting older versions by adding
++conditions to your code that check for the system API level before executing
++APIs not supported by your <a
++href="{@docRoot}guide/topics/manifest/uses-sdk-element.html#min">{@code minSdkVersion}</a>. 
++To learn more about
++maintaining backward-compatibility, read <a
++href="{@docRoot}training/backward-compatible-ui/index.html">Creating Backward-Compatible
++UIs</a>.</p>
++
++<p>More information about how API levels work is available in <a
++href="{@docRoot}guide/topics/manifest/uses-sdk-element.html#ApiLevels">What is API
++Level?</a></p>
++
++</div>
++</div>
++
++
++<p>As an app developer, you should download the Android 4.2 system image and SDK platform from
++the <a href="{@docRoot}tools/help/sdk-manager.html">SDK Manager</a> as soon as possible. If you
++don’t have a device running Android 4.2 on which to test your app, use the Android 4.2 system
++image to test your app on the <a href="{@docRoot}tools/devices/emulator.html">Android emulator</a>.
++Then build your apps against the Android 4.2 platform to begin using the latest APIs.</p>
++
++
++
++
++<h2 id="Behaviors">Important Behavior Changes</h2>
++
++<p>If you have previously published an app for Android, be aware of the following changes
++to some APIs that may affect your app’s behavior:</p>
++
++<ul>
++  <li><b>Content providers</b> are no longer exported by default. That is, the default value
++for the <a href="{@docRoot}guide/topics/manifest/provider-element.html#exported">{@code
++android:exported}</a> attribute is now {@code “false"}. If it’s important that other apps be
++able to access your content provider, you must now explicitly set <a
++href="{@docRoot}guide/topics/manifest/provider-element.html#exported">{@code
++android:exported="true"}.</a>
++    <p>This change takes effect only if you set either <a
++    href="{@docRoot}guide/topics/manifest/uses-sdk-element.html#target">{@code
++android:targetSdkVersion}</a> or <a href="{@docRoot}guide/topics/manifest/uses-sdk-element.html#min">{@code
++android:minSdkVersion}</a> to 17 or higher. Otherwise, the default value is still {@code “true"}
++even when running on Android 4.2 and higher.</p>
++  </li>
++  
++  <li>Compared to previous versions of Android, <b>user location</b> results may be less accurate
++if your app uses the {@link android.Manifest.permission#ACCESS_COARSE_LOCATION} permission and
++not the {@link android.Manifest.permission#ACCESS_FINE_LOCATION} permission.
++    <p>In order to meet the privacy expectations of users when your app requests permission for
++coarse location (and not fine location), the system will not provide a user location estimate
++that’s more accurate than a city block.</p>
++  </li>
++  
++  <li>Some <b>device settings</b> defined by {@link android.provider.Settings.System} are now
++  read-only. If your app attempts to write changes to settings defined in {@link
++  android.provider.Settings.System} that have moved to {@link android.provider.Settings.Global},
++  the write operation will silently fail when running on Android 4.2 and higher.
++    <p>Even if your value for <a href="{@docRoot}guide/topics/manifest/uses-sdk-element.html#target">{@code
++android:targetSdkVersion}</a> and <a href="{@docRoot}guide/topics/manifest/uses-sdk-element.html#min">{@code
++android:minSdkVersion}</a> is lower than 17, your app is not able to modify the settings that have
++moved to {@link android.provider.Settings.Global} when running on Android 4.2 and higher.</p>
++  </li>
++</ul>
++
++
++
++
++
++
++<h2 id="Daydream">Android Daydream</h2>
++
++<p>Daydream is a new interactive screensaver mode for Android devices. It activates automatically
++when the device is inserted into a dock or when the device is left idle while plugged in to a
++charger (instead of turning the screen off). Daydream displays one dream at a time, which may
++each be purely visual, passive displays that dismiss at a touch, or interactive and responsive
++to the full suite of input events. Your dreams run in your app’s process and have full access to
++the Android UI toolkit, including views, layouts, and animations, so they are more flexible and
++powerful than either live wallpapers or app widgets.</p>
++
++<p>You can create a dream for Daydream by implementing a subclass of {@link
++android.service.dreams.DreamService}. The {@link android.service.dreams.DreamService} APIs are
++designed to be similar to those of {@link android.app.Activity}. To specify the UI for your
++dream, pass a layout resource ID or {@link android.view.View} to {@link
++android.service.dreams.DreamService#setContentView setContentView()} at any point after you have
++a window (such as from the {@link android.service.dreams.DreamService#onAttachedToWindow()}
++callback). You cannot initiate a {@link android.service.dreams.DreamService} from your
++app&mdash;it is launched automatically by the system.</p>
++
++<p>The {@link android.service.dreams.DreamService} class provides other important lifecycle callback
++methods on top of the base {@link android.app.Service} APIs, such as {@link
++android.service.dreams.DreamService#onDreamingStarted()}, {@link
++android.service.dreams.DreamService#onDreamingStopped()}, and {@link
++android.service.dreams.DreamService#onDetachedFromWindow()}.</p>
++
++<p>If your dream is interactive, you can start an activity from the dream to send the user into
++your full app’s UI for more detail or control. (Use {@link
++android.service.dreams.DreamService#finish()} to end the dream so the user can see the
++new Activity.)</p>
++
++<p>To make your daydream available to the system, in your manifest file, declare your {@link
++android.service.dreams.DreamService} with a <a
++href="{@docRoot}guide/topics/manifest/service-element.html">{@code &lt;service>}</a> element.
++You must then include an intent filter with the action {@code
++"android.service.dreams.DreamService"}. For example:</p>
++
++<pre>
++&lt;service android:name=".MyDream" android:exported="true"
++    android:icon="@drawable/dream_icon" android:label="@string/dream_label" >
++    &lt;intent-filter>
++        &lt;action android:name="android.service.dreams.DreamService" />
++        &lt;category android:name="android.intent.category.DEFAULT" />
++    &lt;/intent-filter>
++&lt;/service>
++</pre>
++
++<p>There are some other useful methods in {@link android.service.dreams.DreamService}
++to be aware of:</p>
++
++<ul>
++  <li>{@link android.service.dreams.DreamService#setInteractive(boolean)} controls whether
++the daydream receives input events or exits immediately upon user input. If the dream is
++interactive, the user may use the back or home buttons to exit the dream or you can call
++{@link android.service.dreams.DreamService#finish()} to stop the dream.</li>
++  <li>If you need a fully immersive display, calling {@link
++android.service.dreams.DreamService#setFullscreen
++setFullscreen()} is a quick way to hide the status bar.</li>
++  <li>Before Daydream starts, the display dims to signal to the user that the idle timeout
++is approaching. Calling {@link android.service.dreams.DreamService#setScreenBright
++setScreenBright(true)} allows you to instead set the display at its usual brightness.</li>
++</ul>
++
++<p>For more information, see the {@link android.service.dreams.DreamService} documentation.</p>
++
++
++
++
++
++
++
++
++
++
++
++<h2 id="SecondaryDisplays">Secondary Displays</h2>
++
++<p>Android now allows your app to display unique content on additional screens that are connected
++to the user’s device. As an extension of {@link android.app.Dialog} class, the new {@link
++android.app.Presentation} class provides a region for your app to display customized UI on a
++secondary display rather than simply mirroring the UI from the device.</p>
++
++<p>To create unique content for a secondary display, extend the {@link android.app.Presentation}
++class and implement the {@link android.app.Presentation#onCreate onCreate()} callback. Within
++{@link android.app.Presentation#onCreate onCreate()}, specify your UI for the secondary display
++by calling {@link android.app.Presentation#setContentView setContentView()}.</p>
++
++<p>To detect secondary displays where you can display your {@link android.app.Presentation},
++use either the {@link android.hardware.display.DisplayManager} or {@link android.media.MediaRouter}
++APIs. While the {@link android.hardware.display.DisplayManager} APIs allow you to enumerate
++multiple displays that may be connected at once, you should usually use {@link
++android.media.MediaRouter} instead to quickly access the system’s default display for
++presentations.</p>
++
++<p>To get the default display for presentations, call {@link
++android.media.MediaRouter#getSelectedRoute MediaRouter.getSelectedRoute()} and pass it
++{@link android.media.MediaRouter#ROUTE_TYPE_LIVE_VIDEO}. This returns a {@link
++android.media.MediaRouter.RouteInfo} object that describes the system’s currently selected route
++for video presentations. If the {@link android.media.MediaRouter.RouteInfo} is not null, call
++{@link android.media.MediaRouter.RouteInfo#getPresentationDisplay()} to get the {@link
++android.view.Display} representing the connected display.</p>
++
++<p>You can then display your presentation by passing the {@link android.view.Display} object
++to a constructor for your {@link android.app.Presentation} class. Your presentation will now
++appear on the secondary display.</p>
++
++<p>To detect at runtime when a new display has been connected, create an instance of {@link
++android.media.MediaRouter.SimpleCallback} in which you implement the {@link
++android.media.MediaRouter.SimpleCallback#onRoutePresentationDisplayChanged
++onRoutePresentationDisplayChanged()} callback method, which the system will call when a new
++presentation display is connected. Then register the {@link
++android.media.MediaRouter.SimpleCallback} by passing it to {@link
++android.media.MediaRouter#addCallback MediaRouter.addCallback()} along with the {@link
++android.media.MediaRouter#ROUTE_TYPE_LIVE_VIDEO} route type. When you receive a call to
++{@link android.media.MediaRouter.SimpleCallback#onRoutePresentationDisplayChanged
++onRoutePresentationDisplayChanged()}, simply call {@link
++android.media.MediaRouter#getSelectedRoute MediaRouter.getSelectedRoute()} as mentioned above.</p>
++
++<p>To further optimize the UI in your {@link android.app.Presentation} for
++secondary screens, you can apply
++a different theme by specifying the {@link
++android.R.attr#presentationTheme android:presentationTheme} attribute in the <a
++href=”{@docRoot}guide/topics/resources/style-resource.html”>{@code &lt;style>}</a> that you’ve
++applied to your application or activity.</p>
++
++<p>Keep in mind that screens connected to the user’s device often have a larger screen size and
++likely a different screen density. Because the screen characteristics may different, you should
++provide resources that are optimized specifically for such larger displays. If you need
++to request additional resources from your {@link
++android.app.Presentation}, call {@link android.app.Presentation#getContext()}{@link
++android.content.Context#getResources .getResources()} to get the {@link
++android.content.res.Resources} object corresponding to the display. This provides
++the appropriate resources from your app that are best suited for the
++secondary display's screen size and density.</p>
++
++<p>For more information and some code samples, see the {@link android.app.Presentation}
++class documentation.</p>
++
++
++
++
++
++
++
++
++
++
++<h2 id="Lockscreen">Lockscreen Widgets</h2>
++
++<p>Android now allows users to add app widgets to the lock screen. To make your <a
++href="{@docRoot}guide/topics/appwidgets/index.html">App Widget</a> available for use on the
++lock screen, add the {@link android.appwidget.AppWidgetProviderInfo#widgetCategory
++android:widgetCategory} attribute to your XML file that specifies the {@link
++android.appwidget.AppWidgetProviderInfo}. This attribute supports two values: {@code home_screen}
++and {@code keyguard}. By default, the attribute is set to {@code home_screen} so users can add your
++app widget to the Home screen. If you want your app widget to be also available on the lock
++screen, add the {@code keyguard} value:</p>
++
++<pre>
++&lt;appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
++    ...
++    android:widgetCategory="keyguard|home_screen">
++&lt;/appwidget-provider>
++</pre>
++
++<p>You should also specify an initial layout for your app widget when on the lock screen with
++the {@link android.appwidget.AppWidgetProviderInfo#initialKeyguardLayout
++android:initialKeyguardLayout} attribute. This works the same way as the {@link
++android.appwidget.AppWidgetProviderInfo#initialLayout android:initialLayout}, in that it provides
++a layout that can appear immediately until your app widget is initialized and able to update the
++layout.</p>
++
++<p>For more information about building app widgets for the lock screen, including to properly
++size your app widget when on the lock screen, see the <a
++href="{@docRoot}guide/topics/appwidgets/index.html#lockscreen">App Widgets</a> guide.</p>
++
++
++
++
++
++
++
++<h2 id="MultipleUsers">Multiple Users</h2>
++
++<p>Android now allows multiple user spaces on shareable devices such as tablets. Each user on a
++device has his or her own set of accounts, apps, system settings, files, and any other
++user-associated data.</p>
++
++<p>As an app developer, there’s nothing different you need to do in order for your app to work
++properly with multiple users on a single device. Regardless of how many users may exist on a
++device, the data your app saves for a given user is kept separate from the data your app saves
++for other users. The system keeps track of which user data belongs to the user process in which
++your app is running and provides your app access to only that user’s data and does not allow
++access to other users’ data.</p>
++
++<h3>Saving data in a multi-user environment</h3>
++
++<p>Whenever your app saves user preferences, creates a database, or writes a file to the user’s
++internal or external storage space, that data is accessible only while running as that user.</p>
++
++<p>To be certain that your app behaves properly in a multi-user environment, do not refer to your
++internal app directory or external storage location using hard-coded paths and instead always use
++the appropriate APIs:</p>
++<ul>
++  <li>For access to internal storage, use {@link android.content.Context#getFilesDir()}, {@link
++android.content.Context#getCacheDir()}, or {@link android.content.Context#openFileOutput
++openFileOutput()}.</li>
++  <li>For access to external storage, use {@link android.content.Context#getExternalFilesDir
++  getExternalFilesDir()} or {@link android.os.Environment#getExternalStoragePublicDirectory
++  getExternalStoragePublicDirectory()}.
++</ul>
++
++<p>No matter which of these APIs you use to save data for a given user, the data will not be
++accessible while running as a different user. From your app’s point of view, each user is running
++on a completely separate device.</p>
++
++<h3>Identifying users in a multi-user environment</h3>
++
++<p>If your app wants to identify unique users such as to gather analytics or create other account
++associations, you should follow the recommended practices for <a
++href="http://android-developers.blogspot.com/2011/03/identifying-app-installations.html">identifying
++unique installations</a>. By creating a new {@link java.util.UUID} when your app starts for the
++first time, you’re certain to obtain a unique ID for tracking each user, regardless of how many
++users install your app on a single device. Alternatively, you can save a local token fetched from
++your server or use the registrations ID provided by <a
++href="{@docRoot}guide/google/gcm/index.html">Google Cloud Messaging</a>.</p>
++
++<p>Beware that if your app requests one of the hardware device identifiers (such as the WiFi MAC
++address, the {@link android.os.Build#SERIAL} number, or the {@link
++android.provider.Settings.Secure#ANDROID_ID} number), they will provide the same value for each
++user because these identifiers are tied to the hardware and not the user. Not to mention the other
++problems these identifiers introduce as discussed in the <a
++href="http://android-developers.blogspot.com/2011/03/identifying-app-installations.html">Identifying
++App Installations</a> blog post.</p>
++
++<h3>New Global Settings</h3>
++
++<p>The system settings have been updated to support multiple users with the addition of {@link
++android.provider.Settings.Global}. This collection of settings is similar to {@link
++android.provider.Settings.Secure} settings because they are read-only, but applies globally across
++all user spaces on the device.</p>
++
++<p>Several existing settings were relocated here from either {@link
++android.provider.Settings.System} or {@link android.provider.Settings.Secure}. If your app is
++currently making changes to settings previously defined in {@link android.provider.Settings.System}
++(such as {@link android.provider.Settings.System#AIRPLANE_MODE_ON}), then you should expect that
++doing so will no longer work on a device running Android 4.2 or higher if those settings were
++moved to {@link android.provider.Settings.Global}. You can continue to read settings that are in
++{@link android.provider.Settings.Global}, but because the settings are no longer considered safe
++for apps to change, attempting to do so will fail silently and the system will write a warning to
++the system log when running your app on Android 4.2 or higher.</p>
++
++
++
++
++
++
++
++
++
++<h2 id="RTL">RTL Layout Support</h2>
++
++<p>Android now offers several APIs that allow you to build user interfaces that gracefully
++transform layout orientation to support languages that use right-to-left (RTL) UIs and reading
++direction, such as Arabic and Hebrew.</p>
++
++<p>To begin supporting RTL layouts in your app, set the {@link android.R.attr#supportsRtl
++android:supportsRtl} attribute to the {@code &lt;application>} element in your manifest file
++and set it {@code “true"}. Once you enable this, the system will enable various RTL APIs to
++display your app with RTL layouts. For instance, the action bar will show the icon and title
++on the right side and action buttons on the left, and any layouts you’ve created with the
++framework-provided {@link android.view.View} classes will also be reversed.</p>
++
++<p>If you need to further optimize the appearance of your app when displayed with an RTL layout,
++there are two basic levels of optimization:</p>
++
++<ol>
++  <li>Convert left- and right-oriented layout properties to start- and end-oriented layout
++properties.   
++    <p>For example, use {@link android.R.attr#layout_marginStart android:layout_marginStart}
++in place of {@code android:layout_marginLeft} and {@link android.R.attr#layout_marginEnd
++android:layout_marginEnd} in place of  {@code android:layout_marginRight}.
++    <p>The {@link android.widget.RelativeLayout} class also provides the corresponding layout
++attributes to replace left/right positions, such as {@code android:layout_alignParentStart} to
++replace {@code android:layout_alignParentLeft} and {@code android:layout_toStartOf} instead of
++{@code android:layout_toLeftOf}.
++  </li>
++  <li>Or to provide complete optimization for RTL layouts, you can provide entirely separate
++layout files using the {@code ldrtl} resource qualifier ({@code ldrtl} stands for
++layout-direction-right-to-left}). For example, you can save your default layout files in
++{@code res/layout/} and your RTL optimized layouts in {@code res/layout-ldrtl/}.
++    <p>The {@code ldrtl} qualifier is great for drawable resources, so that you can provide
++graphics that are oriented in the direction corresponding to the reading direction.</p>
++  </li>
++</ol>
++
++<p>Various other APIs are available across the framework to support RTL layouts, such as in
++the {@link android.view.View} class so that you can implement the proper behaviors for custom
++views and in {@link android.content.res.Configuration} to query the current layout direction.</p>
++
++<p><strong>Note:</strong> If you are using SQlite and have tables or column names that are
++“number only," be
++careful: using <a href="{@docRoot}reference/java/lang/String.html#format(String, Object...)">{@code
++String.format(String, Object...)}</a> can lead to errors where the numbers
++have been converted to their Arabic equivalents if your device has been set to the Arabic locale.
++You must use <a href="{@docRoot}reference/java/lang/String.html#format(Locale,String,Object...)">{@code
++String.format(Locale,String,Object...)}</a> to ensure numbers are
++preserved as ASCII. Also use <a href="{@docRoot}reference/java/lang/String.html#format(String,int)">{@code
++String.format("%d", int)}</a> instead of using
++<a href="{@docRoot}reference/java/lang/String.html#valueOf(int)">{@code String.valueOf(int)}</a> for
++formatting numbers.</p>
++
++
++
++
++
++
++
++
++
++
++
++
++
++<h2 id="NestedFragments">Nested Fragments</h2>
++
++<p>You can now embed fragments inside fragments. This is useful for a variety of situations in
++which you want to place dynamic and re-usable UI components into a UI component that is itself
++dynamic and re-usable. For example, if you use {@link android.support.v4.view.ViewPager} to
++create fragments that swipe left and right and consume a majority of the screen space, you can
++now insert fragments into each fragment page.</p>
++
++<p>To nest a fragment, simply call {@link android.app.Fragment#getChildFragmentManager()} on
++the {@link android.app.Fragment} in which you want to add a fragment. This returns a {@link
++android.app.FragmentManager} that you can use like you normally do from the top-level activity
++to create fragment transactions. For example, here’s some code that adds a fragment from within
++an existing {@link android.app.Fragment} class:</p>
++
++<pre>
++Fragment videoFragment = new VideoPlayerFragment();
++FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
++transaction.add(R.id.video_fragment, videoFragment).commit();
++</pre>
++
++<p>From within a nested fragment, you can get a reference to the parent fragment by calling
++{@link android.app.Fragment#getParentFragment()}.</p>
++
++<p>The Android Support Library also now supports nested fragments, so you can implement nested
++fragment designs on Android 1.6 and higher.</p>
++
++<p><strong>Note:</strong> You cannot inflate a layout into a fragment when that layout
++includes a {@code &lt;fragment>}. Nested fragments are only supported when added to a
++fragment dynamically.</p>
++
++
++
++
++
++
++<h2 id="Renderscript">Renderscript</h2>
++
++<p>Renderscript computation functionality has been enhanced with the following features:</p>
++<dl>
++  <dt><b>Script intrinsics</b></dt>
++  <dd><p>You can use Renderscript's built-in script intrinsics that implement
++common operations for you such as:</p>
++    <ul>
++    <li>{@link android.renderscript.ScriptIntrinsicBlend Blends}</li>
++    <li>{@link android.renderscript.ScriptIntrinsicBlur Blur}</li>
++    <li>{@link android.renderscript.ScriptIntrinsicColorMatrix Color matrix}</li>
++    <li>{@link android.renderscript.ScriptIntrinsicConvolve3x3 3x3 convolve}</li>
++    <li>{@link android.renderscript.ScriptIntrinsicConvolve5x5 5x5 convolve}</li>
++    <li>{@link android.renderscript.ScriptIntrinsicLUT Per-channel lookup table}</li>
++    <li>{@link android.renderscript.ScriptIntrinsicYuvToRGB Converting an Android YUV buffer to RGB}</li>
++    </ul>
++  <p>To use a script intrinsic, call the static <code>create()</code> method of each instrinsic
++  to create an instance of the script. You then call the available <code>set()</code>
++  methods of each script intrinsic to set any necessary inputs and options.
++  Finally, call the {@link android.renderscript.ScriptC#forEach forEach()}</code>
++  method to execute the script.</p>
++  </dd>
++
++
++<dt><b>Script Groups</b></dt>
++<dd>
++<p>{@link android.renderscript.ScriptGroup}s allow you to chain together related Renderscript
++scripts and execute them with one call.</p>
++
++<p>Use a {@link android.renderscript.ScriptGroup.Builder} to add all of the scripts to the group
++by calling {@link android.renderscript.ScriptGroup.Builder#addKernel addKernel()}. Once you
++add all the scripts, create the connections between the
++scripts by calling {@link android.renderscript.ScriptGroup.Builder#addConnection addConnection()}.
++When you are done adding the connections, call {@link android.renderscript.ScriptGroup.Builder#create create()}
++to create the script group. Before executing the script group, specify the input
++{@link android.renderscript.Allocation} and initial script to run with the 
++{@link android.renderscript.ScriptGroup#setInput} method and provide the output
++{@link android.renderscript.Allocation} where the result will be written to and final script to
++run with {@link android.renderscript.ScriptGroup#setOutput setOutput()}. Finally, call
++{@link android.renderscript.ScriptGroup#execute execute()} to run the script group.
++</p>
++</dd>
++
++<dt><b>Filterscript</b></dt>
++<dd>
++<p>Filterscript defines constraints on the existing Renderscript APIs that allow the resulting code to run
++on a wider variety of processors (CPUs, GPUs, and DSPs). To create Filterscript files, create <code>.fs</code>
++files instead of <code>.rs</code> files, and specify <code>#pragma rs_fp_relaxed</code> to
++tell the Renderscript runtime your scripts do not require strict IEEE 754-2008 floating point precision.
++This precision allows flush-to-zero for denorms and round-towards-zero. In addition, your Filterscript
++scripts must not use 32-bit built-in types and must specify a custom root function by using the
++<code>__attribute__((kernel))</code> attribute because Filterscript does not support pointers, which
++the default signature of the <code>root()</code> function defines.</p>
++</dd>
++
++</dl>
++
++
++
++
++<p>For a detailed view of all API changes in Android 4.2, see the
++<a href="{@docRoot}sdk/api_diff/17/changes.html">API Differences Report</a>.</p>
++
++
++
+diff --git a/docs/html/guide/topics/appwidgets/index.jd b/docs/html/guide/topics/appwidgets/index.jd
+index 9e8a825..838ba96 100644
+--- a/docs/html/guide/topics/appwidgets/index.jd
++++ b/docs/html/guide/topics/appwidgets/index.jd
+@@ -2,15 +2,7 @@ page.title=App Widgets
+ @jd:body
+ 
+ <div id="qv-wrapper">
+-  <div id="qv">re
+-    <h2>Quickview</h2>
+-    <ul>
+-      <li>App Widgets provide users access to some of your application features
+-directly from the Home screen (without the need to launch an activity)</li>
+-      <li>App Widgets are backed by a special kind of broadcast receiver that
+-handles the App
+-Widget lifecycle</li>
+-    </ul>
++  <div id="qv">
+     
+     <h2>In this document</h2>
+     <ol>
+@@ -55,18 +47,6 @@ collections
+       <li>{@link android.appwidget.AppWidgetProviderInfo}</li>
+       <li>{@link android.appwidget.AppWidgetManager}</li>
+     </ol>
+-    
+-    <h2>See also</h2>
+-    <ol>
+-      <li><a
+-href="{@docRoot}guide/practices/ui_guidelines/widget_design.html">App Widget
+-Design 
+-        Guidelines</a></li>
+-      <li><a
+-href="http://android-developers.blogspot.com/2009/04/introducing-home-screen-
+-widgets-and.html">Introducing
+-        home screen widgets and the AppWidget framework &raquo;</a></li>
+-    </ol>
+   </div>
+ </div>
+ 
+@@ -87,6 +67,12 @@ the Music App Widget.</p>
+ <p>This document describes how to publish an App Widget using an App Widget
+ provider.</p>
+ 
++<div class="note design">
++<p><strong>Widget Design</strong></p>
++  <p>For information about how to design your app widget, read the <a
++href="{@docRoot}design/patterns/widgets.html">Widgets</a> design guide.</p>
++</div>
++
+ 
+ <h2 id="Basics">The Basics</h2>
+ 
+diff --git a/docs/html/sdk/index.jd b/docs/html/sdk/index.jd
+index c77687d..63dbed7 100644
+--- a/docs/html/sdk/index.jd
++++ b/docs/html/sdk/index.jd
+@@ -311,7 +311,7 @@ the ADT plugin to it.</p>
+   onclick="toggleExpandable(this,'.reqs');hideExpandable('.pax,.myide');return false;"
+   >SYSTEM REQUIREMENTS</a></h4>
+ 
+-<div class="col-6 reqs" style="margin:0 0 15px;display:none;font-size:12px">
++<div class="col-6 reqs" style="margin:0 0 15px;display:none;">
+ <h5>Operating Systems</h5>
+ <ul>
+   <li>Windows XP (32-bit), Vista (32- or 64-bit), or Windows 7 (32- or 64-bit)</li>
+@@ -326,7 +326,7 @@ the ADT plugin to it.</p>
+ </ul>
+ </div>
+ 
+-<div class="col-7 reqs" style="margin:0 0 15px;display:none;font-size:12px">
++<div class="col-6 reqs" style="margin:0 0 15px 20px;display:none;">
+ <h5>Eclipse IDE</h5>
+     <ul>
+       <li><a href="http://eclipse.org/mobile/">Eclipse</a> 3.6.2 (Helios) or greater
+@@ -338,7 +338,7 @@ in most Eclipse IDE packages) </li>
+         (JRE alone is not sufficient)</li>
+       <li><a href="{@docRoot}tools/sdk/eclipse-adt.html">Android Development Tools plugin</a>
+ (recommended)</li>
+-      <li><strong>Not</strong> compatible with Gnu Compiler for Java (gcj)</li>
++      <li><strong>Not</strong> compatible with GNU Compiler for Java (gcj)</li>
+     </ul>
+ 
+ 
+@@ -349,26 +349,9 @@ in most Eclipse IDE packages) </li>
+       <li><a href="http://ant.apache.org/">Apache Ant</a> 1.8 or later</li>
+       <li><strong>Not</strong> compatible with Gnu Compiler for Java (gcj)</li>
+     </ul>
+-  </li>
+-</ul>
+ 
+ <p class="note"><strong>Note:</strong> Some Linux distributions may include JDK 1.4 or Gnu Compiler
+ for Java, both of which are <em>not</em> supported for Android development. </p>
+ </div><!-- end col-7 reqs -->
+ 
+ 
+-
+-<h4><a href='' class="expandable"
+-  onclick="toggleExpandable(this,'.pax');hideExpandable('.myide,.reqs');return false;"
+-  >DOWNLOAD FOR OTHER PLATFORMS</a></h4>
+-
+-</div><!-- end col-13 for lower-half content -->
+-
+-<script>
+-  if (location.hash == "#Requirements") {
+-    $('.reqs').show();
+-  } else if (location.hash == "#ExistingIDE") {
+-	 $('.ide').show();
+-  }
+-</script>
+-
+diff --git a/docs/html/sdk/installing/bundle.jd b/docs/html/sdk/installing/bundle.jd
+index 243c03d..1f7da55 100644
+--- a/docs/html/sdk/installing/bundle.jd
++++ b/docs/html/sdk/installing/bundle.jd
+@@ -4,7 +4,8 @@ page.title=Setting Up the ADT Bundle
+ 
+ 
+ <p>The ADT Bundle provides everything you need to start developing apps, including
+-a powerful IDE based on Eclipse called ADT (Android Developer Tools).
++a version of the Eclipse IDE with built-in <b>ADT (Android Developer Tools)</b> to
++streamline your Android app development.
+ If you haven't already, go download the <a href="{@docRoot}sdk/index.html"
+ >Android ADT Bundle</a>. (If you downloaded the SDK Tools only, for use with an
+ existing IDE, you should instead read
+diff --git a/docs/html/sdk/installing/index.jd b/docs/html/sdk/installing/index.jd
+index 24d86cf..9d5e8c1 100644
+--- a/docs/html/sdk/installing/index.jd
++++ b/docs/html/sdk/installing/index.jd
+@@ -23,7 +23,7 @@ use to download the rest of the SDK packages (such as the latest system image).<
+ <li>Make a note of the name and location in which it saves the SDK on your system&mdash;you will need to
+ refer to the SDK directory later, when setting up the ADT plugin and when using
+ the SDK tools from the command line.</li>
+-<li>Once the installation completes. the installer offers to start the Android SDK Manager.
++<li>Once the installation completes, the installer offers to start the Android SDK Manager.
+ If you'll be using Eclipse, <strong>do not</strong> start the Android SDK Manager,
+ and instead move on to <a href="{@docRoot}sdk/installing/installing-adt.html"
+ >Installing the Eclipse Plugin</a>.
+-- 
+1.8.1.1
+

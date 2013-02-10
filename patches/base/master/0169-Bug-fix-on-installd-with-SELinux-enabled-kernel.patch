@@ -1,0 +1,50 @@
+From 2e59369dca975092751b163b803fd27d48d9aca6 Mon Sep 17 00:00:00 2001
+From: rpcraig <rpcraig@tycho.ncsc.mil>
+Date: Wed, 14 Nov 2012 10:04:38 -0500
+Subject: [PATCH 169/283] Bug fix on installd with SELinux enabled kernel.
+
+setfilecon is not required on libsymlinks when target
+doesn't exist. A bootloop is caused without this
+change.
+
+Change-Id: I96dbd4b1f47a752bfcaf6016c81fd43083c4a6e1
+Signed-off-by: rpcraig <rpcraig@tycho.ncsc.mil>
+---
+ cmds/installd/commands.c | 14 --------------
+ 1 file changed, 14 deletions(-)
+
+diff --git a/cmds/installd/commands.c b/cmds/installd/commands.c
+index 59bcda1..2a54710 100644
+--- a/cmds/installd/commands.c
++++ b/cmds/installd/commands.c
+@@ -91,13 +91,6 @@ int install(const char *pkgname, uid_t uid, gid_t gid)
+         return -1;
+     }
+ 
+-    if (selinux_android_setfilecon(libsymlink, pkgname, AID_SYSTEM) < 0) {
+-        ALOGE("cannot setfilecon dir '%s': %s\n", libsymlink, strerror(errno));
+-        unlink(libsymlink);
+-        unlink(pkgdir);
+-        return -1;
+-    }
+-
+     if (selinux_android_setfilecon(pkgdir, pkgname, uid) < 0) {
+         ALOGE("cannot setfilecon dir '%s': %s\n", pkgdir, strerror(errno));
+         unlink(libsymlink);
+@@ -252,13 +245,6 @@ int make_user_data(const char *pkgname, uid_t uid, uid_t persona)
+         return -1;
+     }
+ 
+-    if (selinux_android_setfilecon(libsymlink, pkgname, AID_SYSTEM) < 0) {
+-        ALOGE("cannot setfilecon dir '%s': %s\n", libsymlink, strerror(errno));
+-        unlink(libsymlink);
+-        unlink(pkgdir);
+-        return -errno;
+-    }
+-
+     if (selinux_android_setfilecon(pkgdir, pkgname, uid) < 0) {
+         ALOGE("cannot setfilecon dir '%s': %s\n", pkgdir, strerror(errno));
+         unlink(libsymlink);
+-- 
+1.8.1.1
+

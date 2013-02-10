@@ -1,0 +1,240 @@
+From a72b3aa034ddde604f1249a8e7a641f8c7dab465 Mon Sep 17 00:00:00 2001
+From: Robert Greenwalt <rgreenwalt@google.com>
+Date: Tue, 2 Oct 2012 16:14:27 -0700
+Subject: [PATCH 122/283] Add Coin graphic to premium-sms dialog.
+
+bug:7205024
+bug:7180681
+Change-Id: Iece09d89598aefc5fd879587c65e5b179569e8e5
+---
+ core/res/res/drawable-hdpi/ic_coins_l.png           | Bin 0 -> 2279 bytes
+ core/res/res/drawable-mdpi/ic_coins_l.png           | Bin 0 -> 1451 bytes
+ core/res/res/drawable-xhdpi/ic_coins_l.png          | Bin 0 -> 3233 bytes
+ .../layout/sms_short_code_confirmation_dialog.xml   |  20 +++++++++++++-------
+ 4 files changed, 13 insertions(+), 7 deletions(-)
+ create mode 100644 core/res/res/drawable-hdpi/ic_coins_l.png
+ create mode 100644 core/res/res/drawable-mdpi/ic_coins_l.png
+ create mode 100644 core/res/res/drawable-xhdpi/ic_coins_l.png
+
+diff --git a/core/res/res/drawable-hdpi/ic_coins_l.png b/core/res/res/drawable-hdpi/ic_coins_l.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..e1e3e2a184cb107d293eb6069cabd5c836f7aa26
+GIT binary patch
+literal 2279
+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
+
+literal 0
+HcmV?d00001
+
+diff --git a/core/res/res/drawable-mdpi/ic_coins_l.png b/core/res/res/drawable-mdpi/ic_coins_l.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..a6d7abb372d95b27c64a8901af356965ab91a49e
+GIT binary patch
+literal 1451
+zcmZ{kc{mh!7{`C(NM;<nl5;}4AtTJtIA$H|KB5@XB*P31xsox~xXR<mIm(e7v+Eoa
+zMY*Cv&a~0U6)ihqBuC3kNJ4h}xqs~QKJWW|-uL}{pZC8v&H1dYI8*@&01&sgv%>OK
+z<sc6q;@9x#=ncLI`I|eL15kepwo4S|_mFU`tp%uK!Iut5UpuT50MTjy#3uppjX#QC
+z1Rw$lz%l^<OaTD0*XU1OjQNX0K4)yL!2Us$wlj126VYpS7sCO7NgX6)<nQad{BsxV
+zt<2qUJ<Stw5Awt1M7TriQqjk2ixko;uDmRlDh@7c6H^>emeUV*EGA~s-t7{5zV=uI
+z1zQ!iSPu-C+3M;1IRMR=#}A7+RogMw>HW&jS0Y()f2`9#($ClZ!`_?TTHnD>Y;CoB
+ztx1hdF<~10?V76<NSJzsILEn5BDnj)SGg76a~hPfhVGGRw1<6l7uBS06shd*+xE6W
+zv4j(4oLCEK(4;gAWkcKqHnVZ@8L*&bVVfd*)wg+Ek=4$*n}VCLau4Kng!{}RYF+;g
+zM(dWkJmFXckFr>#9COLx%fv9%Bs216*D^s`8n|<!B(L^bLTVfz8m<TerQXR&&*m*`
+z)*im~7_)!PK~olf3kDt9K`;o-nL+gm<Iy`CUiEp9JE)^Q8<oS~Zx4P-3w!^2;Y<C7
+zGvvze-VLtgo}b`~gYzC`Y*V~^$?V#mn40UJ%cE<SlTq-L-u(}Qod!51Ma)(r55667
+zs)xkuKrj|k3UbWzP(oV--(7a&E%h}q&_WPc=-mliG?fT-AhqAmEGwX8a6{tnC6{-#
+zR(j#Q5%4Pvx1zqCUGEgP$kie3$t-;95r3aDcJe)?SH<|g(waH-L2=HSPi4nD^oiBG
+zrM2*4?-!U@mGiv;R5>%5-HA^%Gs;aI2YO;7w`0uySz@gUgK8$FM;@=S8|TJU->>aE
+zLe=*iyIJAmD!e~8ky`v(PDwjf$akZOW5c0g5sx{6Z!j+DV`0R_XNJRS0TPRO&<UL5
+zi_FPfhTqJ>dFX=Q!pJ3PpCzLlrOn<?XbBqy>PraZMR`Jqe{a_%T#3dj^Ur{#>1-%E
+zG}}RCt1_^t!{Kbnsu(}cROJ(Mw0@-hc2rzfWMRz(#&=VXz{c$+qj-^=xi;rM8PAiO
+zrSCHw7G_jTw&@iS#_TTNR)rf&X4XL-%q1v2X@HT_)=W+4DJ~uQ)I@X&#t65}4&X)$
+z@@Yd;JONf`JND><S&h7my&K_X(tbaP2*C_EE}qGP3~d8z=yW!g651y@8DA2X<hIC?
+z<iZ3zwU|l)ZS1rkh4*F6=W~8BlBUdz68tQY4L^UO<$UWz&;Es?3isPB(LcUft)?0-
+z%qFF>vJAuYG^#xB-y7N_$h#Bmg$OOY*oK<Zl8&%tnG_ytuKSRF!wPvz)9cuXkXtr6
+zj<m=wXAU2yk)BBBI;;gwC%;cfgD<tK6(-E588R=1VZ72OEY{k@TEh%qL)=Bp*jf=i
+zh`LV2XtfWHQH`34tKBiJXTJr<pycrKj{|9(D4SyDWU?WyCRLGl!Yh5I5MjMjhHXD7
+zGCoy#y<WoG7O)XCpNz_`6Ut3Pve;^fi^T2l#HXUzZM>@W?h7t2mHRQv*%$>_`B>gL
+z4g6ghnt|}IB@gq(eB`w6yjnYzsQB*r;h8fDg%C6Bvpf2bY=ivDs?)AD3AvwTOkCf1
+z#QNx%j_wPlpgey2993e?|2s!1);NkKnM9-ngkDu~3kV?rBOP6|4oX*lH?N8hs2%{9
+zi4+pX_kbb+T_j3Z3u&aKi*`eyF-QXpT2G5#kw{8Jr@(&<A)%K8{G$HfAbgVA!8gDU
+vF1UvJQ6h<C5-`6U>O)eo2_TaqL&-tmDweM3ux5@vp9A*RXRYci2nqiJ`GS(T
+
+literal 0
+HcmV?d00001
+
+diff --git a/core/res/res/drawable-xhdpi/ic_coins_l.png b/core/res/res/drawable-xhdpi/ic_coins_l.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..84e7e7239d035e7625da4f072faf81edd2de5c6c
+GIT binary patch
+literal 3233
+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
+Ir9L|He{$yd%>V!Z
+
+literal 0
+HcmV?d00001
+
+diff --git a/core/res/res/layout/sms_short_code_confirmation_dialog.xml b/core/res/res/layout/sms_short_code_confirmation_dialog.xml
+index ec39d97..d82f560 100644
+--- a/core/res/res/layout/sms_short_code_confirmation_dialog.xml
++++ b/core/res/res/layout/sms_short_code_confirmation_dialog.xml
+@@ -30,9 +30,9 @@
+         style="?android:attr/textAppearanceMedium"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+-        android:paddingLeft="16dip"
+-        android:paddingRight="16dip"
+-        android:paddingTop="8dip"
++        android:paddingLeft="20dip"
++        android:paddingRight="20dip"
++        android:paddingTop="16dip"
+         android:paddingBottom="16dip" />
+ 
+     <TableLayout android:id="@+id/sms_short_code_detail_layout"
+@@ -51,7 +51,7 @@
+                 android:layout_height="wrap_content"
+                 android:paddingLeft="8dip"
+                 android:paddingRight="8dip"
+-                android:src="@null" />
++                android:src="@drawable/ic_coins_l" />
+             <TextView android:id="@+id/sms_short_code_detail_message"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content" />
+@@ -60,14 +60,19 @@
+         <TableRow
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content" >
+-
++            <RelativeLayout android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:paddingTop="12dip"
++                android:paddingLeft="8dip" >
+             <CheckBox android:id="@+id/sms_short_code_remember_choice_checkbox"
++                android:paddingTop="11dip"
+                 android:layout_width="wrap_content"
+-                android:layout_height="wrap_content"
+-                android:paddingRight="8dip" />
++                android:layout_height="wrap_content" />
++            </RelativeLayout>
+             <TextView android:id="@+id/sms_short_code_remember_choice_text"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
++                android:paddingTop="18dip"
+                 android:text="@string/sms_short_code_remember_choice" />
+         </TableRow>
+ 
+@@ -77,6 +82,7 @@
+ 
+             <Space android:layout_gravity="fill" />
+             <TextView android:id="@+id/sms_short_code_remember_undo_instruction"
++                android:paddingTop="10dip"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content" />
+         </TableRow>
+-- 
+1.8.1.1
+

@@ -1,0 +1,42 @@
+From 58e18fca885c2095d6af007f96fb8a21c99079e1 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Thu, 31 Jan 2013 23:07:07 +0200
+Subject: [PATCH 7/7] enable dependencies by renaming cm.dependencies
+
+Change-Id: Icd139506f9e8e92e8925f0ee887f9b57525b3873
+---
+ cm.dependencies | 7 -------
+ pa.dependencies | 7 +++++++
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+ delete mode 100644 cm.dependencies
+ create mode 100644 pa.dependencies
+
+diff --git a/cm.dependencies b/cm.dependencies
+deleted file mode 100644
+index f1b3c09..0000000
+--- a/cm.dependencies
++++ /dev/null
+@@ -1,7 +0,0 @@
+-[
+- {
+-   "repository": "lge-kernel-mako",
+-   "target_path": "kernel/lge/mako",
+-   "branch": "jellybean"
+- }
+-]
+diff --git a/pa.dependencies b/pa.dependencies
+new file mode 100644
+index 0000000..f1b3c09
+--- /dev/null
++++ b/pa.dependencies
+@@ -0,0 +1,7 @@
++[
++ {
++   "repository": "lge-kernel-mako",
++   "target_path": "kernel/lge/mako",
++   "branch": "jellybean"
++ }
++]
+-- 
+1.8.1.1
+

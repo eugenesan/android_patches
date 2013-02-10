@@ -1,0 +1,78 @@
+From e3adc0843af2dbe98ef7a0833a394749212c461a Mon Sep 17 00:00:00 2001
+From: Raph Levien <raph@google.com>
+Date: Mon, 15 Oct 2012 17:22:26 -0700
+Subject: [PATCH 066/283] Fix for bug 7344916 text view flickers when you hit
+ enter
+
+The flickering was caused by trying to scroll to the cursor position
+while the view was in an inconsistent state (text updated to change the
+number of lines, but layout not done yet). This patch defers the actual
+setting of the cursor until layout is done, when layout is pending.
+
+Change-Id: I8ed3a402beb8058ac7a7f3935afeb946a23308ab
+---
+ core/java/android/widget/TextView.java | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/core/java/android/widget/TextView.java b/core/java/android/widget/TextView.java
+index b3c679c..751ed7c 100644
+--- a/core/java/android/widget/TextView.java
++++ b/core/java/android/widget/TextView.java
+@@ -367,6 +367,7 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
+     private boolean mSingleLine;
+     private int mDesiredHeightAtMeasure = -1;
+     private boolean mIncludePad = true;
++    private int mDeferScroll = -1;
+ 
+     // tmp primitives, so we don't alloc them on each draw
+     private Rect mTempRect;
+@@ -6317,6 +6318,11 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
+     @Override
+     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+         super.onLayout(changed, left, top, right, bottom);
++        if (mDeferScroll >= 0) {
++            int curs = mDeferScroll;
++            mDeferScroll = -1;
++            bringPointIntoView(curs);
++        }
+         if (changed && mEditor != null) mEditor.invalidateTextDisplayList();
+     }
+ 
+@@ -6399,6 +6405,10 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
+      * This has to be called after layout. Returns true if anything changed.
+      */
+     public boolean bringPointIntoView(int offset) {
++        if (isLayoutRequested()) {
++            mDeferScroll = offset;
++            return false;
++        }
+         boolean changed = false;
+ 
+         Layout layout = isShowingHint() ? mHintLayout: mLayout;
+@@ -7108,13 +7118,13 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
+             registerForPreDraw();
+         }
+ 
++        checkForResize();
++
+         if (curs >= 0) {
+             mHighlightPathBogus = true;
+             if (mEditor != null) mEditor.makeBlink();
+             bringPointIntoView(curs);
+         }
+-
+-        checkForResize();
+     }
+ 
+     /**
+@@ -7161,6 +7171,7 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
+ 
+             if (oldStart >= 0 || newStart >= 0) {
+                 invalidateCursor(Selection.getSelectionStart(buf), oldStart, newStart);
++                checkForResize();
+                 registerForPreDraw();
+                 if (mEditor != null) mEditor.makeBlink();
+             }
+-- 
+1.8.1.1
+

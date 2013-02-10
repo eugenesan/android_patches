@@ -1,0 +1,26 @@
+From 128dc2cfdc181fd509d2b19091a5a607d073d6e6 Mon Sep 17 00:00:00 2001
+From: Ben Pietrzak <bpietrzak@google.com>
+Date: Fri, 5 Oct 2012 13:57:49 -0700
+Subject: [PATCH 048/283] Fix for the clearing of fling events
+
+Change-Id: If42134873157bb8f4f8834e2ca8afe7f78b321c9
+---
+ core/java/android/view/SimulatedTrackball.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/java/android/view/SimulatedTrackball.java b/core/java/android/view/SimulatedTrackball.java
+index 88cc74f..1878e28 100644
+--- a/core/java/android/view/SimulatedTrackball.java
++++ b/core/java/android/view/SimulatedTrackball.java
+@@ -132,7 +132,7 @@ class SimulatedTrackball {
+                 mLastMoveX = 0;
+                 mLastMoveY = 0;
+                 // Clear any flings
+-                mHandler.removeMessages(0);
++                mHandler.removeMessages(FLICK_MSG_ID);
+                 break;
+             case MotionEvent.ACTION_HOVER_MOVE:
+                 // Determine whether the move is slop or an intentional move
+-- 
+1.8.1.1
+

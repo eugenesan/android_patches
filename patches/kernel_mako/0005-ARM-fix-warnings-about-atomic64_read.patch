@@ -1,0 +1,33 @@
+From f9c8b4ae6692102912eaa66fa671f6c8af40cfa5 Mon Sep 17 00:00:00 2001
+From: Russell King <rmk+kernel@arm.linux.org.uk>
+Date: Thu, 5 Jul 2012 12:06:32 +0000
+Subject: [PATCH 5/6] ARM: fix warnings about atomic64_read
+
+Fix:
+net/netfilter/xt_connbytes.c: In function 'connbytes_mt':
+net/netfilter/xt_connbytes.c:43: warning: passing argument 1 of 'atomic64_read' discards qualifiers from pointer target type
+...
+
+by adding the missing const.
+
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+---
+ arch/arm/include/asm/atomic.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/include/asm/atomic.h b/arch/arm/include/asm/atomic.h
+index 68374ba..c79f61f 100644
+--- a/arch/arm/include/asm/atomic.h
++++ b/arch/arm/include/asm/atomic.h
+@@ -243,7 +243,7 @@ typedef struct {
+ 
+ #define ATOMIC64_INIT(i) { (i) }
+ 
+-static inline u64 atomic64_read(atomic64_t *v)
++static inline u64 atomic64_read(const atomic64_t *v)
+ {
+ 	u64 result;
+ 
+-- 
+1.8.1.1
+

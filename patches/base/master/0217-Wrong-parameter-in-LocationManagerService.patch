@@ -1,0 +1,35 @@
+From 87c1b3127e6fecf08dfad039a4ee6eac1e3756fb Mon Sep 17 00:00:00 2001
+From: You Kim <you.kim72@gmail.com>
+Date: Sun, 28 Oct 2012 03:58:44 +0900
+Subject: [PATCH 217/283] Wrong parameter in LocationManagerService
+
+Fix wrong parameter in removeTestProvider
+
+Change-Id: Ibf93833697c865904f29821e5778853127e5fb00
+Signed-off-by: You Kim <you.kim72@gmail.com>
+---
+ services/java/com/android/server/LocationManagerService.java | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/services/java/com/android/server/LocationManagerService.java b/services/java/com/android/server/LocationManagerService.java
+index 89fa6d0..f497b23 100644
+--- a/services/java/com/android/server/LocationManagerService.java
++++ b/services/java/com/android/server/LocationManagerService.java
+@@ -1884,13 +1884,12 @@ public class LocationManagerService extends ILocationManager.Stub implements Run
+     public void removeTestProvider(String provider) {
+         checkMockPermissionsSafe();
+         synchronized (mLock) {
+-            MockProvider mockProvider = mMockProviders.get(provider);
++            MockProvider mockProvider = mMockProviders.remove(provider);
+             if (mockProvider == null) {
+                 throw new IllegalArgumentException("Provider \"" + provider + "\" unknown");
+             }
+             long identity = Binder.clearCallingIdentity();
+             removeProviderLocked(mProvidersByName.get(provider));
+-            mMockProviders.remove(mockProvider);
+ 
+             // reinstate real provider if available
+             LocationProviderInterface realProvider = mRealProviders.get(provider);
+-- 
+1.8.1.1
+

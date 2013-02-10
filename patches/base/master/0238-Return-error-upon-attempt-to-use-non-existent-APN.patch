@@ -1,0 +1,35 @@
+From 342a7cb69f8e0cfe208b12cc451c445ae8583e04 Mon Sep 17 00:00:00 2001
+From: Mikael Hedegren <mikael.hedegren@sonyericsson.com>
+Date: Fri, 14 Dec 2012 15:52:52 +0100
+Subject: [PATCH 238/283] Return error upon attempt to use non-existent APN
+
+startUsingNetworkFeature will ignore errors from
+reconnect - causing ConnectivityService to send
+faulty information back to requester.
+
+Change-Id: I4e0fcc1addd84da409cdc1eed1a95d25d925e020
+---
+ services/java/com/android/server/ConnectivityService.java | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/services/java/com/android/server/ConnectivityService.java b/services/java/com/android/server/ConnectivityService.java
+index ad1dfb2..ec682e8 100644
+--- a/services/java/com/android/server/ConnectivityService.java
++++ b/services/java/com/android/server/ConnectivityService.java
+@@ -1183,8 +1183,11 @@ public class ConnectivityService extends IConnectivityManager.Stub {
+                         log("startUsingNetworkFeature reconnecting to " + networkType + ": " +
+                                 feature);
+                     }
+-                    network.reconnect();
+-                    return PhoneConstants.APN_REQUEST_STARTED;
++                    if (network.reconnect()) {
++                        return PhoneConstants.APN_REQUEST_STARTED;
++                    } else {
++                        return PhoneConstants.APN_REQUEST_FAILED;
++                    }
+                 } else {
+                     // need to remember this unsupported request so we respond appropriately on stop
+                     synchronized(this) {
+-- 
+1.8.1.1
+

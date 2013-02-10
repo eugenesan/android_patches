@@ -1,0 +1,30 @@
+From 0f20710b7108b9a8200cff0a1dc0dd86ae6b2a35 Mon Sep 17 00:00:00 2001
+From: Anju Mathapati <mathan@codeaurora.org>
+Date: Sun, 4 Nov 2012 23:32:54 -0800
+Subject: [PATCH 120/283] frameworks: Display missing text on SimUnlockScreen
+
+Display the complete text including attempts remaining to
+unlock PIN on SimUnlockScreen if user entered incorrect PIN.
+On some devices the display text is ellipsized when trying to
+display on a single line.
+
+Change-Id: Ica6ac53be1b9c24084ec0389461eb5550864a41a
+---
+ core/res/res/layout/keyguard_screen_sim_pin_portrait.xml | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/core/res/res/layout/keyguard_screen_sim_pin_portrait.xml b/core/res/res/layout/keyguard_screen_sim_pin_portrait.xml
+index 9ca351c..a2181f7 100644
+--- a/core/res/res/layout/keyguard_screen_sim_pin_portrait.xml
++++ b/core/res/res/layout/keyguard_screen_sim_pin_portrait.xml
+@@ -33,7 +33,6 @@
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:gravity="center"
+-            android:singleLine="true"
+             android:textAppearance="?android:attr/textAppearanceLarge"/>
+ 
+         <!-- Carrier info -->
+-- 
+1.8.1.1
+

@@ -1,0 +1,3227 @@
+From 3a084af2e90849aaa8beb3a610189e3399c63ea0 Mon Sep 17 00:00:00 2001
+From: Kenny Root <kroot@google.com>
+Date: Wed, 7 Nov 2012 10:19:47 -0800
+Subject: [PATCH 128/283] Correct executable bit for source files
+
+Many media files and source code files were marked as executable in Git.
+Remove those.
+
+Also a shell script and python script were not marked as executable.
+
+Change-Id: Ieb51bafb46c895a21d2e83696f5a901ba752b2c5
+---
+ cmds/input/src/com/android/commands/input/Input.java        |   0
+ core/java/android/animation/ValueAnimator.java              |   0
+ core/java/android/app/IAlarmManager.aidl                    |   0
+ core/java/android/app/IThumbnailReceiver.aidl               |   0
+ core/java/android/app/admin/DevicePolicyManager.java        |   0
+ core/java/android/appwidget/AppWidgetProvider.java          |   0
+ core/java/android/content/IIntentReceiver.aidl              |   0
+ core/java/android/content/res/Configuration.aidl            |   0
+ core/java/android/content/res/ObbInfo.aidl                  |   0
+ core/java/android/content/res/Resources.java                |   0
+ core/java/android/database/IContentObserver.aidl            |   0
+ core/java/android/ddm/package.html                          |   0
+ core/java/android/debug/package.html                        |   0
+ core/java/android/gesture/Gesture.java                      |   0
+ core/java/android/gesture/GestureOverlayView.java           |   0
+ core/java/android/gesture/GestureUtils.java                 |   0
+ core/java/android/gesture/Instance.java                     |   0
+ core/java/android/gesture/Learner.java                      |   0
+ core/java/android/gesture/Prediction.java                   |   0
+ core/java/android/hardware/input/InputManager.java          |   0
+ core/java/android/net/Uri.aidl                              |   0
+ core/java/android/net/http/package.html                     |   0
+ core/java/android/net/package.html                          |   0
+ core/java/android/os/IHardwareService.aidl                  |   0
+ core/java/android/os/IVibratorService.aidl                  |   0
+ core/java/android/os/TokenWatcher.java                      |   0
+ core/java/android/provider/ContactsContract.java            |   0
+ core/java/android/server/BluetoothService.java              |   0
+ core/java/android/server/package.html                       |   0
+ core/java/android/speech/tts/ITextToSpeechCallback.aidl     |   0
+ core/java/android/speech/tts/TextToSpeech.java              |   0
+ core/java/android/view/InputDevice.java                     |   0
+ core/java/android/view/InputEvent.java                      |   0
+ core/java/android/view/KeyEvent.java                        |   0
+ core/java/android/view/OrientationEventListener.java        |   0
+ core/java/android/view/WindowManager.aidl                   |   0
+ core/java/android/view/WindowOrientationListener.java       |   0
+ core/java/android/view/animation/package.html               |   0
+ core/java/android/webkit/DeviceMotionService.java           |   0
+ core/java/android/webkit/DeviceOrientationService.java      |   0
+ core/java/android/webkit/GeolocationPermissions.java        |   0
+ core/java/android/webkit/GeolocationPermissionsClassic.java |   0
+ core/java/android/webkit/GeolocationService.java            |   0
+ core/java/android/widget/AppSecurityPermissions.java        |   0
+ .../com/android/internal/app/IMediaContainerService.aidl    |   0
+ core/java/com/android/internal/app/IUsageStats.aidl         |   0
+ .../java/com/android/internal/app/NetInitiatedActivity.java |   0
+ core/java/com/android/internal/os/PkgUsageStats.aidl        |   0
+ core/java/com/android/internal/os/PkgUsageStats.java        |   0
+ core/res/res/drawable-en-hdpi/sym_keyboard_delete.png       | Bin
+ core/res/res/drawable-hdpi/btn_circle_disable.png           | Bin
+ core/res/res/drawable-hdpi/btn_circle_disable_focused.png   | Bin
+ core/res/res/drawable-hdpi/btn_circle_normal.png            | Bin
+ core/res/res/drawable-hdpi/btn_circle_pressed.png           | Bin
+ core/res/res/drawable-hdpi/btn_circle_selected.png          | Bin
+ core/res/res/drawable-hdpi/btn_close_normal.png             | Bin
+ core/res/res/drawable-hdpi/btn_close_pressed.png            | Bin
+ core/res/res/drawable-hdpi/btn_close_selected.png           | Bin
+ core/res/res/drawable-hdpi/btn_default_normal.9.png         | Bin
+ core/res/res/drawable-hdpi/btn_default_normal_disable.9.png | Bin
+ .../drawable-hdpi/btn_default_normal_disable_focused.9.png  | Bin
+ core/res/res/drawable-hdpi/btn_default_pressed.9.png        | Bin
+ core/res/res/drawable-hdpi/btn_default_selected.9.png       | Bin
+ core/res/res/drawable-hdpi/btn_default_small_normal.9.png   | Bin
+ .../drawable-hdpi/btn_default_small_normal_disable.9.png    | Bin
+ .../btn_default_small_normal_disable_focused.9.png          | Bin
+ core/res/res/drawable-hdpi/btn_default_small_pressed.9.png  | Bin
+ core/res/res/drawable-hdpi/btn_default_small_selected.9.png | Bin
+ core/res/res/drawable-hdpi/btn_dialog_disable.png           | Bin
+ core/res/res/drawable-hdpi/btn_dialog_normal.png            | Bin
+ core/res/res/drawable-hdpi/btn_dialog_pressed.png           | Bin
+ core/res/res/drawable-hdpi/btn_dialog_selected.png          | Bin
+ core/res/res/drawable-hdpi/btn_dropdown_normal.9.png        | Bin
+ core/res/res/drawable-hdpi/btn_dropdown_pressed.9.png       | Bin
+ core/res/res/drawable-hdpi/btn_dropdown_selected.9.png      | Bin
+ core/res/res/drawable-hdpi/btn_radio_off.png                | Bin
+ core/res/res/drawable-hdpi/btn_radio_off_pressed.png        | Bin
+ core/res/res/drawable-hdpi/btn_radio_off_selected.png       | Bin
+ core/res/res/drawable-hdpi/btn_radio_on.png                 | Bin
+ core/res/res/drawable-hdpi/btn_radio_on_pressed.png         | Bin
+ core/res/res/drawable-hdpi/btn_radio_on_selected.png        | Bin
+ core/res/res/drawable-hdpi/contact_header_bg.9.png          | Bin
+ core/res/res/drawable-hdpi/ic_btn_round_more_disabled.png   | Bin
+ core/res/res/drawable-hdpi/ic_btn_round_more_normal.png     | Bin
+ core/res/res/drawable-hdpi/ic_contact_picture_2.png         | Bin
+ core/res/res/drawable-hdpi/ic_contact_picture_3.png         | Bin
+ core/res/res/drawable-hdpi/ic_jog_dial_sound_off.png        | Bin
+ core/res/res/drawable-hdpi/ic_jog_dial_sound_on.png         | Bin
+ core/res/res/drawable-hdpi/ic_jog_dial_unlock.png           | Bin
+ core/res/res/drawable-hdpi/ic_settings_language.png         | Bin
+ .../res/drawable-hdpi/jog_dial_arrow_long_left_green.png    | Bin
+ .../res/drawable-hdpi/jog_dial_arrow_long_left_yellow.png   | Bin
+ .../res/drawable-hdpi/jog_dial_arrow_long_middle_yellow.png | Bin
+ .../res/res/drawable-hdpi/jog_dial_arrow_long_right_red.png | Bin
+ .../res/drawable-hdpi/jog_dial_arrow_long_right_yellow.png  | Bin
+ core/res/res/drawable-hdpi/jog_dial_arrow_short_left.png    | Bin
+ .../drawable-hdpi/jog_dial_arrow_short_left_and_right.png   | Bin
+ core/res/res/drawable-hdpi/jog_dial_arrow_short_right.png   | Bin
+ core/res/res/drawable-hdpi/jog_dial_bg.png                  | Bin
+ core/res/res/drawable-hdpi/jog_dial_dimple.png              | Bin
+ core/res/res/drawable-hdpi/jog_tab_left_confirm_gray.png    | Bin
+ core/res/res/drawable-hdpi/jog_tab_left_confirm_green.png   | Bin
+ core/res/res/drawable-hdpi/jog_tab_left_confirm_red.png     | Bin
+ core/res/res/drawable-hdpi/jog_tab_left_confirm_yellow.png  | Bin
+ core/res/res/drawable-hdpi/jog_tab_left_pressed.png         | Bin
+ core/res/res/drawable-hdpi/jog_tab_right_confirm_gray.png   | Bin
+ core/res/res/drawable-hdpi/jog_tab_right_confirm_green.png  | Bin
+ core/res/res/drawable-hdpi/jog_tab_right_confirm_red.png    | Bin
+ core/res/res/drawable-hdpi/jog_tab_right_confirm_yellow.png | Bin
+ core/res/res/drawable-hdpi/jog_tab_right_pressed.png        | Bin
+ core/res/res/drawable-hdpi/progressbar_indeterminate1.png   | Bin
+ core/res/res/drawable-hdpi/progressbar_indeterminate2.png   | Bin
+ core/res/res/drawable-hdpi/progressbar_indeterminate3.png   | Bin
+ core/res/res/drawable-hdpi/stat_notify_more.png             | Bin
+ core/res/res/drawable-hdpi/stat_sys_battery_10.png          | Bin
+ core/res/res/drawable-hdpi/stat_sys_battery_20.png          | Bin
+ core/res/res/drawable-hdpi/stat_sys_battery_40.png          | Bin
+ core/res/res/drawable-hdpi/stat_sys_battery_60.png          | Bin
+ core/res/res/drawable-hdpi/stat_sys_battery_80.png          | Bin
+ .../res/res/drawable-hdpi/stat_sys_battery_charge_anim1.png | Bin
+ .../res/res/drawable-hdpi/stat_sys_battery_charge_anim2.png | Bin
+ .../res/res/drawable-hdpi/stat_sys_battery_charge_anim3.png | Bin
+ .../res/res/drawable-hdpi/stat_sys_battery_charge_anim4.png | Bin
+ .../res/res/drawable-hdpi/stat_sys_battery_charge_anim5.png | Bin
+ core/res/res/drawable-hdpi/stat_sys_phone_call.png          | Bin
+ core/res/res/drawable-hdpi/stat_sys_phone_call_forward.png  | Bin
+ core/res/res/drawable-hdpi/stat_sys_phone_call_on_hold.png  | Bin
+ core/res/res/drawable-hdpi/stat_sys_r_signal_3_cdma.png     | Bin
+ core/res/res/drawable-hdpi/stat_sys_ra_signal_0_cdma.png    | Bin
+ core/res/res/drawable-hdpi/stat_sys_ra_signal_1_cdma.png    | Bin
+ core/res/res/drawable-hdpi/stat_sys_ra_signal_2_cdma.png    | Bin
+ core/res/res/drawable-hdpi/stat_sys_ra_signal_4_cdma.png    | Bin
+ core/res/res/drawable-hdpi/stat_sys_signal_0_cdma.png       | Bin
+ core/res/res/drawable-hdpi/stat_sys_signal_1_cdma.png       | Bin
+ core/res/res/drawable-hdpi/stat_sys_signal_2_cdma.png       | Bin
+ core/res/res/drawable-hdpi/stat_sys_signal_3_cdma.png       | Bin
+ core/res/res/drawable-hdpi/stat_sys_signal_4_cdma.png       | Bin
+ core/res/res/drawable-hdpi/stat_sys_signal_evdo_0.png       | Bin
+ core/res/res/drawable-hdpi/stat_sys_signal_evdo_1.png       | Bin
+ core/res/res/drawable-hdpi/stat_sys_signal_evdo_2.png       | Bin
+ core/res/res/drawable-hdpi/stat_sys_signal_evdo_3.png       | Bin
+ core/res/res/drawable-hdpi/stat_sys_signal_evdo_4.png       | Bin
+ core/res/res/drawable-hdpi/stat_sys_vp_phone_call.png       | Bin
+ .../res/drawable-hdpi/stat_sys_vp_phone_call_on_hold.png    | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_delete.png          | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_feedback_delete.png | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_feedback_return.png | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_feedback_shift.png  | Bin
+ .../drawable-hdpi/sym_keyboard_feedback_shift_locked.png    | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_feedback_space.png  | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_num1.png            | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_num2.png            | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_num3.png            | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_num4.png            | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_num5.png            | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_num6.png            | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_num7.png            | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_num8.png            | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_num9.png            | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_return.png          | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_shift.png           | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_shift_locked.png    | Bin
+ core/res/res/drawable-hdpi/sym_keyboard_space.png           | Bin
+ core/res/res/drawable-hdpi/textfield_default.9.png          | Bin
+ core/res/res/drawable-hdpi/textfield_disabled.9.png         | Bin
+ .../res/res/drawable-hdpi/textfield_disabled_selected.9.png | Bin
+ core/res/res/drawable-hdpi/textfield_selected.9.png         | Bin
+ core/res/res/drawable-ldpi/tab_focus_bar_left.9.png         | Bin
+ core/res/res/drawable-ldpi/tab_focus_bar_right.9.png        | Bin
+ core/res/res/drawable-ldpi/tab_press_bar_left.9.png         | Bin
+ core/res/res/drawable-ldpi/tab_press_bar_right.9.png        | Bin
+ core/res/res/drawable-ldpi/tab_selected_bar_left.9.png      | Bin
+ core/res/res/drawable-ldpi/tab_selected_bar_right.9.png     | Bin
+ core/res/res/drawable-mdpi/btn_check_buttonless_off.png     | Bin
+ core/res/res/drawable-mdpi/btn_check_buttonless_on.png      | Bin
+ core/res/res/drawable-mdpi/btn_dialog_disable.png           | Bin
+ core/res/res/drawable-mdpi/btn_dialog_normal.png            | Bin
+ core/res/res/drawable-mdpi/btn_dialog_pressed.png           | Bin
+ core/res/res/drawable-mdpi/btn_dialog_selected.png          | Bin
+ core/res/res/drawable-mdpi/btn_erase_default.9.png          | Bin
+ core/res/res/drawable-mdpi/btn_erase_pressed.9.png          | Bin
+ core/res/res/drawable-mdpi/btn_erase_selected.9.png         | Bin
+ core/res/res/drawable-mdpi/btn_keyboard_key_pressed.9.png   | Bin
+ core/res/res/drawable-mdpi/btn_media_player.9.png           | Bin
+ core/res/res/drawable-mdpi/btn_media_player_disabled.9.png  | Bin
+ .../drawable-mdpi/btn_media_player_disabled_selected.9.png  | Bin
+ core/res/res/drawable-mdpi/btn_media_player_pressed.9.png   | Bin
+ core/res/res/drawable-mdpi/btn_media_player_selected.9.png  | Bin
+ core/res/res/drawable-mdpi/btn_star_big_off.png             | Bin
+ core/res/res/drawable-mdpi/btn_star_big_off_disable.png     | Bin
+ .../res/drawable-mdpi/btn_star_big_off_disable_focused.png  | Bin
+ core/res/res/drawable-mdpi/btn_star_big_off_pressed.png     | Bin
+ core/res/res/drawable-mdpi/btn_star_big_off_selected.png    | Bin
+ core/res/res/drawable-mdpi/btn_star_big_on.png              | Bin
+ core/res/res/drawable-mdpi/btn_star_big_on_disable.png      | Bin
+ .../res/drawable-mdpi/btn_star_big_on_disable_focused.png   | Bin
+ core/res/res/drawable-mdpi/btn_star_big_on_pressed.png      | Bin
+ core/res/res/drawable-mdpi/btn_star_big_on_selected.png     | Bin
+ .../res/drawable-mdpi/dialog_divider_horizontal_light.9.png | Bin
+ core/res/res/drawable-mdpi/frame_gallery_thumb.9.png        | Bin
+ .../res/res/drawable-mdpi/frame_gallery_thumb_pressed.9.png | Bin
+ .../res/drawable-mdpi/frame_gallery_thumb_selected.9.png    | Bin
+ core/res/res/drawable-mdpi/gallery_selected_default.9.png   | Bin
+ core/res/res/drawable-mdpi/gallery_selected_focused.9.png   | Bin
+ core/res/res/drawable-mdpi/gallery_selected_pressed.9.png   | Bin
+ core/res/res/drawable-mdpi/gallery_unselected_default.9.png | Bin
+ core/res/res/drawable-mdpi/ic_dialog_info.png               | Bin
+ core/res/res/drawable-mdpi/ic_dialog_time.png               | Bin
+ core/res/res/drawable-mdpi/ic_jog_dial_unlock.png           | Bin
+ core/res/res/drawable-mdpi/ic_lock_idle_charging.png        | Bin
+ core/res/res/drawable-mdpi/ic_lock_idle_lock.png            | Bin
+ core/res/res/drawable-mdpi/ic_lock_idle_low_battery.png     | Bin
+ core/res/res/drawable-mdpi/ic_media_video_poster.png        | Bin
+ core/res/res/drawable-mdpi/ic_menu_add.png                  | Bin
+ core/res/res/drawable-mdpi/ic_menu_agenda.png               | Bin
+ core/res/res/drawable-mdpi/ic_menu_allfriends.png           | Bin
+ core/res/res/drawable-mdpi/ic_menu_camera.png               | Bin
+ core/res/res/drawable-mdpi/ic_menu_crop.png                 | Bin
+ core/res/res/drawable-mdpi/ic_menu_day.png                  | Bin
+ core/res/res/drawable-mdpi/ic_menu_delete.png               | Bin
+ core/res/res/drawable-mdpi/ic_menu_directions.png           | Bin
+ core/res/res/drawable-mdpi/ic_menu_edit.png                 | Bin
+ core/res/res/drawable-mdpi/ic_menu_gallery.png              | Bin
+ core/res/res/drawable-mdpi/ic_menu_info_details.png         | Bin
+ core/res/res/drawable-mdpi/ic_menu_manage.png               | Bin
+ core/res/res/drawable-mdpi/ic_menu_month.png                | Bin
+ core/res/res/drawable-mdpi/ic_menu_my_calendar.png          | Bin
+ core/res/res/drawable-mdpi/ic_menu_mylocation.png           | Bin
+ core/res/res/drawable-mdpi/ic_menu_rotate.png               | Bin
+ core/res/res/drawable-mdpi/ic_menu_search.png               | Bin
+ core/res/res/drawable-mdpi/ic_menu_search_holo_dark.png     | Bin
+ core/res/res/drawable-mdpi/ic_menu_send.png                 | Bin
+ core/res/res/drawable-mdpi/ic_menu_set_as.png               | Bin
+ core/res/res/drawable-mdpi/ic_menu_share.png                | Bin
+ core/res/res/drawable-mdpi/ic_menu_sort_by_size.png         | Bin
+ core/res/res/drawable-mdpi/ic_menu_star.png                 | Bin
+ core/res/res/drawable-mdpi/ic_menu_today.png                | Bin
+ core/res/res/drawable-mdpi/ic_menu_upload.png               | Bin
+ core/res/res/drawable-mdpi/ic_menu_upload_you_tube.png      | Bin
+ core/res/res/drawable-mdpi/ic_menu_view.png                 | Bin
+ core/res/res/drawable-mdpi/ic_menu_week.png                 | Bin
+ core/res/res/drawable-mdpi/ic_popup_reminder.png            | Bin
+ core/res/res/drawable-mdpi/ic_search_category_default.png   | Bin
+ core/res/res/drawable-mdpi/indicator_input_error.png        | Bin
+ .../res/drawable-mdpi/jog_dial_arrow_long_left_green.png    | Bin
+ .../res/drawable-mdpi/jog_dial_arrow_long_left_yellow.png   | Bin
+ .../res/drawable-mdpi/jog_dial_arrow_long_middle_yellow.png | Bin
+ .../res/res/drawable-mdpi/jog_dial_arrow_long_right_red.png | Bin
+ .../res/drawable-mdpi/jog_dial_arrow_long_right_yellow.png  | Bin
+ core/res/res/drawable-mdpi/jog_dial_arrow_short_left.png    | Bin
+ .../drawable-mdpi/jog_dial_arrow_short_left_and_right.png   | Bin
+ core/res/res/drawable-mdpi/jog_dial_arrow_short_right.png   | Bin
+ core/res/res/drawable-mdpi/jog_dial_bg.png                  | Bin
+ core/res/res/drawable-mdpi/jog_dial_dimple.png              | Bin
+ core/res/res/drawable-mdpi/jog_tab_left_confirm_gray.png    | Bin
+ core/res/res/drawable-mdpi/jog_tab_left_confirm_green.png   | Bin
+ core/res/res/drawable-mdpi/jog_tab_left_confirm_yellow.png  | Bin
+ core/res/res/drawable-mdpi/jog_tab_left_normal.png          | Bin
+ core/res/res/drawable-mdpi/jog_tab_left_pressed.png         | Bin
+ core/res/res/drawable-mdpi/jog_tab_right_confirm_gray.png   | Bin
+ core/res/res/drawable-mdpi/jog_tab_right_confirm_green.png  | Bin
+ core/res/res/drawable-mdpi/jog_tab_right_confirm_yellow.png | Bin
+ core/res/res/drawable-mdpi/jog_tab_right_normal.png         | Bin
+ core/res/res/drawable-mdpi/jog_tab_right_pressed.png        | Bin
+ .../keyboard_key_feedback_more_background.9.png             | Bin
+ core/res/res/drawable-mdpi/numberpicker_down_disabled.9.png | Bin
+ .../drawable-mdpi/numberpicker_down_disabled_focused.9.png  | Bin
+ core/res/res/drawable-mdpi/numberpicker_down_normal.9.png   | Bin
+ core/res/res/drawable-mdpi/numberpicker_down_pressed.9.png  | Bin
+ core/res/res/drawable-mdpi/numberpicker_down_selected.9.png | Bin
+ .../res/res/drawable-mdpi/numberpicker_input_disabled.9.png | Bin
+ core/res/res/drawable-mdpi/numberpicker_input_normal.9.png  | Bin
+ core/res/res/drawable-mdpi/numberpicker_input_pressed.9.png | Bin
+ .../res/res/drawable-mdpi/numberpicker_input_selected.9.png | Bin
+ core/res/res/drawable-mdpi/numberpicker_up_disabled.9.png   | Bin
+ .../drawable-mdpi/numberpicker_up_disabled_focused.9.png    | Bin
+ core/res/res/drawable-mdpi/numberpicker_up_normal.9.png     | Bin
+ core/res/res/drawable-mdpi/numberpicker_up_pressed.9.png    | Bin
+ core/res/res/drawable-mdpi/numberpicker_up_selected.9.png   | Bin
+ .../res/res/drawable-mdpi/scrollbar_handle_horizontal.9.png | Bin
+ core/res/res/drawable-mdpi/scrollbar_handle_vertical.9.png  | Bin
+ core/res/res/drawable-mdpi/search_plate.9.png               | Bin
+ core/res/res/drawable-mdpi/spinner_black_20.png             | Bin
+ .../drawable-mdpi/sym_keyboard_feedback_shift_locked.png    | Bin
+ core/res/res/drawable-mdpi/tab_focus.9.png                  | Bin
+ core/res/res/drawable-mdpi/tab_focus_bar_left.9.png         | Bin
+ core/res/res/drawable-mdpi/tab_focus_bar_right.9.png        | Bin
+ core/res/res/drawable-mdpi/tab_press.9.png                  | Bin
+ core/res/res/drawable-mdpi/tab_press_bar_left.9.png         | Bin
+ core/res/res/drawable-mdpi/tab_press_bar_right.9.png        | Bin
+ core/res/res/drawable-mdpi/tab_selected_bar_left.9.png      | Bin
+ core/res/res/drawable-mdpi/tab_selected_bar_right.9.png     | Bin
+ core/res/res/drawable-mdpi/textfield_search_default.9.png   | Bin
+ core/res/res/drawable-mdpi/textfield_search_selected.9.png  | Bin
+ core/res/res/drawable-mdpi/toast_frame.9.png                | Bin
+ core/res/res/layout/app_perms_summary.xml                   |   0
+ core/res/res/raw/fallbackring.ogg                           | Bin
+ core/res/res/values-mcc208-mnc01/config.xml                 |   0
+ core/res/res/values-mcc208-mnc10/config.xml                 |   0
+ core/res/res/values-mcc214-mnc03/config.xml                 |   0
+ core/res/res/values-mcc214-mnc07/config.xml                 |   0
+ core/res/res/values-mcc222-mnc01/config.xml                 |   0
+ core/res/res/values-mcc222-mnc10/config.xml                 |   0
+ core/res/res/values-mcc234-mnc33/config.xml                 |   0
+ core/res/res/values-mcc302-mnc370/config.xml                |   0
+ core/res/res/values-mcc302-mnc660/config.xml                |   0
+ core/res/res/values-mcc302-mnc720/config.xml                |   0
+ core/res/res/values-mcc340-mnc01/config.xml                 |   0
+ core/res/res/values/attrs.xml                               |   0
+ core/res/res/values/config.xml                              |   0
+ core/res/res/values/strings.xml                             |   0
+ core/res/res/xml-land/password_kbd_qwerty.xml               |   0
+ core/res/res/xml-land/password_kbd_qwerty_shifted.xml       |   0
+ core/res/res/xml-mdpi/password_kbd_qwerty.xml               |   0
+ core/res/res/xml-mdpi/password_kbd_qwerty_shifted.xml       |   0
+ core/res/res/xml-xlarge/password_kbd_numeric.xml            |   0
+ core/res/res/xml-xlarge/password_kbd_qwerty.xml             |   0
+ core/res/res/xml-xlarge/password_kbd_qwerty_shifted.xml     |   0
+ core/res/res/xml-xlarge/password_kbd_symbols.xml            |   0
+ core/res/res/xml-xlarge/password_kbd_symbols_shift.xml      |   0
+ core/res/res/xml/password_kbd_extension.xml                 |   0
+ core/res/res/xml/password_kbd_numeric.xml                   |   0
+ core/res/res/xml/password_kbd_qwerty.xml                    |   0
+ core/res/res/xml/password_kbd_qwerty_shifted.xml            |   0
+ core/res/res/xml/password_kbd_symbols.xml                   |   0
+ core/res/res/xml/password_kbd_symbols_shift.xml             |   0
+ core/tests/ConnectivityManagerTest/assets/accesspoints.xml  |   0
+ .../coretests/src/android/content/pm/AppCacheTest.java      |   0
+ .../src/android/content/pm/PackageManagerTests.java         |   0
+ core/tests/coretests/src/android/os/storage/AsecTests.java  |   0
+ data/fonts/DroidSansJapanese.ttf                            | Bin
+ data/sounds/AudioPackage5.mk                                |   0
+ data/sounds/AudioPackage6.mk                                |   0
+ data/sounds/AudioPackage7.mk                                |   0
+ data/sounds/AudioPackage7alt.mk                             |   0
+ data/sounds/alarms/ogg-jp/Argon.ogg                         | Bin
+ data/sounds/alarms/ogg-jp/Carbon.ogg                        | Bin
+ data/sounds/alarms/ogg-jp/Helium.ogg                        | Bin
+ data/sounds/alarms/ogg-jp/Krypton.ogg                       | Bin
+ data/sounds/alarms/ogg-jp/Neon.ogg                          | Bin
+ data/sounds/alarms/ogg-jp/Oxygen.ogg                        | Bin
+ data/sounds/effects/ogg/KeypressDelete.ogg                  | Bin
+ data/sounds/effects/ogg/KeypressReturn.ogg                  | Bin
+ data/sounds/effects/ogg/KeypressSpacebar.ogg                | Bin
+ data/sounds/effects/ogg/KeypressStandard.ogg                | Bin
+ data/sounds/notifications/aidos.ogg                         | Bin
+ data/sounds/notifications/circios.ogg                       | Bin
+ data/sounds/notifications/horkos.ogg                        | Bin
+ data/sounds/notifications/hypnos1.ogg                       | Bin
+ data/sounds/notifications/kratos1.ogg                       | Bin
+ data/sounds/notifications/kratos2.ogg                       | Bin
+ data/sounds/notifications/nomos1.ogg                        | Bin
+ data/sounds/notifications/nomos2.ogg                        | Bin
+ data/sounds/notifications/ogg/Adara.ogg                     | Bin
+ data/sounds/notifications/ogg/Argon.ogg                     | Bin
+ data/sounds/notifications/ogg/Beryllium.ogg                 | Bin
+ data/sounds/notifications/ogg/Capella.ogg                   | Bin
+ data/sounds/notifications/ogg/Cobalt.ogg                    | Bin
+ data/sounds/notifications/ogg/Fluorine.ogg                  | Bin
+ data/sounds/notifications/ogg/Gallium.ogg                   | Bin
+ data/sounds/notifications/ogg/Polaris.ogg                   | Bin
+ data/sounds/notifications/ogg/Procyon.ogg                   | Bin
+ data/sounds/notifications/ogg/Radon.ogg                     | Bin
+ data/sounds/notifications/ogg/Selenium.ogg                  | Bin
+ data/sounds/notifications/ogg/Shaula.ogg                    | Bin
+ data/sounds/notifications/ogg/Spica.ogg                     | Bin
+ data/sounds/notifications/ogg/Zirconium.ogg                 | Bin
+ data/sounds/notifications/ouranos.ogg                       | Bin
+ data/sounds/notifications/phantasos.ogg                     | Bin
+ data/sounds/notifications/poros.ogg                         | Bin
+ data/sounds/notifications/thrasos1.ogg                      | Bin
+ data/sounds/ringtones/Carina.wav                            | Bin
+ data/sounds/testfiles/test.mid                              | Bin
+ data/videos/AndroidInSpace.480p.lq.mp4                      | Bin
+ data/videos/AndroidInSpace.480p.mq.mp4                      | Bin
+ docs/downloads/design/Android_Design_Downloads_20120814.zip | Bin
+ .../design/Android_Design_Fireworks_Stencil_20120814.png    | Bin
+ .../design/Android_Design_Holo_Widgets_20120814.zip         | Bin
+ docs/downloads/design/Android_Design_Icons_20120814.zip     | Bin
+ .../Android_Design_OmniGraffle_Stencil_20120814.graffle     | Bin
+ docs/html/design/media/navigation_between_apps_back.png     | Bin
+ docs/html/design/media/navigation_between_apps_inward.png   | Bin
+ docs/html/design/media/navigation_between_apps_up.png       | Bin
+ .../design/media/navigation_between_siblings_market1.png    | Bin
+ .../design/media/navigation_between_siblings_market2.png    | Bin
+ docs/html/guide/appendix/faq/troubleshooting.jd             |   0
+ docs/html/guide/google/play/billing/billing_admin.jd        |   0
+ .../guide/google/play/billing/billing_best_practices.jd     |   0
+ docs/html/guide/google/play/billing/billing_integrate.jd    |   0
+ docs/html/guide/google/play/billing/billing_overview.jd     |   0
+ docs/html/guide/google/play/billing/billing_reference.jd    |   0
+ .../html/guide/google/play/billing/billing_subscriptions.jd |   0
+ docs/html/guide/google/play/billing/billing_testing.jd      |   0
+ docs/html/guide/google/play/billing/index.jd                |   0
+ .../guide/topics/manifest/uses-configuration-element.jd     |   0
+ docs/html/guide/topics/resources/localization.jd            |   0
+ docs/html/guide/topics/resources/resources-i18n.jd          |   0
+ docs/html/guide/topics/ui/images/hello-gallery.png          | Bin
+ docs/html/guide/topics/ui/images/hello-gridview.png         | Bin
+ docs/html/guide/topics/ui/images/hello-linearlayout.png     | Bin
+ docs/html/guide/topics/ui/images/hello-relativelayout.png   | Bin
+ docs/html/guide/topics/ui/images/hello-tablelayout.png      | Bin
+ docs/html/images/billing_arch.png                           | Bin
+ docs/html/images/billing_check_supported.png                | Bin
+ docs/html/images/billing_checkout_flow.png                  | Bin
+ docs/html/images/billing_list_form.png                      | Bin
+ docs/html/images/billing_list_form_2.png                    | Bin
+ docs/html/images/billing_product_list.png                   | Bin
+ docs/html/images/billing_product_list_entry.png             | Bin
+ docs/html/images/billing_public_key.png                     | Bin
+ docs/html/images/billing_refund.png                         | Bin
+ docs/html/images/billing_request_purchase.png               | Bin
+ docs/html/images/billing_restore_transactions.png           | Bin
+ docs/html/images/billing_test_flow.png                      | Bin
+ docs/html/images/custom_message.png                         | Bin
+ docs/html/images/custom_toast.png                           | Bin
+ docs/html/images/developing/developing_overview.png         | Bin
+ docs/html/images/dialog_buttons.png                         | Bin
+ docs/html/images/dialog_custom.png                          | Bin
+ docs/html/images/dialog_list.png                            | Bin
+ docs/html/images/dialog_progress_bar.png                    | Bin
+ docs/html/images/dialog_progress_spinning.png               | Bin
+ docs/html/images/dialog_singlechoicelist.png                | Bin
+ docs/html/images/drm_arch.png                               | Bin
+ docs/html/images/fundamentals/fragments.graffle             |   0
+ docs/html/images/hello_l10n/copy_res_files.png              | Bin
+ docs/html/images/hello_l10n/custom_locale_app.png           | Bin
+ docs/html/images/hello_l10n/drawable-de-rDE/flag.png        | Bin
+ docs/html/images/hello_l10n/drawable-en-rCA/flag.png        | Bin
+ docs/html/images/hello_l10n/drawable-en-rUS/flag.png        | Bin
+ docs/html/images/hello_l10n/drawable-fr-rCA/flag.png        | Bin
+ docs/html/images/hello_l10n/drawable-fr-rFR/flag.png        | Bin
+ docs/html/images/hello_l10n/drawable-ja-rJP/flag.png        | Bin
+ docs/html/images/hello_l10n/flag.png                        | Bin
+ docs/html/images/hello_l10n/frenchCA_screenshot.png         | Bin
+ docs/html/images/hello_l10n/germanCH_screenshot.png         | Bin
+ docs/html/images/hello_l10n/german_screenshot.png           | Bin
+ docs/html/images/hello_l10n/japanese_screenshot.png         | Bin
+ docs/html/images/hello_l10n/nonlocalized_project.png        | Bin
+ docs/html/images/hello_l10n/nonlocalized_screenshot1.png    | Bin
+ docs/html/images/hello_l10n/nonlocalized_screenshot2.png    | Bin
+ docs/html/images/hello_l10n/plain_project.png               | Bin
+ docs/html/images/hello_l10n/romanshCH_screenshot.png        | Bin
+ docs/html/images/hello_l10n/using_custom_locale.png         | Bin
+ docs/html/images/hello_l10n/xml_file_wizard_shortcut.png    | Bin
+ docs/html/images/hello_l10n/xml_wizard1.png                 | Bin
+ docs/html/images/hello_l10n/xml_wizard2.png                 | Bin
+ docs/html/images/jet/jc_audition_wnd.png                    | Bin
+ docs/html/images/jet/jc_event_wnd.png                       | Bin
+ docs/html/images/jet/jc_main_wnd.png                        | Bin
+ docs/html/images/jet/jc_moveseg_wnd.png                     | Bin
+ docs/html/images/jet/jc_open_dlg.png                        | Bin
+ docs/html/images/jet/jc_rep_wnd.png                         | Bin
+ docs/html/images/jet/jc_repseg_wnd.png                      | Bin
+ docs/html/images/jet/jc_seg_wnd.png                         | Bin
+ docs/html/images/notifications_window.png                   | Bin
+ docs/html/images/options_menu.png                           | Bin
+ docs/html/images/publishing/publishing_android_market.png   | Bin
+ docs/html/images/publishing/publishing_overview.png         | Bin
+ docs/html/images/publishing/publishing_overview_prep.png    | Bin
+ docs/html/images/publishing/publishing_preparing.png        | Bin
+ docs/html/images/publishing/publishing_via_email.png        | Bin
+ docs/html/images/radio_buttons.png                          | Bin
+ docs/html/images/resources/arrow.png                        | Bin
+ docs/html/images/resources/right-arrow.png                  | Bin
+ docs/html/images/status_bar.png                             | Bin
+ docs/html/images/testing/android_test_framework.png         | Bin
+ docs/html/images/training/ads-close-to-button.png           | Bin
+ docs/html/images/training/ads-cover-content.png             | Bin
+ docs/html/images/training/ads-eclipse-build-path.png        | Bin
+ docs/html/images/training/ads-top-banner.png                | Bin
+ docs/html/images/training/button.png                        | Bin
+ docs/html/images/training/button_with_marks.png             | Bin
+ docs/html/images/training/buttons_stretched.png             | Bin
+ docs/html/images/training/cool-places.png                   | Bin
+ .../images/training/device-mgmt-activate-device-admin.png   | Bin
+ docs/html/images/training/panoramio-grid.png                | Bin
+ docs/html/images/ui/clipboard/copy_paste_framework.png      | Bin
+ docs/html/resources/images/KeyChainDemo2.png                | Bin
+ docs/html/resources/images/KeyChainDemo3.png                | Bin
+ docs/html/resources/images/KeyChainDemo4.png                | Bin
+ docs/html/resources/images/SipDemo.png                      | Bin
+ docs/html/resources/images/vpn-confirmation.png             | Bin
+ docs/html/tools/publishing/publishing_overview.jd           |   0
+ docs/html/tools/testing/testing_android.jd                  |   0
+ docs/html/tools/workflow/publishing/publishing_overview.jd  |   0
+ docs/html/tools/workflow/publishing_overview.jd             |   0
+ drm/java/android/drm/DrmConvertedStatus.java                |   0
+ drm/java/android/drm/DrmErrorEvent.java                     |   0
+ drm/java/android/drm/DrmEvent.java                          |   0
+ drm/java/android/drm/DrmInfo.java                           |   0
+ drm/java/android/drm/DrmInfoEvent.java                      |   0
+ drm/java/android/drm/DrmInfoRequest.java                    |   0
+ drm/java/android/drm/DrmInfoStatus.java                     |   0
+ drm/java/android/drm/DrmManagerClient.java                  |   0
+ drm/java/android/drm/DrmRights.java                         |   0
+ drm/java/android/drm/DrmStore.java                          |   0
+ drm/java/android/drm/DrmSupportInfo.java                    |   0
+ drm/java/android/drm/DrmUtils.java                          |   0
+ drm/java/android/drm/ProcessedData.java                     |   0
+ drm/java/android/drm/package.html                           |   0
+ graphics/java/android/graphics/Bitmap.aidl                  |   0
+ include/androidfw/KeycodeLabels.h                           |   0
+ keystore/tests/src/android/security/KeyStoreTest.java       |   0
+ location/java/android/location/Country.java                 |   0
+ location/java/android/location/INetInitiatedListener.aidl   |   0
+ .../android/internal/location/GpsNetInitiatedHandler.java   |   0
+ media/java/android/media/IAudioFocusDispatcher.aidl         |   0
+ media/java/android/media/audiofx/Visualizer.java            |   0
+ media/java/android/media/videoeditor/AudioTrack.java        |   0
+ media/java/android/media/videoeditor/Effect.java            |   0
+ media/java/android/media/videoeditor/EffectColor.java       |   0
+ media/java/android/media/videoeditor/EffectKenBurns.java    |   0
+ .../videoeditor/ExtractAudioWaveformProgressListener.java   |   0
+ media/java/android/media/videoeditor/MediaImageItem.java    |   0
+ media/java/android/media/videoeditor/MediaItem.java         |   0
+ media/java/android/media/videoeditor/MediaProperties.java   |   0
+ media/java/android/media/videoeditor/MediaVideoItem.java    |   0
+ media/java/android/media/videoeditor/Overlay.java           |   0
+ media/java/android/media/videoeditor/OverlayFrame.java      |   0
+ media/java/android/media/videoeditor/Transition.java        |   0
+ media/java/android/media/videoeditor/TransitionAlpha.java   |   0
+ .../java/android/media/videoeditor/TransitionCrossfade.java |   0
+ .../java/android/media/videoeditor/TransitionFadeBlack.java |   0
+ media/java/android/media/videoeditor/TransitionSliding.java |   0
+ media/java/android/media/videoeditor/VideoEditor.java       |   0
+ .../java/android/media/videoeditor/VideoEditorFactory.java  |   0
+ media/java/android/media/videoeditor/VideoEditorImpl.java   |   0
+ .../java/android/media/videoeditor/VideoEditorProfile.java  |   0
+ media/java/android/media/videoeditor/WaveformData.java      |   0
+ media/java/android/mtp/MtpDatabase.java                     |   0
+ media/jni/mediaeditor/Android.mk                            |   0
+ media/jni/mediaeditor/VideoBrowserInternal.h                |   0
+ media/jni/mediaeditor/VideoBrowserMain.h                    |   0
+ media/jni/mediaeditor/VideoEditorClasses.cpp                |   0
+ media/jni/mediaeditor/VideoEditorClasses.h                  |   0
+ media/jni/mediaeditor/VideoEditorJava.cpp                   |   0
+ media/jni/mediaeditor/VideoEditorJava.h                     |   0
+ media/jni/mediaeditor/VideoEditorLogging.h                  |   0
+ media/jni/mediaeditor/VideoEditorMain.cpp                   |   0
+ media/jni/mediaeditor/VideoEditorOsal.cpp                   |   0
+ media/jni/mediaeditor/VideoEditorOsal.h                     |   0
+ media/jni/mediaeditor/VideoEditorPropertiesMain.cpp         |   0
+ media/jni/mediaeditor/VideoEditorThumbnailMain.cpp          |   0
+ media/jni/mediaeditor/VideoEditorThumbnailMain.h            |   0
+ media/mca/structgen.py                                      |   0
+ .../mediaframeworktest/MediaFrameworkPerfTestRunner.java    |   0
+ .../mediaframeworktest/MediaFrameworkPowerTestRunner.java   |   0
+ .../mediaframeworktest/MediaFrameworkTestRunner.java        |   0
+ .../mediaframeworktest/MediaFrameworkUnitTestRunner.java    |   0
+ .../src/com/android/mediaframeworktest/MediaNames.java      |   0
+ .../mediaframeworktest/MediaPlayerStressTestRunner.java     |   0
+ .../mediaframeworktest/MediaRecorderStressTestRunner.java   |   0
+ .../src/com/android/mediaframeworktest/MediaTestUtil.java   |   0
+ .../functional/videoeditor/MediaItemThumbnailTest.java      |   0
+ .../functional/videoeditor/MediaPropertiesTest.java         |   0
+ .../functional/videoeditor/VideoEditorExportTest.java       |   0
+ .../mediaframeworktest/stress/VideoEditorStressTest.java    |   0
+ media/tests/ScoAudioTest/Android.mk                         |   0
+ media/tests/ScoAudioTest/AndroidManifest.xml                |   0
+ media/tests/ScoAudioTest/res/drawable/icon.png              | Bin
+ media/tests/ScoAudioTest/res/drawable/record.png            | Bin
+ media/tests/ScoAudioTest/res/drawable/stop.png              | Bin
+ media/tests/ScoAudioTest/res/layout/scoaudiotest.xml        |   0
+ media/tests/ScoAudioTest/res/values/strings.xml             |   0
+ media/tests/contents/media_api/goldenThumbnail.png          | Bin
+ .../contents/media_api/music/MP3_48KHz_128kbps_s_1_17.mp3   | Bin
+ media/tests/contents/media_api/music/SHORTMP3.mp3           | Bin
+ media/tests/contents/media_api/music/ants.mid               | Bin
+ media/tests/contents/media_api/music/bzk_chic.wav           | Bin
+ .../contents/media_api/music/sine_200+1000Hz_44K_mo.wav     | Bin
+ media/tests/contents/media_api/music/test_amr_ietf.amr      | Bin
+ media/tests/contents/media_api/video/H263_500_AMRNB_12.3gp  | Bin
+ media/tests/contents/media_api/video/H263_56_AAC_24.3gp     | Bin
+ media/tests/contents/media_api/video/H263_56_AMRNB_6.3gp    | Bin
+ media/tests/contents/media_api/video/H264_320_AAC_64.3gp    | Bin
+ media/tests/contents/media_api/video/H264_320_AMRNB_6.3gp   | Bin
+ media/tests/contents/media_api/video/H264_500_AAC_128.3gp   | Bin
+ .../contents/media_api/video/H264_HVGA_500_NO_AUDIO.3gp     | Bin
+ .../contents/media_api/video/H264_QVGA_500_NO_AUDIO.3gp     | Bin
+ media/tests/contents/media_api/video/MPEG4_320_AAC_64.mp4   | Bin
+ .../contents/media_api/video/big-buck-bunny_trailer.webm    | Bin
+ media/tests/contents/media_api/video/border_large.3gp       | Bin
+ ..._BP_960x720_25fps_800kbps_AACLC_48Khz_192Kbps_s_1_17.mp4 | Bin
+ .../contents/media_api/videoeditor/IMG_640x480_Overlay2.png | Bin
+ native/copy-to-ndk.sh                                       |   0
+ packages/DefaultContainerService/Android.mk                 |   0
+ packages/DefaultContainerService/AndroidManifest.xml        |   0
+ .../android/internal/policy/impl/PhoneWindowManager.java    |   0
+ .../java/com/android/server/NotificationManagerService.java |   0
+ services/java/com/android/server/VibratorService.java       |   0
+ services/java/com/android/server/am/ActivityStack.java      |   0
+ services/java/com/android/server/am/package.html            |   0
+ .../server/location/ComprehensiveCountryDetector.java       |   0
+ .../com/android/server/location/GpsLocationProvider.java    |   0
+ .../server/location/LocationBasedCountryDetector.java       |   0
+ .../java/com/android/server/wm/WindowManagerService.java    |   0
+ .../jni/com_android_server_location_GpsLocationProvider.cpp |   0
+ .../server/location/LocationBasedCountryDetectorTest.java   |   0
+ telephony/java/android/telephony/SignalStrength.java        |   0
+ telephony/java/android/telephony/TelephonyManager.java      |   0
+ test-runner/src/android/test/NoExecTestResult.java          |   0
+ .../BrowserTestPlugin/res/drawable/browser_test_plugin.png  | Bin
+ .../com/android/dumprendertree/LayoutTestsAutoRunner.java   |   0
+ .../FrameworkPerf/res/drawable-161dpi/stat_sample_scale.png | Bin
+ tests/FrameworkPerf/res/drawable-hdpi/stat_happy.png        | Bin
+ tests/FrameworkPerf/res/drawable-nodpi/stat_sample.png      | Bin
+ .../src/com/android/test/layout/AlignmentTest.java          |   0
+ tests/ImfTest/Android.mk                                    |   0
+ tests/ImfTest/AndroidManifest.xml                           |   0
+ tests/ImfTest/res/layout/full_screen_edit_text.xml          |   0
+ tests/ImfTest/res/layout/one_edit_text_activity.xml         |   0
+ tests/ImfTest/res/layout/sample_edit_text.xml               |   0
+ tests/ImfTest/res/values/strings.xml                        |   0
+ .../src/com/android/imftest/samples/InputTypeActivity.java  |   0
+ tests/ImfTest/tests/Android.mk                              |   0
+ tests/ImfTest/tests/AndroidManifest.xml                     |   0
+ .../BigEditTextActivityNonScrollablePanScanTests.java       |   0
+ .../BigEditTextActivityNonScrollableResizeTests.java        |   0
+ .../samples/BigEditTextActivityScrollablePanScanTests.java  |   0
+ .../samples/BigEditTextActivityScrollableResizeTests.java   |   0
+ .../imftest/samples/BottomEditTextActivityPanScanTests.java |   0
+ .../imftest/samples/BottomEditTextActivityResizeTests.java  |   0
+ .../src/com/android/imftest/samples/ButtonActivityTest.java |   0
+ .../src/com/android/imftest/samples/ImfBaseTestCase.java    |   0
+ .../imftest/samples/ManyEditTextActivityBaseTestCase.java   |   0
+ .../samples/ManyEditTextActivityNoScrollPanScanTests.java   |   0
+ .../samples/ManyEditTextActivityScrollPanScanTests.java     |   0
+ .../samples/ManyEditTextActivityScrollResizeTests.java      |   0
+ .../samples/OneEditTextActivityNotSelectedTests.java        |   0
+ .../imftest/samples/OneEditTextActivitySelectedTests.java   |   0
+ tests/LocationTracker/res/xml/preferences.xml               |   0
+ .../src/com/android/locationtracker/SettingsActivity.java   |   0
+ .../RenderScriptTests/PerfTest/res/drawable-nodpi/globe.png | Bin
+ tools/aidl/AST.cpp                                          |   0
+ tools/aidl/AST.h                                            |   0
+ tools/aidl/Type.cpp                                         |   0
+ tools/aidl/Type.h                                           |   0
+ tools/layoutlib/bridge/src/android/util/Log_Delegate.java   |   0
+ .../com/android/tools/layoutlib/annotations/Nullable.java   |   0
+ .../tools/layoutlib/annotations/VisibleForTesting.java      |   0
+ .../android/tools/layoutlib/create/DependencyFinder.java    |   0
+ 642 files changed, 0 insertions(+), 0 deletions(-)
+ mode change 100755 => 100644 cmds/input/src/com/android/commands/input/Input.java
+ mode change 100755 => 100644 core/java/android/animation/ValueAnimator.java
+ mode change 100755 => 100644 core/java/android/app/IAlarmManager.aidl
+ mode change 100755 => 100644 core/java/android/app/IThumbnailReceiver.aidl
+ mode change 100755 => 100644 core/java/android/app/admin/DevicePolicyManager.java
+ mode change 100755 => 100644 core/java/android/appwidget/AppWidgetProvider.java
+ mode change 100755 => 100644 core/java/android/content/IIntentReceiver.aidl
+ mode change 100755 => 100644 core/java/android/content/res/Configuration.aidl
+ mode change 100755 => 100644 core/java/android/content/res/ObbInfo.aidl
+ mode change 100755 => 100644 core/java/android/content/res/Resources.java
+ mode change 100755 => 100644 core/java/android/database/IContentObserver.aidl
+ mode change 100755 => 100644 core/java/android/ddm/package.html
+ mode change 100755 => 100644 core/java/android/debug/package.html
+ mode change 100755 => 100644 core/java/android/gesture/Gesture.java
+ mode change 100755 => 100644 core/java/android/gesture/GestureOverlayView.java
+ mode change 100755 => 100644 core/java/android/gesture/GestureUtils.java
+ mode change 100755 => 100644 core/java/android/gesture/Instance.java
+ mode change 100755 => 100644 core/java/android/gesture/Learner.java
+ mode change 100755 => 100644 core/java/android/gesture/Prediction.java
+ mode change 100755 => 100644 core/java/android/hardware/input/InputManager.java
+ mode change 100755 => 100644 core/java/android/net/Uri.aidl
+ mode change 100755 => 100644 core/java/android/net/http/package.html
+ mode change 100755 => 100644 core/java/android/net/package.html
+ mode change 100755 => 100644 core/java/android/os/IHardwareService.aidl
+ mode change 100755 => 100644 core/java/android/os/IVibratorService.aidl
+ mode change 100755 => 100644 core/java/android/os/TokenWatcher.java
+ mode change 100755 => 100644 core/java/android/provider/ContactsContract.java
+ mode change 100755 => 100644 core/java/android/server/BluetoothService.java
+ mode change 100755 => 100644 core/java/android/server/package.html
+ mode change 100755 => 100644 core/java/android/speech/tts/ITextToSpeechCallback.aidl
+ mode change 100755 => 100644 core/java/android/speech/tts/TextToSpeech.java
+ mode change 100755 => 100644 core/java/android/view/InputDevice.java
+ mode change 100755 => 100644 core/java/android/view/InputEvent.java
+ mode change 100755 => 100644 core/java/android/view/KeyEvent.java
+ mode change 100755 => 100644 core/java/android/view/OrientationEventListener.java
+ mode change 100755 => 100644 core/java/android/view/WindowManager.aidl
+ mode change 100755 => 100644 core/java/android/view/WindowOrientationListener.java
+ mode change 100755 => 100644 core/java/android/view/animation/package.html
+ mode change 100755 => 100644 core/java/android/webkit/DeviceMotionService.java
+ mode change 100755 => 100644 core/java/android/webkit/DeviceOrientationService.java
+ mode change 100755 => 100644 core/java/android/webkit/GeolocationPermissions.java
+ mode change 100755 => 100644 core/java/android/webkit/GeolocationPermissionsClassic.java
+ mode change 100755 => 100644 core/java/android/webkit/GeolocationService.java
+ mode change 100755 => 100644 core/java/android/widget/AppSecurityPermissions.java
+ mode change 100755 => 100644 core/java/com/android/internal/app/IMediaContainerService.aidl
+ mode change 100755 => 100644 core/java/com/android/internal/app/IUsageStats.aidl
+ mode change 100755 => 100644 core/java/com/android/internal/app/NetInitiatedActivity.java
+ mode change 100755 => 100644 core/java/com/android/internal/os/PkgUsageStats.aidl
+ mode change 100755 => 100644 core/java/com/android/internal/os/PkgUsageStats.java
+ mode change 100755 => 100644 core/res/res/drawable-en-hdpi/sym_keyboard_delete.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_circle_disable.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_circle_disable_focused.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_circle_normal.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_circle_pressed.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_circle_selected.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_close_normal.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_close_pressed.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_close_selected.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_default_normal.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_default_normal_disable.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_default_normal_disable_focused.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_default_pressed.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_default_selected.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_default_small_normal.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_default_small_normal_disable.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_default_small_normal_disable_focused.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_default_small_pressed.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_default_small_selected.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_dialog_disable.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_dialog_normal.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_dialog_pressed.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_dialog_selected.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_dropdown_normal.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_dropdown_pressed.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_dropdown_selected.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_radio_off.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_radio_off_pressed.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_radio_off_selected.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_radio_on.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_radio_on_pressed.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/btn_radio_on_selected.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/contact_header_bg.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/ic_btn_round_more_disabled.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/ic_btn_round_more_normal.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/ic_contact_picture_2.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/ic_contact_picture_3.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/ic_jog_dial_sound_off.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/ic_jog_dial_sound_on.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/ic_jog_dial_unlock.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/ic_settings_language.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_dial_arrow_long_left_green.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_dial_arrow_long_left_yellow.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_dial_arrow_long_middle_yellow.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_dial_arrow_long_right_red.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_dial_arrow_long_right_yellow.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_dial_arrow_short_left.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_dial_arrow_short_left_and_right.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_dial_arrow_short_right.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_dial_bg.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_dial_dimple.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_tab_left_confirm_gray.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_tab_left_confirm_green.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_tab_left_confirm_red.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_tab_left_confirm_yellow.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_tab_left_pressed.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_tab_right_confirm_gray.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_tab_right_confirm_green.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_tab_right_confirm_red.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_tab_right_confirm_yellow.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/jog_tab_right_pressed.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/progressbar_indeterminate1.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/progressbar_indeterminate2.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/progressbar_indeterminate3.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_notify_more.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_battery_10.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_battery_20.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_battery_40.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_battery_60.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_battery_80.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_battery_charge_anim1.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_battery_charge_anim2.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_battery_charge_anim3.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_battery_charge_anim4.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_battery_charge_anim5.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_phone_call.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_phone_call_forward.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_phone_call_on_hold.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_r_signal_3_cdma.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_ra_signal_0_cdma.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_ra_signal_1_cdma.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_ra_signal_2_cdma.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_ra_signal_4_cdma.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_signal_0_cdma.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_signal_1_cdma.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_signal_2_cdma.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_signal_3_cdma.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_signal_4_cdma.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_signal_evdo_0.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_signal_evdo_1.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_signal_evdo_2.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_signal_evdo_3.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_signal_evdo_4.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_vp_phone_call.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/stat_sys_vp_phone_call_on_hold.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_delete.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_feedback_delete.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_feedback_return.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_feedback_shift.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_feedback_shift_locked.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_feedback_space.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_num1.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_num2.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_num3.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_num4.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_num5.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_num6.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_num7.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_num8.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_num9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_return.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_shift.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_shift_locked.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/sym_keyboard_space.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/textfield_default.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/textfield_disabled.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/textfield_disabled_selected.9.png
+ mode change 100755 => 100644 core/res/res/drawable-hdpi/textfield_selected.9.png
+ mode change 100755 => 100644 core/res/res/drawable-ldpi/tab_focus_bar_left.9.png
+ mode change 100755 => 100644 core/res/res/drawable-ldpi/tab_focus_bar_right.9.png
+ mode change 100755 => 100644 core/res/res/drawable-ldpi/tab_press_bar_left.9.png
+ mode change 100755 => 100644 core/res/res/drawable-ldpi/tab_press_bar_right.9.png
+ mode change 100755 => 100644 core/res/res/drawable-ldpi/tab_selected_bar_left.9.png
+ mode change 100755 => 100644 core/res/res/drawable-ldpi/tab_selected_bar_right.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_check_buttonless_off.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_check_buttonless_on.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_dialog_disable.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_dialog_normal.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_dialog_pressed.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_dialog_selected.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_erase_default.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_erase_pressed.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_erase_selected.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_keyboard_key_pressed.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_media_player.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_media_player_disabled.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_media_player_disabled_selected.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_media_player_pressed.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_media_player_selected.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_star_big_off.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_star_big_off_disable.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_star_big_off_disable_focused.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_star_big_off_pressed.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_star_big_off_selected.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_star_big_on.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_star_big_on_disable.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_star_big_on_disable_focused.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_star_big_on_pressed.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/btn_star_big_on_selected.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/dialog_divider_horizontal_light.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/frame_gallery_thumb.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/frame_gallery_thumb_pressed.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/frame_gallery_thumb_selected.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/gallery_selected_default.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/gallery_selected_focused.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/gallery_selected_pressed.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/gallery_unselected_default.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_dialog_info.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_dialog_time.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_jog_dial_unlock.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_lock_idle_charging.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_lock_idle_lock.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_lock_idle_low_battery.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_media_video_poster.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_add.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_agenda.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_allfriends.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_camera.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_crop.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_day.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_delete.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_directions.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_edit.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_gallery.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_info_details.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_manage.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_month.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_my_calendar.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_mylocation.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_rotate.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_search.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_search_holo_dark.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_send.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_set_as.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_share.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_sort_by_size.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_star.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_today.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_upload.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_upload_you_tube.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_view.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_menu_week.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_popup_reminder.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/ic_search_category_default.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/indicator_input_error.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_dial_arrow_long_left_green.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_dial_arrow_long_left_yellow.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_dial_arrow_long_middle_yellow.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_dial_arrow_long_right_red.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_dial_arrow_long_right_yellow.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_dial_arrow_short_left.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_dial_arrow_short_left_and_right.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_dial_arrow_short_right.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_dial_bg.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_dial_dimple.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_tab_left_confirm_gray.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_tab_left_confirm_green.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_tab_left_confirm_yellow.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_tab_left_normal.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_tab_left_pressed.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_tab_right_confirm_gray.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_tab_right_confirm_green.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_tab_right_confirm_yellow.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_tab_right_normal.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/jog_tab_right_pressed.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/keyboard_key_feedback_more_background.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_down_disabled.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_down_disabled_focused.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_down_normal.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_down_pressed.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_down_selected.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_input_disabled.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_input_normal.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_input_pressed.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_input_selected.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_up_disabled.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_up_disabled_focused.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_up_normal.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_up_pressed.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/numberpicker_up_selected.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/scrollbar_handle_horizontal.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/scrollbar_handle_vertical.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/search_plate.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/spinner_black_20.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/sym_keyboard_feedback_shift_locked.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/tab_focus.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/tab_focus_bar_left.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/tab_focus_bar_right.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/tab_press.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/tab_press_bar_left.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/tab_press_bar_right.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/tab_selected_bar_left.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/tab_selected_bar_right.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/textfield_search_default.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/textfield_search_selected.9.png
+ mode change 100755 => 100644 core/res/res/drawable-mdpi/toast_frame.9.png
+ mode change 100755 => 100644 core/res/res/layout/app_perms_summary.xml
+ mode change 100755 => 100644 core/res/res/raw/fallbackring.ogg
+ mode change 100755 => 100644 core/res/res/values-mcc208-mnc01/config.xml
+ mode change 100755 => 100644 core/res/res/values-mcc208-mnc10/config.xml
+ mode change 100755 => 100644 core/res/res/values-mcc214-mnc03/config.xml
+ mode change 100755 => 100644 core/res/res/values-mcc214-mnc07/config.xml
+ mode change 100755 => 100644 core/res/res/values-mcc222-mnc01/config.xml
+ mode change 100755 => 100644 core/res/res/values-mcc222-mnc10/config.xml
+ mode change 100755 => 100644 core/res/res/values-mcc234-mnc33/config.xml
+ mode change 100755 => 100644 core/res/res/values-mcc302-mnc370/config.xml
+ mode change 100755 => 100644 core/res/res/values-mcc302-mnc660/config.xml
+ mode change 100755 => 100644 core/res/res/values-mcc302-mnc720/config.xml
+ mode change 100755 => 100644 core/res/res/values-mcc340-mnc01/config.xml
+ mode change 100755 => 100644 core/res/res/values/attrs.xml
+ mode change 100755 => 100644 core/res/res/values/config.xml
+ mode change 100755 => 100644 core/res/res/values/strings.xml
+ mode change 100755 => 100644 core/res/res/xml-land/password_kbd_qwerty.xml
+ mode change 100755 => 100644 core/res/res/xml-land/password_kbd_qwerty_shifted.xml
+ mode change 100755 => 100644 core/res/res/xml-mdpi/password_kbd_qwerty.xml
+ mode change 100755 => 100644 core/res/res/xml-mdpi/password_kbd_qwerty_shifted.xml
+ mode change 100755 => 100644 core/res/res/xml-xlarge/password_kbd_numeric.xml
+ mode change 100755 => 100644 core/res/res/xml-xlarge/password_kbd_qwerty.xml
+ mode change 100755 => 100644 core/res/res/xml-xlarge/password_kbd_qwerty_shifted.xml
+ mode change 100755 => 100644 core/res/res/xml-xlarge/password_kbd_symbols.xml
+ mode change 100755 => 100644 core/res/res/xml-xlarge/password_kbd_symbols_shift.xml
+ mode change 100755 => 100644 core/res/res/xml/password_kbd_extension.xml
+ mode change 100755 => 100644 core/res/res/xml/password_kbd_numeric.xml
+ mode change 100755 => 100644 core/res/res/xml/password_kbd_qwerty.xml
+ mode change 100755 => 100644 core/res/res/xml/password_kbd_qwerty_shifted.xml
+ mode change 100755 => 100644 core/res/res/xml/password_kbd_symbols.xml
+ mode change 100755 => 100644 core/res/res/xml/password_kbd_symbols_shift.xml
+ mode change 100755 => 100644 core/tests/ConnectivityManagerTest/assets/accesspoints.xml
+ mode change 100755 => 100644 core/tests/coretests/src/android/content/pm/AppCacheTest.java
+ mode change 100755 => 100644 core/tests/coretests/src/android/content/pm/PackageManagerTests.java
+ mode change 100755 => 100644 core/tests/coretests/src/android/os/storage/AsecTests.java
+ mode change 100755 => 100644 data/fonts/DroidSansJapanese.ttf
+ mode change 100755 => 100644 data/sounds/AudioPackage5.mk
+ mode change 100755 => 100644 data/sounds/AudioPackage6.mk
+ mode change 100755 => 100644 data/sounds/AudioPackage7.mk
+ mode change 100755 => 100644 data/sounds/AudioPackage7alt.mk
+ mode change 100755 => 100644 data/sounds/alarms/ogg-jp/Argon.ogg
+ mode change 100755 => 100644 data/sounds/alarms/ogg-jp/Carbon.ogg
+ mode change 100755 => 100644 data/sounds/alarms/ogg-jp/Helium.ogg
+ mode change 100755 => 100644 data/sounds/alarms/ogg-jp/Krypton.ogg
+ mode change 100755 => 100644 data/sounds/alarms/ogg-jp/Neon.ogg
+ mode change 100755 => 100644 data/sounds/alarms/ogg-jp/Oxygen.ogg
+ mode change 100755 => 100644 data/sounds/effects/ogg/KeypressDelete.ogg
+ mode change 100755 => 100644 data/sounds/effects/ogg/KeypressReturn.ogg
+ mode change 100755 => 100644 data/sounds/effects/ogg/KeypressSpacebar.ogg
+ mode change 100755 => 100644 data/sounds/effects/ogg/KeypressStandard.ogg
+ mode change 100755 => 100644 data/sounds/notifications/aidos.ogg
+ mode change 100755 => 100644 data/sounds/notifications/circios.ogg
+ mode change 100755 => 100644 data/sounds/notifications/horkos.ogg
+ mode change 100755 => 100644 data/sounds/notifications/hypnos1.ogg
+ mode change 100755 => 100644 data/sounds/notifications/kratos1.ogg
+ mode change 100755 => 100644 data/sounds/notifications/kratos2.ogg
+ mode change 100755 => 100644 data/sounds/notifications/nomos1.ogg
+ mode change 100755 => 100644 data/sounds/notifications/nomos2.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Adara.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Argon.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Beryllium.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Capella.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Cobalt.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Fluorine.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Gallium.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Polaris.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Procyon.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Radon.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Selenium.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Shaula.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Spica.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ogg/Zirconium.ogg
+ mode change 100755 => 100644 data/sounds/notifications/ouranos.ogg
+ mode change 100755 => 100644 data/sounds/notifications/phantasos.ogg
+ mode change 100755 => 100644 data/sounds/notifications/poros.ogg
+ mode change 100755 => 100644 data/sounds/notifications/thrasos1.ogg
+ mode change 100755 => 100644 data/sounds/ringtones/Carina.wav
+ mode change 100755 => 100644 data/sounds/testfiles/test.mid
+ mode change 100755 => 100644 data/videos/AndroidInSpace.480p.lq.mp4
+ mode change 100755 => 100644 data/videos/AndroidInSpace.480p.mq.mp4
+ mode change 100755 => 100644 docs/downloads/design/Android_Design_Downloads_20120814.zip
+ mode change 100755 => 100644 docs/downloads/design/Android_Design_Fireworks_Stencil_20120814.png
+ mode change 100755 => 100644 docs/downloads/design/Android_Design_Holo_Widgets_20120814.zip
+ mode change 100755 => 100644 docs/downloads/design/Android_Design_Icons_20120814.zip
+ mode change 100755 => 100644 docs/downloads/design/Android_Design_OmniGraffle_Stencil_20120814.graffle
+ mode change 100755 => 100644 docs/html/design/media/navigation_between_apps_back.png
+ mode change 100755 => 100644 docs/html/design/media/navigation_between_apps_inward.png
+ mode change 100755 => 100644 docs/html/design/media/navigation_between_apps_up.png
+ mode change 100755 => 100644 docs/html/design/media/navigation_between_siblings_market1.png
+ mode change 100755 => 100644 docs/html/design/media/navigation_between_siblings_market2.png
+ mode change 100755 => 100644 docs/html/guide/appendix/faq/troubleshooting.jd
+ mode change 100755 => 100644 docs/html/guide/google/play/billing/billing_admin.jd
+ mode change 100755 => 100644 docs/html/guide/google/play/billing/billing_best_practices.jd
+ mode change 100755 => 100644 docs/html/guide/google/play/billing/billing_integrate.jd
+ mode change 100755 => 100644 docs/html/guide/google/play/billing/billing_overview.jd
+ mode change 100755 => 100644 docs/html/guide/google/play/billing/billing_reference.jd
+ mode change 100755 => 100644 docs/html/guide/google/play/billing/billing_subscriptions.jd
+ mode change 100755 => 100644 docs/html/guide/google/play/billing/billing_testing.jd
+ mode change 100755 => 100644 docs/html/guide/google/play/billing/index.jd
+ mode change 100755 => 100644 docs/html/guide/topics/manifest/uses-configuration-element.jd
+ mode change 100755 => 100644 docs/html/guide/topics/resources/localization.jd
+ mode change 100755 => 100644 docs/html/guide/topics/resources/resources-i18n.jd
+ mode change 100755 => 100644 docs/html/guide/topics/ui/images/hello-gallery.png
+ mode change 100755 => 100644 docs/html/guide/topics/ui/images/hello-gridview.png
+ mode change 100755 => 100644 docs/html/guide/topics/ui/images/hello-linearlayout.png
+ mode change 100755 => 100644 docs/html/guide/topics/ui/images/hello-relativelayout.png
+ mode change 100755 => 100644 docs/html/guide/topics/ui/images/hello-tablelayout.png
+ mode change 100755 => 100644 docs/html/images/billing_arch.png
+ mode change 100755 => 100644 docs/html/images/billing_check_supported.png
+ mode change 100755 => 100644 docs/html/images/billing_checkout_flow.png
+ mode change 100755 => 100644 docs/html/images/billing_list_form.png
+ mode change 100755 => 100644 docs/html/images/billing_list_form_2.png
+ mode change 100755 => 100644 docs/html/images/billing_product_list.png
+ mode change 100755 => 100644 docs/html/images/billing_product_list_entry.png
+ mode change 100755 => 100644 docs/html/images/billing_public_key.png
+ mode change 100755 => 100644 docs/html/images/billing_refund.png
+ mode change 100755 => 100644 docs/html/images/billing_request_purchase.png
+ mode change 100755 => 100644 docs/html/images/billing_restore_transactions.png
+ mode change 100755 => 100644 docs/html/images/billing_test_flow.png
+ mode change 100755 => 100644 docs/html/images/custom_message.png
+ mode change 100755 => 100644 docs/html/images/custom_toast.png
+ mode change 100755 => 100644 docs/html/images/developing/developing_overview.png
+ mode change 100755 => 100644 docs/html/images/dialog_buttons.png
+ mode change 100755 => 100644 docs/html/images/dialog_custom.png
+ mode change 100755 => 100644 docs/html/images/dialog_list.png
+ mode change 100755 => 100644 docs/html/images/dialog_progress_bar.png
+ mode change 100755 => 100644 docs/html/images/dialog_progress_spinning.png
+ mode change 100755 => 100644 docs/html/images/dialog_singlechoicelist.png
+ mode change 100755 => 100644 docs/html/images/drm_arch.png
+ mode change 100755 => 100644 docs/html/images/fundamentals/fragments.graffle
+ mode change 100755 => 100644 docs/html/images/hello_l10n/copy_res_files.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/custom_locale_app.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/drawable-de-rDE/flag.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/drawable-en-rCA/flag.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/drawable-en-rUS/flag.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/drawable-fr-rCA/flag.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/drawable-fr-rFR/flag.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/drawable-ja-rJP/flag.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/flag.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/frenchCA_screenshot.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/germanCH_screenshot.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/german_screenshot.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/japanese_screenshot.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/nonlocalized_project.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/nonlocalized_screenshot1.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/nonlocalized_screenshot2.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/plain_project.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/romanshCH_screenshot.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/using_custom_locale.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/xml_file_wizard_shortcut.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/xml_wizard1.png
+ mode change 100755 => 100644 docs/html/images/hello_l10n/xml_wizard2.png
+ mode change 100755 => 100644 docs/html/images/jet/jc_audition_wnd.png
+ mode change 100755 => 100644 docs/html/images/jet/jc_event_wnd.png
+ mode change 100755 => 100644 docs/html/images/jet/jc_main_wnd.png
+ mode change 100755 => 100644 docs/html/images/jet/jc_moveseg_wnd.png
+ mode change 100755 => 100644 docs/html/images/jet/jc_open_dlg.png
+ mode change 100755 => 100644 docs/html/images/jet/jc_rep_wnd.png
+ mode change 100755 => 100644 docs/html/images/jet/jc_repseg_wnd.png
+ mode change 100755 => 100644 docs/html/images/jet/jc_seg_wnd.png
+ mode change 100755 => 100644 docs/html/images/notifications_window.png
+ mode change 100755 => 100644 docs/html/images/options_menu.png
+ mode change 100755 => 100644 docs/html/images/publishing/publishing_android_market.png
+ mode change 100755 => 100644 docs/html/images/publishing/publishing_overview.png
+ mode change 100755 => 100644 docs/html/images/publishing/publishing_overview_prep.png
+ mode change 100755 => 100644 docs/html/images/publishing/publishing_preparing.png
+ mode change 100755 => 100644 docs/html/images/publishing/publishing_via_email.png
+ mode change 100755 => 100644 docs/html/images/radio_buttons.png
+ mode change 100755 => 100644 docs/html/images/resources/arrow.png
+ mode change 100755 => 100644 docs/html/images/resources/right-arrow.png
+ mode change 100755 => 100644 docs/html/images/status_bar.png
+ mode change 100755 => 100644 docs/html/images/testing/android_test_framework.png
+ mode change 100755 => 100644 docs/html/images/training/ads-close-to-button.png
+ mode change 100755 => 100644 docs/html/images/training/ads-cover-content.png
+ mode change 100755 => 100644 docs/html/images/training/ads-eclipse-build-path.png
+ mode change 100755 => 100644 docs/html/images/training/ads-top-banner.png
+ mode change 100755 => 100644 docs/html/images/training/button.png
+ mode change 100755 => 100644 docs/html/images/training/button_with_marks.png
+ mode change 100755 => 100644 docs/html/images/training/buttons_stretched.png
+ mode change 100755 => 100644 docs/html/images/training/cool-places.png
+ mode change 100755 => 100644 docs/html/images/training/device-mgmt-activate-device-admin.png
+ mode change 100755 => 100644 docs/html/images/training/panoramio-grid.png
+ mode change 100755 => 100644 docs/html/images/ui/clipboard/copy_paste_framework.png
+ mode change 100755 => 100644 docs/html/resources/images/KeyChainDemo2.png
+ mode change 100755 => 100644 docs/html/resources/images/KeyChainDemo3.png
+ mode change 100755 => 100644 docs/html/resources/images/KeyChainDemo4.png
+ mode change 100755 => 100644 docs/html/resources/images/SipDemo.png
+ mode change 100755 => 100644 docs/html/resources/images/vpn-confirmation.png
+ mode change 100755 => 100644 docs/html/tools/publishing/publishing_overview.jd
+ mode change 100755 => 100644 docs/html/tools/testing/testing_android.jd
+ mode change 100755 => 100644 docs/html/tools/workflow/publishing/publishing_overview.jd
+ mode change 100755 => 100644 docs/html/tools/workflow/publishing_overview.jd
+ mode change 100755 => 100644 drm/java/android/drm/DrmConvertedStatus.java
+ mode change 100755 => 100644 drm/java/android/drm/DrmErrorEvent.java
+ mode change 100755 => 100644 drm/java/android/drm/DrmEvent.java
+ mode change 100755 => 100644 drm/java/android/drm/DrmInfo.java
+ mode change 100755 => 100644 drm/java/android/drm/DrmInfoEvent.java
+ mode change 100755 => 100644 drm/java/android/drm/DrmInfoRequest.java
+ mode change 100755 => 100644 drm/java/android/drm/DrmInfoStatus.java
+ mode change 100755 => 100644 drm/java/android/drm/DrmManagerClient.java
+ mode change 100755 => 100644 drm/java/android/drm/DrmRights.java
+ mode change 100755 => 100644 drm/java/android/drm/DrmStore.java
+ mode change 100755 => 100644 drm/java/android/drm/DrmSupportInfo.java
+ mode change 100755 => 100644 drm/java/android/drm/DrmUtils.java
+ mode change 100755 => 100644 drm/java/android/drm/ProcessedData.java
+ mode change 100755 => 100644 drm/java/android/drm/package.html
+ mode change 100755 => 100644 graphics/java/android/graphics/Bitmap.aidl
+ mode change 100755 => 100644 include/androidfw/KeycodeLabels.h
+ mode change 100755 => 100644 keystore/tests/src/android/security/KeyStoreTest.java
+ mode change 100755 => 100644 location/java/android/location/Country.java
+ mode change 100755 => 100644 location/java/android/location/INetInitiatedListener.aidl
+ mode change 100755 => 100644 location/java/com/android/internal/location/GpsNetInitiatedHandler.java
+ mode change 100755 => 100644 media/java/android/media/IAudioFocusDispatcher.aidl
+ mode change 100755 => 100644 media/java/android/media/audiofx/Visualizer.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/AudioTrack.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/Effect.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/EffectColor.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/EffectKenBurns.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/ExtractAudioWaveformProgressListener.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/MediaImageItem.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/MediaItem.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/MediaProperties.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/MediaVideoItem.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/Overlay.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/OverlayFrame.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/Transition.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/TransitionAlpha.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/TransitionCrossfade.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/TransitionFadeBlack.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/TransitionSliding.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/VideoEditor.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/VideoEditorFactory.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/VideoEditorImpl.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/VideoEditorProfile.java
+ mode change 100755 => 100644 media/java/android/media/videoeditor/WaveformData.java
+ mode change 100755 => 100644 media/java/android/mtp/MtpDatabase.java
+ mode change 100755 => 100644 media/jni/mediaeditor/Android.mk
+ mode change 100755 => 100644 media/jni/mediaeditor/VideoBrowserInternal.h
+ mode change 100755 => 100644 media/jni/mediaeditor/VideoBrowserMain.h
+ mode change 100755 => 100644 media/jni/mediaeditor/VideoEditorClasses.cpp
+ mode change 100755 => 100644 media/jni/mediaeditor/VideoEditorClasses.h
+ mode change 100755 => 100644 media/jni/mediaeditor/VideoEditorJava.cpp
+ mode change 100755 => 100644 media/jni/mediaeditor/VideoEditorJava.h
+ mode change 100755 => 100644 media/jni/mediaeditor/VideoEditorLogging.h
+ mode change 100755 => 100644 media/jni/mediaeditor/VideoEditorMain.cpp
+ mode change 100755 => 100644 media/jni/mediaeditor/VideoEditorOsal.cpp
+ mode change 100755 => 100644 media/jni/mediaeditor/VideoEditorOsal.h
+ mode change 100755 => 100644 media/jni/mediaeditor/VideoEditorPropertiesMain.cpp
+ mode change 100755 => 100644 media/jni/mediaeditor/VideoEditorThumbnailMain.cpp
+ mode change 100755 => 100644 media/jni/mediaeditor/VideoEditorThumbnailMain.h
+ mode change 100644 => 100755 media/mca/structgen.py
+ mode change 100755 => 100644 media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaFrameworkPerfTestRunner.java
+ mode change 100755 => 100644 media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaFrameworkPowerTestRunner.java
+ mode change 100755 => 100644 media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaFrameworkTestRunner.java
+ mode change 100755 => 100644 media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaFrameworkUnitTestRunner.java
+ mode change 100755 => 100644 media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaNames.java
+ mode change 100755 => 100644 media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaPlayerStressTestRunner.java
+ mode change 100755 => 100644 media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaRecorderStressTestRunner.java
+ mode change 100755 => 100644 media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaTestUtil.java
+ mode change 100755 => 100644 media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/functional/videoeditor/MediaItemThumbnailTest.java
+ mode change 100755 => 100644 media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/functional/videoeditor/MediaPropertiesTest.java
+ mode change 100755 => 100644 media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/functional/videoeditor/VideoEditorExportTest.java
+ mode change 100755 => 100644 media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/stress/VideoEditorStressTest.java
+ mode change 100755 => 100644 media/tests/ScoAudioTest/Android.mk
+ mode change 100755 => 100644 media/tests/ScoAudioTest/AndroidManifest.xml
+ mode change 100755 => 100644 media/tests/ScoAudioTest/res/drawable/icon.png
+ mode change 100755 => 100644 media/tests/ScoAudioTest/res/drawable/record.png
+ mode change 100755 => 100644 media/tests/ScoAudioTest/res/drawable/stop.png
+ mode change 100755 => 100644 media/tests/ScoAudioTest/res/layout/scoaudiotest.xml
+ mode change 100755 => 100644 media/tests/ScoAudioTest/res/values/strings.xml
+ mode change 100755 => 100644 media/tests/contents/media_api/goldenThumbnail.png
+ mode change 100755 => 100644 media/tests/contents/media_api/music/MP3_48KHz_128kbps_s_1_17.mp3
+ mode change 100755 => 100644 media/tests/contents/media_api/music/SHORTMP3.mp3
+ mode change 100755 => 100644 media/tests/contents/media_api/music/ants.mid
+ mode change 100755 => 100644 media/tests/contents/media_api/music/bzk_chic.wav
+ mode change 100755 => 100644 media/tests/contents/media_api/music/sine_200+1000Hz_44K_mo.wav
+ mode change 100755 => 100644 media/tests/contents/media_api/music/test_amr_ietf.amr
+ mode change 100755 => 100644 media/tests/contents/media_api/video/H263_500_AMRNB_12.3gp
+ mode change 100755 => 100644 media/tests/contents/media_api/video/H263_56_AAC_24.3gp
+ mode change 100755 => 100644 media/tests/contents/media_api/video/H263_56_AMRNB_6.3gp
+ mode change 100755 => 100644 media/tests/contents/media_api/video/H264_320_AAC_64.3gp
+ mode change 100755 => 100644 media/tests/contents/media_api/video/H264_320_AMRNB_6.3gp
+ mode change 100755 => 100644 media/tests/contents/media_api/video/H264_500_AAC_128.3gp
+ mode change 100755 => 100644 media/tests/contents/media_api/video/H264_HVGA_500_NO_AUDIO.3gp
+ mode change 100755 => 100644 media/tests/contents/media_api/video/H264_QVGA_500_NO_AUDIO.3gp
+ mode change 100755 => 100644 media/tests/contents/media_api/video/MPEG4_320_AAC_64.mp4
+ mode change 100755 => 100644 media/tests/contents/media_api/video/big-buck-bunny_trailer.webm
+ mode change 100755 => 100644 media/tests/contents/media_api/video/border_large.3gp
+ mode change 100755 => 100644 media/tests/contents/media_api/videoeditor/H264_BP_960x720_25fps_800kbps_AACLC_48Khz_192Kbps_s_1_17.mp4
+ mode change 100755 => 100644 media/tests/contents/media_api/videoeditor/IMG_640x480_Overlay2.png
+ mode change 100644 => 100755 native/copy-to-ndk.sh
+ mode change 100755 => 100644 packages/DefaultContainerService/Android.mk
+ mode change 100755 => 100644 packages/DefaultContainerService/AndroidManifest.xml
+ mode change 100755 => 100644 policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
+ mode change 100755 => 100644 services/java/com/android/server/NotificationManagerService.java
+ mode change 100755 => 100644 services/java/com/android/server/VibratorService.java
+ mode change 100755 => 100644 services/java/com/android/server/am/ActivityStack.java
+ mode change 100755 => 100644 services/java/com/android/server/am/package.html
+ mode change 100755 => 100644 services/java/com/android/server/location/ComprehensiveCountryDetector.java
+ mode change 100755 => 100644 services/java/com/android/server/location/GpsLocationProvider.java
+ mode change 100755 => 100644 services/java/com/android/server/location/LocationBasedCountryDetector.java
+ mode change 100755 => 100644 services/java/com/android/server/wm/WindowManagerService.java
+ mode change 100755 => 100644 services/jni/com_android_server_location_GpsLocationProvider.cpp
+ mode change 100755 => 100644 services/tests/servicestests/src/com/android/server/location/LocationBasedCountryDetectorTest.java
+ mode change 100755 => 100644 telephony/java/android/telephony/SignalStrength.java
+ mode change 100755 => 100644 telephony/java/android/telephony/TelephonyManager.java
+ mode change 100755 => 100644 test-runner/src/android/test/NoExecTestResult.java
+ mode change 100755 => 100644 tests/BrowserTestPlugin/res/drawable/browser_test_plugin.png
+ mode change 100755 => 100644 tests/DumpRenderTree/src/com/android/dumprendertree/LayoutTestsAutoRunner.java
+ mode change 100755 => 100644 tests/FrameworkPerf/res/drawable-161dpi/stat_sample_scale.png
+ mode change 100755 => 100644 tests/FrameworkPerf/res/drawable-hdpi/stat_happy.png
+ mode change 100755 => 100644 tests/FrameworkPerf/res/drawable-nodpi/stat_sample.png
+ mode change 100755 => 100644 tests/GridLayoutTest/src/com/android/test/layout/AlignmentTest.java
+ mode change 100755 => 100644 tests/ImfTest/Android.mk
+ mode change 100755 => 100644 tests/ImfTest/AndroidManifest.xml
+ mode change 100755 => 100644 tests/ImfTest/res/layout/full_screen_edit_text.xml
+ mode change 100755 => 100644 tests/ImfTest/res/layout/one_edit_text_activity.xml
+ mode change 100755 => 100644 tests/ImfTest/res/layout/sample_edit_text.xml
+ mode change 100755 => 100644 tests/ImfTest/res/values/strings.xml
+ mode change 100755 => 100644 tests/ImfTest/src/com/android/imftest/samples/InputTypeActivity.java
+ mode change 100755 => 100644 tests/ImfTest/tests/Android.mk
+ mode change 100755 => 100644 tests/ImfTest/tests/AndroidManifest.xml
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/BigEditTextActivityNonScrollablePanScanTests.java
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/BigEditTextActivityNonScrollableResizeTests.java
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/BigEditTextActivityScrollablePanScanTests.java
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/BigEditTextActivityScrollableResizeTests.java
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/BottomEditTextActivityPanScanTests.java
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/BottomEditTextActivityResizeTests.java
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/ButtonActivityTest.java
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/ImfBaseTestCase.java
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/ManyEditTextActivityBaseTestCase.java
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/ManyEditTextActivityNoScrollPanScanTests.java
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/ManyEditTextActivityScrollPanScanTests.java
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/ManyEditTextActivityScrollResizeTests.java
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/OneEditTextActivityNotSelectedTests.java
+ mode change 100755 => 100644 tests/ImfTest/tests/src/com/android/imftest/samples/OneEditTextActivitySelectedTests.java
+ mode change 100755 => 100644 tests/LocationTracker/res/xml/preferences.xml
+ mode change 100755 => 100644 tests/LocationTracker/src/com/android/locationtracker/SettingsActivity.java
+ mode change 100755 => 100644 tests/RenderScriptTests/PerfTest/res/drawable-nodpi/globe.png
+ mode change 100755 => 100644 tools/aidl/AST.cpp
+ mode change 100755 => 100644 tools/aidl/AST.h
+ mode change 100755 => 100644 tools/aidl/Type.cpp
+ mode change 100755 => 100644 tools/aidl/Type.h
+ mode change 100755 => 100644 tools/layoutlib/bridge/src/android/util/Log_Delegate.java
+ mode change 100755 => 100644 tools/layoutlib/create/src/com/android/tools/layoutlib/annotations/Nullable.java
+ mode change 100755 => 100644 tools/layoutlib/create/src/com/android/tools/layoutlib/annotations/VisibleForTesting.java
+ mode change 100755 => 100644 tools/layoutlib/create/src/com/android/tools/layoutlib/create/DependencyFinder.java
+
+diff --git a/cmds/input/src/com/android/commands/input/Input.java b/cmds/input/src/com/android/commands/input/Input.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/animation/ValueAnimator.java b/core/java/android/animation/ValueAnimator.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/app/IAlarmManager.aidl b/core/java/android/app/IAlarmManager.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/app/IThumbnailReceiver.aidl b/core/java/android/app/IThumbnailReceiver.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/app/admin/DevicePolicyManager.java b/core/java/android/app/admin/DevicePolicyManager.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/appwidget/AppWidgetProvider.java b/core/java/android/appwidget/AppWidgetProvider.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/content/IIntentReceiver.aidl b/core/java/android/content/IIntentReceiver.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/content/res/Configuration.aidl b/core/java/android/content/res/Configuration.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/content/res/ObbInfo.aidl b/core/java/android/content/res/ObbInfo.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/content/res/Resources.java b/core/java/android/content/res/Resources.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/database/IContentObserver.aidl b/core/java/android/database/IContentObserver.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/ddm/package.html b/core/java/android/ddm/package.html
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/debug/package.html b/core/java/android/debug/package.html
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/gesture/Gesture.java b/core/java/android/gesture/Gesture.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/gesture/GestureOverlayView.java b/core/java/android/gesture/GestureOverlayView.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/gesture/GestureUtils.java b/core/java/android/gesture/GestureUtils.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/gesture/Instance.java b/core/java/android/gesture/Instance.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/gesture/Learner.java b/core/java/android/gesture/Learner.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/gesture/Prediction.java b/core/java/android/gesture/Prediction.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/hardware/input/InputManager.java b/core/java/android/hardware/input/InputManager.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/net/Uri.aidl b/core/java/android/net/Uri.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/net/http/package.html b/core/java/android/net/http/package.html
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/net/package.html b/core/java/android/net/package.html
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/os/IHardwareService.aidl b/core/java/android/os/IHardwareService.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/os/IVibratorService.aidl b/core/java/android/os/IVibratorService.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/os/TokenWatcher.java b/core/java/android/os/TokenWatcher.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/provider/ContactsContract.java b/core/java/android/provider/ContactsContract.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/server/BluetoothService.java b/core/java/android/server/BluetoothService.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/server/package.html b/core/java/android/server/package.html
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/speech/tts/ITextToSpeechCallback.aidl b/core/java/android/speech/tts/ITextToSpeechCallback.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/speech/tts/TextToSpeech.java b/core/java/android/speech/tts/TextToSpeech.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/view/InputDevice.java b/core/java/android/view/InputDevice.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/view/InputEvent.java b/core/java/android/view/InputEvent.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/view/KeyEvent.java b/core/java/android/view/KeyEvent.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/view/OrientationEventListener.java b/core/java/android/view/OrientationEventListener.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/view/WindowManager.aidl b/core/java/android/view/WindowManager.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/view/WindowOrientationListener.java b/core/java/android/view/WindowOrientationListener.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/view/animation/package.html b/core/java/android/view/animation/package.html
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/webkit/DeviceMotionService.java b/core/java/android/webkit/DeviceMotionService.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/webkit/DeviceOrientationService.java b/core/java/android/webkit/DeviceOrientationService.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/webkit/GeolocationPermissions.java b/core/java/android/webkit/GeolocationPermissions.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/webkit/GeolocationPermissionsClassic.java b/core/java/android/webkit/GeolocationPermissionsClassic.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/webkit/GeolocationService.java b/core/java/android/webkit/GeolocationService.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/android/widget/AppSecurityPermissions.java b/core/java/android/widget/AppSecurityPermissions.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/com/android/internal/app/IMediaContainerService.aidl b/core/java/com/android/internal/app/IMediaContainerService.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/com/android/internal/app/IUsageStats.aidl b/core/java/com/android/internal/app/IUsageStats.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/com/android/internal/app/NetInitiatedActivity.java b/core/java/com/android/internal/app/NetInitiatedActivity.java
+old mode 100755
+new mode 100644
+diff --git a/core/java/com/android/internal/os/PkgUsageStats.aidl b/core/java/com/android/internal/os/PkgUsageStats.aidl
+old mode 100755
+new mode 100644
+diff --git a/core/java/com/android/internal/os/PkgUsageStats.java b/core/java/com/android/internal/os/PkgUsageStats.java
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-en-hdpi/sym_keyboard_delete.png b/core/res/res/drawable-en-hdpi/sym_keyboard_delete.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_circle_disable.png b/core/res/res/drawable-hdpi/btn_circle_disable.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_circle_disable_focused.png b/core/res/res/drawable-hdpi/btn_circle_disable_focused.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_circle_normal.png b/core/res/res/drawable-hdpi/btn_circle_normal.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_circle_pressed.png b/core/res/res/drawable-hdpi/btn_circle_pressed.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_circle_selected.png b/core/res/res/drawable-hdpi/btn_circle_selected.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_close_normal.png b/core/res/res/drawable-hdpi/btn_close_normal.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_close_pressed.png b/core/res/res/drawable-hdpi/btn_close_pressed.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_close_selected.png b/core/res/res/drawable-hdpi/btn_close_selected.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_default_normal.9.png b/core/res/res/drawable-hdpi/btn_default_normal.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_default_normal_disable.9.png b/core/res/res/drawable-hdpi/btn_default_normal_disable.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_default_normal_disable_focused.9.png b/core/res/res/drawable-hdpi/btn_default_normal_disable_focused.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_default_pressed.9.png b/core/res/res/drawable-hdpi/btn_default_pressed.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_default_selected.9.png b/core/res/res/drawable-hdpi/btn_default_selected.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_default_small_normal.9.png b/core/res/res/drawable-hdpi/btn_default_small_normal.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_default_small_normal_disable.9.png b/core/res/res/drawable-hdpi/btn_default_small_normal_disable.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_default_small_normal_disable_focused.9.png b/core/res/res/drawable-hdpi/btn_default_small_normal_disable_focused.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_default_small_pressed.9.png b/core/res/res/drawable-hdpi/btn_default_small_pressed.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_default_small_selected.9.png b/core/res/res/drawable-hdpi/btn_default_small_selected.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_dialog_disable.png b/core/res/res/drawable-hdpi/btn_dialog_disable.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_dialog_normal.png b/core/res/res/drawable-hdpi/btn_dialog_normal.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_dialog_pressed.png b/core/res/res/drawable-hdpi/btn_dialog_pressed.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_dialog_selected.png b/core/res/res/drawable-hdpi/btn_dialog_selected.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_dropdown_normal.9.png b/core/res/res/drawable-hdpi/btn_dropdown_normal.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_dropdown_pressed.9.png b/core/res/res/drawable-hdpi/btn_dropdown_pressed.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_dropdown_selected.9.png b/core/res/res/drawable-hdpi/btn_dropdown_selected.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_radio_off.png b/core/res/res/drawable-hdpi/btn_radio_off.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_radio_off_pressed.png b/core/res/res/drawable-hdpi/btn_radio_off_pressed.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_radio_off_selected.png b/core/res/res/drawable-hdpi/btn_radio_off_selected.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_radio_on.png b/core/res/res/drawable-hdpi/btn_radio_on.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_radio_on_pressed.png b/core/res/res/drawable-hdpi/btn_radio_on_pressed.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/btn_radio_on_selected.png b/core/res/res/drawable-hdpi/btn_radio_on_selected.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/contact_header_bg.9.png b/core/res/res/drawable-hdpi/contact_header_bg.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/ic_btn_round_more_disabled.png b/core/res/res/drawable-hdpi/ic_btn_round_more_disabled.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/ic_btn_round_more_normal.png b/core/res/res/drawable-hdpi/ic_btn_round_more_normal.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/ic_contact_picture_2.png b/core/res/res/drawable-hdpi/ic_contact_picture_2.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/ic_contact_picture_3.png b/core/res/res/drawable-hdpi/ic_contact_picture_3.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/ic_jog_dial_sound_off.png b/core/res/res/drawable-hdpi/ic_jog_dial_sound_off.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/ic_jog_dial_sound_on.png b/core/res/res/drawable-hdpi/ic_jog_dial_sound_on.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/ic_jog_dial_unlock.png b/core/res/res/drawable-hdpi/ic_jog_dial_unlock.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/ic_settings_language.png b/core/res/res/drawable-hdpi/ic_settings_language.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_dial_arrow_long_left_green.png b/core/res/res/drawable-hdpi/jog_dial_arrow_long_left_green.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_dial_arrow_long_left_yellow.png b/core/res/res/drawable-hdpi/jog_dial_arrow_long_left_yellow.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_dial_arrow_long_middle_yellow.png b/core/res/res/drawable-hdpi/jog_dial_arrow_long_middle_yellow.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_dial_arrow_long_right_red.png b/core/res/res/drawable-hdpi/jog_dial_arrow_long_right_red.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_dial_arrow_long_right_yellow.png b/core/res/res/drawable-hdpi/jog_dial_arrow_long_right_yellow.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_dial_arrow_short_left.png b/core/res/res/drawable-hdpi/jog_dial_arrow_short_left.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_dial_arrow_short_left_and_right.png b/core/res/res/drawable-hdpi/jog_dial_arrow_short_left_and_right.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_dial_arrow_short_right.png b/core/res/res/drawable-hdpi/jog_dial_arrow_short_right.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_dial_bg.png b/core/res/res/drawable-hdpi/jog_dial_bg.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_dial_dimple.png b/core/res/res/drawable-hdpi/jog_dial_dimple.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_tab_left_confirm_gray.png b/core/res/res/drawable-hdpi/jog_tab_left_confirm_gray.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_tab_left_confirm_green.png b/core/res/res/drawable-hdpi/jog_tab_left_confirm_green.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_tab_left_confirm_red.png b/core/res/res/drawable-hdpi/jog_tab_left_confirm_red.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_tab_left_confirm_yellow.png b/core/res/res/drawable-hdpi/jog_tab_left_confirm_yellow.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_tab_left_pressed.png b/core/res/res/drawable-hdpi/jog_tab_left_pressed.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_tab_right_confirm_gray.png b/core/res/res/drawable-hdpi/jog_tab_right_confirm_gray.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_tab_right_confirm_green.png b/core/res/res/drawable-hdpi/jog_tab_right_confirm_green.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_tab_right_confirm_red.png b/core/res/res/drawable-hdpi/jog_tab_right_confirm_red.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_tab_right_confirm_yellow.png b/core/res/res/drawable-hdpi/jog_tab_right_confirm_yellow.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/jog_tab_right_pressed.png b/core/res/res/drawable-hdpi/jog_tab_right_pressed.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/progressbar_indeterminate1.png b/core/res/res/drawable-hdpi/progressbar_indeterminate1.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/progressbar_indeterminate2.png b/core/res/res/drawable-hdpi/progressbar_indeterminate2.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/progressbar_indeterminate3.png b/core/res/res/drawable-hdpi/progressbar_indeterminate3.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_notify_more.png b/core/res/res/drawable-hdpi/stat_notify_more.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_battery_10.png b/core/res/res/drawable-hdpi/stat_sys_battery_10.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_battery_20.png b/core/res/res/drawable-hdpi/stat_sys_battery_20.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_battery_40.png b/core/res/res/drawable-hdpi/stat_sys_battery_40.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_battery_60.png b/core/res/res/drawable-hdpi/stat_sys_battery_60.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_battery_80.png b/core/res/res/drawable-hdpi/stat_sys_battery_80.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_battery_charge_anim1.png b/core/res/res/drawable-hdpi/stat_sys_battery_charge_anim1.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_battery_charge_anim2.png b/core/res/res/drawable-hdpi/stat_sys_battery_charge_anim2.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_battery_charge_anim3.png b/core/res/res/drawable-hdpi/stat_sys_battery_charge_anim3.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_battery_charge_anim4.png b/core/res/res/drawable-hdpi/stat_sys_battery_charge_anim4.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_battery_charge_anim5.png b/core/res/res/drawable-hdpi/stat_sys_battery_charge_anim5.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_phone_call.png b/core/res/res/drawable-hdpi/stat_sys_phone_call.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_phone_call_forward.png b/core/res/res/drawable-hdpi/stat_sys_phone_call_forward.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_phone_call_on_hold.png b/core/res/res/drawable-hdpi/stat_sys_phone_call_on_hold.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_r_signal_3_cdma.png b/core/res/res/drawable-hdpi/stat_sys_r_signal_3_cdma.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_ra_signal_0_cdma.png b/core/res/res/drawable-hdpi/stat_sys_ra_signal_0_cdma.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_ra_signal_1_cdma.png b/core/res/res/drawable-hdpi/stat_sys_ra_signal_1_cdma.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_ra_signal_2_cdma.png b/core/res/res/drawable-hdpi/stat_sys_ra_signal_2_cdma.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_ra_signal_4_cdma.png b/core/res/res/drawable-hdpi/stat_sys_ra_signal_4_cdma.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_signal_0_cdma.png b/core/res/res/drawable-hdpi/stat_sys_signal_0_cdma.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_signal_1_cdma.png b/core/res/res/drawable-hdpi/stat_sys_signal_1_cdma.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_signal_2_cdma.png b/core/res/res/drawable-hdpi/stat_sys_signal_2_cdma.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_signal_3_cdma.png b/core/res/res/drawable-hdpi/stat_sys_signal_3_cdma.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_signal_4_cdma.png b/core/res/res/drawable-hdpi/stat_sys_signal_4_cdma.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_signal_evdo_0.png b/core/res/res/drawable-hdpi/stat_sys_signal_evdo_0.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_signal_evdo_1.png b/core/res/res/drawable-hdpi/stat_sys_signal_evdo_1.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_signal_evdo_2.png b/core/res/res/drawable-hdpi/stat_sys_signal_evdo_2.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_signal_evdo_3.png b/core/res/res/drawable-hdpi/stat_sys_signal_evdo_3.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_signal_evdo_4.png b/core/res/res/drawable-hdpi/stat_sys_signal_evdo_4.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_vp_phone_call.png b/core/res/res/drawable-hdpi/stat_sys_vp_phone_call.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/stat_sys_vp_phone_call_on_hold.png b/core/res/res/drawable-hdpi/stat_sys_vp_phone_call_on_hold.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_delete.png b/core/res/res/drawable-hdpi/sym_keyboard_delete.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_feedback_delete.png b/core/res/res/drawable-hdpi/sym_keyboard_feedback_delete.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_feedback_return.png b/core/res/res/drawable-hdpi/sym_keyboard_feedback_return.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_feedback_shift.png b/core/res/res/drawable-hdpi/sym_keyboard_feedback_shift.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_feedback_shift_locked.png b/core/res/res/drawable-hdpi/sym_keyboard_feedback_shift_locked.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_feedback_space.png b/core/res/res/drawable-hdpi/sym_keyboard_feedback_space.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_num1.png b/core/res/res/drawable-hdpi/sym_keyboard_num1.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_num2.png b/core/res/res/drawable-hdpi/sym_keyboard_num2.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_num3.png b/core/res/res/drawable-hdpi/sym_keyboard_num3.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_num4.png b/core/res/res/drawable-hdpi/sym_keyboard_num4.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_num5.png b/core/res/res/drawable-hdpi/sym_keyboard_num5.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_num6.png b/core/res/res/drawable-hdpi/sym_keyboard_num6.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_num7.png b/core/res/res/drawable-hdpi/sym_keyboard_num7.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_num8.png b/core/res/res/drawable-hdpi/sym_keyboard_num8.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_num9.png b/core/res/res/drawable-hdpi/sym_keyboard_num9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_return.png b/core/res/res/drawable-hdpi/sym_keyboard_return.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_shift.png b/core/res/res/drawable-hdpi/sym_keyboard_shift.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_shift_locked.png b/core/res/res/drawable-hdpi/sym_keyboard_shift_locked.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/sym_keyboard_space.png b/core/res/res/drawable-hdpi/sym_keyboard_space.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/textfield_default.9.png b/core/res/res/drawable-hdpi/textfield_default.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/textfield_disabled.9.png b/core/res/res/drawable-hdpi/textfield_disabled.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/textfield_disabled_selected.9.png b/core/res/res/drawable-hdpi/textfield_disabled_selected.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-hdpi/textfield_selected.9.png b/core/res/res/drawable-hdpi/textfield_selected.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-ldpi/tab_focus_bar_left.9.png b/core/res/res/drawable-ldpi/tab_focus_bar_left.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-ldpi/tab_focus_bar_right.9.png b/core/res/res/drawable-ldpi/tab_focus_bar_right.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-ldpi/tab_press_bar_left.9.png b/core/res/res/drawable-ldpi/tab_press_bar_left.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-ldpi/tab_press_bar_right.9.png b/core/res/res/drawable-ldpi/tab_press_bar_right.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-ldpi/tab_selected_bar_left.9.png b/core/res/res/drawable-ldpi/tab_selected_bar_left.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-ldpi/tab_selected_bar_right.9.png b/core/res/res/drawable-ldpi/tab_selected_bar_right.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_check_buttonless_off.png b/core/res/res/drawable-mdpi/btn_check_buttonless_off.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_check_buttonless_on.png b/core/res/res/drawable-mdpi/btn_check_buttonless_on.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_dialog_disable.png b/core/res/res/drawable-mdpi/btn_dialog_disable.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_dialog_normal.png b/core/res/res/drawable-mdpi/btn_dialog_normal.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_dialog_pressed.png b/core/res/res/drawable-mdpi/btn_dialog_pressed.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_dialog_selected.png b/core/res/res/drawable-mdpi/btn_dialog_selected.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_erase_default.9.png b/core/res/res/drawable-mdpi/btn_erase_default.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_erase_pressed.9.png b/core/res/res/drawable-mdpi/btn_erase_pressed.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_erase_selected.9.png b/core/res/res/drawable-mdpi/btn_erase_selected.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_keyboard_key_pressed.9.png b/core/res/res/drawable-mdpi/btn_keyboard_key_pressed.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_media_player.9.png b/core/res/res/drawable-mdpi/btn_media_player.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_media_player_disabled.9.png b/core/res/res/drawable-mdpi/btn_media_player_disabled.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_media_player_disabled_selected.9.png b/core/res/res/drawable-mdpi/btn_media_player_disabled_selected.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_media_player_pressed.9.png b/core/res/res/drawable-mdpi/btn_media_player_pressed.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_media_player_selected.9.png b/core/res/res/drawable-mdpi/btn_media_player_selected.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_star_big_off.png b/core/res/res/drawable-mdpi/btn_star_big_off.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_star_big_off_disable.png b/core/res/res/drawable-mdpi/btn_star_big_off_disable.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_star_big_off_disable_focused.png b/core/res/res/drawable-mdpi/btn_star_big_off_disable_focused.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_star_big_off_pressed.png b/core/res/res/drawable-mdpi/btn_star_big_off_pressed.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_star_big_off_selected.png b/core/res/res/drawable-mdpi/btn_star_big_off_selected.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_star_big_on.png b/core/res/res/drawable-mdpi/btn_star_big_on.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_star_big_on_disable.png b/core/res/res/drawable-mdpi/btn_star_big_on_disable.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_star_big_on_disable_focused.png b/core/res/res/drawable-mdpi/btn_star_big_on_disable_focused.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_star_big_on_pressed.png b/core/res/res/drawable-mdpi/btn_star_big_on_pressed.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/btn_star_big_on_selected.png b/core/res/res/drawable-mdpi/btn_star_big_on_selected.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/dialog_divider_horizontal_light.9.png b/core/res/res/drawable-mdpi/dialog_divider_horizontal_light.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/frame_gallery_thumb.9.png b/core/res/res/drawable-mdpi/frame_gallery_thumb.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/frame_gallery_thumb_pressed.9.png b/core/res/res/drawable-mdpi/frame_gallery_thumb_pressed.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/frame_gallery_thumb_selected.9.png b/core/res/res/drawable-mdpi/frame_gallery_thumb_selected.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/gallery_selected_default.9.png b/core/res/res/drawable-mdpi/gallery_selected_default.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/gallery_selected_focused.9.png b/core/res/res/drawable-mdpi/gallery_selected_focused.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/gallery_selected_pressed.9.png b/core/res/res/drawable-mdpi/gallery_selected_pressed.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/gallery_unselected_default.9.png b/core/res/res/drawable-mdpi/gallery_unselected_default.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_dialog_info.png b/core/res/res/drawable-mdpi/ic_dialog_info.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_dialog_time.png b/core/res/res/drawable-mdpi/ic_dialog_time.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_jog_dial_unlock.png b/core/res/res/drawable-mdpi/ic_jog_dial_unlock.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_lock_idle_charging.png b/core/res/res/drawable-mdpi/ic_lock_idle_charging.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_lock_idle_lock.png b/core/res/res/drawable-mdpi/ic_lock_idle_lock.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_lock_idle_low_battery.png b/core/res/res/drawable-mdpi/ic_lock_idle_low_battery.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_media_video_poster.png b/core/res/res/drawable-mdpi/ic_media_video_poster.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_add.png b/core/res/res/drawable-mdpi/ic_menu_add.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_agenda.png b/core/res/res/drawable-mdpi/ic_menu_agenda.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_allfriends.png b/core/res/res/drawable-mdpi/ic_menu_allfriends.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_camera.png b/core/res/res/drawable-mdpi/ic_menu_camera.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_crop.png b/core/res/res/drawable-mdpi/ic_menu_crop.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_day.png b/core/res/res/drawable-mdpi/ic_menu_day.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_delete.png b/core/res/res/drawable-mdpi/ic_menu_delete.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_directions.png b/core/res/res/drawable-mdpi/ic_menu_directions.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_edit.png b/core/res/res/drawable-mdpi/ic_menu_edit.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_gallery.png b/core/res/res/drawable-mdpi/ic_menu_gallery.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_info_details.png b/core/res/res/drawable-mdpi/ic_menu_info_details.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_manage.png b/core/res/res/drawable-mdpi/ic_menu_manage.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_month.png b/core/res/res/drawable-mdpi/ic_menu_month.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_my_calendar.png b/core/res/res/drawable-mdpi/ic_menu_my_calendar.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_mylocation.png b/core/res/res/drawable-mdpi/ic_menu_mylocation.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_rotate.png b/core/res/res/drawable-mdpi/ic_menu_rotate.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_search.png b/core/res/res/drawable-mdpi/ic_menu_search.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_search_holo_dark.png b/core/res/res/drawable-mdpi/ic_menu_search_holo_dark.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_send.png b/core/res/res/drawable-mdpi/ic_menu_send.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_set_as.png b/core/res/res/drawable-mdpi/ic_menu_set_as.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_share.png b/core/res/res/drawable-mdpi/ic_menu_share.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_sort_by_size.png b/core/res/res/drawable-mdpi/ic_menu_sort_by_size.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_star.png b/core/res/res/drawable-mdpi/ic_menu_star.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_today.png b/core/res/res/drawable-mdpi/ic_menu_today.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_upload.png b/core/res/res/drawable-mdpi/ic_menu_upload.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_upload_you_tube.png b/core/res/res/drawable-mdpi/ic_menu_upload_you_tube.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_view.png b/core/res/res/drawable-mdpi/ic_menu_view.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_menu_week.png b/core/res/res/drawable-mdpi/ic_menu_week.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_popup_reminder.png b/core/res/res/drawable-mdpi/ic_popup_reminder.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/ic_search_category_default.png b/core/res/res/drawable-mdpi/ic_search_category_default.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/indicator_input_error.png b/core/res/res/drawable-mdpi/indicator_input_error.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_dial_arrow_long_left_green.png b/core/res/res/drawable-mdpi/jog_dial_arrow_long_left_green.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_dial_arrow_long_left_yellow.png b/core/res/res/drawable-mdpi/jog_dial_arrow_long_left_yellow.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_dial_arrow_long_middle_yellow.png b/core/res/res/drawable-mdpi/jog_dial_arrow_long_middle_yellow.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_dial_arrow_long_right_red.png b/core/res/res/drawable-mdpi/jog_dial_arrow_long_right_red.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_dial_arrow_long_right_yellow.png b/core/res/res/drawable-mdpi/jog_dial_arrow_long_right_yellow.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_dial_arrow_short_left.png b/core/res/res/drawable-mdpi/jog_dial_arrow_short_left.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_dial_arrow_short_left_and_right.png b/core/res/res/drawable-mdpi/jog_dial_arrow_short_left_and_right.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_dial_arrow_short_right.png b/core/res/res/drawable-mdpi/jog_dial_arrow_short_right.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_dial_bg.png b/core/res/res/drawable-mdpi/jog_dial_bg.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_dial_dimple.png b/core/res/res/drawable-mdpi/jog_dial_dimple.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_tab_left_confirm_gray.png b/core/res/res/drawable-mdpi/jog_tab_left_confirm_gray.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_tab_left_confirm_green.png b/core/res/res/drawable-mdpi/jog_tab_left_confirm_green.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_tab_left_confirm_yellow.png b/core/res/res/drawable-mdpi/jog_tab_left_confirm_yellow.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_tab_left_normal.png b/core/res/res/drawable-mdpi/jog_tab_left_normal.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_tab_left_pressed.png b/core/res/res/drawable-mdpi/jog_tab_left_pressed.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_tab_right_confirm_gray.png b/core/res/res/drawable-mdpi/jog_tab_right_confirm_gray.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_tab_right_confirm_green.png b/core/res/res/drawable-mdpi/jog_tab_right_confirm_green.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_tab_right_confirm_yellow.png b/core/res/res/drawable-mdpi/jog_tab_right_confirm_yellow.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_tab_right_normal.png b/core/res/res/drawable-mdpi/jog_tab_right_normal.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/jog_tab_right_pressed.png b/core/res/res/drawable-mdpi/jog_tab_right_pressed.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/keyboard_key_feedback_more_background.9.png b/core/res/res/drawable-mdpi/keyboard_key_feedback_more_background.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_down_disabled.9.png b/core/res/res/drawable-mdpi/numberpicker_down_disabled.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_down_disabled_focused.9.png b/core/res/res/drawable-mdpi/numberpicker_down_disabled_focused.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_down_normal.9.png b/core/res/res/drawable-mdpi/numberpicker_down_normal.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_down_pressed.9.png b/core/res/res/drawable-mdpi/numberpicker_down_pressed.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_down_selected.9.png b/core/res/res/drawable-mdpi/numberpicker_down_selected.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_input_disabled.9.png b/core/res/res/drawable-mdpi/numberpicker_input_disabled.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_input_normal.9.png b/core/res/res/drawable-mdpi/numberpicker_input_normal.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_input_pressed.9.png b/core/res/res/drawable-mdpi/numberpicker_input_pressed.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_input_selected.9.png b/core/res/res/drawable-mdpi/numberpicker_input_selected.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_up_disabled.9.png b/core/res/res/drawable-mdpi/numberpicker_up_disabled.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_up_disabled_focused.9.png b/core/res/res/drawable-mdpi/numberpicker_up_disabled_focused.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_up_normal.9.png b/core/res/res/drawable-mdpi/numberpicker_up_normal.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_up_pressed.9.png b/core/res/res/drawable-mdpi/numberpicker_up_pressed.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/numberpicker_up_selected.9.png b/core/res/res/drawable-mdpi/numberpicker_up_selected.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/scrollbar_handle_horizontal.9.png b/core/res/res/drawable-mdpi/scrollbar_handle_horizontal.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/scrollbar_handle_vertical.9.png b/core/res/res/drawable-mdpi/scrollbar_handle_vertical.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/search_plate.9.png b/core/res/res/drawable-mdpi/search_plate.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/spinner_black_20.png b/core/res/res/drawable-mdpi/spinner_black_20.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/sym_keyboard_feedback_shift_locked.png b/core/res/res/drawable-mdpi/sym_keyboard_feedback_shift_locked.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/tab_focus.9.png b/core/res/res/drawable-mdpi/tab_focus.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/tab_focus_bar_left.9.png b/core/res/res/drawable-mdpi/tab_focus_bar_left.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/tab_focus_bar_right.9.png b/core/res/res/drawable-mdpi/tab_focus_bar_right.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/tab_press.9.png b/core/res/res/drawable-mdpi/tab_press.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/tab_press_bar_left.9.png b/core/res/res/drawable-mdpi/tab_press_bar_left.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/tab_press_bar_right.9.png b/core/res/res/drawable-mdpi/tab_press_bar_right.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/tab_selected_bar_left.9.png b/core/res/res/drawable-mdpi/tab_selected_bar_left.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/tab_selected_bar_right.9.png b/core/res/res/drawable-mdpi/tab_selected_bar_right.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/textfield_search_default.9.png b/core/res/res/drawable-mdpi/textfield_search_default.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/textfield_search_selected.9.png b/core/res/res/drawable-mdpi/textfield_search_selected.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/drawable-mdpi/toast_frame.9.png b/core/res/res/drawable-mdpi/toast_frame.9.png
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/layout/app_perms_summary.xml b/core/res/res/layout/app_perms_summary.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/raw/fallbackring.ogg b/core/res/res/raw/fallbackring.ogg
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values-mcc208-mnc01/config.xml b/core/res/res/values-mcc208-mnc01/config.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values-mcc208-mnc10/config.xml b/core/res/res/values-mcc208-mnc10/config.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values-mcc214-mnc03/config.xml b/core/res/res/values-mcc214-mnc03/config.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values-mcc214-mnc07/config.xml b/core/res/res/values-mcc214-mnc07/config.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values-mcc222-mnc01/config.xml b/core/res/res/values-mcc222-mnc01/config.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values-mcc222-mnc10/config.xml b/core/res/res/values-mcc222-mnc10/config.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values-mcc234-mnc33/config.xml b/core/res/res/values-mcc234-mnc33/config.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values-mcc302-mnc370/config.xml b/core/res/res/values-mcc302-mnc370/config.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values-mcc302-mnc660/config.xml b/core/res/res/values-mcc302-mnc660/config.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values-mcc302-mnc720/config.xml b/core/res/res/values-mcc302-mnc720/config.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values-mcc340-mnc01/config.xml b/core/res/res/values-mcc340-mnc01/config.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values/attrs.xml b/core/res/res/values/attrs.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values/config.xml b/core/res/res/values/config.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/values/strings.xml b/core/res/res/values/strings.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml-land/password_kbd_qwerty.xml b/core/res/res/xml-land/password_kbd_qwerty.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml-land/password_kbd_qwerty_shifted.xml b/core/res/res/xml-land/password_kbd_qwerty_shifted.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml-mdpi/password_kbd_qwerty.xml b/core/res/res/xml-mdpi/password_kbd_qwerty.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml-mdpi/password_kbd_qwerty_shifted.xml b/core/res/res/xml-mdpi/password_kbd_qwerty_shifted.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml-xlarge/password_kbd_numeric.xml b/core/res/res/xml-xlarge/password_kbd_numeric.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml-xlarge/password_kbd_qwerty.xml b/core/res/res/xml-xlarge/password_kbd_qwerty.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml-xlarge/password_kbd_qwerty_shifted.xml b/core/res/res/xml-xlarge/password_kbd_qwerty_shifted.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml-xlarge/password_kbd_symbols.xml b/core/res/res/xml-xlarge/password_kbd_symbols.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml-xlarge/password_kbd_symbols_shift.xml b/core/res/res/xml-xlarge/password_kbd_symbols_shift.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml/password_kbd_extension.xml b/core/res/res/xml/password_kbd_extension.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml/password_kbd_numeric.xml b/core/res/res/xml/password_kbd_numeric.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml/password_kbd_qwerty.xml b/core/res/res/xml/password_kbd_qwerty.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml/password_kbd_qwerty_shifted.xml b/core/res/res/xml/password_kbd_qwerty_shifted.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml/password_kbd_symbols.xml b/core/res/res/xml/password_kbd_symbols.xml
+old mode 100755
+new mode 100644
+diff --git a/core/res/res/xml/password_kbd_symbols_shift.xml b/core/res/res/xml/password_kbd_symbols_shift.xml
+old mode 100755
+new mode 100644
+diff --git a/core/tests/ConnectivityManagerTest/assets/accesspoints.xml b/core/tests/ConnectivityManagerTest/assets/accesspoints.xml
+old mode 100755
+new mode 100644
+diff --git a/core/tests/coretests/src/android/content/pm/AppCacheTest.java b/core/tests/coretests/src/android/content/pm/AppCacheTest.java
+old mode 100755
+new mode 100644
+diff --git a/core/tests/coretests/src/android/content/pm/PackageManagerTests.java b/core/tests/coretests/src/android/content/pm/PackageManagerTests.java
+old mode 100755
+new mode 100644
+diff --git a/core/tests/coretests/src/android/os/storage/AsecTests.java b/core/tests/coretests/src/android/os/storage/AsecTests.java
+old mode 100755
+new mode 100644
+diff --git a/data/fonts/DroidSansJapanese.ttf b/data/fonts/DroidSansJapanese.ttf
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/AudioPackage5.mk b/data/sounds/AudioPackage5.mk
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/AudioPackage6.mk b/data/sounds/AudioPackage6.mk
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/AudioPackage7.mk b/data/sounds/AudioPackage7.mk
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/AudioPackage7alt.mk b/data/sounds/AudioPackage7alt.mk
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/alarms/ogg-jp/Argon.ogg b/data/sounds/alarms/ogg-jp/Argon.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/alarms/ogg-jp/Carbon.ogg b/data/sounds/alarms/ogg-jp/Carbon.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/alarms/ogg-jp/Helium.ogg b/data/sounds/alarms/ogg-jp/Helium.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/alarms/ogg-jp/Krypton.ogg b/data/sounds/alarms/ogg-jp/Krypton.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/alarms/ogg-jp/Neon.ogg b/data/sounds/alarms/ogg-jp/Neon.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/alarms/ogg-jp/Oxygen.ogg b/data/sounds/alarms/ogg-jp/Oxygen.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/effects/ogg/KeypressDelete.ogg b/data/sounds/effects/ogg/KeypressDelete.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/effects/ogg/KeypressReturn.ogg b/data/sounds/effects/ogg/KeypressReturn.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/effects/ogg/KeypressSpacebar.ogg b/data/sounds/effects/ogg/KeypressSpacebar.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/effects/ogg/KeypressStandard.ogg b/data/sounds/effects/ogg/KeypressStandard.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/aidos.ogg b/data/sounds/notifications/aidos.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/circios.ogg b/data/sounds/notifications/circios.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/horkos.ogg b/data/sounds/notifications/horkos.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/hypnos1.ogg b/data/sounds/notifications/hypnos1.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/kratos1.ogg b/data/sounds/notifications/kratos1.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/kratos2.ogg b/data/sounds/notifications/kratos2.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/nomos1.ogg b/data/sounds/notifications/nomos1.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/nomos2.ogg b/data/sounds/notifications/nomos2.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Adara.ogg b/data/sounds/notifications/ogg/Adara.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Argon.ogg b/data/sounds/notifications/ogg/Argon.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Beryllium.ogg b/data/sounds/notifications/ogg/Beryllium.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Capella.ogg b/data/sounds/notifications/ogg/Capella.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Cobalt.ogg b/data/sounds/notifications/ogg/Cobalt.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Fluorine.ogg b/data/sounds/notifications/ogg/Fluorine.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Gallium.ogg b/data/sounds/notifications/ogg/Gallium.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Polaris.ogg b/data/sounds/notifications/ogg/Polaris.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Procyon.ogg b/data/sounds/notifications/ogg/Procyon.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Radon.ogg b/data/sounds/notifications/ogg/Radon.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Selenium.ogg b/data/sounds/notifications/ogg/Selenium.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Shaula.ogg b/data/sounds/notifications/ogg/Shaula.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Spica.ogg b/data/sounds/notifications/ogg/Spica.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ogg/Zirconium.ogg b/data/sounds/notifications/ogg/Zirconium.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/ouranos.ogg b/data/sounds/notifications/ouranos.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/phantasos.ogg b/data/sounds/notifications/phantasos.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/poros.ogg b/data/sounds/notifications/poros.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/notifications/thrasos1.ogg b/data/sounds/notifications/thrasos1.ogg
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/ringtones/Carina.wav b/data/sounds/ringtones/Carina.wav
+old mode 100755
+new mode 100644
+diff --git a/data/sounds/testfiles/test.mid b/data/sounds/testfiles/test.mid
+old mode 100755
+new mode 100644
+diff --git a/data/videos/AndroidInSpace.480p.lq.mp4 b/data/videos/AndroidInSpace.480p.lq.mp4
+old mode 100755
+new mode 100644
+diff --git a/data/videos/AndroidInSpace.480p.mq.mp4 b/data/videos/AndroidInSpace.480p.mq.mp4
+old mode 100755
+new mode 100644
+diff --git a/docs/downloads/design/Android_Design_Downloads_20120814.zip b/docs/downloads/design/Android_Design_Downloads_20120814.zip
+old mode 100755
+new mode 100644
+diff --git a/docs/downloads/design/Android_Design_Fireworks_Stencil_20120814.png b/docs/downloads/design/Android_Design_Fireworks_Stencil_20120814.png
+old mode 100755
+new mode 100644
+diff --git a/docs/downloads/design/Android_Design_Holo_Widgets_20120814.zip b/docs/downloads/design/Android_Design_Holo_Widgets_20120814.zip
+old mode 100755
+new mode 100644
+diff --git a/docs/downloads/design/Android_Design_Icons_20120814.zip b/docs/downloads/design/Android_Design_Icons_20120814.zip
+old mode 100755
+new mode 100644
+diff --git a/docs/downloads/design/Android_Design_OmniGraffle_Stencil_20120814.graffle b/docs/downloads/design/Android_Design_OmniGraffle_Stencil_20120814.graffle
+old mode 100755
+new mode 100644
+diff --git a/docs/html/design/media/navigation_between_apps_back.png b/docs/html/design/media/navigation_between_apps_back.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/design/media/navigation_between_apps_inward.png b/docs/html/design/media/navigation_between_apps_inward.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/design/media/navigation_between_apps_up.png b/docs/html/design/media/navigation_between_apps_up.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/design/media/navigation_between_siblings_market1.png b/docs/html/design/media/navigation_between_siblings_market1.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/design/media/navigation_between_siblings_market2.png b/docs/html/design/media/navigation_between_siblings_market2.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/appendix/faq/troubleshooting.jd b/docs/html/guide/appendix/faq/troubleshooting.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/google/play/billing/billing_admin.jd b/docs/html/guide/google/play/billing/billing_admin.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/google/play/billing/billing_best_practices.jd b/docs/html/guide/google/play/billing/billing_best_practices.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/google/play/billing/billing_integrate.jd b/docs/html/guide/google/play/billing/billing_integrate.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/google/play/billing/billing_overview.jd b/docs/html/guide/google/play/billing/billing_overview.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/google/play/billing/billing_reference.jd b/docs/html/guide/google/play/billing/billing_reference.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/google/play/billing/billing_subscriptions.jd b/docs/html/guide/google/play/billing/billing_subscriptions.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/google/play/billing/billing_testing.jd b/docs/html/guide/google/play/billing/billing_testing.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/google/play/billing/index.jd b/docs/html/guide/google/play/billing/index.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/topics/manifest/uses-configuration-element.jd b/docs/html/guide/topics/manifest/uses-configuration-element.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/topics/resources/localization.jd b/docs/html/guide/topics/resources/localization.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/topics/resources/resources-i18n.jd b/docs/html/guide/topics/resources/resources-i18n.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/topics/ui/images/hello-gallery.png b/docs/html/guide/topics/ui/images/hello-gallery.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/topics/ui/images/hello-gridview.png b/docs/html/guide/topics/ui/images/hello-gridview.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/topics/ui/images/hello-linearlayout.png b/docs/html/guide/topics/ui/images/hello-linearlayout.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/topics/ui/images/hello-relativelayout.png b/docs/html/guide/topics/ui/images/hello-relativelayout.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/guide/topics/ui/images/hello-tablelayout.png b/docs/html/guide/topics/ui/images/hello-tablelayout.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/billing_arch.png b/docs/html/images/billing_arch.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/billing_check_supported.png b/docs/html/images/billing_check_supported.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/billing_checkout_flow.png b/docs/html/images/billing_checkout_flow.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/billing_list_form.png b/docs/html/images/billing_list_form.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/billing_list_form_2.png b/docs/html/images/billing_list_form_2.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/billing_product_list.png b/docs/html/images/billing_product_list.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/billing_product_list_entry.png b/docs/html/images/billing_product_list_entry.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/billing_public_key.png b/docs/html/images/billing_public_key.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/billing_refund.png b/docs/html/images/billing_refund.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/billing_request_purchase.png b/docs/html/images/billing_request_purchase.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/billing_restore_transactions.png b/docs/html/images/billing_restore_transactions.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/billing_test_flow.png b/docs/html/images/billing_test_flow.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/custom_message.png b/docs/html/images/custom_message.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/custom_toast.png b/docs/html/images/custom_toast.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/developing/developing_overview.png b/docs/html/images/developing/developing_overview.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/dialog_buttons.png b/docs/html/images/dialog_buttons.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/dialog_custom.png b/docs/html/images/dialog_custom.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/dialog_list.png b/docs/html/images/dialog_list.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/dialog_progress_bar.png b/docs/html/images/dialog_progress_bar.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/dialog_progress_spinning.png b/docs/html/images/dialog_progress_spinning.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/dialog_singlechoicelist.png b/docs/html/images/dialog_singlechoicelist.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/drm_arch.png b/docs/html/images/drm_arch.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/fundamentals/fragments.graffle b/docs/html/images/fundamentals/fragments.graffle
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/copy_res_files.png b/docs/html/images/hello_l10n/copy_res_files.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/custom_locale_app.png b/docs/html/images/hello_l10n/custom_locale_app.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/drawable-de-rDE/flag.png b/docs/html/images/hello_l10n/drawable-de-rDE/flag.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/drawable-en-rCA/flag.png b/docs/html/images/hello_l10n/drawable-en-rCA/flag.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/drawable-en-rUS/flag.png b/docs/html/images/hello_l10n/drawable-en-rUS/flag.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/drawable-fr-rCA/flag.png b/docs/html/images/hello_l10n/drawable-fr-rCA/flag.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/drawable-fr-rFR/flag.png b/docs/html/images/hello_l10n/drawable-fr-rFR/flag.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/drawable-ja-rJP/flag.png b/docs/html/images/hello_l10n/drawable-ja-rJP/flag.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/flag.png b/docs/html/images/hello_l10n/flag.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/frenchCA_screenshot.png b/docs/html/images/hello_l10n/frenchCA_screenshot.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/germanCH_screenshot.png b/docs/html/images/hello_l10n/germanCH_screenshot.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/german_screenshot.png b/docs/html/images/hello_l10n/german_screenshot.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/japanese_screenshot.png b/docs/html/images/hello_l10n/japanese_screenshot.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/nonlocalized_project.png b/docs/html/images/hello_l10n/nonlocalized_project.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/nonlocalized_screenshot1.png b/docs/html/images/hello_l10n/nonlocalized_screenshot1.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/nonlocalized_screenshot2.png b/docs/html/images/hello_l10n/nonlocalized_screenshot2.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/plain_project.png b/docs/html/images/hello_l10n/plain_project.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/romanshCH_screenshot.png b/docs/html/images/hello_l10n/romanshCH_screenshot.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/using_custom_locale.png b/docs/html/images/hello_l10n/using_custom_locale.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/xml_file_wizard_shortcut.png b/docs/html/images/hello_l10n/xml_file_wizard_shortcut.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/xml_wizard1.png b/docs/html/images/hello_l10n/xml_wizard1.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/hello_l10n/xml_wizard2.png b/docs/html/images/hello_l10n/xml_wizard2.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/jet/jc_audition_wnd.png b/docs/html/images/jet/jc_audition_wnd.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/jet/jc_event_wnd.png b/docs/html/images/jet/jc_event_wnd.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/jet/jc_main_wnd.png b/docs/html/images/jet/jc_main_wnd.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/jet/jc_moveseg_wnd.png b/docs/html/images/jet/jc_moveseg_wnd.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/jet/jc_open_dlg.png b/docs/html/images/jet/jc_open_dlg.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/jet/jc_rep_wnd.png b/docs/html/images/jet/jc_rep_wnd.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/jet/jc_repseg_wnd.png b/docs/html/images/jet/jc_repseg_wnd.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/jet/jc_seg_wnd.png b/docs/html/images/jet/jc_seg_wnd.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/notifications_window.png b/docs/html/images/notifications_window.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/options_menu.png b/docs/html/images/options_menu.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/publishing/publishing_android_market.png b/docs/html/images/publishing/publishing_android_market.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/publishing/publishing_overview.png b/docs/html/images/publishing/publishing_overview.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/publishing/publishing_overview_prep.png b/docs/html/images/publishing/publishing_overview_prep.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/publishing/publishing_preparing.png b/docs/html/images/publishing/publishing_preparing.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/publishing/publishing_via_email.png b/docs/html/images/publishing/publishing_via_email.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/radio_buttons.png b/docs/html/images/radio_buttons.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/resources/arrow.png b/docs/html/images/resources/arrow.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/resources/right-arrow.png b/docs/html/images/resources/right-arrow.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/status_bar.png b/docs/html/images/status_bar.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/testing/android_test_framework.png b/docs/html/images/testing/android_test_framework.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/training/ads-close-to-button.png b/docs/html/images/training/ads-close-to-button.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/training/ads-cover-content.png b/docs/html/images/training/ads-cover-content.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/training/ads-eclipse-build-path.png b/docs/html/images/training/ads-eclipse-build-path.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/training/ads-top-banner.png b/docs/html/images/training/ads-top-banner.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/training/button.png b/docs/html/images/training/button.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/training/button_with_marks.png b/docs/html/images/training/button_with_marks.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/training/buttons_stretched.png b/docs/html/images/training/buttons_stretched.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/training/cool-places.png b/docs/html/images/training/cool-places.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/training/device-mgmt-activate-device-admin.png b/docs/html/images/training/device-mgmt-activate-device-admin.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/training/panoramio-grid.png b/docs/html/images/training/panoramio-grid.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/images/ui/clipboard/copy_paste_framework.png b/docs/html/images/ui/clipboard/copy_paste_framework.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/resources/images/KeyChainDemo2.png b/docs/html/resources/images/KeyChainDemo2.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/resources/images/KeyChainDemo3.png b/docs/html/resources/images/KeyChainDemo3.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/resources/images/KeyChainDemo4.png b/docs/html/resources/images/KeyChainDemo4.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/resources/images/SipDemo.png b/docs/html/resources/images/SipDemo.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/resources/images/vpn-confirmation.png b/docs/html/resources/images/vpn-confirmation.png
+old mode 100755
+new mode 100644
+diff --git a/docs/html/tools/publishing/publishing_overview.jd b/docs/html/tools/publishing/publishing_overview.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/tools/testing/testing_android.jd b/docs/html/tools/testing/testing_android.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/tools/workflow/publishing/publishing_overview.jd b/docs/html/tools/workflow/publishing/publishing_overview.jd
+old mode 100755
+new mode 100644
+diff --git a/docs/html/tools/workflow/publishing_overview.jd b/docs/html/tools/workflow/publishing_overview.jd
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/DrmConvertedStatus.java b/drm/java/android/drm/DrmConvertedStatus.java
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/DrmErrorEvent.java b/drm/java/android/drm/DrmErrorEvent.java
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/DrmEvent.java b/drm/java/android/drm/DrmEvent.java
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/DrmInfo.java b/drm/java/android/drm/DrmInfo.java
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/DrmInfoEvent.java b/drm/java/android/drm/DrmInfoEvent.java
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/DrmInfoRequest.java b/drm/java/android/drm/DrmInfoRequest.java
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/DrmInfoStatus.java b/drm/java/android/drm/DrmInfoStatus.java
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/DrmManagerClient.java b/drm/java/android/drm/DrmManagerClient.java
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/DrmRights.java b/drm/java/android/drm/DrmRights.java
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/DrmStore.java b/drm/java/android/drm/DrmStore.java
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/DrmSupportInfo.java b/drm/java/android/drm/DrmSupportInfo.java
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/DrmUtils.java b/drm/java/android/drm/DrmUtils.java
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/ProcessedData.java b/drm/java/android/drm/ProcessedData.java
+old mode 100755
+new mode 100644
+diff --git a/drm/java/android/drm/package.html b/drm/java/android/drm/package.html
+old mode 100755
+new mode 100644
+diff --git a/graphics/java/android/graphics/Bitmap.aidl b/graphics/java/android/graphics/Bitmap.aidl
+old mode 100755
+new mode 100644
+diff --git a/include/androidfw/KeycodeLabels.h b/include/androidfw/KeycodeLabels.h
+old mode 100755
+new mode 100644
+diff --git a/keystore/tests/src/android/security/KeyStoreTest.java b/keystore/tests/src/android/security/KeyStoreTest.java
+old mode 100755
+new mode 100644
+diff --git a/location/java/android/location/Country.java b/location/java/android/location/Country.java
+old mode 100755
+new mode 100644
+diff --git a/location/java/android/location/INetInitiatedListener.aidl b/location/java/android/location/INetInitiatedListener.aidl
+old mode 100755
+new mode 100644
+diff --git a/location/java/com/android/internal/location/GpsNetInitiatedHandler.java b/location/java/com/android/internal/location/GpsNetInitiatedHandler.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/IAudioFocusDispatcher.aidl b/media/java/android/media/IAudioFocusDispatcher.aidl
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/audiofx/Visualizer.java b/media/java/android/media/audiofx/Visualizer.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/AudioTrack.java b/media/java/android/media/videoeditor/AudioTrack.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/Effect.java b/media/java/android/media/videoeditor/Effect.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/EffectColor.java b/media/java/android/media/videoeditor/EffectColor.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/EffectKenBurns.java b/media/java/android/media/videoeditor/EffectKenBurns.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/ExtractAudioWaveformProgressListener.java b/media/java/android/media/videoeditor/ExtractAudioWaveformProgressListener.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/MediaImageItem.java b/media/java/android/media/videoeditor/MediaImageItem.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/MediaItem.java b/media/java/android/media/videoeditor/MediaItem.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/MediaProperties.java b/media/java/android/media/videoeditor/MediaProperties.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/MediaVideoItem.java b/media/java/android/media/videoeditor/MediaVideoItem.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/Overlay.java b/media/java/android/media/videoeditor/Overlay.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/OverlayFrame.java b/media/java/android/media/videoeditor/OverlayFrame.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/Transition.java b/media/java/android/media/videoeditor/Transition.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/TransitionAlpha.java b/media/java/android/media/videoeditor/TransitionAlpha.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/TransitionCrossfade.java b/media/java/android/media/videoeditor/TransitionCrossfade.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/TransitionFadeBlack.java b/media/java/android/media/videoeditor/TransitionFadeBlack.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/TransitionSliding.java b/media/java/android/media/videoeditor/TransitionSliding.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/VideoEditor.java b/media/java/android/media/videoeditor/VideoEditor.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/VideoEditorFactory.java b/media/java/android/media/videoeditor/VideoEditorFactory.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/VideoEditorImpl.java b/media/java/android/media/videoeditor/VideoEditorImpl.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/VideoEditorProfile.java b/media/java/android/media/videoeditor/VideoEditorProfile.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/media/videoeditor/WaveformData.java b/media/java/android/media/videoeditor/WaveformData.java
+old mode 100755
+new mode 100644
+diff --git a/media/java/android/mtp/MtpDatabase.java b/media/java/android/mtp/MtpDatabase.java
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/Android.mk b/media/jni/mediaeditor/Android.mk
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/VideoBrowserInternal.h b/media/jni/mediaeditor/VideoBrowserInternal.h
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/VideoBrowserMain.h b/media/jni/mediaeditor/VideoBrowserMain.h
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/VideoEditorClasses.cpp b/media/jni/mediaeditor/VideoEditorClasses.cpp
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/VideoEditorClasses.h b/media/jni/mediaeditor/VideoEditorClasses.h
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/VideoEditorJava.cpp b/media/jni/mediaeditor/VideoEditorJava.cpp
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/VideoEditorJava.h b/media/jni/mediaeditor/VideoEditorJava.h
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/VideoEditorLogging.h b/media/jni/mediaeditor/VideoEditorLogging.h
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/VideoEditorMain.cpp b/media/jni/mediaeditor/VideoEditorMain.cpp
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/VideoEditorOsal.cpp b/media/jni/mediaeditor/VideoEditorOsal.cpp
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/VideoEditorOsal.h b/media/jni/mediaeditor/VideoEditorOsal.h
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/VideoEditorPropertiesMain.cpp b/media/jni/mediaeditor/VideoEditorPropertiesMain.cpp
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/VideoEditorThumbnailMain.cpp b/media/jni/mediaeditor/VideoEditorThumbnailMain.cpp
+old mode 100755
+new mode 100644
+diff --git a/media/jni/mediaeditor/VideoEditorThumbnailMain.h b/media/jni/mediaeditor/VideoEditorThumbnailMain.h
+old mode 100755
+new mode 100644
+diff --git a/media/mca/structgen.py b/media/mca/structgen.py
+old mode 100644
+new mode 100755
+diff --git a/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaFrameworkPerfTestRunner.java b/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaFrameworkPerfTestRunner.java
+old mode 100755
+new mode 100644
+diff --git a/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaFrameworkPowerTestRunner.java b/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaFrameworkPowerTestRunner.java
+old mode 100755
+new mode 100644
+diff --git a/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaFrameworkTestRunner.java b/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaFrameworkTestRunner.java
+old mode 100755
+new mode 100644
+diff --git a/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaFrameworkUnitTestRunner.java b/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaFrameworkUnitTestRunner.java
+old mode 100755
+new mode 100644
+diff --git a/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaNames.java b/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaNames.java
+old mode 100755
+new mode 100644
+diff --git a/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaPlayerStressTestRunner.java b/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaPlayerStressTestRunner.java
+old mode 100755
+new mode 100644
+diff --git a/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaRecorderStressTestRunner.java b/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaRecorderStressTestRunner.java
+old mode 100755
+new mode 100644
+diff --git a/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaTestUtil.java b/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/MediaTestUtil.java
+old mode 100755
+new mode 100644
+diff --git a/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/functional/videoeditor/MediaItemThumbnailTest.java b/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/functional/videoeditor/MediaItemThumbnailTest.java
+old mode 100755
+new mode 100644
+diff --git a/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/functional/videoeditor/MediaPropertiesTest.java b/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/functional/videoeditor/MediaPropertiesTest.java
+old mode 100755
+new mode 100644
+diff --git a/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/functional/videoeditor/VideoEditorExportTest.java b/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/functional/videoeditor/VideoEditorExportTest.java
+old mode 100755
+new mode 100644
+diff --git a/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/stress/VideoEditorStressTest.java b/media/tests/MediaFrameworkTest/src/com/android/mediaframeworktest/stress/VideoEditorStressTest.java
+old mode 100755
+new mode 100644
+diff --git a/media/tests/ScoAudioTest/Android.mk b/media/tests/ScoAudioTest/Android.mk
+old mode 100755
+new mode 100644
+diff --git a/media/tests/ScoAudioTest/AndroidManifest.xml b/media/tests/ScoAudioTest/AndroidManifest.xml
+old mode 100755
+new mode 100644
+diff --git a/media/tests/ScoAudioTest/res/drawable/icon.png b/media/tests/ScoAudioTest/res/drawable/icon.png
+old mode 100755
+new mode 100644
+diff --git a/media/tests/ScoAudioTest/res/drawable/record.png b/media/tests/ScoAudioTest/res/drawable/record.png
+old mode 100755
+new mode 100644
+diff --git a/media/tests/ScoAudioTest/res/drawable/stop.png b/media/tests/ScoAudioTest/res/drawable/stop.png
+old mode 100755
+new mode 100644
+diff --git a/media/tests/ScoAudioTest/res/layout/scoaudiotest.xml b/media/tests/ScoAudioTest/res/layout/scoaudiotest.xml
+old mode 100755
+new mode 100644
+diff --git a/media/tests/ScoAudioTest/res/values/strings.xml b/media/tests/ScoAudioTest/res/values/strings.xml
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/goldenThumbnail.png b/media/tests/contents/media_api/goldenThumbnail.png
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/music/MP3_48KHz_128kbps_s_1_17.mp3 b/media/tests/contents/media_api/music/MP3_48KHz_128kbps_s_1_17.mp3
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/music/SHORTMP3.mp3 b/media/tests/contents/media_api/music/SHORTMP3.mp3
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/music/ants.mid b/media/tests/contents/media_api/music/ants.mid
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/music/bzk_chic.wav b/media/tests/contents/media_api/music/bzk_chic.wav
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/music/sine_200+1000Hz_44K_mo.wav b/media/tests/contents/media_api/music/sine_200+1000Hz_44K_mo.wav
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/music/test_amr_ietf.amr b/media/tests/contents/media_api/music/test_amr_ietf.amr
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/video/H263_500_AMRNB_12.3gp b/media/tests/contents/media_api/video/H263_500_AMRNB_12.3gp
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/video/H263_56_AAC_24.3gp b/media/tests/contents/media_api/video/H263_56_AAC_24.3gp
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/video/H263_56_AMRNB_6.3gp b/media/tests/contents/media_api/video/H263_56_AMRNB_6.3gp
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/video/H264_320_AAC_64.3gp b/media/tests/contents/media_api/video/H264_320_AAC_64.3gp
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/video/H264_320_AMRNB_6.3gp b/media/tests/contents/media_api/video/H264_320_AMRNB_6.3gp
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/video/H264_500_AAC_128.3gp b/media/tests/contents/media_api/video/H264_500_AAC_128.3gp
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/video/H264_HVGA_500_NO_AUDIO.3gp b/media/tests/contents/media_api/video/H264_HVGA_500_NO_AUDIO.3gp
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/video/H264_QVGA_500_NO_AUDIO.3gp b/media/tests/contents/media_api/video/H264_QVGA_500_NO_AUDIO.3gp
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/video/MPEG4_320_AAC_64.mp4 b/media/tests/contents/media_api/video/MPEG4_320_AAC_64.mp4
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/video/big-buck-bunny_trailer.webm b/media/tests/contents/media_api/video/big-buck-bunny_trailer.webm
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/video/border_large.3gp b/media/tests/contents/media_api/video/border_large.3gp
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/videoeditor/H264_BP_960x720_25fps_800kbps_AACLC_48Khz_192Kbps_s_1_17.mp4 b/media/tests/contents/media_api/videoeditor/H264_BP_960x720_25fps_800kbps_AACLC_48Khz_192Kbps_s_1_17.mp4
+old mode 100755
+new mode 100644
+diff --git a/media/tests/contents/media_api/videoeditor/IMG_640x480_Overlay2.png b/media/tests/contents/media_api/videoeditor/IMG_640x480_Overlay2.png
+old mode 100755
+new mode 100644
+diff --git a/native/copy-to-ndk.sh b/native/copy-to-ndk.sh
+old mode 100644
+new mode 100755
+diff --git a/packages/DefaultContainerService/Android.mk b/packages/DefaultContainerService/Android.mk
+old mode 100755
+new mode 100644
+diff --git a/packages/DefaultContainerService/AndroidManifest.xml b/packages/DefaultContainerService/AndroidManifest.xml
+old mode 100755
+new mode 100644
+diff --git a/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java b/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
+old mode 100755
+new mode 100644
+diff --git a/services/java/com/android/server/NotificationManagerService.java b/services/java/com/android/server/NotificationManagerService.java
+old mode 100755
+new mode 100644
+diff --git a/services/java/com/android/server/VibratorService.java b/services/java/com/android/server/VibratorService.java
+old mode 100755
+new mode 100644
+diff --git a/services/java/com/android/server/am/ActivityStack.java b/services/java/com/android/server/am/ActivityStack.java
+old mode 100755
+new mode 100644
+diff --git a/services/java/com/android/server/am/package.html b/services/java/com/android/server/am/package.html
+old mode 100755
+new mode 100644
+diff --git a/services/java/com/android/server/location/ComprehensiveCountryDetector.java b/services/java/com/android/server/location/ComprehensiveCountryDetector.java
+old mode 100755
+new mode 100644
+diff --git a/services/java/com/android/server/location/GpsLocationProvider.java b/services/java/com/android/server/location/GpsLocationProvider.java
+old mode 100755
+new mode 100644
+diff --git a/services/java/com/android/server/location/LocationBasedCountryDetector.java b/services/java/com/android/server/location/LocationBasedCountryDetector.java
+old mode 100755
+new mode 100644
+diff --git a/services/java/com/android/server/wm/WindowManagerService.java b/services/java/com/android/server/wm/WindowManagerService.java
+old mode 100755
+new mode 100644
+diff --git a/services/jni/com_android_server_location_GpsLocationProvider.cpp b/services/jni/com_android_server_location_GpsLocationProvider.cpp
+old mode 100755
+new mode 100644
+diff --git a/services/tests/servicestests/src/com/android/server/location/LocationBasedCountryDetectorTest.java b/services/tests/servicestests/src/com/android/server/location/LocationBasedCountryDetectorTest.java
+old mode 100755
+new mode 100644
+diff --git a/telephony/java/android/telephony/SignalStrength.java b/telephony/java/android/telephony/SignalStrength.java
+old mode 100755
+new mode 100644
+diff --git a/telephony/java/android/telephony/TelephonyManager.java b/telephony/java/android/telephony/TelephonyManager.java
+old mode 100755
+new mode 100644
+diff --git a/test-runner/src/android/test/NoExecTestResult.java b/test-runner/src/android/test/NoExecTestResult.java
+old mode 100755
+new mode 100644
+diff --git a/tests/BrowserTestPlugin/res/drawable/browser_test_plugin.png b/tests/BrowserTestPlugin/res/drawable/browser_test_plugin.png
+old mode 100755
+new mode 100644
+diff --git a/tests/DumpRenderTree/src/com/android/dumprendertree/LayoutTestsAutoRunner.java b/tests/DumpRenderTree/src/com/android/dumprendertree/LayoutTestsAutoRunner.java
+old mode 100755
+new mode 100644
+diff --git a/tests/FrameworkPerf/res/drawable-161dpi/stat_sample_scale.png b/tests/FrameworkPerf/res/drawable-161dpi/stat_sample_scale.png
+old mode 100755
+new mode 100644
+diff --git a/tests/FrameworkPerf/res/drawable-hdpi/stat_happy.png b/tests/FrameworkPerf/res/drawable-hdpi/stat_happy.png
+old mode 100755
+new mode 100644
+diff --git a/tests/FrameworkPerf/res/drawable-nodpi/stat_sample.png b/tests/FrameworkPerf/res/drawable-nodpi/stat_sample.png
+old mode 100755
+new mode 100644
+diff --git a/tests/GridLayoutTest/src/com/android/test/layout/AlignmentTest.java b/tests/GridLayoutTest/src/com/android/test/layout/AlignmentTest.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/Android.mk b/tests/ImfTest/Android.mk
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/AndroidManifest.xml b/tests/ImfTest/AndroidManifest.xml
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/res/layout/full_screen_edit_text.xml b/tests/ImfTest/res/layout/full_screen_edit_text.xml
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/res/layout/one_edit_text_activity.xml b/tests/ImfTest/res/layout/one_edit_text_activity.xml
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/res/layout/sample_edit_text.xml b/tests/ImfTest/res/layout/sample_edit_text.xml
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/res/values/strings.xml b/tests/ImfTest/res/values/strings.xml
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/src/com/android/imftest/samples/InputTypeActivity.java b/tests/ImfTest/src/com/android/imftest/samples/InputTypeActivity.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/Android.mk b/tests/ImfTest/tests/Android.mk
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/AndroidManifest.xml b/tests/ImfTest/tests/AndroidManifest.xml
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/BigEditTextActivityNonScrollablePanScanTests.java b/tests/ImfTest/tests/src/com/android/imftest/samples/BigEditTextActivityNonScrollablePanScanTests.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/BigEditTextActivityNonScrollableResizeTests.java b/tests/ImfTest/tests/src/com/android/imftest/samples/BigEditTextActivityNonScrollableResizeTests.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/BigEditTextActivityScrollablePanScanTests.java b/tests/ImfTest/tests/src/com/android/imftest/samples/BigEditTextActivityScrollablePanScanTests.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/BigEditTextActivityScrollableResizeTests.java b/tests/ImfTest/tests/src/com/android/imftest/samples/BigEditTextActivityScrollableResizeTests.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/BottomEditTextActivityPanScanTests.java b/tests/ImfTest/tests/src/com/android/imftest/samples/BottomEditTextActivityPanScanTests.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/BottomEditTextActivityResizeTests.java b/tests/ImfTest/tests/src/com/android/imftest/samples/BottomEditTextActivityResizeTests.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/ButtonActivityTest.java b/tests/ImfTest/tests/src/com/android/imftest/samples/ButtonActivityTest.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/ImfBaseTestCase.java b/tests/ImfTest/tests/src/com/android/imftest/samples/ImfBaseTestCase.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/ManyEditTextActivityBaseTestCase.java b/tests/ImfTest/tests/src/com/android/imftest/samples/ManyEditTextActivityBaseTestCase.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/ManyEditTextActivityNoScrollPanScanTests.java b/tests/ImfTest/tests/src/com/android/imftest/samples/ManyEditTextActivityNoScrollPanScanTests.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/ManyEditTextActivityScrollPanScanTests.java b/tests/ImfTest/tests/src/com/android/imftest/samples/ManyEditTextActivityScrollPanScanTests.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/ManyEditTextActivityScrollResizeTests.java b/tests/ImfTest/tests/src/com/android/imftest/samples/ManyEditTextActivityScrollResizeTests.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/OneEditTextActivityNotSelectedTests.java b/tests/ImfTest/tests/src/com/android/imftest/samples/OneEditTextActivityNotSelectedTests.java
+old mode 100755
+new mode 100644
+diff --git a/tests/ImfTest/tests/src/com/android/imftest/samples/OneEditTextActivitySelectedTests.java b/tests/ImfTest/tests/src/com/android/imftest/samples/OneEditTextActivitySelectedTests.java
+old mode 100755
+new mode 100644
+diff --git a/tests/LocationTracker/res/xml/preferences.xml b/tests/LocationTracker/res/xml/preferences.xml
+old mode 100755
+new mode 100644
+diff --git a/tests/LocationTracker/src/com/android/locationtracker/SettingsActivity.java b/tests/LocationTracker/src/com/android/locationtracker/SettingsActivity.java
+old mode 100755
+new mode 100644
+diff --git a/tests/RenderScriptTests/PerfTest/res/drawable-nodpi/globe.png b/tests/RenderScriptTests/PerfTest/res/drawable-nodpi/globe.png
+old mode 100755
+new mode 100644
+diff --git a/tools/aidl/AST.cpp b/tools/aidl/AST.cpp
+old mode 100755
+new mode 100644
+diff --git a/tools/aidl/AST.h b/tools/aidl/AST.h
+old mode 100755
+new mode 100644
+diff --git a/tools/aidl/Type.cpp b/tools/aidl/Type.cpp
+old mode 100755
+new mode 100644
+diff --git a/tools/aidl/Type.h b/tools/aidl/Type.h
+old mode 100755
+new mode 100644
+diff --git a/tools/layoutlib/bridge/src/android/util/Log_Delegate.java b/tools/layoutlib/bridge/src/android/util/Log_Delegate.java
+old mode 100755
+new mode 100644
+diff --git a/tools/layoutlib/create/src/com/android/tools/layoutlib/annotations/Nullable.java b/tools/layoutlib/create/src/com/android/tools/layoutlib/annotations/Nullable.java
+old mode 100755
+new mode 100644
+diff --git a/tools/layoutlib/create/src/com/android/tools/layoutlib/annotations/VisibleForTesting.java b/tools/layoutlib/create/src/com/android/tools/layoutlib/annotations/VisibleForTesting.java
+old mode 100755
+new mode 100644
+diff --git a/tools/layoutlib/create/src/com/android/tools/layoutlib/create/DependencyFinder.java b/tools/layoutlib/create/src/com/android/tools/layoutlib/create/DependencyFinder.java
+old mode 100755
+new mode 100644
+-- 
+1.8.1.1
+

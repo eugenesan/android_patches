@@ -1,0 +1,31 @@
+From 152633bf568556c3ebe47295f4e8aa9a14823234 Mon Sep 17 00:00:00 2001
+From: Irfan Sheriff <isheriff@android.com>
+Date: Mon, 4 Feb 2013 09:37:07 -0800
+Subject: [PATCH 50/51] Change default intent
+
+Older JB releases have a bug handling persistence invocation. One work
+around right now is to have the newer release (with persistence)
+use  a lower intent value to allow older release to operate in group
+owner mode.
+
+Change-Id: I7ffb66081a352929a6f421e5d6141f592be7d472
+---
+ wifi/java/android/net/wifi/WifiNative.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/wifi/java/android/net/wifi/WifiNative.java b/wifi/java/android/net/wifi/WifiNative.java
+index 4c5fc5d..0370051 100644
+--- a/wifi/java/android/net/wifi/WifiNative.java
++++ b/wifi/java/android/net/wifi/WifiNative.java
+@@ -42,7 +42,7 @@ public class WifiNative {
+ 
+     private static final boolean DBG = false;
+     private final String mTAG;
+-    private static final int DEFAULT_GROUP_OWNER_INTENT = 7;
++    private static final int DEFAULT_GROUP_OWNER_INTENT = 6;
+ 
+     static final int BLUETOOTH_COEXISTENCE_MODE_ENABLED = 0;
+     static final int BLUETOOTH_COEXISTENCE_MODE_DISABLED = 1;
+-- 
+1.8.1.1
+

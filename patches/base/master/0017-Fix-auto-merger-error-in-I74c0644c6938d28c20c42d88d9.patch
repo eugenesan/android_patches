@@ -1,0 +1,38 @@
+From 534a076c8168dc311a65eb027486f216d1f8e5e4 Mon Sep 17 00:00:00 2001
+From: Lei Zhang <rzhang@google.com>
+Date: Fri, 21 Sep 2012 12:35:17 -0700
+Subject: [PATCH 017/283] Fix auto-merger error in
+ I74c0644c6938d28c20c42d88d995ffb56a71d703
+
+Change-Id: If199aa3f01d1a7ea3f298504c0de4aa9a96e7451
+---
+ core/java/android/app/ActivityThread.java | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/core/java/android/app/ActivityThread.java b/core/java/android/app/ActivityThread.java
+index b5d0ae4..fc38a67 100644
+--- a/core/java/android/app/ActivityThread.java
++++ b/core/java/android/app/ActivityThread.java
+@@ -4884,9 +4884,6 @@ public final class ActivityThread {
+         }
+     }
+ 
+-        }
+-    }
+-
+     private class DropBoxReporter implements DropBox.Reporter {
+ 
+         private DropBoxManager dropBox;
+@@ -4903,6 +4900,9 @@ public final class ActivityThread {
+         @Override
+         public void addText(String tag, String data) {
+             dropBox.addText(tag, data);
++        }
++    }
++
+     public static void main(String[] args) {
+         SamplingProfilerIntegration.start();
+ 
+-- 
+1.8.1.1
+

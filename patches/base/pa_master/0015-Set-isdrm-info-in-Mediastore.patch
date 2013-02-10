@@ -1,0 +1,49 @@
+From 0b91b31896097ef2db28f6352c7249e242fa29f3 Mon Sep 17 00:00:00 2001
+From: Erik Almqvist <erik.almqvist@sonymobile.com>
+Date: Wed, 5 Sep 2012 16:06:19 +0200
+Subject: [PATCH 15/51] Set "isdrm" info in Mediastore
+
+The mediascanner member mIsDrm was never set
+according to the drmframework canHandle call.
+This subsequently caused that the isdrm column
+in mediastore was never set, and was defaulted
+to false for all files.
+mIsDrm is now set according to drmframework
+canHandle result for each files that is scanned.
+
+Change-Id: Id557d921c4e3e3dfc35da56b69471f4bd6b3c8bf
+---
+ media/java/android/media/MediaScanner.java | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/media/java/android/media/MediaScanner.java b/media/java/android/media/MediaScanner.java
+index 88cf4ac..4bd9290 100644
+--- a/media/java/android/media/MediaScanner.java
++++ b/media/java/android/media/MediaScanner.java
+@@ -441,6 +441,7 @@ public class MediaScanner
+             mMimeType = mimeType;
+             mFileType = 0;
+             mFileSize = fileSize;
++            mIsDrm = false;
+ 
+             if (!isDirectory) {
+                 if (!noMedia && isNoMediaFile(path)) {
+@@ -503,7 +504,6 @@ public class MediaScanner
+             mLastModified = lastModified;
+             mWriter = null;
+             mCompilation = 0;
+-            mIsDrm = false;
+             mWidth = 0;
+             mHeight = 0;
+ 
+@@ -1039,6 +1039,7 @@ public class MediaScanner
+             }
+ 
+             if (mDrmManagerClient.canHandle(path, null)) {
++                mIsDrm = true;
+                 String drmMimetype = mDrmManagerClient.getOriginalMimeType(path);
+                 if (drmMimetype != null) {
+                     mMimeType = drmMimetype;
+-- 
+1.8.1.1
+

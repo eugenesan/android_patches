@@ -1,0 +1,129 @@
+From 511d5346ced4b37e4ba68e0bd089d4dad8b3bff7 Mon Sep 17 00:00:00 2001
+From: Irfan Sheriff <isheriff@google.com>
+Date: Sat, 3 Nov 2012 23:20:38 -0700
+Subject: [PATCH 125/283] Stop supplicant and dhcp before start
+
+Bug: 7227463
+Change-Id: Iaa0df7522edc38d25fae2bbda8d24490e997e733
+---
+ core/java/android/net/DhcpStateMachine.java      |  2 ++
+ core/jni/android_net_wifi_Wifi.cpp               |  6 +++---
+ wifi/java/android/net/wifi/WifiNative.java       |  2 +-
+ wifi/java/android/net/wifi/WifiStateMachine.java | 16 ++++++++++++----
+ 4 files changed, 18 insertions(+), 8 deletions(-)
+
+diff --git a/core/java/android/net/DhcpStateMachine.java b/core/java/android/net/DhcpStateMachine.java
+index 874e80a..8dc900e 100644
+--- a/core/java/android/net/DhcpStateMachine.java
++++ b/core/java/android/net/DhcpStateMachine.java
+@@ -351,6 +351,8 @@ public class DhcpStateMachine extends StateMachine {
+         DhcpInfoInternal dhcpInfoInternal = new DhcpInfoInternal();
+ 
+         if (dhcpAction == DhcpAction.START) {
++            /* Stop any existing DHCP daemon before starting new */
++            NetworkUtils.stopDhcp(mInterfaceName);
+             if (DBG) Log.d(TAG, "DHCP request on " + mInterfaceName);
+             success = NetworkUtils.runDhcp(mInterfaceName, dhcpInfoInternal);
+             mDhcpInfo = dhcpInfoInternal;
+diff --git a/core/jni/android_net_wifi_Wifi.cpp b/core/jni/android_net_wifi_Wifi.cpp
+index e7c4c23..9537ac4 100644
+--- a/core/jni/android_net_wifi_Wifi.cpp
++++ b/core/jni/android_net_wifi_Wifi.cpp
+@@ -122,9 +122,9 @@ static jboolean android_net_wifi_startSupplicant(JNIEnv* env, jobject, jboolean
+     return (jboolean)(::wifi_start_supplicant(p2pSupported) == 0);
+ }
+ 
+-static jboolean android_net_wifi_killSupplicant(JNIEnv* env, jobject)
++static jboolean android_net_wifi_killSupplicant(JNIEnv* env, jobject, jboolean p2pSupported)
+ {
+-    return (jboolean)(::wifi_stop_supplicant() == 0);
++    return (jboolean)(::wifi_stop_supplicant(p2pSupported) == 0);
+ }
+ 
+ static jboolean android_net_wifi_connectToSupplicant(JNIEnv* env, jobject, jstring jIface)
+@@ -204,7 +204,7 @@ static JNINativeMethod gWifiMethods[] = {
+     { "isDriverLoaded", "()Z",  (void *)android_net_wifi_isDriverLoaded },
+     { "unloadDriver", "()Z",  (void *)android_net_wifi_unloadDriver },
+     { "startSupplicant", "(Z)Z",  (void *)android_net_wifi_startSupplicant },
+-    { "killSupplicant", "()Z",  (void *)android_net_wifi_killSupplicant },
++    { "killSupplicant", "(Z)Z",  (void *)android_net_wifi_killSupplicant },
+     { "connectToSupplicant", "(Ljava/lang/String;)Z",
+             (void *)android_net_wifi_connectToSupplicant },
+     { "closeSupplicantConnection", "(Ljava/lang/String;)V",
+diff --git a/wifi/java/android/net/wifi/WifiNative.java b/wifi/java/android/net/wifi/WifiNative.java
+index 4c5fc5d..5e25623 100644
+--- a/wifi/java/android/net/wifi/WifiNative.java
++++ b/wifi/java/android/net/wifi/WifiNative.java
+@@ -61,7 +61,7 @@ public class WifiNative {
+ 
+     /* Sends a kill signal to supplicant. To be used when we have lost connection
+        or when the supplicant is hung */
+-    public native static boolean killSupplicant();
++    public native static boolean killSupplicant(boolean p2pSupported);
+ 
+     private native boolean connectToSupplicant(String iface);
+ 
+diff --git a/wifi/java/android/net/wifi/WifiStateMachine.java b/wifi/java/android/net/wifi/WifiStateMachine.java
+index 040ff24..dafa8e8 100644
+--- a/wifi/java/android/net/wifi/WifiStateMachine.java
++++ b/wifi/java/android/net/wifi/WifiStateMachine.java
+@@ -1944,6 +1944,7 @@ public class WifiStateMachine extends StateMachine {
+                 case CMD_STOP_DRIVER:
+                 case CMD_DELAYED_STOP_DRIVER:
+                 case CMD_DRIVER_START_TIMED_OUT:
++                case CMD_CAPTIVE_CHECK_COMPLETE:
+                 case CMD_START_AP:
+                 case CMD_START_AP_SUCCESS:
+                 case CMD_START_AP_FAILURE:
+@@ -2189,6 +2190,13 @@ public class WifiStateMachine extends StateMachine {
+                         loge("Unable to change interface settings: " + ie);
+                     }
+ 
++                    /* Stop a running supplicant after a runtime restart
++                     * Avoids issues with drivers that do not handle interface down
++                     * on a running supplicant properly.
++                     */
++                    if (DBG) log("Kill any running supplicant");
++                    mWifiNative.killSupplicant(mP2pSupported);
++
+                     if(mWifiNative.startSupplicant(mP2pSupported)) {
+                         if (DBG) log("Supplicant start successful");
+                         mWifiMonitor.startMonitoring();
+@@ -2384,7 +2392,7 @@ public class WifiStateMachine extends StateMachine {
+                 case WifiMonitor.SUP_DISCONNECTION_EVENT:
+                     if (++mSupplicantRestartCount <= SUPPLICANT_RESTART_TRIES) {
+                         loge("Failed to setup control channel, restart supplicant");
+-                        mWifiNative.killSupplicant();
++                        mWifiNative.killSupplicant(mP2pSupported);
+                         transitionTo(mDriverLoadedState);
+                         sendMessageDelayed(CMD_START_SUPPLICANT, SUPPLICANT_RESTART_INTERVAL_MSECS);
+                     } else {
+@@ -2451,7 +2459,7 @@ public class WifiStateMachine extends StateMachine {
+                     break;
+                 case WifiMonitor.SUP_DISCONNECTION_EVENT:  /* Supplicant connection lost */
+                     loge("Connection lost, restart supplicant");
+-                    mWifiNative.killSupplicant();
++                    mWifiNative.killSupplicant(mP2pSupported);
+                     mWifiNative.closeSupplicantConnection();
+                     mNetworkInfo.setIsAvailable(false);
+                     handleNetworkDisconnect();
+@@ -2605,14 +2613,14 @@ public class WifiStateMachine extends StateMachine {
+                     /* Socket connection can be lost when we do a graceful shutdown
+                      * or when the driver is hung. Ensure supplicant is stopped here.
+                      */
+-                    mWifiNative.killSupplicant();
++                    mWifiNative.killSupplicant(mP2pSupported);
+                     mWifiNative.closeSupplicantConnection();
+                     transitionTo(mDriverLoadedState);
+                     break;
+                 case CMD_STOP_SUPPLICANT_FAILED:
+                     if (message.arg1 == mSupplicantStopFailureToken) {
+                         loge("Timed out on a supplicant stop, kill and proceed");
+-                        mWifiNative.killSupplicant();
++                        mWifiNative.killSupplicant(mP2pSupported);
+                         mWifiNative.closeSupplicantConnection();
+                         transitionTo(mDriverLoadedState);
+                     }
+-- 
+1.8.1.1
+

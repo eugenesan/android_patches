@@ -1,0 +1,42 @@
+From 5313c9f0271f961c439e2e3407fb66d0aabf98bb Mon Sep 17 00:00:00 2001
+From: Tim Hutt <tdhutt@gmail.com>
+Date: Mon, 10 Dec 2012 12:34:19 +0000
+Subject: [PATCH 224/283] Hopefully fix PendingIntent.getActivities()
+ documentation wtf.
+
+The first intent is the key. No wait, last! Or was it first?
+
+I haven't actually read the code, didn't write it, and haven't tested
+its behaviour, but surely it can't be both, and last is the only one
+that makes sense.
+
+Change-Id: Ie8435981f09be618c93680fb6056afd015090161
+---
+ core/java/android/app/PendingIntent.java | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/core/java/android/app/PendingIntent.java b/core/java/android/app/PendingIntent.java
+index d36d99d..01c0634 100644
+--- a/core/java/android/app/PendingIntent.java
++++ b/core/java/android/app/PendingIntent.java
+@@ -289,7 +289,7 @@ public final class PendingIntent implements Parcelable {
+ 
+     /**
+      * Like {@link #getActivity(Context, int, Intent, int)}, but allows an
+-     * array of Intents to be supplied.  The first Intent in the array is
++     * array of Intents to be supplied.  The last Intent in the array is
+      * taken as the primary key for the PendingIntent, like the single Intent
+      * given to {@link #getActivity(Context, int, Intent, int)}.  Upon sending
+      * the resulting PendingIntent, all of the Intents are started in the same
+@@ -335,7 +335,7 @@ public final class PendingIntent implements Parcelable {
+ 
+     /**
+      * Like {@link #getActivity(Context, int, Intent, int)}, but allows an
+-     * array of Intents to be supplied.  The first Intent in the array is
++     * array of Intents to be supplied.  The last Intent in the array is
+      * taken as the primary key for the PendingIntent, like the single Intent
+      * given to {@link #getActivity(Context, int, Intent, int)}.  Upon sending
+      * the resulting PendingIntent, all of the Intents are started in the same
+-- 
+1.8.1.1
+

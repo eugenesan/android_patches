@@ -1,0 +1,44 @@
+From e8c684f3e9198f1c161ac68c95246e7b8445ec20 Mon Sep 17 00:00:00 2001
+From: zobject <zbjection@gmail.com>
+Date: Mon, 10 Dec 2012 22:52:59 +0900
+Subject: [PATCH 20/51] Fix EventLog string class problem in
+ onOptionMenuSelected
+
+EventLog function can handle string,integer class and long class. (in android_util_EventLog.cpp)
+If menu title string are used bold tag(like <b>test</b>), it'll be android.text.SpannedString.
+In onOptionMenuSelected, it is using item.getTitleCondensed() function for writing event log.
+therefore any android activity using tag menu string(like <b></b>) can be crashed by IllegalArgumentException.
+
+I found this crash on GMS Application.
+change locale chinese -> launch Google+ -> hangout -> menu key -> Invite(expressed chinese) click -> Google+ crash
+
+Change-Id: I0437be81699925e29bf4510eb615ef2424432763
+---
+ core/java/android/app/Activity.java | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/core/java/android/app/Activity.java b/core/java/android/app/Activity.java
+index 5a2b2db..f9d0afd 100644
+--- a/core/java/android/app/Activity.java
++++ b/core/java/android/app/Activity.java
+@@ -2548,7 +2548,7 @@ public class Activity extends ContextThemeWrapper
+                 // Put event logging here so it gets called even if subclass
+                 // doesn't call through to superclass's implmeentation of each
+                 // of these methods below
+-                EventLog.writeEvent(50000, 0, item.getTitleCondensed());
++                EventLog.writeEvent(50000, 0, item.getTitleCondensed().toString());
+                 if (onOptionsItemSelected(item)) {
+                     return true;
+                 }
+@@ -2566,7 +2566,7 @@ public class Activity extends ContextThemeWrapper
+                 return false;
+                 
+             case Window.FEATURE_CONTEXT_MENU:
+-                EventLog.writeEvent(50000, 1, item.getTitleCondensed());
++                EventLog.writeEvent(50000, 1, item.getTitleCondensed().toString());
+                 if (onContextItemSelected(item)) {
+                     return true;
+                 }
+-- 
+1.8.1.1
+

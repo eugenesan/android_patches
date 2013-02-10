@@ -1,0 +1,79 @@
+From 43d84518f2380e45659fbb31455479ef018b9329 Mon Sep 17 00:00:00 2001
+From: John Spurlock <jspurlock@google.com>
+Date: Fri, 9 Nov 2012 10:27:33 -0500
+Subject: [PATCH 138/283] Disable navbar searchlight if search assist not
+ available.
+
+Bug:7506441
+Change-Id: I55c740d4c3a45b9f7fdfa38346d1bc3fb1299153
+---
+ core/java/android/app/SearchManager.java                     |  3 +++
+ .../internal/policy/impl/keyguard/KeyguardViewMediator.java  | 12 ++++++++++++
+ 2 files changed, 15 insertions(+)
+
+diff --git a/core/java/android/app/SearchManager.java b/core/java/android/app/SearchManager.java
+index 43a163d..6382cee 100644
+--- a/core/java/android/app/SearchManager.java
++++ b/core/java/android/app/SearchManager.java
+@@ -858,6 +858,9 @@ public class SearchManager
+      */
+     public Intent getAssistIntent(Context context, int userHandle) {
+         try {
++            if (mService == null) {
++                return null;
++            }
+             ComponentName comp = mService.getAssistIntent(userHandle);
+             if (comp == null) {
+                 return null;
+diff --git a/policy/src/com/android/internal/policy/impl/keyguard/KeyguardViewMediator.java b/policy/src/com/android/internal/policy/impl/keyguard/KeyguardViewMediator.java
+index df4c661..c227619 100644
+--- a/policy/src/com/android/internal/policy/impl/keyguard/KeyguardViewMediator.java
++++ b/policy/src/com/android/internal/policy/impl/keyguard/KeyguardViewMediator.java
+@@ -22,6 +22,7 @@ import android.app.Activity;
+ import android.app.ActivityManagerNative;
+ import android.app.AlarmManager;
+ import android.app.PendingIntent;
++import android.app.SearchManager;
+ import android.app.StatusBarManager;
+ import android.content.BroadcastReceiver;
+ import android.content.ContentResolver;
+@@ -166,6 +167,9 @@ public class KeyguardViewMediator {
+     /** UserManager for querying number of users */
+     private UserManager mUserManager;
+ 
++    /** SearchManager for determining whether or not search assistant is available */
++    private SearchManager mSearchManager;
++
+     /**
+      * Used to keep the device awake while to ensure the keyguard finishes opening before
+      * we sleep.
+@@ -527,6 +531,7 @@ public class KeyguardViewMediator {
+      * Let us know that the system is ready after startup.
+      */
+     public void onSystemReady() {
++        mSearchManager = (SearchManager) mContext.getSystemService(Context.SEARCH_SERVICE);
+         synchronized (this) {
+             if (DEBUG) Log.d(TAG, "onSystemReady");
+             mSystemReady = true;
+@@ -1313,6 +1318,9 @@ public class KeyguardViewMediator {
+                     // showing secure lockscreen; disable ticker.
+                     flags |= StatusBarManager.DISABLE_NOTIFICATION_TICKER;
+                 }
++                if (!isAssistantAvailable()) {
++                    flags |= StatusBarManager.DISABLE_SEARCH;
++                }
+             }
+ 
+             if (DEBUG) {
+@@ -1410,4 +1418,8 @@ public class KeyguardViewMediator {
+         mKeyguardViewManager.showAssistant();
+     }
+ 
++    private boolean isAssistantAvailable() {
++        return mSearchManager != null
++                && mSearchManager.getAssistIntent(mContext, UserHandle.USER_CURRENT) != null;
++    }
+ }
+-- 
+1.8.1.1
+

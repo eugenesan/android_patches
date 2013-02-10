@@ -1,0 +1,35 @@
+From 29afa142402b4b4f5e56f36b24367b84b5f64a6a Mon Sep 17 00:00:00 2001
+From: Jeff Sharkey <jsharkey@android.com>
+Date: Tue, 4 Dec 2012 17:21:21 -0800
+Subject: [PATCH 214/283] Remove unnecessary locking for screen broadcasts.
+
+The actual handling occurs in updateScreenOn() on the other side of a
+handler, which acquires the lock correctly.
+
+Change-Id: Ibd359446dba8e88f81d34f1e10a6b5e150348f89
+---
+ .../java/com/android/server/net/NetworkPolicyManagerService.java  | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/services/java/com/android/server/net/NetworkPolicyManagerService.java b/services/java/com/android/server/net/NetworkPolicyManagerService.java
+index 43ddf8d..18fefda 100644
+--- a/services/java/com/android/server/net/NetworkPolicyManagerService.java
++++ b/services/java/com/android/server/net/NetworkPolicyManagerService.java
+@@ -423,11 +423,9 @@ public class NetworkPolicyManagerService extends INetworkPolicyManager.Stub {
+     private BroadcastReceiver mScreenReceiver = new BroadcastReceiver() {
+         @Override
+         public void onReceive(Context context, Intent intent) {
+-            synchronized (mRulesLock) {
+-                // screen-related broadcasts are protected by system, no need
+-                // for permissions check.
+-                mHandler.obtainMessage(MSG_SCREEN_ON_CHANGED).sendToTarget();
+-            }
++            // screen-related broadcasts are protected by system, no need
++            // for permissions check.
++            mHandler.obtainMessage(MSG_SCREEN_ON_CHANGED).sendToTarget();
+         }
+     };
+ 
+-- 
+1.8.1.1
+

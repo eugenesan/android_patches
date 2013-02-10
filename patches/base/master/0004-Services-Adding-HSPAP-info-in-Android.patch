@@ -1,0 +1,36 @@
+From 58d46126e4d11e0cc5f6a1192829511bd5850ce2 Mon Sep 17 00:00:00 2001
+From: Arun Ravindran <arun.ravindran@intel.com>
+Date: Mon, 30 Jul 2012 17:50:21 +0300
+Subject: [PATCH 004/283] Services: Adding HSPAP info in Android
+
+HSPA+ management is missing in GPS Loc service.
+
+Change-Id: If828c1b078d5989f501c3eb917a573a6db773453
+Author: Arun Ravindran <arun.ravindran@intel.com>
+Signed-off-by: Arun Ravindran <arun.ravindran@intel.com>
+Signed-off-by: Regnier, PhilippeX <philippex.regnier@intel.com>
+Signed-off-by: Shuo Gao <shuo.gao@intel.com>
+Signed-off-by: Bruce Beare <bruce.j.beare@intel.com>
+Signed-off-by: Jack Ren <jack.ren@intel.com>
+Author-tracking-BZ: 41786
+---
+ services/java/com/android/server/location/GpsLocationProvider.java | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/services/java/com/android/server/location/GpsLocationProvider.java b/services/java/com/android/server/location/GpsLocationProvider.java
+index 4ad6140..006d85e 100755
+--- a/services/java/com/android/server/location/GpsLocationProvider.java
++++ b/services/java/com/android/server/location/GpsLocationProvider.java
+@@ -1530,7 +1530,8 @@ public class GpsLocationProvider implements LocationProviderInterface {
+                 if (networkType == TelephonyManager.NETWORK_TYPE_UMTS
+                     || networkType == TelephonyManager.NETWORK_TYPE_HSDPA
+                     || networkType == TelephonyManager.NETWORK_TYPE_HSUPA
+-                    || networkType == TelephonyManager.NETWORK_TYPE_HSPA) {
++                    || networkType == TelephonyManager.NETWORK_TYPE_HSPA
++                    || networkType == TelephonyManager.NETWORK_TYPE_HSPAP) {
+                     type = AGPS_REF_LOCATION_TYPE_UMTS_CELLID;
+                 } else {
+                     type = AGPS_REF_LOCATION_TYPE_GSM_CELLID;
+-- 
+1.8.1.1
+

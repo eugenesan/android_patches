@@ -1,0 +1,116 @@
+From dc4b5037a33956b3b04a45a24ef272e81eeb5438 Mon Sep 17 00:00:00 2001
+From: Ben Pietrzak <bpietrzak@google.com>
+Date: Mon, 10 Sep 2012 11:33:19 -0700
+Subject: [PATCH 011/283] Converts hover touch events to trackball events
+
+Change-Id: Ibb843fcc0c525250a775d3b3567f8ca964f525c0
+---
+ core/java/android/view/SimulatedTrackball.java | 58 ++++++++++++++++++++++++++
+ core/java/android/view/ViewRootImpl.java       | 12 ++++--
+ 2 files changed, 67 insertions(+), 3 deletions(-)
+ create mode 100644 core/java/android/view/SimulatedTrackball.java
+
+diff --git a/core/java/android/view/SimulatedTrackball.java b/core/java/android/view/SimulatedTrackball.java
+new file mode 100644
+index 0000000..9eaa2d7
+--- /dev/null
++++ b/core/java/android/view/SimulatedTrackball.java
+@@ -0,0 +1,58 @@
++/*
++ * Copyright (C) 2012 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package android.view;
++
++/**
++ * This class creates trackball events from touchpad events.
++ * @see ViewRootImpl
++ */
++class SimulatedTrackball {
++
++    //The position of the previous touchpad event
++    private float mLastTouchpadXPosition;
++    private float mLastTouchpadYPosition;
++    //When the last touchpad event occurred
++    private long mLastTouchPadStartTimeMs = 0;
++
++    public void updateTrackballDirection(ViewRootImpl viewroot, MotionEvent event){
++        //Store what time the touchpad event occurred
++        final long time = event.getEventTime();
++        switch (event.getAction()) {
++            case MotionEvent.ACTION_HOVER_ENTER:
++                mLastTouchPadStartTimeMs = time;
++                break;
++            case MotionEvent.ACTION_HOVER_MOVE:
++                //Find the difference in position between the two most recent touchpad events
++                float deltaX = event.getX()-mLastTouchpadXPosition;
++                float deltaY = event.getY()-mLastTouchpadYPosition;
++                //TODO: Get simulated trackball configuration parameters
++                //Create a trackball event from recorded touchpad event data
++                MotionEvent trackballEvent = MotionEvent.obtain(mLastTouchPadStartTimeMs, time,
++                        MotionEvent.ACTION_MOVE, deltaX/50, deltaY/50, 0, 0, event.getMetaState(),
++                        10f, 10f, event.getDeviceId(), 0);
++                trackballEvent.setSource(InputDevice.SOURCE_CLASS_TRACKBALL);
++                //Add the new event to event queue
++                viewroot.enqueueInputEvent(trackballEvent);
++                break;
++            case MotionEvent.ACTION_HOVER_EXIT:
++                break;
++        }
++        //Store touch event position
++        mLastTouchpadXPosition = event.getX();
++        mLastTouchpadYPosition = event.getY();
++    }
++}
+diff --git a/core/java/android/view/ViewRootImpl.java b/core/java/android/view/ViewRootImpl.java
+index d6a0203..a9718f0 100644
+--- a/core/java/android/view/ViewRootImpl.java
++++ b/core/java/android/view/ViewRootImpl.java
+@@ -144,6 +144,8 @@ public final class ViewRootImpl implements ViewParent,
+     final TrackballAxis mTrackballAxisX = new TrackballAxis();
+     final TrackballAxis mTrackballAxisY = new TrackballAxis();
+ 
++    final SimulatedTrackball mSimulatedTrackball = new SimulatedTrackball();
++
+     int mLastJoystickXDirection;
+     int mLastJoystickYDirection;
+     int mLastJoystickXKeyCode;
+@@ -3370,7 +3372,6 @@ public final class ViewRootImpl implements ViewParent,
+         if (mInputEventConsistencyVerifier != null) {
+             mInputEventConsistencyVerifier.onGenericMotionEvent(event, 0);
+         }
+-
+         if (mView != null && mAdded && (q.mFlags & QueuedInputEvent.FLAG_DELIVER_POST_IME) == 0) {
+             if (LOCAL_LOGV)
+                 Log.v(TAG, "Dispatching generic motion " + event + " to " + mView);
+@@ -3397,8 +3398,13 @@ public final class ViewRootImpl implements ViewParent,
+ 
+     private void deliverGenericMotionEventPostIme(QueuedInputEvent q) {
+         final MotionEvent event = (MotionEvent) q.mEvent;
+-        final boolean isJoystick = (event.getSource() & InputDevice.SOURCE_CLASS_JOYSTICK) != 0;
+-
++        final int source = event.getSource();
++        final boolean isJoystick = (source & InputDevice.SOURCE_CLASS_JOYSTICK) != 0;
++        final boolean isTouchPad = (source & InputDevice.SOURCE_CLASS_POSITION) != 0;
++        if (isTouchPad) {
++            //Convert TouchPad motion into a TrackBall event
++            mSimulatedTrackball.updateTrackballDirection(this, event);
++        }
+         // If there is no view, then the event will not be handled.
+         if (mView == null || !mAdded) {
+             if (isJoystick) {
+-- 
+1.8.1.1
+

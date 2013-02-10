@@ -1,0 +1,46 @@
+From f4e9035c866b71934407052fdc77ceb9865cc8a9 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Mon, 4 Feb 2013 08:14:51 +0200
+Subject: [PATCH] weaken gcc-4.7 stringency to stop freezing and forking aosp
+ projects
+
+Change-Id: I87f0e36691ae6b5219df798d5d142ed66da92948
+---
+ core/combo/TARGET_linux-arm.mk | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/core/combo/TARGET_linux-arm.mk b/core/combo/TARGET_linux-arm.mk
+index 97c6c9e..f5c19e4 100644
+--- a/core/combo/TARGET_linux-arm.mk
++++ b/core/combo/TARGET_linux-arm.mk
+@@ -67,11 +67,13 @@ endif
+ TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
+ ifeq ($(TARGET_USE_O3),true)
+ TARGET_arm_CFLAGS :=    -O3 \
++                        -Wno-error=narrowing \
+                         -fomit-frame-pointer \
+                         -fstrict-aliasing    \
+                         -funswitch-loops
+ else
+ TARGET_arm_CFLAGS :=    -Os \
++                        -Wno-error=narrowing \
+                         -fomit-frame-pointer \
+                         -fstrict-aliasing    \
+                         -funswitch-loops
+@@ -84,11 +86,13 @@ ifeq ($(ARCH_ARM_HAVE_THUMB_SUPPORT),true)
+     ifeq ($(TARGET_USE_O3),true)
+     TARGET_thumb_CFLAGS :=  -mthumb \
+                             -O3 \
++                            -Wno-error=narrowing \
+                             -fomit-frame-pointer \
+                             -fno-strict-aliasing
+     else
+     TARGET_thumb_CFLAGS :=  -mthumb \
+                             -O2 \
++                            -Wno-error=narrowing \
+                             -fomit-frame-pointer \
+                             -fno-strict-aliasing
+     endif
+-- 
+1.8.1.1
+

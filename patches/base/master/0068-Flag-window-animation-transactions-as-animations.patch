@@ -1,0 +1,80 @@
+From 23ebfcdef110c04021a2bf744fbb3305693d7ccc Mon Sep 17 00:00:00 2001
+From: Jamie Gennis <jgennis@google.com>
+Date: Mon, 15 Oct 2012 19:14:58 -0700
+Subject: [PATCH 068/283] Flag window animation transactions as animations.
+
+This change makes WindowManager use the new eAnimation flag when animating
+windows.  This prevents some of the window updates from being combined with
+updates from prior animation frames.
+
+Bug: 7353840
+Change-Id: I5a9f8fa2c1a2f5f08363a45cd9f28bb97cd77080
+---
+ core/java/android/view/Surface.java                     | 6 ++++++
+ core/jni/android_view_Surface.cpp                       | 6 ++++++
+ services/java/com/android/server/wm/WindowAnimator.java | 1 +
+ 3 files changed, 13 insertions(+)
+
+diff --git a/core/java/android/view/Surface.java b/core/java/android/view/Surface.java
+index 07bb8f9..7ef6939 100644
+--- a/core/java/android/view/Surface.java
++++ b/core/java/android/view/Surface.java
+@@ -245,6 +245,7 @@ public class Surface implements Parcelable {
+ 
+     private static native void nativeOpenTransaction();
+     private static native void nativeCloseTransaction();
++    private static native void nativeSetAnimationTransaction();
+ 
+     private native void nativeSetLayer(int zorder);
+     private native void nativeSetPosition(float x, float y);
+@@ -525,6 +526,11 @@ public class Surface implements Parcelable {
+         nativeCloseTransaction();
+     }
+ 
++    /** flag the transaction as an animation @hide */
++    public static void setAnimationTransaction() {
++        nativeSetAnimationTransaction();
++    }
++
+     /** @hide */
+     public void setLayer(int zorder) {
+         nativeSetLayer(zorder);
+diff --git a/core/jni/android_view_Surface.cpp b/core/jni/android_view_Surface.cpp
+index 4982f31..531445f 100644
+--- a/core/jni/android_view_Surface.cpp
++++ b/core/jni/android_view_Surface.cpp
+@@ -526,6 +526,10 @@ static void nativeCloseTransaction(JNIEnv* env, jclass clazz) {
+     SurfaceComposerClient::closeGlobalTransaction();
+ }
+ 
++static void nativeSetAnimationTransaction(JNIEnv* env, jclass clazz) {
++    SurfaceComposerClient::setAnimationTransaction();
++}
++
+ static void nativeSetLayer(JNIEnv* env, jobject surfaceObj, jint zorder) {
+     sp<SurfaceControl> surface(getSurfaceControl(env, surfaceObj));
+     if (surface == NULL) return;
+@@ -819,6 +823,8 @@ static JNINativeMethod gSurfaceMethods[] = {
+             (void*)nativeOpenTransaction },
+     {"nativeCloseTransaction", "()V",
+             (void*)nativeCloseTransaction },
++    {"nativeSetAnimationTransaction", "()V",
++            (void*)nativeSetAnimationTransaction },
+     {"nativeSetLayer", "(I)V",
+             (void*)nativeSetLayer },
+     {"nativeSetPosition", "(FF)V",
+diff --git a/services/java/com/android/server/wm/WindowAnimator.java b/services/java/com/android/server/wm/WindowAnimator.java
+index b67fb51..269eac0 100644
+--- a/services/java/com/android/server/wm/WindowAnimator.java
++++ b/services/java/com/android/server/wm/WindowAnimator.java
+@@ -618,6 +618,7 @@ public class WindowAnimator {
+         if (WindowManagerService.SHOW_TRANSACTIONS) Slog.i(
+                 TAG, ">>> OPEN TRANSACTION animateLocked");
+         Surface.openTransaction();
++        Surface.setAnimationTransaction();
+         try {
+             updateAppWindowsLocked();
+ 
+-- 
+1.8.1.1
+

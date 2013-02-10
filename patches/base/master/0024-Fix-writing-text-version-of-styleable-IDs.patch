@@ -1,0 +1,26 @@
+From d16047434bca24b2811de7ea9d22de6ee0f87f79 Mon Sep 17 00:00:00 2001
+From: Xavier Ducrohet <xav@android.com>
+Date: Wed, 26 Sep 2012 10:11:54 -0700
+Subject: [PATCH 024/283] Fix writing text version of styleable IDs.
+
+Change-Id: I3f2614689a597de3fd46628c020cf649a808c82f
+---
+ tools/aapt/Resource.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/aapt/Resource.cpp b/tools/aapt/Resource.cpp
+index 5033418..a52a9de 100644
+--- a/tools/aapt/Resource.cpp
++++ b/tools/aapt/Resource.cpp
+@@ -1946,7 +1946,7 @@ static status_t writeTextLayoutClasses(
+                 const bool pub = (typeSpecFlags&ResTable_typeSpec::SPEC_PUBLIC) != 0;
+ 
+                 fprintf(fp,
+-                        "int styleable.%s_%s %d\n",
++                        "int styleable %s_%s %d\n",
+                         nclassName.string(),
+                         String8(name).string(), (int)pos);
+             }
+-- 
+1.8.1.1
+

@@ -1,0 +1,26 @@
+From ab5202c3f1bd9cfb875a16c2d6b8b816c71ae874 Mon Sep 17 00:00:00 2001
+From: Jean-Baptiste Queru <jbq@google.com>
+Date: Wed, 31 Oct 2012 10:35:33 -0700
+Subject: [PATCH 114/283] Fix build - Add back symbol that's still needed
+
+Change-Id: Iee59db7950bd83a480baa0b63729b16563251ad9
+---
+ core/res/res/values/strings.xml | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/core/res/res/values/strings.xml b/core/res/res/values/strings.xml
+index 159eec1..750c249 100755
+--- a/core/res/res/values/strings.xml
++++ b/core/res/res/values/strings.xml
+@@ -2272,6 +2272,8 @@
+     <!-- Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE] -->
+     <string name="lockscreen_access_pattern_detected">Pattern completed</string>
+ 
++    <!-- Accessibility description sent when user changes the current lock screen widget. [CHAR_LIMIT=none] -->
++    <string name="keyguard_accessibility_widget_changed">%1$s. Widget %2$d of %3$d.</string>
+     <!-- Accessibility description of the add widget button. [CHAR_LIMIT=none] -->
+     <string name="keyguard_accessibility_add_widget">Add widget.</string>
+     <!-- Accessibility description of the empty sidget slot (place holder for a new widget). [CHAR_LIMIT=none] -->
+-- 
+1.8.1.1
+

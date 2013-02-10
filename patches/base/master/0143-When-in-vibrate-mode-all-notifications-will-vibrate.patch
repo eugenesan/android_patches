@@ -1,0 +1,39 @@
+From 71789e11cc5266c44886b4894057966a0380757a Mon Sep 17 00:00:00 2001
+From: David Agnew <dsandler@android.com>
+Date: Fri, 9 Nov 2012 23:03:26 -0500
+Subject: [PATCH 143/283] When in vibrate mode, all notifications will vibrate.
+
+(Unless the notification specifies no ringtone AND no
+vibration, in which case it will remain silent.)
+
+Change-Id: I926d0fe0165b9622cd117e6c3ef6e3637772b444
+---
+ .../java/com/android/server/NotificationManagerService.java   | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/services/java/com/android/server/NotificationManagerService.java b/services/java/com/android/server/NotificationManagerService.java
+index 216323e..f3a38f0 100755
+--- a/services/java/com/android/server/NotificationManagerService.java
++++ b/services/java/com/android/server/NotificationManagerService.java
+@@ -1086,8 +1086,17 @@ public class NotificationManagerService extends INotificationManager.Stub
+                 }
+ 
+                 // vibrate
++                // new in 4.2: if there was supposed to be a sound and we're in vibrate mode,
++                // we always vibrate, even if no vibration was specified
++                final boolean convertSoundToVibration =
++                           notification.vibrate == null
++                        && (useDefaultSound || notification.sound != null)
++                        && (audioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE);
++
+                 final boolean useDefaultVibrate =
+-                    (notification.defaults & Notification.DEFAULT_VIBRATE) != 0;
++                    (notification.defaults & Notification.DEFAULT_VIBRATE) != 0
++                    || convertSoundToVibration;
++
+                 if ((useDefaultVibrate || notification.vibrate != null)
+                         && !(audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT)) {
+                     mVibrateNotification = r;
+-- 
+1.8.1.1
+

@@ -1,0 +1,42 @@
+From 2a3b91846e73cf6917b50050206e10fafd0302b1 Mon Sep 17 00:00:00 2001
+From: Jangwon Lee <jangwon.lee@lge.com>
+Date: Thu, 20 Dec 2012 13:50:57 +0900
+Subject: [PATCH 242/283] Fix bugs regarding IllegalStateException during
+ moving position in cursorwindow.
+
+"startPos + addedRows < requiredPos" could miss a row in boundary position.
+Because of the fluctuating row size, "startPos + addedRows < requiredPos" expression could miss a row in boundary position.
+For example, simply speaking,
+if window capacity = 120 and requiredPos = 120,
+"fillWindow" needs to be newly called and "starPos" is 80 for the window.
+Unfortunately 120th row is bigger than the rest size of the window,
+the row for requiredPos is not in the window.
+Then, startPos has to be newly set and the 120th row has to be included in the window.
+But by the expression above "startPos + addedRows < requiredPos",
+the row for requiredPos is regarded as included in the window.
+In that case, by "mCurrentRowID = Long.valueOf(getLong(mRowIdColumnIndex));" statment in AbstractCursor,
+IllegalStateException is thrown.
+
+This patch contains modification of the expression as "startPos + addedRows <= requiredPos".
+
+Change-Id: Iaee75241e495949b0a624b836843da18d0bcb98d
+---
+ core/jni/android_database_SQLiteConnection.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/jni/android_database_SQLiteConnection.cpp b/core/jni/android_database_SQLiteConnection.cpp
+index c9cf2fa..f70f0d1 100644
+--- a/core/jni/android_database_SQLiteConnection.cpp
++++ b/core/jni/android_database_SQLiteConnection.cpp
+@@ -706,7 +706,7 @@ static jlong nativeExecuteForCursorWindow(JNIEnv* env, jclass clazz,
+             }
+ 
+             CopyRowResult cpr = copyRow(env, window, statement, numColumns, startPos, addedRows);
+-            if (cpr == CPR_FULL && addedRows && startPos + addedRows < requiredPos) {
++            if (cpr == CPR_FULL && addedRows && startPos + addedRows <= requiredPos) {
+                 // We filled the window before we got to the one row that we really wanted.
+                 // Clear the window and start filling it again from here.
+                 // TODO: Would be nicer if we could progressively replace earlier rows.
+-- 
+1.8.1.1
+

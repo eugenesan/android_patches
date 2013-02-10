@@ -1,0 +1,40 @@
+From 35e4a7029e259f19ad5ef7713211794eabfd65e1 Mon Sep 17 00:00:00 2001
+From: Pawit Pornkitprasan <p.pawit@gmail.com>
+Date: Mon, 17 Dec 2012 17:57:51 +0700
+Subject: [PATCH 237/283] Toast: fix force close if called from system service
+
+If a toast is created from a system service, an application context
+will not be available, use the service context instead.
+
+Fixes
+http://code.google.com/p/android/issues/detail?id=40058
+http://code.google.com/p/android/issues/detail?id=40075
+
+Change-Id: Ic643f4557fa04476819cd2c3ee640b735eeae429
+---
+ core/java/android/widget/Toast.java | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/core/java/android/widget/Toast.java b/core/java/android/widget/Toast.java
+index 485bd37..ab36139 100644
+--- a/core/java/android/widget/Toast.java
++++ b/core/java/android/widget/Toast.java
+@@ -374,8 +374,13 @@ public class Toast {
+                 // remove the old view if necessary
+                 handleHide();
+                 mView = mNextView;
+-                mWM = (WindowManager)mView.getContext().getApplicationContext()
+-                        .getSystemService(Context.WINDOW_SERVICE);
++                Context context = mView.getContext();
++                if (context.getApplicationContext() != null) {
++                    // Use application context, except when called from system
++                    // service where there is no application context.
++                    context = context.getApplicationContext();
++                }
++                mWM = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+                 // We can resolve the Gravity here by using the Locale for getting
+                 // the layout direction
+                 final Configuration config = mView.getContext().getResources().getConfiguration();
+-- 
+1.8.1.1
+

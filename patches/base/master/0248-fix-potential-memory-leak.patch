@@ -1,0 +1,34 @@
+From bc268b9014f211910e412a7fda96b6394ff2badc Mon Sep 17 00:00:00 2001
+From: Sungmin Choi <sungmin.choi@lge.com>
+Date: Fri, 21 Dec 2012 14:25:38 +0900
+Subject: [PATCH 248/283] fix potential memory leak
+
+use delete before return
+
+Change-Id: I5449ad90bb6910f057bd825b722c9803a7343c34
+---
+ libs/androidfw/ResourceTypes.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/libs/androidfw/ResourceTypes.cpp b/libs/androidfw/ResourceTypes.cpp
+index fc2cd9e..683c49f 100644
+--- a/libs/androidfw/ResourceTypes.cpp
++++ b/libs/androidfw/ResourceTypes.cpp
+@@ -5037,11 +5037,14 @@ status_t ResTable::parsePackage(const ResTable_package* const pkg,
+         } else {
+             group = mPackageGroups.itemAt(idx-1);
+             if (group == NULL) {
++                delete package;
+                 return (mError=UNKNOWN_ERROR);
+             }
+         }
+         err = group->packages.add(package);
+         if (err < NO_ERROR) {
++            delete group;
++            delete package;
+             return (mError=err);
+         }
+     } else {
+-- 
+1.8.1.1
+

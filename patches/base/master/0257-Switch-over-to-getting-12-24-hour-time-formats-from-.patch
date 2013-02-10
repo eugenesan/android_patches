@@ -1,0 +1,1133 @@
+From 4caba61ea0433099fc94e61221d02542c34e9e3a Mon Sep 17 00:00:00 2001
+From: Elliott Hughes <enh@google.com>
+Date: Mon, 14 Jan 2013 15:48:27 -0800
+Subject: [PATCH 257/283] Switch over to getting 12-/24-hour time formats from
+ CLDR via icu4c.
+
+I removed the duplication in DateTimeView rather than fix that copy
+of the code.
+
+Bug: 7924970
+Change-Id: I60c205d06ad3b50fd2f5d5fc432e4eb186f9c0e7
+---
+ core/java/android/text/format/DateFormat.java             | 15 +++++----------
+ core/java/android/widget/DateTimeView.java                | 10 +---------
+ core/res/res/values-af/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-am/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-ar-rEG/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-ar/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-be/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-bg/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-ca/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-cs/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-da/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-de/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-el/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-en-rAU/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-en-rCA/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-en-rGB/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-en-rIE/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-en-rIN/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-en-rNZ/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-en-rUS/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-en-rZA/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-es-rUS/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-es/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-et/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-fa/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-fi-rFI/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-fi/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-fr/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-hi-rIN/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-hi/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-hr-rHR/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-hr/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-hu-rHU/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-hu/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-in-rID/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-in/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-it/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-iw/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-ja/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-ko/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-lt-rLT/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-lt/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-lv-rLV/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-lv/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-ms/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-nb/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-nl/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-pl/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-pt-rPT/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-pt/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-rm/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-ro-rRO/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-ro/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-ru/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-sk-rSK/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-sk/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-sl-rSI/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-sl/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-sr-rRS/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-sr/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-sv/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-sw/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-th-rTH/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-th/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-tl/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-tr/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-uk-rUA/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-uk/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-vi-rVN/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-vi/donottranslate-cldr.xml            |  2 --
+ core/res/res/values-zh-rCN/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-zh-rTW/donottranslate-cldr.xml        |  2 --
+ core/res/res/values-zu/donottranslate-cldr.xml            |  2 --
+ core/res/res/values/donottranslate-cldr.xml               |  2 --
+ core/res/res/values/symbols.xml                           |  2 --
+ .../src/com/android/systemui/statusbar/policy/Clock.java  | 14 +++++---------
+ 76 files changed, 11 insertions(+), 174 deletions(-)
+
+diff --git a/core/java/android/text/format/DateFormat.java b/core/java/android/text/format/DateFormat.java
+index 3c984b5..cc676de 100644
+--- a/core/java/android/text/format/DateFormat.java
++++ b/core/java/android/text/format/DateFormat.java
+@@ -31,6 +31,8 @@ import java.util.Locale;
+ import java.util.TimeZone;
+ import java.text.SimpleDateFormat;
+ 
++import libcore.icu.LocaleData;
++
+ /**
+     Utility class for producing strings with formatted date/time.
+ 
+@@ -265,16 +267,9 @@ public class DateFormat {
+      * @return the {@link java.text.DateFormat} object that properly formats the time.
+      */
+     public static java.text.DateFormat getTimeFormat(Context context) {
+-        boolean b24 = is24HourFormat(context);
+-        int res;
+-
+-        if (b24) {
+-            res = R.string.twenty_four_hour_time_format;
+-        } else {
+-            res = R.string.twelve_hour_time_format;
+-        }
+-
+-        return new java.text.SimpleDateFormat(context.getString(res));
++        LocaleData d = LocaleData.get(context.getResources().getConfiguration().locale);
++        boolean is24 = is24HourFormat(context);
++        return new java.text.SimpleDateFormat(is24 ? d.timeFormat24 : d.timeFormat12);
+     }
+ 
+     /**
+diff --git a/core/java/android/widget/DateTimeView.java b/core/java/android/widget/DateTimeView.java
+index 6e6e4af..af6bbcb 100644
+--- a/core/java/android/widget/DateTimeView.java
++++ b/core/java/android/widget/DateTimeView.java
+@@ -189,15 +189,7 @@ public class DateTimeView extends TextView {
+     }
+ 
+     private DateFormat getTimeFormat() {
+-        int res;
+-        Context context = getContext();
+-        if (android.text.format.DateFormat.is24HourFormat(context)) {
+-            res = R.string.twenty_four_hour_time_format;
+-        } else {
+-            res = R.string.twelve_hour_time_format;
+-        }
+-        String format = context.getString(res);
+-        return new SimpleDateFormat(format);
++        return android.text.format.DateFormat.getTimeFormat(getContext());
+     }
+ 
+     private DateFormat getDateFormat() {
+diff --git a/core/res/res/values-af/donottranslate-cldr.xml b/core/res/res/values-af/donottranslate-cldr.xml
+index 77b7f7c..ca693b6 100644
+--- a/core/res/res/values-af/donottranslate-cldr.xml
++++ b/core/res/res/values-af/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%Y/%m/%d</string>
+     <string name="numeric_date_format">yyyy/MM/dd</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-am/donottranslate-cldr.xml b/core/res/res/values-am/donottranslate-cldr.xml
+index b3b76f9..a7cb1c7 100644
+--- a/core/res/res/values-am/donottranslate-cldr.xml
++++ b/core/res/res/values-am/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-ar-rEG/donottranslate-cldr.xml b/core/res/res/values-ar-rEG/donottranslate-cldr.xml
+index 155480d..7480756 100644
+--- a/core/res/res/values-ar-rEG/donottranslate-cldr.xml
++++ b/core/res/res/values-ar-rEG/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%-e‏/%-m‏/%Y</string>
+     <string name="numeric_date_format">d‏/M‏/yyyy</string>
+     <string name="numeric_date_template">"%s‏/%s‏/%s"</string>
+diff --git a/core/res/res/values-ar/donottranslate-cldr.xml b/core/res/res/values-ar/donottranslate-cldr.xml
+index 135963b..44d8a26 100644
+--- a/core/res/res/values-ar/donottranslate-cldr.xml
++++ b/core/res/res/values-ar/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%-e‏/%-m‏/%Y</string>
+     <string name="numeric_date_format">d‏/M‏/yyyy</string>
+     <string name="numeric_date_template">"%s‏/%s‏/%s"</string>
+diff --git a/core/res/res/values-be/donottranslate-cldr.xml b/core/res/res/values-be/donottranslate-cldr.xml
+index a346c83..926b4bb 100644
+--- a/core/res/res/values-be/donottranslate-cldr.xml
++++ b/core/res/res/values-be/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k.%M</string>
+     <string name="hour_minute_ampm">%-l.%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l.%M %p</string>
+-    <string name="twelve_hour_time_format">h.mm a</string>
+-    <string name="twenty_four_hour_time_format">H.mm</string>
+     <string name="numeric_date">%-e.%-m.%Y</string>
+     <string name="numeric_date_format">d.M.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-bg/donottranslate-cldr.xml b/core/res/res/values-bg/donottranslate-cldr.xml
+index 9c1ae2c..e7ad610 100644
+--- a/core/res/res/values-bg/donottranslate-cldr.xml
++++ b/core/res/res/values-bg/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d.%m.%Y</string>
+     <string name="numeric_date_format">dd.MM.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-ca/donottranslate-cldr.xml b/core/res/res/values-ca/donottranslate-cldr.xml
+index 84e7e79..0872125 100644
+--- a/core/res/res/values-ca/donottranslate-cldr.xml
++++ b/core/res/res/values-ca/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-cs/donottranslate-cldr.xml b/core/res/res/values-cs/donottranslate-cldr.xml
+index ff7902d..bbf42f0 100644
+--- a/core/res/res/values-cs/donottranslate-cldr.xml
++++ b/core/res/res/values-cs/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%-e. %-m. %Y</string>
+     <string name="numeric_date_format">d. M. yyyy</string>
+     <string name="numeric_date_template">"%s. %s. %s"</string>
+diff --git a/core/res/res/values-da/donottranslate-cldr.xml b/core/res/res/values-da/donottranslate-cldr.xml
+index d5b9878..427fd0c 100644
+--- a/core/res/res/values-da/donottranslate-cldr.xml
++++ b/core/res/res/values-da/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l.%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l.%M %^p</string>
+-    <string name="twelve_hour_time_format">h.mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-de/donottranslate-cldr.xml b/core/res/res/values-de/donottranslate-cldr.xml
+index 9bdd8a3..850fe26 100644
+--- a/core/res/res/values-de/donottranslate-cldr.xml
++++ b/core/res/res/values-de/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d.%m.%Y</string>
+     <string name="numeric_date_format">dd.MM.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-el/donottranslate-cldr.xml b/core/res/res/values-el/donottranslate-cldr.xml
+index a0c69b5..dfa199d 100644
+--- a/core/res/res/values-el/donottranslate-cldr.xml
++++ b/core/res/res/values-el/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-en-rAU/donottranslate-cldr.xml b/core/res/res/values-en-rAU/donottranslate-cldr.xml
+index 947fe92..7ccff4d 100644
+--- a/core/res/res/values-en-rAU/donottranslate-cldr.xml
++++ b/core/res/res/values-en-rAU/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M%p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M%^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%-e/%m/%Y</string>
+     <string name="numeric_date_format">d/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-en-rCA/donottranslate-cldr.xml b/core/res/res/values-en-rCA/donottranslate-cldr.xml
+index 1845f28..21e9b7e 100644
+--- a/core/res/res/values-en-rCA/donottranslate-cldr.xml
++++ b/core/res/res/values-en-rCA/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M%p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M%^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%Y-%m-%d</string>
+     <string name="numeric_date_format">yyyy-MM-dd</string>
+     <string name="numeric_date_template">"%s-%s-%s"</string>
+diff --git a/core/res/res/values-en-rGB/donottranslate-cldr.xml b/core/res/res/values-en-rGB/donottranslate-cldr.xml
+index a10dfa50..22a8e41 100644
+--- a/core/res/res/values-en-rGB/donottranslate-cldr.xml
++++ b/core/res/res/values-en-rGB/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M%p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M%^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-en-rIE/donottranslate-cldr.xml b/core/res/res/values-en-rIE/donottranslate-cldr.xml
+index 65cab99..c88d86c 100644
+--- a/core/res/res/values-en-rIE/donottranslate-cldr.xml
++++ b/core/res/res/values-en-rIE/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M%p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M%^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-en-rIN/donottranslate-cldr.xml b/core/res/res/values-en-rIN/donottranslate-cldr.xml
+index 48942fe..3b7a0ca 100644
+--- a/core/res/res/values-en-rIN/donottranslate-cldr.xml
++++ b/core/res/res/values-en-rIN/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M%p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M%^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-en-rNZ/donottranslate-cldr.xml b/core/res/res/values-en-rNZ/donottranslate-cldr.xml
+index 117dda8..9156376 100644
+--- a/core/res/res/values-en-rNZ/donottranslate-cldr.xml
++++ b/core/res/res/values-en-rNZ/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M%p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M%^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%-e/%m/%Y</string>
+     <string name="numeric_date_format">d/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-en-rUS/donottranslate-cldr.xml b/core/res/res/values-en-rUS/donottranslate-cldr.xml
+index 0587c16..4d37d47 100644
+--- a/core/res/res/values-en-rUS/donottranslate-cldr.xml
++++ b/core/res/res/values-en-rUS/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M%p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M%^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%-m/%-e/%Y</string>
+     <string name="numeric_date_format">M/d/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-en-rZA/donottranslate-cldr.xml b/core/res/res/values-en-rZA/donottranslate-cldr.xml
+index 48ebc6e..5ae38c1 100644
+--- a/core/res/res/values-en-rZA/donottranslate-cldr.xml
++++ b/core/res/res/values-en-rZA/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M%p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M%^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%Y/%m/%d</string>
+     <string name="numeric_date_format">yyyy/MM/dd</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-es-rUS/donottranslate-cldr.xml b/core/res/res/values-es-rUS/donottranslate-cldr.xml
+index 9224786..2339066 100644
+--- a/core/res/res/values-es-rUS/donottranslate-cldr.xml
++++ b/core/res/res/values-es-rUS/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%-m/%-e/%Y</string>
+     <string name="numeric_date_format">M/d/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-es/donottranslate-cldr.xml b/core/res/res/values-es/donottranslate-cldr.xml
+index 0a680b6..dd8a8fa 100644
+--- a/core/res/res/values-es/donottranslate-cldr.xml
++++ b/core/res/res/values-es/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-et/donottranslate-cldr.xml b/core/res/res/values-et/donottranslate-cldr.xml
+index bf269dd..912df10 100644
+--- a/core/res/res/values-et/donottranslate-cldr.xml
++++ b/core/res/res/values-et/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d.%m.%Y</string>
+     <string name="numeric_date_format">dd.MM.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-fa/donottranslate-cldr.xml b/core/res/res/values-fa/donottranslate-cldr.xml
+index 402311a..e1c8fec 100644
+--- a/core/res/res/values-fa/donottranslate-cldr.xml
++++ b/core/res/res/values-fa/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%Y/%-m/%-e</string>
+     <string name="numeric_date_format">yyyy/M/d</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-fi-rFI/donottranslate-cldr.xml b/core/res/res/values-fi-rFI/donottranslate-cldr.xml
+index 04f0a77..32b7803 100644
+--- a/core/res/res/values-fi-rFI/donottranslate-cldr.xml
++++ b/core/res/res/values-fi-rFI/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k.%M</string>
+     <string name="hour_minute_ampm">%-l.%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l.%M %^p</string>
+-    <string name="twelve_hour_time_format">h.mm a</string>
+-    <string name="twenty_four_hour_time_format">H.mm</string>
+     <string name="numeric_date">%-e.%-m.%Y</string>
+     <string name="numeric_date_format">d.M.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-fi/donottranslate-cldr.xml b/core/res/res/values-fi/donottranslate-cldr.xml
+index 543595f..df6f78f 100644
+--- a/core/res/res/values-fi/donottranslate-cldr.xml
++++ b/core/res/res/values-fi/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k.%M</string>
+     <string name="hour_minute_ampm">%-l.%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l.%M %^p</string>
+-    <string name="twelve_hour_time_format">h.mm a</string>
+-    <string name="twenty_four_hour_time_format">H.mm</string>
+     <string name="numeric_date">%-e.%-m.%Y</string>
+     <string name="numeric_date_format">d.M.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-fr/donottranslate-cldr.xml b/core/res/res/values-fr/donottranslate-cldr.xml
+index ff10aec..5698514 100644
+--- a/core/res/res/values-fr/donottranslate-cldr.xml
++++ b/core/res/res/values-fr/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-hi-rIN/donottranslate-cldr.xml b/core/res/res/values-hi-rIN/donottranslate-cldr.xml
+index 5371e15..72b89c2 100644
+--- a/core/res/res/values-hi-rIN/donottranslate-cldr.xml
++++ b/core/res/res/values-hi-rIN/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%-e-%-m-%Y</string>
+     <string name="numeric_date_format">d-M-yyyy</string>
+     <string name="numeric_date_template">"%s-%s-%s"</string>
+diff --git a/core/res/res/values-hi/donottranslate-cldr.xml b/core/res/res/values-hi/donottranslate-cldr.xml
+index 8043169..3e6138e 100644
+--- a/core/res/res/values-hi/donottranslate-cldr.xml
++++ b/core/res/res/values-hi/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%-e-%-m-%Y</string>
+     <string name="numeric_date_format">d-M-yyyy</string>
+     <string name="numeric_date_template">"%s-%s-%s"</string>
+diff --git a/core/res/res/values-hr-rHR/donottranslate-cldr.xml b/core/res/res/values-hr-rHR/donottranslate-cldr.xml
+index 57e0572..d6d20e7 100644
+--- a/core/res/res/values-hr-rHR/donottranslate-cldr.xml
++++ b/core/res/res/values-hr-rHR/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%-e.%-m.%Y.</string>
+     <string name="numeric_date_format">d.M.yyyy.</string>
+     <string name="numeric_date_template">"%s.%s.%s."</string>
+diff --git a/core/res/res/values-hr/donottranslate-cldr.xml b/core/res/res/values-hr/donottranslate-cldr.xml
+index 9e4b225..8703981 100644
+--- a/core/res/res/values-hr/donottranslate-cldr.xml
++++ b/core/res/res/values-hr/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%-e.%-m.%Y.</string>
+     <string name="numeric_date_format">d.M.yyyy.</string>
+     <string name="numeric_date_template">"%s.%s.%s."</string>
+diff --git a/core/res/res/values-hu-rHU/donottranslate-cldr.xml b/core/res/res/values-hu-rHU/donottranslate-cldr.xml
+index 5f4b8aa..59eb75a 100644
+--- a/core/res/res/values-hu-rHU/donottranslate-cldr.xml
++++ b/core/res/res/values-hu-rHU/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%p %-l:%M</string>
+     <string name="hour_minute_cap_ampm">%^p %-l:%M</string>
+-    <string name="twelve_hour_time_format">a h:mm</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%Y.%m.%d.</string>
+     <string name="numeric_date_format">yyyy.MM.dd.</string>
+     <string name="numeric_date_template">"%s.%s.%s."</string>
+diff --git a/core/res/res/values-hu/donottranslate-cldr.xml b/core/res/res/values-hu/donottranslate-cldr.xml
+index c925b82..525b0c0 100644
+--- a/core/res/res/values-hu/donottranslate-cldr.xml
++++ b/core/res/res/values-hu/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%Y.%m.%d.</string>
+     <string name="numeric_date_format">yyyy.MM.dd.</string>
+     <string name="numeric_date_template">"%s.%s.%s."</string>
+diff --git a/core/res/res/values-in-rID/donottranslate-cldr.xml b/core/res/res/values-in-rID/donottranslate-cldr.xml
+index 8b13bcf..aedc2c7 100644
+--- a/core/res/res/values-in-rID/donottranslate-cldr.xml
++++ b/core/res/res/values-in-rID/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-in/donottranslate-cldr.xml b/core/res/res/values-in/donottranslate-cldr.xml
+index 6e9bba4..7371132 100644
+--- a/core/res/res/values-in/donottranslate-cldr.xml
++++ b/core/res/res/values-in/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-it/donottranslate-cldr.xml b/core/res/res/values-it/donottranslate-cldr.xml
+index 9ff27e8..b06e73d 100644
+--- a/core/res/res/values-it/donottranslate-cldr.xml
++++ b/core/res/res/values-it/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-iw/donottranslate-cldr.xml b/core/res/res/values-iw/donottranslate-cldr.xml
+index 631c059..037251e 100644
+--- a/core/res/res/values-iw/donottranslate-cldr.xml
++++ b/core/res/res/values-iw/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-ja/donottranslate-cldr.xml b/core/res/res/values-ja/donottranslate-cldr.xml
+index 1c1d55f..f2cdbba 100644
+--- a/core/res/res/values-ja/donottranslate-cldr.xml
++++ b/core/res/res/values-ja/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M%p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M%^p</string>
+-    <string name="twelve_hour_time_format">h:mma</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%Y/%m/%d</string>
+     <string name="numeric_date_format">yyyy/MM/dd</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-ko/donottranslate-cldr.xml b/core/res/res/values-ko/donottranslate-cldr.xml
+index 59b975f..29d7982 100644
+--- a/core/res/res/values-ko/donottranslate-cldr.xml
++++ b/core/res/res/values-ko/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%p %-l:%M</string>
+     <string name="hour_minute_cap_ampm">%p %-l:%M</string>
+-    <string name="twelve_hour_time_format">a h:mm</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%Y. %-m. %-e.</string>
+     <string name="numeric_date_format">yyyy. M. d.</string>
+     <string name="numeric_date_template">"%s. %s. %s."</string>
+diff --git a/core/res/res/values-lt-rLT/donottranslate-cldr.xml b/core/res/res/values-lt-rLT/donottranslate-cldr.xml
+index 6cf6098..19ae2ea 100644
+--- a/core/res/res/values-lt-rLT/donottranslate-cldr.xml
++++ b/core/res/res/values-lt-rLT/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%Y-%m-%d</string>
+     <string name="numeric_date_format">yyyy-MM-dd</string>
+     <string name="numeric_date_template">"%s-%s-%s"</string>
+diff --git a/core/res/res/values-lt/donottranslate-cldr.xml b/core/res/res/values-lt/donottranslate-cldr.xml
+index b1a94f3..0683d46 100644
+--- a/core/res/res/values-lt/donottranslate-cldr.xml
++++ b/core/res/res/values-lt/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%Y-%m-%d</string>
+     <string name="numeric_date_format">yyyy-MM-dd</string>
+     <string name="numeric_date_template">"%s-%s-%s"</string>
+diff --git a/core/res/res/values-lv-rLV/donottranslate-cldr.xml b/core/res/res/values-lv-rLV/donottranslate-cldr.xml
+index 3922f6b..eb74fa3 100644
+--- a/core/res/res/values-lv-rLV/donottranslate-cldr.xml
++++ b/core/res/res/values-lv-rLV/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%d.%m.%Y</string>
+     <string name="numeric_date_format">dd.MM.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-lv/donottranslate-cldr.xml b/core/res/res/values-lv/donottranslate-cldr.xml
+index ec768bc..cd55478 100644
+--- a/core/res/res/values-lv/donottranslate-cldr.xml
++++ b/core/res/res/values-lv/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%d.%m.%Y</string>
+     <string name="numeric_date_format">dd.MM.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-ms/donottranslate-cldr.xml b/core/res/res/values-ms/donottranslate-cldr.xml
+index a5843ff..7c02f3f 100644
+--- a/core/res/res/values-ms/donottranslate-cldr.xml
++++ b/core/res/res/values-ms/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-nb/donottranslate-cldr.xml b/core/res/res/values-nb/donottranslate-cldr.xml
+index 8eb1ff6..d53d4ea 100644
+--- a/core/res/res/values-nb/donottranslate-cldr.xml
++++ b/core/res/res/values-nb/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H.%M</string>
+     <string name="hour_minute_ampm">%-l.%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l.%M %^p</string>
+-    <string name="twelve_hour_time_format">h.mm a</string>
+-    <string name="twenty_four_hour_time_format">HH.mm</string>
+     <string name="numeric_date">%d.%m.%Y</string>
+     <string name="numeric_date_format">dd.MM.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-nl/donottranslate-cldr.xml b/core/res/res/values-nl/donottranslate-cldr.xml
+index 1495a48..54e7e39 100644
+--- a/core/res/res/values-nl/donottranslate-cldr.xml
++++ b/core/res/res/values-nl/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%d-%m-%Y</string>
+     <string name="numeric_date_format">dd-MM-yyyy</string>
+     <string name="numeric_date_template">"%s-%s-%s"</string>
+diff --git a/core/res/res/values-pl/donottranslate-cldr.xml b/core/res/res/values-pl/donottranslate-cldr.xml
+index 53f0c36..91c98ea 100644
+--- a/core/res/res/values-pl/donottranslate-cldr.xml
++++ b/core/res/res/values-pl/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d.%m.%Y</string>
+     <string name="numeric_date_format">dd.MM.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-pt-rPT/donottranslate-cldr.xml b/core/res/res/values-pt-rPT/donottranslate-cldr.xml
+index 26d8371..60787a9 100644
+--- a/core/res/res/values-pt-rPT/donottranslate-cldr.xml
++++ b/core/res/res/values-pt-rPT/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-kh%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H\'h\'mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-pt/donottranslate-cldr.xml b/core/res/res/values-pt/donottranslate-cldr.xml
+index c3e6c29..d5fee19 100644
+--- a/core/res/res/values-pt/donottranslate-cldr.xml
++++ b/core/res/res/values-pt/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-kh%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H\'h\'mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-rm/donottranslate-cldr.xml b/core/res/res/values-rm/donottranslate-cldr.xml
+index e6f0df2..32e1170 100644
+--- a/core/res/res/values-rm/donottranslate-cldr.xml
++++ b/core/res/res/values-rm/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d.%m.%Y</string>
+     <string name="numeric_date_format">dd.MM.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-ro-rRO/donottranslate-cldr.xml b/core/res/res/values-ro-rRO/donottranslate-cldr.xml
+index 7056803..1233f4e 100644
+--- a/core/res/res/values-ro-rRO/donottranslate-cldr.xml
++++ b/core/res/res/values-ro-rRO/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d.%m.%Y</string>
+     <string name="numeric_date_format">dd.MM.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-ro/donottranslate-cldr.xml b/core/res/res/values-ro/donottranslate-cldr.xml
+index 935c6af..f80a944 100644
+--- a/core/res/res/values-ro/donottranslate-cldr.xml
++++ b/core/res/res/values-ro/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d.%m.%Y</string>
+     <string name="numeric_date_format">dd.MM.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-ru/donottranslate-cldr.xml b/core/res/res/values-ru/donottranslate-cldr.xml
+index 03c64ab..4e315eb 100644
+--- a/core/res/res/values-ru/donottranslate-cldr.xml
++++ b/core/res/res/values-ru/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d.%m.%Y</string>
+     <string name="numeric_date_format">dd.MM.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-sk-rSK/donottranslate-cldr.xml b/core/res/res/values-sk-rSK/donottranslate-cldr.xml
+index 651c58c..94dca66 100644
+--- a/core/res/res/values-sk-rSK/donottranslate-cldr.xml
++++ b/core/res/res/values-sk-rSK/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%-e. %-m. %Y</string>
+     <string name="numeric_date_format">d. M. yyyy</string>
+     <string name="numeric_date_template">"%s. %s. %s"</string>
+diff --git a/core/res/res/values-sk/donottranslate-cldr.xml b/core/res/res/values-sk/donottranslate-cldr.xml
+index 48c644a..9eeb133 100644
+--- a/core/res/res/values-sk/donottranslate-cldr.xml
++++ b/core/res/res/values-sk/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%-e.%-m.%Y</string>
+     <string name="numeric_date_format">d.M.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-sl-rSI/donottranslate-cldr.xml b/core/res/res/values-sl-rSI/donottranslate-cldr.xml
+index 84fffbd..6cf9bd6 100644
+--- a/core/res/res/values-sl-rSI/donottranslate-cldr.xml
++++ b/core/res/res/values-sl-rSI/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%-e. %m. %Y</string>
+     <string name="numeric_date_format">d. MM. yyyy</string>
+     <string name="numeric_date_template">"%s. %s. %s"</string>
+diff --git a/core/res/res/values-sl/donottranslate-cldr.xml b/core/res/res/values-sl/donottranslate-cldr.xml
+index 137ed3f..49d36fd 100644
+--- a/core/res/res/values-sl/donottranslate-cldr.xml
++++ b/core/res/res/values-sl/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%-e. %m. %Y</string>
+     <string name="numeric_date_format">d. MM. yyyy</string>
+     <string name="numeric_date_template">"%s. %s. %s"</string>
+diff --git a/core/res/res/values-sr-rRS/donottranslate-cldr.xml b/core/res/res/values-sr-rRS/donottranslate-cldr.xml
+index 996c75e..3f88960 100644
+--- a/core/res/res/values-sr-rRS/donottranslate-cldr.xml
++++ b/core/res/res/values-sr-rRS/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H.%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH.mm</string>
+     <string name="numeric_date">%-e.%-m.%Y.</string>
+     <string name="numeric_date_format">d.M.yyyy.</string>
+     <string name="numeric_date_template">"%s.%s.%s."</string>
+diff --git a/core/res/res/values-sr/donottranslate-cldr.xml b/core/res/res/values-sr/donottranslate-cldr.xml
+index 7fca1a2..ca3cb08 100644
+--- a/core/res/res/values-sr/donottranslate-cldr.xml
++++ b/core/res/res/values-sr/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H.%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH.mm</string>
+     <string name="numeric_date">%-e.%-m.%Y.</string>
+     <string name="numeric_date_format">d.M.yyyy.</string>
+     <string name="numeric_date_template">"%s.%s.%s."</string>
+diff --git a/core/res/res/values-sv/donottranslate-cldr.xml b/core/res/res/values-sv/donottranslate-cldr.xml
+index 64c83f2..46b9f9d 100644
+--- a/core/res/res/values-sv/donottranslate-cldr.xml
++++ b/core/res/res/values-sv/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d-%m-%Y</string>
+     <string name="numeric_date_format">dd-MM-yyyy</string>
+     <string name="numeric_date_template">"%s-%s-%s"</string>
+diff --git a/core/res/res/values-sw/donottranslate-cldr.xml b/core/res/res/values-sw/donottranslate-cldr.xml
+index a7a5150..e0625e9 100644
+--- a/core/res/res/values-sw/donottranslate-cldr.xml
++++ b/core/res/res/values-sw/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%Y/%m/%d</string>
+     <string name="numeric_date_format">yyyy/MM/dd</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-th-rTH/donottranslate-cldr.xml b/core/res/res/values-th-rTH/donottranslate-cldr.xml
+index 2517143..94ec23d 100644
+--- a/core/res/res/values-th-rTH/donottranslate-cldr.xml
++++ b/core/res/res/values-th-rTH/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%-e/%-m/%Y</string>
+     <string name="numeric_date_format">d/M/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-th/donottranslate-cldr.xml b/core/res/res/values-th/donottranslate-cldr.xml
+index 7ab4191..b42656a 100644
+--- a/core/res/res/values-th/donottranslate-cldr.xml
++++ b/core/res/res/values-th/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%-e/%-m/%Y</string>
+     <string name="numeric_date_format">d/M/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-tl/donottranslate-cldr.xml b/core/res/res/values-tl/donottranslate-cldr.xml
+index 4545fb5..970a538 100644
+--- a/core/res/res/values-tl/donottranslate-cldr.xml
++++ b/core/res/res/values-tl/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%Y-%m-%d</string>
+     <string name="numeric_date_format">yyyy-MM-dd</string>
+     <string name="numeric_date_template">"%s-%s-%s"</string>
+diff --git a/core/res/res/values-tr/donottranslate-cldr.xml b/core/res/res/values-tr/donottranslate-cldr.xml
+index 1ab4ff7..a0ee370 100644
+--- a/core/res/res/values-tr/donottranslate-cldr.xml
++++ b/core/res/res/values-tr/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%d %m %Y</string>
+     <string name="numeric_date_format">dd MM yyyy</string>
+     <string name="numeric_date_template">"%s %s %s"</string>
+diff --git a/core/res/res/values-uk-rUA/donottranslate-cldr.xml b/core/res/res/values-uk-rUA/donottranslate-cldr.xml
+index f7ca458..5cb41f4 100644
+--- a/core/res/res/values-uk-rUA/donottranslate-cldr.xml
++++ b/core/res/res/values-uk-rUA/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d.%m.%Y</string>
+     <string name="numeric_date_format">dd.MM.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-uk/donottranslate-cldr.xml b/core/res/res/values-uk/donottranslate-cldr.xml
+index 51c2cb5..f2a61da 100644
+--- a/core/res/res/values-uk/donottranslate-cldr.xml
++++ b/core/res/res/values-uk/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d.%m.%Y</string>
+     <string name="numeric_date_format">dd.MM.yyyy</string>
+     <string name="numeric_date_template">"%s.%s.%s"</string>
+diff --git a/core/res/res/values-vi-rVN/donottranslate-cldr.xml b/core/res/res/values-vi-rVN/donottranslate-cldr.xml
+index a385015..307dab2 100644
+--- a/core/res/res/values-vi-rVN/donottranslate-cldr.xml
++++ b/core/res/res/values-vi-rVN/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-vi/donottranslate-cldr.xml b/core/res/res/values-vi/donottranslate-cldr.xml
+index 977e021..f4d5dc3 100644
+--- a/core/res/res/values-vi/donottranslate-cldr.xml
++++ b/core/res/res/values-vi/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%d/%m/%Y</string>
+     <string name="numeric_date_format">dd/MM/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-zh-rCN/donottranslate-cldr.xml b/core/res/res/values-zh-rCN/donottranslate-cldr.xml
+index b34b8b3..6ac384a 100644
+--- a/core/res/res/values-zh-rCN/donottranslate-cldr.xml
++++ b/core/res/res/values-zh-rCN/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%p %-l:%M</string>
+     <string name="hour_minute_cap_ampm">%p %-l:%M</string>
+-    <string name="twelve_hour_time_format">a h:mm</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%Y-%-m-%-e</string>
+     <string name="numeric_date_format">yyyy-M-d</string>
+     <string name="numeric_date_template">"%s-%s-%s"</string>
+diff --git a/core/res/res/values-zh-rTW/donottranslate-cldr.xml b/core/res/res/values-zh-rTW/donottranslate-cldr.xml
+index 869705e..42faa83 100644
+--- a/core/res/res/values-zh-rTW/donottranslate-cldr.xml
++++ b/core/res/res/values-zh-rTW/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%p %-l:%M</string>
+     <string name="hour_minute_cap_ampm">%p %-l:%M</string>
+-    <string name="twelve_hour_time_format">a h:mm</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%Y/%-m/%-e</string>
+     <string name="numeric_date_format">yyyy/M/d</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values-zu/donottranslate-cldr.xml b/core/res/res/values-zu/donottranslate-cldr.xml
+index 97b179b..703823c 100644
+--- a/core/res/res/values-zu/donottranslate-cldr.xml
++++ b/core/res/res/values-zu/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%-k:%M</string>
+     <string name="hour_minute_ampm">%-l:%M %p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M %^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">H:mm</string>
+     <string name="numeric_date">%Y-%m-%d</string>
+     <string name="numeric_date_format">yyyy-MM-dd</string>
+     <string name="numeric_date_template">"%s-%s-%s"</string>
+diff --git a/core/res/res/values/donottranslate-cldr.xml b/core/res/res/values/donottranslate-cldr.xml
+index 0587c16..4d37d47 100644
+--- a/core/res/res/values/donottranslate-cldr.xml
++++ b/core/res/res/values/donottranslate-cldr.xml
+@@ -4,8 +4,6 @@
+     <string name="hour_minute_24">%H:%M</string>
+     <string name="hour_minute_ampm">%-l:%M%p</string>
+     <string name="hour_minute_cap_ampm">%-l:%M%^p</string>
+-    <string name="twelve_hour_time_format">h:mm a</string>
+-    <string name="twenty_four_hour_time_format">HH:mm</string>
+     <string name="numeric_date">%-m/%-e/%Y</string>
+     <string name="numeric_date_format">M/d/yyyy</string>
+     <string name="numeric_date_template">"%s/%s/%s"</string>
+diff --git a/core/res/res/values/symbols.xml b/core/res/res/values/symbols.xml
+index c3abf31..1bac5c0 100644
+--- a/core/res/res/values/symbols.xml
++++ b/core/res/res/values/symbols.xml
+@@ -810,8 +810,6 @@
+   <java-symbol type="string" name="time_picker_separator" />
+   <java-symbol type="string" name="time_wday" />
+   <java-symbol type="string" name="time_wday_date" />
+-  <java-symbol type="string" name="twelve_hour_time_format" />
+-  <java-symbol type="string" name="twenty_four_hour_time_format" />
+   <java-symbol type="string" name="upload_file" />
+   <java-symbol type="string" name="user_switched" />
+   <java-symbol type="string" name="volume_alarm" />
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/policy/Clock.java b/packages/SystemUI/src/com/android/systemui/statusbar/policy/Clock.java
+index ffc18c7..6476153 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/policy/Clock.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/policy/Clock.java
+@@ -42,6 +42,8 @@ import java.text.SimpleDateFormat;
+ import java.util.Calendar;
+ import java.util.TimeZone;
+ 
++import libcore.icu.LocaleData;
++
+ import com.android.internal.R;
+ 
+ /**
+@@ -129,20 +131,14 @@ public class Clock extends TextView {
+ 
+     private final CharSequence getSmallTime() {
+         Context context = getContext();
+-        boolean b24 = DateFormat.is24HourFormat(context);
+-        int res;
+-
+-        if (b24) {
+-            res = R.string.twenty_four_hour_time_format;
+-        } else {
+-            res = R.string.twelve_hour_time_format;
+-        }
++        boolean is24 = DateFormat.is24HourFormat(context);
++        LocaleData d = LocaleData.get(context.getResources().getConfiguration().locale);
+ 
+         final char MAGIC1 = '\uEF00';
+         final char MAGIC2 = '\uEF01';
+ 
+         SimpleDateFormat sdf;
+-        String format = context.getString(res);
++        String format = is24 ? d.timeFormat24 : d.timeFormat12;
+         if (!format.equals(mClockFormatString)) {
+             /*
+              * Search for an unquoted "a" in the format string, so we can
+-- 
+1.8.1.1
+

@@ -1,0 +1,45 @@
+From 6169bcf50d88367fced5dc5c06ca5827a062644e Mon Sep 17 00:00:00 2001
+From: Jean-Christophe PINCE <jean-christophe.pince@intel.com>
+Date: Tue, 9 Oct 2012 16:17:33 +0200
+Subject: [PATCH 233/283] Memory leak due to bad destroy sequence
+
+During the destroy sequence, it happens that the mWebViewClassic was
+set to null in the transferMessages function and consequently, the
+call to WebCoreThreadWatchdog.unregisterWebView(mWebViewClassic) is
+not really removing the view from the watchdog's list; creating a
+memory leak.
+
+Change-Id: I2bae7c8d7c473e2af25e62a485699f88269d6658
+Author: Jean-Christophe PINCE <jean-christophe.pince@intel.com>
+Signed-off-by: Jean-Christophe PINCE <jean-christophe.pince@intel.com>
+Signed-off-by: Shuo Gao <shuo.gao@intel.com>
+Signed-off-by: Bruce Beare <bruce.j.beare@intel.com>
+Signed-off-by: Jack Ren <jack.ren@intel.com>
+Author-tracking-BZ: 57869
+---
+ core/java/android/webkit/WebViewCore.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/java/android/webkit/WebViewCore.java b/core/java/android/webkit/WebViewCore.java
+index 3fb3ec6..c35b768 100644
+--- a/core/java/android/webkit/WebViewCore.java
++++ b/core/java/android/webkit/WebViewCore.java
+@@ -1278,6 +1278,7 @@ public final class WebViewCore {
+                                 mBrowserFrame = null;
+                                 mSettings.onDestroyed();
+                                 mNativeClass = 0;
++                                WebCoreThreadWatchdog.unregisterWebView(mWebViewClassic);
+                                 mWebViewClassic = null;
+                             }
+                             break;
+@@ -1982,7 +1983,6 @@ public final class WebViewCore {
+             mEventHub.sendMessageAtFrontOfQueue(
+                     Message.obtain(null, EventHub.DESTROY));
+             mEventHub.blockMessages();
+-            WebCoreThreadWatchdog.unregisterWebView(mWebViewClassic);
+         }
+     }
+ 
+-- 
+1.8.1.1
+

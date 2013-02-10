@@ -1,0 +1,52 @@
+From bce268034e4e881704c4263822315bc9a4f9aa43 Mon Sep 17 00:00:00 2001
+From: Scott Main <smain@google.com>
+Date: Thu, 15 Nov 2012 10:26:40 -0800
+Subject: [PATCH 182/283] docs: fix broken youtube playlists
+
+Change-Id: I07a1e9af2c8104a56c9a5e6d1060de7578cbd1ae
+---
+ docs/html/develop/index.jd | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/docs/html/develop/index.jd b/docs/html/develop/index.jd
+index 9c21b3a..5982e62 100644
+--- a/docs/html/develop/index.jd
++++ b/docs/html/develop/index.jd
+@@ -296,17 +296,17 @@ function renderDevelopersLivePlaylist(data) {
+  * Each string in 'ids' is the ID of a YouTube playlist that belongs in the corresponding tab.
+  */
+ var playlists = {
+-  'googleio' : {
+-    'ids': ["4C6BCDE45E05F49E"]
++  'designinaction' : {
++    'ids': ["PLWz5rJ2EKKc8j2B95zGMb8muZvrIy-wcF"]
+   },
+-  'fridayreview' : {
+-    'ids': ["B7B9B23D864A55C3"]
++  'about' : {
++    'ids': ["PL611F8C5DBF49CEC6"]
+   },
+-  'officehours' : {
+-    'ids': ["7383D9AADA6E6D55"]
++  'developersstrikeback' : {
++    'ids': ["PLWz5rJ2EKKc8nhhIOieejm1PxYHmPkIPh"]
+   },
+-  'about' : {
+-    'ids': ["D7C64411AF40DEA5"]
++  'googleio' : {
++    'ids': ["PL4C6BCDE45E05F49E"]
+   }
+ };
+ 
+@@ -326,7 +326,7 @@ function showVideosPlaylists() {
+ 
+ /* Request the playlist feeds from YouTube */
+ function showDevelopersLivePlaylist() {
+-  var playlistId = "B7B9B23D864A55C3"; /* The Friday Review */
++  var playlistId = "PLB7B9B23D864A55C3"; /* The App Clinic */
+   var script = "<script type='text/javascript' src='//gdata.youtube.com/feeds/api/playlists/"
+                 + playlistId +
+                 "?v=2&alt=json-in-script&max-results=10&callback=renderDevelopersLivePlaylist&orderby=published'><\/script > ";
+-- 
+1.8.1.1
+

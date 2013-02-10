@@ -1,0 +1,29 @@
+From 80de20ac189a586e25cd618fe51ff4f489018f85 Mon Sep 17 00:00:00 2001
+From: Ricardo Cerqueira <cyanogenmod@cerqueira.org>
+Date: Mon, 3 Dec 2012 10:36:55 +0000
+Subject: [PATCH 2/6] Enable low latence audio
+
+It's been made optional for compat with older devices, reenable
+it on mako
+
+Change-Id: I300b2354f5c2c49f8b6054778a9da2fc210f2aaf
+---
+ BoardConfig.mk | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index ce043a3..6a0bcca 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -100,6 +100,8 @@ TARGET_RELEASETOOLS_EXTENSIONS := device/lge/mako
+ 
+ BOARD_CHARGER_ENABLE_SUSPEND := true
+ 
++BOARD_HAVE_LOW_LATENCY_AUDIO := true
++
+ -include vendor/lge/mako/BoardConfigVendor.mk
+ 
+ BOARD_HAS_NO_SELECT_BUTTON := true
+-- 
+1.8.1.1
+

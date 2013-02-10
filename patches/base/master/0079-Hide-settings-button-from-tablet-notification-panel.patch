@@ -1,0 +1,27 @@
+From 5dd1b6ed0c785d29769f41664603e206f7442121 Mon Sep 17 00:00:00 2001
+From: Daniel Sandler <dsandler@android.com>
+Date: Wed, 17 Oct 2012 01:09:27 -0400
+Subject: [PATCH 079/283] Hide settings button from tablet notification panel.
+
+Bug: 7363279
+Change-Id: I90f4286a596527485c462773f2553ed4986f60b2
+---
+ .../src/com/android/systemui/statusbar/phone/PhoneStatusBar.java        | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+index 1dae726..24f76bb 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+@@ -297,7 +297,7 @@ public class PhoneStatusBar extends BaseStatusBar {
+             if (MULTIUSER_DEBUG) Slog.d(TAG, String.format("User setup changed: " +
+                     "selfChange=%s userSetup=%s mUserSetup=%s",
+                     selfChange, userSetup, mUserSetup));
+-            if (mSettingsButton != null) {
++            if (mSettingsButton != null && !mHasSettingsPanel) {
+                 mSettingsButton.setVisibility(userSetup ? View.VISIBLE : View.INVISIBLE);
+             }
+             if (mSettingsPanel != null) {
+-- 
+1.8.1.1
+

@@ -1,0 +1,61 @@
+From 5dc21d9b340fe2c1cb4c37435d8a29429cf3f79e Mon Sep 17 00:00:00 2001
+From: Svetoslav Ganov <svetoslavganov@google.com>
+Date: Sun, 7 Oct 2012 18:54:42 -0700
+Subject: [PATCH 051/283] Adding support to NumberPicker
+
+Change-Id: I471b995c8d364c2bd5eef3ab0397c17fc77f6ccc
+---
+ core/java/android/widget/NumberPicker.java | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/core/java/android/widget/NumberPicker.java b/core/java/android/widget/NumberPicker.java
+index 4918e48..2efcf41 100644
+--- a/core/java/android/widget/NumberPicker.java
++++ b/core/java/android/widget/NumberPicker.java
+@@ -470,6 +470,11 @@ public class NumberPicker extends LinearLayout {
+     private final PressedStateHelper mPressedStateHelper;
+ 
+     /**
++     * The keycode of the last handled DPAD down event.
++     */
++    private int mLastHandledDownDpadKeyCode = -1;
++
++    /**
+      * Interface to listen for changes of the current value.
+      */
+     public interface OnValueChangeListener {
+@@ -936,6 +941,31 @@ public class NumberPicker extends LinearLayout {
+             case KeyEvent.KEYCODE_ENTER:
+                 removeAllCallbacks();
+                 break;
++            case KeyEvent.KEYCODE_DPAD_DOWN:
++            case KeyEvent.KEYCODE_DPAD_UP:
++                if (!mHasSelectorWheel) {
++                    break;
++                }
++                switch (event.getAction()) {
++                    case KeyEvent.ACTION_DOWN:
++                        if (mWrapSelectorWheel || (keyCode == KeyEvent.KEYCODE_DPAD_UP)
++                                ? getValue() < getMaxValue() : getValue() > getMinValue()) {
++                            requestFocus();
++                            mLastHandledDownDpadKeyCode = keyCode;
++                            removeAllCallbacks();
++                            if (mFlingScroller.isFinished()) {
++                                changeValueByOne(keyCode == KeyEvent.KEYCODE_DPAD_UP);
++                            }
++                            return true;
++                        }
++                        break;
++                    case KeyEvent.ACTION_UP:
++                        if (mLastHandledDownDpadKeyCode == keyCode) {
++                            mLastHandledDownDpadKeyCode = -1;
++                            return true;
++                        }
++                        break;
++                }
+         }
+         return super.dispatchKeyEvent(event);
+     }
+-- 
+1.8.1.1
+

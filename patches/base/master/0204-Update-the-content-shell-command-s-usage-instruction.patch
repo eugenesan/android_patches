@@ -1,0 +1,51 @@
+From abb4a7008a1f5eab6cfaf7e9dd4779e549c21714 Mon Sep 17 00:00:00 2001
+From: Svetoslav Ganov <svetoslavganov@google.com>
+Date: Wed, 21 Nov 2012 16:13:38 -0800
+Subject: [PATCH 204/283] Update the content shell command's usage
+ instructions.
+
+The usage instructions of the content shell command were missing some
+excape charecters which caused the examples not to work. As a result
+of the incorrect instructions users are prone to constructing incorrect
+commands.
+
+bug:7526252
+
+Change-Id: I2fcc4dd1fd05806fe951245651b97e40a4786d24
+---
+ cmds/content/src/com/android/commands/content/Content.java | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/cmds/content/src/com/android/commands/content/Content.java b/cmds/content/src/com/android/commands/content/Content.java
+index 787fbdb..070e105 100644
+--- a/cmds/content/src/com/android/commands/content/Content.java
++++ b/cmds/content/src/com/android/commands/content/Content.java
+@@ -83,14 +83,14 @@ public class Content {
+         + "  Example:\n"
+         + "  # Change \"new_setting\" secure setting to \"newer_value\".\n"
+         + "  adb shell content update --uri content://settings/secure --bind"
+-                + " value:s:newer_value --where \"name=\'new_setting\'\"\n"
++                + " value:s:newer_value --where \"name=\\'new_setting\\'\"\n"
+         + "\n"
+         + "usage: adb shell content delete --uri <URI> [--user <USER_ID>] --bind <BINDING>"
+                 + " [--bind <BINDING>...] [--where <WHERE>]\n"
+         + "  Example:\n"
+         + "  # Remove \"new_setting\" secure setting.\n"
+         + "  adb shell content delete --uri content://settings/secure "
+-                + "--where \"name=\'new_setting\'\"\n"
++                + "--where \"name=\\'new_setting\\'\"\n"
+         + "\n"
+         + "usage: adb shell content query --uri <URI> [--user <USER_ID>]"
+                 + " [--projection <PROJECTION>] [--where <WHERE>] [--sort <SORT_ORDER>]\n"
+@@ -101,7 +101,7 @@ public class Content {
+         + "  # Select \"name\" and \"value\" columns from secure settings where \"name\" is "
+                 + "equal to \"new_setting\" and sort the result by name in ascending order.\n"
+         + "  adb shell content query --uri content://settings/secure --projection name:value"
+-                + " --where \"name=\'new_setting\'\" --sort \"name ASC\"\n"
++                + " --where \"name=\\'new_setting\\'\" --sort \"name ASC\"\n"
+         + "\n";
+ 
+     private static class Parser {
+-- 
+1.8.1.1
+

@@ -1,0 +1,64 @@
+From cc5339fe8451b360bfc69fe5110ad0f012f58bd9 Mon Sep 17 00:00:00 2001
+From: Daniel Sandler <dsandler@android.com>
+Date: Wed, 17 Oct 2012 09:40:09 -0400
+Subject: [PATCH 083/283] Fixes for QS:
+
+ - don't show clear all on the settings page if a
+   notification comes in
+ - delay makeExpandedInvisible when all panels are collapsed
+   to ensure that the last frame of panel animation can show
+   in its entirety
+
+Bug: 7362346
+Change-Id: I5303f03ea5ee654e222aff0b62ab69f98dc16978
+---
+ .../com/android/systemui/statusbar/phone/PhoneStatusBar.java  | 11 ++++++++++-
+ .../android/systemui/statusbar/phone/PhoneStatusBarView.java  |  3 ++-
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+index 24f76bb..5a9d12e 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+@@ -1079,7 +1079,12 @@ public class PhoneStatusBar extends BaseStatusBar {
+                     + " any=" + any + " clearable=" + clearable);
+         }
+ 
+-        if (mClearButton.isShown()) {
++        if (mHasFlipSettings 
++                && mFlipSettingsView != null 
++                && mFlipSettingsView.getVisibility() == View.VISIBLE) {
++            // the flip settings panel is showing; we should not be shown
++            mClearButton.setVisibility(View.INVISIBLE);
++        } else if (mClearButton.isShown()) {
+             if (clearable != (mClearButton.getAlpha() == 1.0f)) {
+                 ObjectAnimator clearAnimation = ObjectAnimator.ofFloat(
+                         mClearButton, "alpha", clearable ? 1.0f : 0.0f).setDuration(250);
+@@ -1522,6 +1527,10 @@ public class PhoneStatusBar extends BaseStatusBar {
+         mStatusBarView.collapseAllPanels(true);
+     }
+ 
++    void makeExpandedInvisibleSoon() {
++        mHandler.postDelayed(new Runnable() { public void run() { makeExpandedInvisible(); }}, 50);
++    }
++
+     void makeExpandedInvisible() {
+         if (SPEW) Slog.d(TAG, "makeExpandedInvisible: mExpandedVisible=" + mExpandedVisible
+                 + " mExpandedVisible=" + mExpandedVisible);
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java
+index a27df94..1824ba3 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarView.java
+@@ -154,7 +154,8 @@ public class PhoneStatusBarView extends PanelBar {
+     @Override
+     public void onAllPanelsCollapsed() {
+         super.onAllPanelsCollapsed();
+-        mBar.makeExpandedInvisible();
++        // give animations time to settle
++        mBar.makeExpandedInvisibleSoon();
+         mFadingPanel = null;
+         mLastFullyOpenedPanel = null;
+     }
+-- 
+1.8.1.1
+

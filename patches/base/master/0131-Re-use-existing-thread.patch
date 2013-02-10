@@ -1,0 +1,60 @@
+From cd3d75f35db669f9671d251a36b51cef8a7ca009 Mon Sep 17 00:00:00 2001
+From: Irfan Sheriff <isheriff@google.com>
+Date: Wed, 7 Nov 2012 13:02:08 -0800
+Subject: [PATCH 131/283] Re-use existing thread
+
+Bug: 7377541
+Change-Id: I097f2288ebfc2b4a9782cbced19d9c36d0703acb
+---
+ wifi/java/android/net/wifi/WifiManager.java | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/wifi/java/android/net/wifi/WifiManager.java b/wifi/java/android/net/wifi/WifiManager.java
+index b871cdc..0e29882 100644
+--- a/wifi/java/android/net/wifi/WifiManager.java
++++ b/wifi/java/android/net/wifi/WifiManager.java
+@@ -508,6 +508,10 @@ public class WifiManager {
+     private Messenger mWifiServiceMessenger;
+     private final CountDownLatch mConnected = new CountDownLatch(1);
+ 
++    private static Object sThreadRefLock = new Object();
++    private static int sThreadRefCount;
++    private static HandlerThread sHandlerThread;
++
+     /**
+      * Create a new WifiManager instance.
+      * Applications will almost always want to use
+@@ -1365,9 +1369,14 @@ public class WifiManager {
+             return;
+         }
+ 
+-        HandlerThread t = new HandlerThread("WifiManager");
+-        t.start();
+-        mHandler = new ServiceHandler(t.getLooper());
++        synchronized (sThreadRefLock) {
++            if (++sThreadRefCount == 1) {
++                sHandlerThread = new HandlerThread("WifiManager");
++                sHandlerThread.start();
++            }
++        }
++
++        mHandler = new ServiceHandler(sHandlerThread.getLooper());
+         mAsyncChannel.connect(mContext, mHandler, mWifiServiceMessenger);
+         try {
+             mConnected.await();
+@@ -1983,8 +1992,10 @@ public class WifiManager {
+ 
+     protected void finalize() throws Throwable {
+         try {
+-            if (mHandler != null && mHandler.getLooper() != null) {
+-                mHandler.getLooper().quit();
++            synchronized (sThreadRefLock) {
++                if (--sThreadRefCount == 0 && sHandlerThread != null) {
++                    sHandlerThread.getLooper().quit();
++                }
+             }
+         } finally {
+             super.finalize();
+-- 
+1.8.1.1
+

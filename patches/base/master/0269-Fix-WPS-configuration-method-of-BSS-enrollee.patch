@@ -1,0 +1,31 @@
+From 1201dd9b7043bde8f1ed5d6c34425528783352cd Mon Sep 17 00:00:00 2001
+From: Yoshihiko Ikenaga <yoshihiko.ikenaga@jp.sony.com>
+Date: Thu, 24 Jan 2013 13:48:58 +0900
+Subject: [PATCH 269/283] Fix WPS configuration method of BSS enrollee.
+
+Remove keypad from WPS configuration method of BSS enrollee
+becuase JB UI does NOT support keypad, only supports pbc and
+display.
+
+Change-Id: I9ab6f1514805e8307b46e38261f1c657568aeb59
+Signed-off-by: Yoshihiko Ikenaga <yoshihiko.ikenaga@jp.sony.com>
+---
+ wifi/java/android/net/wifi/WifiStateMachine.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/wifi/java/android/net/wifi/WifiStateMachine.java b/wifi/java/android/net/wifi/WifiStateMachine.java
+index 8a22e96..2d9cc29 100644
+--- a/wifi/java/android/net/wifi/WifiStateMachine.java
++++ b/wifi/java/android/net/wifi/WifiStateMachine.java
+@@ -2358,7 +2358,7 @@ public class WifiStateMachine extends StateMachine {
+             if (!mWifiNative.setSerialNumber(detail)) {
+                 loge("Failed to set serial number " + detail);
+             }
+-            if (!mWifiNative.setConfigMethods("physical_display virtual_push_button keypad")) {
++            if (!mWifiNative.setConfigMethods("physical_display virtual_push_button")) {
+                 loge("Failed to set WPS config methods");
+             }
+             if (!mWifiNative.setDeviceType(mPrimaryDeviceType)) {
+-- 
+1.8.1.1
+

@@ -1,0 +1,44 @@
+From 78473b7d04ce6ec431c6e64e7f8a0bfbb303bbb6 Mon Sep 17 00:00:00 2001
+From: Ilya Polenov <daioptych@gmail.com>
+Date: Mon, 10 Dec 2012 10:19:58 +0400
+Subject: [PATCH 48/51] Fix PointerCoords Parcel incorrectly storing values as
+ Int32
+
+PointerCoords stores its values as float and its Parcel should
+do the same. Wrong behaviour may be noticed when MotionEvent is
+injected using Instrumentation method sendPointerSync. All its
+PointerCoords values(size, orientation, pressure, etc) will be
+casted to integer omitting their decimal part. This fix addresses
+this issue.
+
+Change-Id: Ifa3dfce4d5c2e6c060852f4208cb5684e827c7e6
+Signed-off-by: Ilya Polenov <daioptych@gmail.com>
+---
+ libs/androidfw/Input.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libs/androidfw/Input.cpp b/libs/androidfw/Input.cpp
+index 97b0ec1..05b62bb 100644
+--- a/libs/androidfw/Input.cpp
++++ b/libs/androidfw/Input.cpp
+@@ -221,7 +221,7 @@ status_t PointerCoords::readFromParcel(Parcel* parcel) {
+     }
+ 
+     for (uint32_t i = 0; i < count; i++) {
+-        values[i] = parcel->readInt32();
++        values[i] = parcel->readFloat();
+     }
+     return OK;
+ }
+@@ -231,7 +231,7 @@ status_t PointerCoords::writeToParcel(Parcel* parcel) const {
+ 
+     uint32_t count = __builtin_popcountll(bits);
+     for (uint32_t i = 0; i < count; i++) {
+-        parcel->writeInt32(values[i]);
++        parcel->writeFloat(values[i]);
+     }
+     return OK;
+ }
+-- 
+1.8.1.1
+

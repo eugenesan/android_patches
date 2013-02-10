@@ -1,0 +1,26 @@
+From b8696349727f8d1773d6df2e3bcf770d848c2cc7 Mon Sep 17 00:00:00 2001
+From: "R. Andrew Ohana" <andrew.ohana@gmail.com>
+Date: Tue, 22 Jan 2013 00:57:06 -0800
+Subject: [PATCH 5/6] Mako: Use appropriately sized bootanimation
+
+Change-Id: I3fa319c8049e7f9f225179823f2fc5253823c814
+---
+ cm.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cm.mk b/cm.mk
+index d6bca87..7d0a1d3 100644
+--- a/cm.mk
++++ b/cm.mk
+@@ -3,7 +3,7 @@ $(call inherit-product, vendor/cm/config/gsm.mk)
+ 
+ # Boot animation
+ TARGET_SCREEN_HEIGHT := 1280
+-TARGET_SCREEN_WIDTH := 720
++TARGET_SCREEN_WIDTH := 768
+ 
+ # Inherit some common CM stuff.
+ $(call inherit-product, vendor/cm/config/common_full_phone.mk)
+-- 
+1.8.1.1
+

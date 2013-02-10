@@ -1,0 +1,41 @@
+From 656d8f265ab99e4469203ebb779d43052b3c3e03 Mon Sep 17 00:00:00 2001
+From: Daniel Sandler <dsandler@android.com>
+Date: Wed, 17 Oct 2012 11:37:42 -0400
+Subject: [PATCH 084/283] Fix Bluetooth QS tile.
+
+Changes in the connection state were causing QuickSettings
+to clobber the enabled state of the adapter.
+
+Bug: 7365388
+Change-Id: I9611cb492d143bc9e7246c3e210664705586a85d
+---
+ .../src/com/android/systemui/statusbar/phone/QuickSettings.java     | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/QuickSettings.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/QuickSettings.java
+index 56b9c3a..58e3a57 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/QuickSettings.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/QuickSettings.java
+@@ -145,6 +145,7 @@ class QuickSettings {
+         IntentFilter filter = new IntentFilter();
+         filter.addAction(DisplayManager.ACTION_WIFI_DISPLAY_STATUS_CHANGED);
+         filter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
++        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+         filter.addAction(Intent.ACTION_USER_SWITCHED);
+         mContext.registerReceiver(mReceiver, filter);
+ 
+@@ -854,6 +855,11 @@ class QuickSettings {
+                         DisplayManager.EXTRA_WIFI_DISPLAY_STATUS);
+                 mWifiDisplayStatus = status;
+                 applyWifiDisplayStatus();
++            } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
++                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
++                        BluetoothAdapter.ERROR);
++                mBluetoothState.enabled = (state == BluetoothAdapter.STATE_ON);
++                applyBluetoothStatus();
+             } else if (BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED.equals(action)) {
+                 int status = intent.getIntExtra(BluetoothAdapter.EXTRA_CONNECTION_STATE,
+                         BluetoothAdapter.STATE_DISCONNECTED);
+-- 
+1.8.1.1
+

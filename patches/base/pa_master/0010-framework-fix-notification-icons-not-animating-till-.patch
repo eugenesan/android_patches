@@ -1,0 +1,28 @@
+From 8990e8b301e1d20c6f1574f82e28953286701000 Mon Sep 17 00:00:00 2001
+From: Daniel Bateman <jetison.24@gmail.com>
+Date: Mon, 13 Aug 2012 20:39:49 -0500
+Subject: [PATCH 10/51] framework: fix notification icons not animating till
+ ticker is updated
+
+Fixes Android issue #15657
+
+Change-Id: If3bb8693d99e3415bcf0fa9adadee5c1bdbb990d
+---
+ .../SystemUI/src/com/android/systemui/statusbar/AnimatedImageView.java   | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/AnimatedImageView.java b/packages/SystemUI/src/com/android/systemui/statusbar/AnimatedImageView.java
+index d4491d8..78226c5 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/AnimatedImageView.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/AnimatedImageView.java
+@@ -70,6 +70,7 @@ public class AnimatedImageView extends ImageView {
+     public void onAttachedToWindow() {
+         super.onAttachedToWindow();
+         mAttached = true;
++        updateAnim();
+     }
+ 
+     @Override
+-- 
+1.8.1.1
+

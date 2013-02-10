@@ -1,0 +1,28 @@
+From ed3ce513a64b9f26358dc77187d6d04fe91abae9 Mon Sep 17 00:00:00 2001
+From: Kenny Root <kroot@google.com>
+Date: Wed, 17 Oct 2012 10:05:10 -0700
+Subject: [PATCH 082/283] Fix bad merge
+
+Change-Id: I9f05f96e3607b994368a8d4e1e454af8fe84424d
+---
+ cmds/installd/commands.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cmds/installd/commands.c b/cmds/installd/commands.c
+index 902463d..2c30ec7 100644
+--- a/cmds/installd/commands.c
++++ b/cmds/installd/commands.c
+@@ -71,8 +71,8 @@ int install(const char *pkgname, uid_t uid, gid_t gid)
+         return -1;
+     }
+ 
+-    if (selinux_android_setfilecon(libdir, pkgname, uid) < 0) {
+-        ALOGE("cannot setfilecon dir '%s': %s\n", libdir, strerror(errno));
++    if (selinux_android_setfilecon(libsymlink, pkgname, uid) < 0) {
++        ALOGE("cannot setfilecon dir '%s': %s\n", libsymlink, strerror(errno));
+         unlink(libsymlink);
+         unlink(pkgdir);
+         return -1;
+-- 
+1.8.1.1
+

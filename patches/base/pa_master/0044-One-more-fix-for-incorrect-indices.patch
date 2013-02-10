@@ -1,0 +1,26 @@
+From 607156923b60b0d3083cb2e26fbf77802b6e4f9c Mon Sep 17 00:00:00 2001
+From: Stephen Hines <srhines@google.com>
+Date: Tue, 22 Jan 2013 18:29:41 -0800
+Subject: [PATCH 44/51] One more fix for incorrect indices.
+
+Change-Id: I283f2f09cd0a17eefed4a763b08df856bbae76b3
+---
+ graphics/java/android/renderscript/Matrix3f.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/graphics/java/android/renderscript/Matrix3f.java b/graphics/java/android/renderscript/Matrix3f.java
+index 0bad7e0..5e9a7ca 100644
+--- a/graphics/java/android/renderscript/Matrix3f.java
++++ b/graphics/java/android/renderscript/Matrix3f.java
+@@ -140,7 +140,7 @@ public class Matrix3f {
+         mMat[4] = y*y*nc +  c;
+         mMat[7] =  yz*nc - xs;
+         mMat[2] =  zx*nc - ys;
+-        mMat[6] =  yz*nc + xs;
++        mMat[5] =  yz*nc + xs;
+         mMat[8] = z*z*nc +  c;
+     }
+ 
+-- 
+1.8.1.1
+

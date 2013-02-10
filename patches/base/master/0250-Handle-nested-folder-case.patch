@@ -1,0 +1,27 @@
+From 1740ada533dc3bb86d0197eada3bad460809f657 Mon Sep 17 00:00:00 2001
+From: Roger Chen <cxr514033970@gmail.com>
+Date: Mon, 17 Dec 2012 13:31:17 +0800
+Subject: [PATCH 250/283] Handle nested folder case
+
+Change-Id: Id6d6a5899e8255d18192adbc766d8d9a0e6825d0
+Signed-off-by: Roger Chen <cxr514033970@gmail.com>
+---
+ core/java/android/app/DownloadManager.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/java/android/app/DownloadManager.java b/core/java/android/app/DownloadManager.java
+index 6cf4dd0..32e40ee 100644
+--- a/core/java/android/app/DownloadManager.java
++++ b/core/java/android/app/DownloadManager.java
+@@ -499,7 +499,7 @@ public class DownloadManager {
+                             " already exists and is not a directory");
+                 }
+             } else {
+-                if (!file.mkdir()) {
++                if (!file.mkdirs()) {
+                     throw new IllegalStateException("Unable to create directory: "+
+                             file.getAbsolutePath());
+                 }
+-- 
+1.8.1.1
+

@@ -1,0 +1,116 @@
+From 93077a2902a74256b7eb4795e1ef92bbc5c50f10 Mon Sep 17 00:00:00 2001
+From: Martin Storsjo <martin@martin.st>
+Date: Tue, 25 Sep 2012 11:55:25 +0300
+Subject: [PATCH 174/283] MediaCodec: Allow getting the codec info directly
+
+This saves the caller from manually iterating through the
+MediaCodecList for finding the right codec.
+
+This adds new public API.
+
+Change-Id: I8462f040573427542d86d1b957a5aef53dd55e8e
+---
+ api/current.txt                              |  1 +
+ media/java/android/media/MediaCodec.java     | 12 ++++++++++++
+ media/java/android/media/MediaCodecList.java |  2 ++
+ media/jni/android_media_MediaCodecList.cpp   | 22 ++++++++++++++++++++++
+ 4 files changed, 37 insertions(+)
+
+diff --git a/api/current.txt b/api/current.txt
+index 4fe1a07..f409526 100644
+--- a/api/current.txt
++++ b/api/current.txt
+@@ -11199,6 +11199,7 @@ package android.media {
+     method public final int dequeueInputBuffer(long);
+     method public final int dequeueOutputBuffer(android.media.MediaCodec.BufferInfo, long);
+     method public final void flush();
++    method public android.media.MediaCodecInfo getCodecInfo();
+     method public java.nio.ByteBuffer[] getInputBuffers();
+     method public final java.lang.String getName();
+     method public java.nio.ByteBuffer[] getOutputBuffers();
+diff --git a/media/java/android/media/MediaCodec.java b/media/java/android/media/MediaCodec.java
+index cacc338..d5515eb 100644
+--- a/media/java/android/media/MediaCodec.java
++++ b/media/java/android/media/MediaCodec.java
+@@ -16,6 +16,8 @@
+ 
+ package android.media;
+ 
++import android.media.MediaCodecInfo;
++import android.media.MediaCodecList;
+ import android.media.MediaCrypto;
+ import android.media.MediaFormat;
+ import android.view.Surface;
+@@ -504,6 +506,16 @@ final public class MediaCodec {
+      */
+     public native final String getName();
+ 
++    /**
++     * Get the codec info. If the codec was created by createDecoderByType
++     * or createEncoderByType, what component is chosen is not known beforehand,
++     * and thus the caller does not have the MediaCodecInfo.
++     */
++    public MediaCodecInfo getCodecInfo() {
++        return MediaCodecList.getCodecInfoAt(
++                   MediaCodecList.findCodecByName(getName()));
++    }
++
+     private native final ByteBuffer[] getBuffers(boolean input);
+ 
+     private static native final void native_init();
+diff --git a/media/java/android/media/MediaCodecList.java b/media/java/android/media/MediaCodecList.java
+index 1749934..2a60113 100644
+--- a/media/java/android/media/MediaCodecList.java
++++ b/media/java/android/media/MediaCodecList.java
+@@ -46,6 +46,8 @@ final public class MediaCodecList {
+     /* package private */ static native final MediaCodecInfo.CodecCapabilities
+         getCodecCapabilities(int index, String type);
+ 
++    /* package private */ static native final int findCodecByName(String codec);
++
+     private static native final void native_init();
+ 
+     private MediaCodecList() {}
+diff --git a/media/jni/android_media_MediaCodecList.cpp b/media/jni/android_media_MediaCodecList.cpp
+index 0638b4a..04430ec 100644
+--- a/media/jni/android_media_MediaCodecList.cpp
++++ b/media/jni/android_media_MediaCodecList.cpp
+@@ -44,6 +44,25 @@ static jstring android_media_MediaCodecList_getCodecName(
+     return env->NewStringUTF(name);
+ }
+ 
++static jint android_media_MediaCodecList_findCodecByName(
++        JNIEnv *env, jobject thiz, jstring name) {
++    if (name == NULL) {
++        jniThrowException(env, "java/lang/IllegalArgumentException", NULL);
++        return -ENOENT;
++    }
++
++    const char *nameStr = env->GetStringUTFChars(name, NULL);
++
++    if (nameStr == NULL) {
++        // Out of memory exception already pending.
++        return -ENOENT;
++    }
++
++    jint ret = MediaCodecList::getInstance()->findCodecByName(nameStr);
++    env->ReleaseStringUTFChars(name, nameStr);
++    return ret;
++}
++
+ static jboolean android_media_MediaCodecList_isEncoder(
+         JNIEnv *env, jobject thiz, jint index) {
+     return MediaCodecList::getInstance()->isEncoder(index);
+@@ -180,6 +199,9 @@ static JNINativeMethod gMethods[] = {
+       "(ILjava/lang/String;)Landroid/media/MediaCodecInfo$CodecCapabilities;",
+       (void *)android_media_MediaCodecList_getCodecCapabilities },
+ 
++    { "findCodecByName", "(Ljava/lang/String;)I",
++      (void *)android_media_MediaCodecList_findCodecByName },
++
+     { "native_init", "()V", (void *)android_media_MediaCodecList_native_init },
+ };
+ 
+-- 
+1.8.1.1
+

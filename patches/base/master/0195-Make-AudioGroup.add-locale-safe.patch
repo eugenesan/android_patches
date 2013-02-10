@@ -1,0 +1,37 @@
+From 9b17d0a74f6774441aaebec6a44f126cd6f4eeaf Mon Sep 17 00:00:00 2001
+From: Johan Redestig <johan.redestig@sonymobile.com>
+Date: Tue, 28 Aug 2012 09:37:23 +0200
+Subject: [PATCH 195/283] Make AudioGroup.add locale safe
+
+Explicitly use Locale.US in AudioGroup.add to avoid
+unexpected results in some locales.
+
+Change-Id: Ifb477ca590f630747e09e38ac2246d284b5c5bfc
+---
+ voip/java/android/net/rtp/AudioGroup.java | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/voip/java/android/net/rtp/AudioGroup.java b/voip/java/android/net/rtp/AudioGroup.java
+index 8c19062..8faeb88 100644
+--- a/voip/java/android/net/rtp/AudioGroup.java
++++ b/voip/java/android/net/rtp/AudioGroup.java
+@@ -19,6 +19,7 @@ package android.net.rtp;
+ import android.media.AudioManager;
+ 
+ import java.util.HashMap;
++import java.util.Locale;
+ import java.util.Map;
+ 
+ /**
+@@ -146,7 +147,7 @@ public class AudioGroup {
+         if (!mStreams.containsKey(stream)) {
+             try {
+                 AudioCodec codec = stream.getCodec();
+-                String codecSpec = String.format("%d %s %s", codec.type,
++                String codecSpec = String.format(Locale.US, "%d %s %s", codec.type,
+                         codec.rtpmap, codec.fmtp);
+                 int id = nativeAdd(stream.getMode(), stream.getSocket(),
+                         stream.getRemoteAddress().getHostAddress(),
+-- 
+1.8.1.1
+

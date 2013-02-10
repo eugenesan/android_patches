@@ -1,0 +1,43 @@
+From 75f3bbcb3f8704a759749aafe0eeeb43deb76083 Mon Sep 17 00:00:00 2001
+From: Masanori Ogino <ogino.masanori@sharp.co.jp>
+Date: Thu, 11 Oct 2012 18:51:35 +0900
+Subject: [PATCH 04/51] avoid crashing system serer process
+
+Context#unregisterReceiver will throw IllegalArgumentException
+if the receiver has already unregistered.
+
+In GlobalAction class, when SilentModeAction is changed, it will
+close the dialog with some delay. So there is a possibility
+that it would unregistere again for the same receiver if a user
+changes slient mode againand again. System must not crash in such
+a case.
+
+Change-Id: I33662feb48a770d39a8413901ec77ac1acd16bc7
+---
+ policy/src/com/android/internal/policy/impl/GlobalActions.java | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+ mode change 100644 => 100755 policy/src/com/android/internal/policy/impl/GlobalActions.java
+
+diff --git a/policy/src/com/android/internal/policy/impl/GlobalActions.java b/policy/src/com/android/internal/policy/impl/GlobalActions.java
+old mode 100644
+new mode 100755
+index 346d320..3ae02c8
+--- a/policy/src/com/android/internal/policy/impl/GlobalActions.java
++++ b/policy/src/com/android/internal/policy/impl/GlobalActions.java
+@@ -522,7 +522,12 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
+     /** {@inheritDoc} */
+     public void onDismiss(DialogInterface dialog) {
+         if (SHOW_SILENT_TOGGLE) {
+-            mContext.unregisterReceiver(mRingerModeReceiver);
++            try {
++                mContext.unregisterReceiver(mRingerModeReceiver);
++            } catch (IllegalArgumentException ie) {
++                // ignore this
++                Log.w(TAG, ie);
++            }
+         }
+     }
+ 
+-- 
+1.8.1.1
+

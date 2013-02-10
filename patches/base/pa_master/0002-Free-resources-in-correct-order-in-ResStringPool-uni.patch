@@ -1,0 +1,42 @@
+From 5e8a802ae6de93b01e352cdd09d4fe54cb8b23b5 Mon Sep 17 00:00:00 2001
+From: Chris Dearman <chris@mips.com>
+Date: Mon, 8 Oct 2012 12:22:02 -0700
+Subject: [PATCH 02/51] Free resources in correct order in
+ ResStringPool::uninit
+
+mOwnedData contains the mHeader data structure
+
+Change-Id: I0ae9ba3a0d18fc3f368c629501fadebce8807198
+---
+ libs/androidfw/ResourceTypes.cpp | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/libs/androidfw/ResourceTypes.cpp b/libs/androidfw/ResourceTypes.cpp
+index d439e3c..67d29b9 100644
+--- a/libs/androidfw/ResourceTypes.cpp
++++ b/libs/androidfw/ResourceTypes.cpp
+@@ -509,10 +509,6 @@ status_t ResStringPool::getError() const
+ void ResStringPool::uninit()
+ {
+     mError = NO_INIT;
+-    if (mOwnedData) {
+-        free(mOwnedData);
+-        mOwnedData = NULL;
+-    }
+     if (mHeader != NULL && mCache != NULL) {
+         for (size_t x = 0; x < mHeader->stringCount; x++) {
+             if (mCache[x] != NULL) {
+@@ -523,6 +519,10 @@ void ResStringPool::uninit()
+         free(mCache);
+         mCache = NULL;
+     }
++    if (mOwnedData) {
++        free(mOwnedData);
++        mOwnedData = NULL;
++    }
+ }
+ 
+ /**
+-- 
+1.8.1.1
+

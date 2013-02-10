@@ -1,0 +1,64 @@
+From 8f38f3c8d5283962c99dc63f8efc5fc2bb024641 Mon Sep 17 00:00:00 2001
+From: Justin Koh <justinkoh@google.com>
+Date: Wed, 17 Oct 2012 11:33:15 -0700
+Subject: [PATCH 091/283] Add appliance mode handling for WiFi Direct
+ invitation dialog.
+
+Add appliance mode handling for WiFi Direct invitation dialog. Otherwise, no
+way to accept connections.
+
+Change-Id: Ic31b5bb25fed02848cf7c9e6418e21e9ab8b0cdd
+---
+ wifi/java/android/net/wifi/p2p/WifiP2pService.java | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/wifi/java/android/net/wifi/p2p/WifiP2pService.java b/wifi/java/android/net/wifi/p2p/WifiP2pService.java
+index 4b90901..4ed2eef 100644
+--- a/wifi/java/android/net/wifi/p2p/WifiP2pService.java
++++ b/wifi/java/android/net/wifi/p2p/WifiP2pService.java
+@@ -30,6 +30,7 @@ import android.content.DialogInterface.OnClickListener;
+ import android.content.Intent;
+ import android.content.IntentFilter;
+ import android.content.pm.PackageManager;
++import android.content.res.Configuration;
+ import android.content.res.Resources;
+ import android.net.IConnectivityManager;
+ import android.net.ConnectivityManager;
+@@ -68,6 +69,7 @@ import android.provider.Settings;
+ import android.text.TextUtils;
+ import android.util.Slog;
+ import android.util.SparseArray;
++import android.view.KeyEvent;
+ import android.view.LayoutInflater;
+ import android.view.View;
+ import android.view.ViewGroup;
+@@ -1891,6 +1893,26 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
+                 break;
+         }
+ 
++        if ((r.getConfiguration().uiMode & Configuration.UI_MODE_TYPE_APPLIANCE) ==
++                Configuration.UI_MODE_TYPE_APPLIANCE) {
++            // For appliance devices, add a key listener which accepts.
++            dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
++
++                @Override
++                public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
++                    // TODO: make the actual key come from a config value.
++                    if (keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
++                        sendMessage(PEER_CONNECTION_USER_ACCEPT);
++                        dialog.dismiss();
++                        return true;
++                    }
++                    return false;
++                }
++            });
++            // TODO: add timeout for this dialog.
++            // TODO: update UI in appliance mode to tell user what to do.
++        }
++
+         dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+         dialog.show();
+     }
+-- 
+1.8.1.1
+

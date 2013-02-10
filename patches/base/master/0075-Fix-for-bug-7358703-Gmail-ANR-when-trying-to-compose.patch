@@ -1,0 +1,35 @@
+From 1b2415fbdf0cab96a6682cfd87094160ca51bfdb Mon Sep 17 00:00:00 2001
+From: Raph Levien <raph@google.com>
+Date: Tue, 16 Oct 2012 14:32:47 -0700
+Subject: [PATCH 075/283] Fix for bug 7358703 Gmail ANR when trying to compose
+ a message
+
+When deferring scroll to a point, it's possible the text changed between
+the time the scroll was requested to the time layout happens. In this
+case, it attempts to scroll to a point past the end of the text buffer,
+which created an infinite loop.
+
+This patch clamps the scroll offset to the length of the text, so it
+just scrolls to the end in that case, rather than crashing.
+
+Change-Id: I53740d119d588560f5a4d9fb80e38f7057faab89
+---
+ core/java/android/widget/TextView.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/java/android/widget/TextView.java b/core/java/android/widget/TextView.java
+index 751ed7c..8e5ff40 100644
+--- a/core/java/android/widget/TextView.java
++++ b/core/java/android/widget/TextView.java
+@@ -6321,7 +6321,7 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
+         if (mDeferScroll >= 0) {
+             int curs = mDeferScroll;
+             mDeferScroll = -1;
+-            bringPointIntoView(curs);
++            bringPointIntoView(Math.min(curs, mText.length()));
+         }
+         if (changed && mEditor != null) mEditor.invalidateTextDisplayList();
+     }
+-- 
+1.8.1.1
+

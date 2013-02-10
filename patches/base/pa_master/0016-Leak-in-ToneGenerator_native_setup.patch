@@ -1,0 +1,28 @@
+From ae97374c9ba93c887274a198d3a7170fe68a5f46 Mon Sep 17 00:00:00 2001
+From: You Kim <you.kim72@gmail.com>
+Date: Fri, 7 Dec 2012 04:58:28 +0900
+Subject: [PATCH 16/51] Leak in ToneGenerator_native_setup
+
+Failure in ToneGenerator::isInit causes a leak.
+lpToneGen should be deleted.
+
+Change-Id: I48df7a328fed01be8412d5449ee0753dad3c101f
+---
+ core/jni/android_media_ToneGenerator.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/core/jni/android_media_ToneGenerator.cpp b/core/jni/android_media_ToneGenerator.cpp
+index da6f1ed..de29b28 100644
+--- a/core/jni/android_media_ToneGenerator.cpp
++++ b/core/jni/android_media_ToneGenerator.cpp
+@@ -103,6 +103,7 @@ static void android_media_ToneGenerator_native_setup(JNIEnv *env, jobject thiz,
+     if (!lpToneGen->isInited()) {
+         ALOGE("ToneGenerator init failed");
+         jniThrowRuntimeException(env, "Init failed");
++        delete lpToneGen;
+         return;
+     }
+ 
+-- 
+1.8.1.1
+

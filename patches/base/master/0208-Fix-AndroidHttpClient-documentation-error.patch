@@ -1,0 +1,30 @@
+From d2dcd7ada3e864de879dd64fbebd3a857b1bc181 Mon Sep 17 00:00:00 2001
+From: Elliott Hughes <enh@google.com>
+Date: Thu, 29 Nov 2012 08:32:13 -0800
+Subject: [PATCH 208/283] Fix AndroidHttpClient documentation error.
+
+AndroidHttpClient doesn't let the user add HttpRequestInterceptor classes.
+
+Bug: http://code.google.com/p/android/issues/detail?id=37294
+Change-Id: I66f6581fa321dc16ddfe35c8f4242bc31f79bdfa
+---
+ core/java/android/net/http/AndroidHttpClient.java | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/core/java/android/net/http/AndroidHttpClient.java b/core/java/android/net/http/AndroidHttpClient.java
+index c534e58..fabe018 100644
+--- a/core/java/android/net/http/AndroidHttpClient.java
++++ b/core/java/android/net/http/AndroidHttpClient.java
+@@ -66,8 +66,7 @@ import android.util.Log;
+ 
+ /**
+  * Implementation of the Apache {@link DefaultHttpClient} that is configured with
+- * reasonable default settings and registered schemes for Android, and
+- * also lets the user add {@link HttpRequestInterceptor} classes.
++ * reasonable default settings and registered schemes for Android.
+  * Don't create this directly, use the {@link #newInstance} factory method.
+  *
+  * <p>This client processes cookies but does not retain them by default.
+-- 
+1.8.1.1
+

@@ -1,0 +1,27 @@
+From 46f4d87f8fe6bfba589dba21126e186db984bc73 Mon Sep 17 00:00:00 2001
+From: You Kim <you.kim72@gmail.com>
+Date: Fri, 21 Dec 2012 06:19:38 +0900
+Subject: [PATCH 33/51] StringBlock_nativeCreate: Possible Leak
+
+osb can be leaked when osb->getError() != NO_ERROR
+
+Change-Id: Icbeb8eb3fb78849c043fe032cc8f7050da041042
+---
+ core/jni/android_util_StringBlock.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/core/jni/android_util_StringBlock.cpp b/core/jni/android_util_StringBlock.cpp
+index 28746ce..463d3c0 100644
+--- a/core/jni/android_util_StringBlock.cpp
++++ b/core/jni/android_util_StringBlock.cpp
+@@ -52,6 +52,7 @@ static jint android_content_StringBlock_nativeCreate(JNIEnv* env, jobject clazz,
+ 
+     if (osb == NULL || osb->getError() != NO_ERROR) {
+         jniThrowException(env, "java/lang/IllegalArgumentException", NULL);
++        delete osb;
+         return 0;
+     }
+ 
+-- 
+1.8.1.1
+

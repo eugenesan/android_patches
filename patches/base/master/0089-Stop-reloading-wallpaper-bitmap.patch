@@ -1,0 +1,30 @@
+From 8da94bd95b8d5b09adac6764f302b672a3f9f580 Mon Sep 17 00:00:00 2001
+From: Chet Haase <chet@google.com>
+Date: Thu, 18 Oct 2012 10:11:27 -0700
+Subject: [PATCH 089/283] Stop reloading wallpaper bitmap
+
+Typo in ImageWallpaper made a dimension check incorrect.
+
+Issue#7373200 pause when toggling between All Apps and Home screen; Home button stays illuminated for a long time
+
+Change-Id: I82763ac8c9ed564eba904f552975ab20c8aef932
+---
+ packages/SystemUI/src/com/android/systemui/ImageWallpaper.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/ImageWallpaper.java b/packages/SystemUI/src/com/android/systemui/ImageWallpaper.java
+index e963a0a..45d2219 100644
+--- a/packages/SystemUI/src/com/android/systemui/ImageWallpaper.java
++++ b/packages/SystemUI/src/com/android/systemui/ImageWallpaper.java
+@@ -327,7 +327,7 @@ public class ImageWallpaper extends WallpaperService {
+             mLastRotation = newRotation;
+ 
+             // Load bitmap if it is not yet loaded or if it was loaded at a different size
+-            if (mBackground == null || dw != mBackgroundWidth || dw != mBackgroundHeight) {
++            if (mBackground == null || dw != mBackgroundWidth || dh != mBackgroundHeight) {
+                 if (DEBUG) {
+                     Log.d(TAG, "Reloading bitmap");
+                 }
+-- 
+1.8.1.1
+

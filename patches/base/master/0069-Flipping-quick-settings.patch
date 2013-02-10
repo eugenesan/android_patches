@@ -1,0 +1,1362 @@
+From 24b733a46321de794e9c35de119c85d2885a3d8c Mon Sep 17 00:00:00 2001
+From: Daniel Sandler <dsandler@android.com>
+Date: Mon, 15 Oct 2012 13:39:38 -0400
+Subject: [PATCH 069/283] Flipping quick settings!
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Bug: 7348917 ╰(°□°╰)
+Change-Id: I16923d6d920913a4bd0d78666587ac579ac18da5
+---
+ .../res/drawable-hdpi/ic_notifications.png         | Bin 0 -> 331 bytes
+ .../res/drawable-hdpi/ic_notifications2.png        | Bin 0 -> 578 bytes
+ .../ic_notify_quicksettings_normal.png             | Bin 1346 -> 1348 bytes
+ .../ic_notify_quicksettings_pressed.png            | Bin 3280 -> 2062 bytes
+ .../res/drawable-mdpi/ic_notifications.png         | Bin 0 -> 331 bytes
+ .../res/drawable-mdpi/ic_notifications2.png        | Bin 0 -> 403 bytes
+ .../ic_notify_quicksettings_normal.png             | Bin 987 -> 1087 bytes
+ .../ic_notify_quicksettings_pressed.png            | Bin 1949 -> 1359 bytes
+ .../res/drawable-xhdpi/ic_notifications.png        | Bin 0 -> 582 bytes
+ .../res/drawable-xhdpi/ic_notifications2.png       | Bin 0 -> 694 bytes
+ .../ic_notify_quicksettings_normal.png             | Bin 1625 -> 1849 bytes
+ .../ic_notify_quicksettings_pressed.png            | Bin 4890 -> 2824 bytes
+ .../SystemUI/res/drawable/ic_notifications.xml     |  23 ++
+ .../SystemUI/res/drawable/ic_notify_button_bg.xml  |  20 ++
+ packages/SystemUI/res/drawable/ic_notify_clear.xml |   2 +-
+ .../SystemUI/res/drawable/ic_notify_settings.xml   |   2 +-
+ packages/SystemUI/res/layout/flip_settings.xml     |  31 +++
+ .../SystemUI/res/layout/status_bar_expanded.xml    |  29 ++-
+ .../res/layout/status_bar_expanded_header.xml      |  34 ++-
+ packages/SystemUI/res/values-sw600dp/config.xml    |   3 +
+ packages/SystemUI/res/values/config.xml            |   7 +-
+ .../systemui/statusbar/phone/PhoneStatusBar.java   | 250 ++++++++++++++++++---
+ .../systemui/statusbar/phone/QuickSettings.java    |   3 +-
+ .../statusbar/phone/SettingsPanelView.java         |   5 +-
+ .../statusbar/phone/StatusBarWindowView.java       |   7 +-
+ 25 files changed, 360 insertions(+), 56 deletions(-)
+ create mode 100644 packages/SystemUI/res/drawable-hdpi/ic_notifications.png
+ create mode 100644 packages/SystemUI/res/drawable-hdpi/ic_notifications2.png
+ create mode 100644 packages/SystemUI/res/drawable-mdpi/ic_notifications.png
+ create mode 100644 packages/SystemUI/res/drawable-mdpi/ic_notifications2.png
+ create mode 100644 packages/SystemUI/res/drawable-xhdpi/ic_notifications.png
+ create mode 100644 packages/SystemUI/res/drawable-xhdpi/ic_notifications2.png
+ create mode 100644 packages/SystemUI/res/drawable/ic_notifications.xml
+ create mode 100644 packages/SystemUI/res/drawable/ic_notify_button_bg.xml
+ create mode 100644 packages/SystemUI/res/layout/flip_settings.xml
+
+diff --git a/packages/SystemUI/res/drawable-hdpi/ic_notifications.png b/packages/SystemUI/res/drawable-hdpi/ic_notifications.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..612ab72781dae6625f618d394f97a7bf09f2eaed
+GIT binary patch
+literal 331
+zcmV-R0kr;!P)<h;3K|Lk000e1NJLTq001BW001Be1^@s6b9#F80000PbVXQnQ*UN;
+zcVTj606}DLVr3vnZDD6+Qe|Oed2z{QJOBUy?MXyIRCwBAU>F6X01f>A|6c%z_y4Cp
+z0GTO3j00$4IouKG_Az2{z<(h10Eic2ai2X9J1_zPiJ{s6r0StuMWFTv_!MJxDa;_K
+z1IdZn|Jd|04Ro3tbpWnJNIMJB67YbB01FXnJ^--*K3@=<3&>3afk1qKo<%V-m=6^*
+zKo+ECIe^ar?~%)HkYniWfCem;)O%_>fQ5)M92tPhaD&lufL^(v04)(Z0P%ggB|;o>
+z{q)QQ^P%})0P6byTI2#ki4ax-I#8=9Ca9N~h8-D}H;_^e96<Lm6|?FAVq810&GJz&
+d;s8K^0RSqCRcavn&OZPE002ovPDHLkV1mJWd~g5&
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable-hdpi/ic_notifications2.png b/packages/SystemUI/res/drawable-hdpi/ic_notifications2.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..315c48897cf369164d72aafe6230efbb8628f627
+GIT binary patch
+literal 578
+zcmV-I0=@l-P)<h;3K|Lk000e1NJLTq001xm001xu1^@s6R|5Hm0000PbVXQnQ*UN;
+zcVTj606}DLVr3vnZDD6+Qe|Oed2z{QJOBUz<Vi$9RCwC#S?g_sFc3C~|7C-^6EvNm
+z$plR{pd(}gnhByz5IRBA37``souKIiWdnLA9hF7FKw{yu<WD*wILEn{@6NUm9v&VZ
+zY*AH}1bVCN0smX-WDIn|!{Z1PTef2f^biEWxs4fWez;{IydW92mw2F3EO6@i6G^lI
+zOTCx~U3jEG$)BKrwz1KG`B3;*60i+t;-#icj^P4IY*Yoh5DlF30F(pGTH<q|QSMqL
+zddGzWC#wZLG(2+$ypzoZ5{<A3DzO5q?8)LQ`X-!EKvCqGQ>_Yx;~3%rtj2w*@v(jm
+z7;AR152yny&{YS#0u2;E9|q-4`xMZX^DcY=<sCeu@vly7ERABnLq+W9Vj3+-c<c}}
+z?wgr5%$4wofqra<&=?P7u#SpGYq4|118C`(z9*`sX;HKHz)or0?v=`mSaWYBQ1Ald
+zpWfe*l=o8E)J$LCTrXt4m2gP`+)jQrzTE;XmE#w-y-=bVH{;$5m7siv$9$A=zA2TW
+zrJsPe03KR?&NYq3bkMZ!NUyQ26gsAm<+X+Bj8f7WktCiJ+|bqU11&Xs1=h_R;s$6x
+zkpZR25UP=g2~Mn)!`-VUv3ara@1o<9UPuZDE;xE!$^DAS!^6YFE`9|V0CUn%kgKYE
+Q2LJ#707*qoM6N<$g794avj6}9
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable-hdpi/ic_notify_quicksettings_normal.png b/packages/SystemUI/res/drawable-hdpi/ic_notify_quicksettings_normal.png
+index 55c46b0778e3dee610055ef3d46bbf3023bebe51..172fd55e036c76537226c09feff31d023da2ea67 100644
+GIT binary patch
+delta 1216
+zcmV;x1V8)23d9PKlz%x%L_t(&-tE~<Xe31x2k_ry#?3}|R|WMXiwAF_2wnvBq#)iD
+z6-4msD61fN@#El01Q8TJE*ek-K^8wQdJqvr@Z%zgu7_Rl;0Guu>blvT-6TEjp{g>S
+zp6;IROkyINKNOi%b=Q0Udaqu+dd)6&adx9u?#T1JaeNbymw*0mBV+BIUT-T@+D0^4
+zpofJmkhhGLjxvU#70MPE)CkG3AFtzFWU5V_#b@W@-yHphXV1qAct7?v$w+gZ!UOoH
+zpj#t>B9VQut(GPqMWq*TPF&Hs*oHV0e;41$Z~%K+%E+UB<$0!BporB%OOuSE;u$`}
+zH~2FWIf(0U8GlYjCDMCYoM+TRMk0{LYcY*Luhd3ywT|IAd~0mh^mh?=<G!f$sA8Tb
+z8C7E&CQ!sk@YN%D6vs`PHy2!J5x?Ov;|;qdnCtNDK-fsnMCJRDR90xoJ^J_n@8P^S
+zwygxx>VJeEqJkMAtfdx_7l<6jU&8*VL*AmzL?DI9(|`D~&^Hm2OC;bIe200Hn>S(5
+zqSd199!TNw=c2x)w4>^s3_nFVRS)M_GIqtfbD&mGmrYz2oY&<gkyt)ujy_J{o)+?k
+z1-Tm{kYfL(f?FKGa-Qc^4ARPFQSd>NF~0ch&~(gXffWB2a4o*VL%0QhSf4s%!iL?0
+zL--w68h@Y6>n9EtoMx#;blC$Zqtfr<Wn7MHVt?}Av{_%mQ9ObRh45R(D9`hG+!0Av
+z5$Or%$UAWnS|xLJSQT97N#P)S5O?85Tr6anNAWhk#?81r5?l+r1>}NN4{6SYmhfRD
+z&?%X#vcf4`g%|NG-iU1wSAG<K-yd7bR_oG%Tz_!Gq53G4a;i#nA&@2+;cC1pq!nKX
+zX~R6O!1cJq`ViQZ&kO_?D(5}P0-JIUq{D0<zQ<cp>05D|;94vA6>kbIbQA6r?f^?2
+z7OE545E#YP9N;zK0+Rgoi1FsltiNe3;$u7^SnT*#5NMN1q}$e0kwCi4^a^9Aqw>AN
+zSbrZs;^9bSzb#1WrV&`dULkCLVw@6;3XQS<7RRzU|1zEyE<SrrUQkw}oYji9VulM%
+zE}WvD3bB8#I9VwkPeh5BP9*mm;(6Q<EwMHYF47!E7j(Q*CS^_w7x2%^O17!Z^m@HS
+zB8A6ecw9*C5{7ui^n<K67pm2yR9<O9+kZk;N=aHTLL0QH%*|XCo04|VRGFJrR#{hc
+zs!?RE=wzJ8<qdPrRM;wGqlK-iq7$JKaWDRk<3(h+K!|9EW8bzFw(5#b^TMf|)ezVb
+zg{?Gs8ZTm0c)o1%9Z}e-8f$u|Yk%j$R+qZaj>P|-z%&=CD=sw^ow~lW5gDxs6n`%i
+zZ7v&gh5m9B>KR9sS!A>(u#uwE86jSuP#s45!a+8RjEPlQuXXoNO#kUgd{%wrs~oRD
+z*UzTApILXYi%rD85b%*E`M3l`0000bbVXQnWMOn=I%9HWVRU5xGB7bREio`HF)~y!
+zG&(RgIx#jaFgH3dFohIWjsO4vB{_6OSaf7zbY(hiZ)9m^c>ppnF)}SNFfB1MR53I<
+eFg7|dHZ3qWIxsNwN$xTL0000<MNUMnLSTY;k2h5S
+
+delta 1195
+zcmV;c1XTOP3c?DIlz%r#L_t(&-tC!9h#f@`$A3NV?ItQ{BnCeY5<MyL;7vsZLA;3v
+zMG%4_ieGyXHQp3FtCtYWDdZq}kRYBF^diKds3a(Yu8Pqp8lq7*AMU=H^3YW~wM{=?
+z&)dO#@Curq?pIS?AKg{|o(D6U(TrwvCMo>ak0Rpv!bE9hB!AjU<gW6D(AV;38BK~n
+zP!C)TTmdvathWpt*74QAJZ(f)mj(vFap1Srm%BzmM1~@Qh-{ZgCq?9RrkxOxCD-Tp
+zPO6MUDtD;QIk`(ZzgyQIxb3`#hK05m-v*#cJXPuzi{8AOv*%RqK>N8;#U=*B_4eH8
+zLZ^WDfCIo^z<-s%oxm-QKP2y^MtQmEdc7E6WLd+M{}6Zz_%c!QMc{tmHDC*CBNY;P
+zUM?A)UJU@KRr&XUyMfch@TXgAAMhRUF0h&PCx9$f9r=BBctVvQs&XUO8sh%`6nMeC
+zd&Ui@wSNovR+S$?OmQyF39zEiZva1%k9Onarp^D}n|}eO;ej=iE<YzmRKOCjKapc+
+zVuOwcnFa-0yz3b-gO9rLa7>OiOB&$!jGPtVCEzk*6#c<%fD3@n+_)D5Ec;yU#-p@C
+zI)lvMEn|#(GlWobHpcRFHNXVj2J8hM1~!VwvMOt-bOdYyJ|=FrTgS-RE+Ug6@PWx)
+z50rRFOMm;wmHw?FvO~wUwA5(7A|l&F<WV;k5&24?!JLRJX5RO_dnQ4NX%2C%-gzB(
+z6?gzR<~$qJ^Vbrgz)ttBmm|PGIv$sWMw1kprjQMY2k>^_8{k3UI$#?Su^uK?=0|{6
+zbd8#Pb*-Gtv=A0Kc-l%lr{4PlcpSJ0I7CdDH-7@p0!N7H^A6|Dt`VO|T@5hh_X7*S
+zL7l$_xJeB;2)qpZslVL^>>`4^-l?krbHE<pNm@)K!1vlbSuuJW_(=PkY4<neQ7&|V
+z9i<_)MfU-Z(bj`np95_LwRCESaR~ej+zb2!Tu57(Z2gdFP=HEH4cG|$4LsxCTlHiJ
+zL4QIBwYDZHP9tLEegU3$iV5+0iS}uO7Eg_((mU~0z@^0OQjrg_6v!L`*Aowa18gPY
+zq1>H#NQ5B2I!6`y`y8T45wLxJ7w{Z$8&w$@E5HsSY+eBFAzm*BUL4WeKLAhb+)iQ?
+zmJ?lS;1b{+V7IQ>tOrUgBv2xS4a*{OgMaewP2hl$!G%SI5xqc((lly^s!rzZhE~(=
+z<B{V{0a`^YfX3^ggxAorS8q_l6!Di0Gaw{$)fnE8{GReo1toef?f*BO^9FSNuw_-(
+z&ktC8<@3DhN34qchpqI=*d(&nZGiFRzW>;~KPNd}qj|?WKZdtTWKC^=DR>0<oPP+H
+zQv>XRenRKICPM4u<m<qq^YACYAH-~w)`3mL`-azJMrR$B{>3zrmohNt`AX!r|8bp<
+zKyF4en$dYc{{poRsNWh;FggGL03~!qSaf7zbY(hYa%Ew3WdJfTF)}SNFfB1LR536*
+zG%-3gFfA}QIxsNV`rFX}001R)MUxE$7a%cIF)%tbF*-FcEigAaFfgd6V{HHc002ov
+JPDHLkV1h<sEFAy<
+
+diff --git a/packages/SystemUI/res/drawable-hdpi/ic_notify_quicksettings_pressed.png b/packages/SystemUI/res/drawable-hdpi/ic_notify_quicksettings_pressed.png
+index e30cb8f0fb4904d0a25c31ae68d4f1de916857c9..5318a6e695e54eb5131356c63852953a6413470e 100644
+GIT binary patch
+delta 1937
+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
+XIxsLNDyv%n015yANkvXXu0mjfxD%MN
+
+delta 3115
+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
+FV1oJBH`xFH
+
+diff --git a/packages/SystemUI/res/drawable-mdpi/ic_notifications.png b/packages/SystemUI/res/drawable-mdpi/ic_notifications.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..612ab72781dae6625f618d394f97a7bf09f2eaed
+GIT binary patch
+literal 331
+zcmV-R0kr;!P)<h;3K|Lk000e1NJLTq001BW001Be1^@s6b9#F80000PbVXQnQ*UN;
+zcVTj606}DLVr3vnZDD6+Qe|Oed2z{QJOBUy?MXyIRCwBAU>F6X01f>A|6c%z_y4Cp
+z0GTO3j00$4IouKG_Az2{z<(h10Eic2ai2X9J1_zPiJ{s6r0StuMWFTv_!MJxDa;_K
+z1IdZn|Jd|04Ro3tbpWnJNIMJB67YbB01FXnJ^--*K3@=<3&>3afk1qKo<%V-m=6^*
+zKo+ECIe^ar?~%)HkYniWfCem;)O%_>fQ5)M92tPhaD&lufL^(v04)(Z0P%ggB|;o>
+z{q)QQ^P%})0P6byTI2#ki4ax-I#8=9Ca9N~h8-D}H;_^e96<Lm6|?FAVq810&GJz&
+d;s8K^0RSqCRcavn&OZPE002ovPDHLkV1mJWd~g5&
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable-mdpi/ic_notifications2.png b/packages/SystemUI/res/drawable-mdpi/ic_notifications2.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..1d07cbf6a75d88cc9e9964255a0d670a07c081ff
+GIT binary patch
+literal 403
+zcmV;E0c`$>P)<h;3K|Lk000e1NJLTq001BW001Be1^@s6b9#F80000PbVXQnQ*UN;
+zcVTj606}DLVr3vnZDD6+Qe|Oed2z{QJOBUzHAzH4RCwC#R?!WDFc1a8062kh12zyR
+zP&d#GZ~}1x;{@O&!UVE`IDu?XUz5``O=$`i_>fCpTA;_h9(RvA&SaBG#uy8L8?$fx
+zoq-8~K7xNq$njhS0fwOht_prjAaY?XvzlNy(&Yl~m2UATU5Uj04x~h|%co^3U$4ml
+zEII2vU6#NKc-pQxU-u9sGLYuME6nSTo9|A5NR)kcT~iVE7f>o-Z*1N14c62^pxcFM
+z7pU%=WMB*ALrSq|DQUt^yg7&tQ0fnY4rG07SV!Q(dmm#Vkg11k!;@nD8VG+WLfLoH
+z0bLiw;sFBl2zc1;0^KK=0cV;QBt~-}wpjzZ3~&ty>4?U6zX4uDX21~?FtR1ZZ8Fek
+x9fBuKzN(*5F7Mc4tL7$b$32!$_ILIcU;t@vHzbg9?2Z5c002ovPDHLkV1j{+py>br
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable-mdpi/ic_notify_quicksettings_normal.png b/packages/SystemUI/res/drawable-mdpi/ic_notify_quicksettings_normal.png
+index b1910cf157f547496ad2690781d688e66742dd23..61044246105ce33da5f6496ca572915ebdf08c46 100644
+GIT binary patch
+delta 905
+zcmV;419tq|2fqlAlYav=Nkl<ZSi|Mlzl&W(6bJCn+_&!~Cb}CzRIt!iF{lxYy^SD(
+zg@s_@A7GP0#3o`PRwBkUVq;^1Yn5~<6ciCOAc$HiXcbXZT=Qd-?CyKlV$OKyy?t-J
+zE8-#!4ENr-XU_S~neTk>x%}T-DmQK0)?>}z^f!)cQ~R#k1b;20l=}Mo_cD+I-EBCG
+z&FXzYUY^^TRVG}=d2Hcc++O);F~nE+DJLMcuvCF*B83m&b*y0!!S_es2)hBUR4E^Z
+z<0o+$&*1UO#~6oj4Cks?Qvgcah>5=k`Wx{j&fvQU_8^`JP}i^zmtv)`Uil~hitnj5
+z4?v3Xgk^k;<9`vTr2IVI$E&!x%3z(%LDj`|8}k;ieS#5wz$+2FfNCNO-{Q3ei<rc!
+zXL~zqIB&8rya6BJx3C*m?<N7}6MTbvOq29L?0H#v;lQXbfYQFNg0|)ChGsM}<1gU8
+zViWeCN6_`Kn*^u}mA_s9%Kolky=~h;<zSyow3RA5lYh9brj*{@!Edo!2q4Akj^Zp%
+z;!c^>4Q|0HyobAGj?{cQ(6;T+^qwdA=x)*};Z6W9<6%64XYqn8P}lGl-p0!~D2tE^
+z#IcxnQOAK5yo8Ucu^j;<`E0+4(>PJk<5s+hBltN$lzDU{Or}XVoDH<oDM+{ppGE4P
+z3kMB;#eb*q{;tSMnI{5nMQ`JIQ_o{qf)DWq-l@{N5>7A0*eagKW3m+Qx-C+|gYy2K
+z(J9$P)`SA4k$G}lC(ni5gYdniQ^28~N;s517$ta7wUU_>V_TKO6S6XvJ+8k6rLXBY
+zG_~5C_pTrr1+ZD;qJU+EwU0LDUDt`uNRMN<=YOrvK#|PDcskJ5GWvx~x@B1x_Uj6j
+zC7BN=aTQPDe%qz^lw6cFDWwV1BrIU=kiYe7wx8iuS%M#xkKk6!8R8dN8?MTPoL7*1
+z7y$lU_+J$ybun?JBuiGfvFVEFqJOX;nO98IC#HTk@40tDvPg*P)s_26Wiy_!X{vjs
+z3q+FIzLye?%r7Qty<fJS19cVMyCCUPmY0(HM|>@l@Sy<TR(>|*@5Zjm@;z_6`88Xl
+zgmwGx{hIB0`vZha5~T`lkE@ey1057HR53I<Fg7|dHZ3qWIxsMW6jqLto&y~qGE^}%
+fIxsdmF*YqQH##sd^hxeA00000NkvXXu0mjfN*2Kb
+
+delta 828
+zcmV-C1H=5k2-^pclYauxNkl<ZSi|j>ziU)M5XV37M`9$=B!#E}3&BnV8w)`}D-o<L
+zEG)FpSZJf7r3h9Q=@c6a%M^kL{s(pnB7%+hBbpdRO$@{&hFtE(VrRU$W%F`plL#4D
+z_Pv?i`SG3E*@X>SW6ENNh<I7nkv3@PoF`<WgDmS*?HVC42!Hgur~v8~g+`f2y1wf7
+zPPfk1P62bPA|N8Ah#(>(66lwR%<Ej2Ce@s5PI(7(i1HRhWLE!&Rd4C-l`FeKx6VC4
+zp%K0To~!IIFoer(gve(7U#_xM<v=6)z5?7)M??*b02kFrTzEpOb4ki8WR|EBxTVGm
+z9VM^`Tml{gU4M~b2=!tk4yY{$OwlxO-|<bUp?5dhWBk$$)bWl|U=Dl&ez+)%Z@GO-
+zsO~;OZHxgAfZvK@LuId1NK`psGzj$S_oCw$>cloD?*S%(;VjGQE9h%+peh9>+fAtW
+ztLngn8kq%70LN(7%N(#Dm==)<5t$T`aXpe}^cWWHI)C8l9`KA%_1}Qcz%^h1xap!2
+zMWLT?M284XsaMkgQS)mj1xvs#;5?z?Un#!}I7i64KZcD}<|NE1vK+nx4gx2Er@$BB
+zJ@5oL1e^k95=PqU162rYAyofS;5(t{KI$+i3*ezT`2yHP^K=v%V5&=2I$#?<02kDF
+zH&CPXihmZ3xEpv0Tvp>#iqwLxtrKcuJkq~DD0Lkd>h*QtEFr(SLRtfk14n?{Dl0Uq
+zKH#*f83pDY0t3Je;1N*x9+66cIkgAatFYQ_xU74&J6Wlz$bqf8cc0_gnjNX2tBSCu
+zvw3UCSnf@hIb**2*;>0dIzEP(oBfE_tn_xQl3%rjfVE8j^vWZp@v|)cj`z0ZfE|-b
+zLf`jAxTKKI5Zdui<=c(7pnJy%_kyKmkZ`Sg{Vgyztv4T~IcfMT@2QBYp5=e9^8e;p
+zo|Mys@Ly%?3xN&#14#-i7RRSZ^pnv89Z@k<F)%tbF*-FcEigAaFfiHr+tC0303~!q
+zSaf7zbY(hiZ)9m^c>ppnF)}SNFfB1LR536*G%-3gFfA}QIxsM(r(<mZ0000<MNUMn
+GLSTYJE_wL?
+
+diff --git a/packages/SystemUI/res/drawable-mdpi/ic_notify_quicksettings_pressed.png b/packages/SystemUI/res/drawable-mdpi/ic_notify_quicksettings_pressed.png
+index 3abafddd037d8e75cbdae5886b3f88d8f7627b30..625da59a19409b38a4c96e72d6e539f6c5ec2bce 100644
+GIT binary patch
+delta 1179
+zcmV;M1Z4Z256=palYaz6Nkl<ZSi_x{%ZnUU6vltmT|M2C#2AA_G?In5@Bz9Q5tSf5
+z*6#fe#4J=$A>vjHE<{uas3?fwPDF5Y;VS4tMcw&YD2mexq7lvXOm|Orm5ckGsjqL>
+z%%B&Fx>a=^-#PcZs#seeqE#Gl-)q&`ojv&KwtH#B1<=W^f`9!1xUiZ<5IJv^T>y1y
+zgk4=LKwtY#CZsmux#9|#Y2P*epqm2|V5<GxJ<t(DU;C-{uE>$Qhy2?iy`SjW0qmHL
+zNq`CubYyu4xDhxl0ReC>>)gGi=))`9z{k4Z2b>gNC#(fN0lt;43aH!zeJME&JSV0u
+z2d`RyHh~9$A%E}?aEHl=`&r-{>6*q7ga_ix-0BMG0UN+O!1sE-3wQun73iK^yb4@q
+zM^~Awu4J#6&cd^xYp#uVJ>V<gDc~mwEP#)I3&1(xa?y81A4e1KV&C?>kZPTbpa=XV
+zC4U3QfPt*M0{9Ggx#dWT%<|ocxAzMGg2}H~7l7ZSbblgu&$K@Ze5&J#Sa3_@-nHjQ
+z$6X*L%gY6A=y_t6R5V$!Er8duSctxsA=@-rFdzkJVRGs=0PcY!z+qBgt%$ME{x~oa
+z4JNn*-e56{X23tBK<xvU_Va+R+kp>&7lEr~Q6X#I2i^s4$d0iFP6%YIxp;@bmK(Vr
+zfEjQTaDNZ*IPe&7Gbw-H1KtLn&OFu?-y@`YvS~+f6nGMNlP3Ll)6naA1W35_3~(Lr
+zlF-+{Dd2hFdbzcifggzfFpHINV8>Fp2SRym0HO$eM@q*>Y0CAVz~_pMt4wj;lJhRP
+z)Ll#a7*Reo;@5%KfIo!(m|T2OG;fiL)ZH}QZhy{ySWyQewWe|@a`CgkSjtDhkH9Yi
+zJ<$FPsmUA>?bPJwwPk5;@OD|zw9GGnSLNa<DT2KlPG~Y>20R1&AS1>Ci|!+P9%D5C
+zpjcZUMl0^?I!>y5l_}Vf(jC3)D?Xz3*Q8lss_$2lqCNu7)9`lz+5)B?got4zq^rg}
+z6@Set&2SNXGbtSlL{CaC(sVvAM1|>F=zOIJ?$^0S8Lf2QUjpZWYk(&VU@hKDzzd|t
+z^)PU&KzS)X4}55z!Dqr!%1!}yvOG*c%Ig!ry%Ol@H6oSZE#Ma5Hkz?4WSpd#8JFe(
+zpN7NrNJs!UMAH*$qY3ZDz~Sw<HUI_Llz-J$ihY;}rg$G$o3MPg2pOFg*{uK~Kf@~b
+zK*Yj~reNhB@HV}d2O<R*no*rGN51<Y5db$y!P(}4Qr|W$HaZ#2jFeFUcy}JCNO@k8
+zs@hot5izhqit3+9T`>L|LfIDZt3bR$YS(RJc|r5vK(V$y3`<IyACublfjma{09NY(
+z8(lPbLP2g|Vfz{SF$scbCQ%i=YlRgt$@H@C5qwc{^W%#N+ked}j{y&uN<<#9`H$x~
+z1JFiu(9db@G2kG4AjuVwDfmC%7w-Q8O?!w}LHgh;lP?Dy6f#sXGdeUlIx#jaFgH3d
+tFjjXH=aXOu9UwAPF*7<eI65&lEigAaFfb=7t6Km7002ovPDHLkV1lU|B{~2A
+
+delta 1798
+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
+
+diff --git a/packages/SystemUI/res/drawable-xhdpi/ic_notifications.png b/packages/SystemUI/res/drawable-xhdpi/ic_notifications.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..28a902c03358ae76e5ffba23fc05e648402383e5
+GIT binary patch
+literal 582
+zcmV-M0=fN(P)<h;3K|Lk000e1NJLTq002M$002M;1^@s6s%dfF0000PbVXQnQ*UN;
+zcVTj606}DLVr3vnZDD6+Qe|Oed2z{QJOBUz=t)FDRCwC#T8nLiFc5_*1JDgJ0vUk~
+z*r0TSZV);_l?h;kbOO3TvH{ruHXvu|kSGe+{IUI>bh3mv!#&^Gch)%$000000DuHl
+zRUJtZlA_u#3jW8Vs$H(4@jeY1iKoeWl_Y`dy7$QhFq=1xjBk=~A`%{bFTE*Dbk@*#
+zhyVFJhX)i50v;@?@M~RK33uT=DrAHGrWep>-=|L8L_AP8s})z;sKXZ<qc=4Kv;nR5
+z^~JN&8Un@u1b_e#00KaO%}~h%E3FNbWS|HE5MVhDdx^yv3!-Xm4-m!1r_CX7p~X#U
+zOpS~Y$t7f7*V|(3yD;7Af0y=v@4DXR@nVw)WF7D4I(fhp0{o8mLmLQ4Bs!VN1QfE1
+zM&TVM6A&xv{g_BVK0xo^vA9<PRx5|MN`+<LJ*>Ghs0Kj*2rwcQ7CU>?l?!ku$yd8D
+zGAR%674<?B3Al~bHKiQ(ObhX$1c>;K6jvhFfq=1@U`p~!@+U4rxRL7E@RARbP=`!#
+zYAPI%h*q>*79M*gV2(T>(Rpu}N`T*X^^J3uaEVE0X^maOcyUa(lQx;2N;N1tucEnQ
+zb0u8oI0eM+Zf~nBPZ02gIvF3xj91<Sx$FAG=YP3#!&6@Qy8{3K0002cgQoxk01E>5
+U6@w}fp#T5?07*qoM6N<$f=V9l4FCWD
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable-xhdpi/ic_notifications2.png b/packages/SystemUI/res/drawable-xhdpi/ic_notifications2.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..b02e7a18eb243072349154d12b5a6ff34d714e8a
+GIT binary patch
+literal 694
+zcmV;n0!jUeP)<h;3K|Lk000e1NJLTq002M$002M;1^@s6s%dfF0000PbVXQnQ*UN;
+zcVTj606}DLVr3vnZDD6+Qe|Oed2z{QJOBU!SV=@dRCwC#T7h+fFc1ws2Cy420&bui
+zutDtxbpq`K)d^q(I{|KBH;@fr1A6y*^rbu{5n?3a{(JY}fg!nnm&+xd5DW%`!C){L
+z3e<HSfuta1JzkVF#z<GMKvVe`E;-2D5qni2s~`xz2NOVSo*hzNCSd_26kR`>X?$qw
+zpz?yoyfxtgr9?nMqKmj`3zi5T9HSCaIF`Ktx_ue?VHvwS+vZI}OMyDM5*RzZH|)^~
+zGW@AA|2}N{JXrhK<{F+=MhU>k3Y{F_HoXxW{vxm?!w<r&FVm<bDJ$b!clmLefW{MW
+znIWZ}RDKWvL_$HHup#9u*Vf9=K;S{8_pYY+Gcj>Yo&cRpuy$HOMFz@KfC-p5!m-Rn
+zgBzmSwg+Gy@HXWsZ~)_GaLv4&BZ@=FOS9j`YuAD4v&Q@AJfLy?2;>B^6gQ5co)rTI
+z_uFCpoZjd1X%TsaGafJ`25jzp?o|v(rT1&JKFCsfmiz1hm4=m_@q#`C98?D%bSkv>
+zaSB}SX!mbf^mQ2=eJZT#H?(OP-VHJVOn?`OP)W(p{KoIGlH|R;F&gVC(1(Cnvt8mN
+z0cXj|C0V*rG^Uieyw=v2RCq3>!?^t|#P5HCCwkW0dmRJTn(cNzABbciUubRI7f>Np
+zBzegzNa8{!I5ZVrk=tK{qL6B=1enMJQsHJ5nGpiwwyQrmUL}wCsFBiG8_MG{-A>w6
+z?R0j7SP!%|JvS}kXkrz>=sw+2S*Z@Fa!mP^N_p)dC{=`IBPXJwF)m!IR%0+23<iT?
+cA3p*N09;qrtf7?7MF0Q*07*qoM6N<$g7@Vp{Qv*}
+
+literal 0
+HcmV?d00001
+
+diff --git a/packages/SystemUI/res/drawable-xhdpi/ic_notify_quicksettings_normal.png b/packages/SystemUI/res/drawable-xhdpi/ic_notify_quicksettings_normal.png
+index 5dc93c255885034267ff86be2a6be1fb68f3153f..477c06781c95a82b4d9f52b0150586ae4d38f912 100644
+GIT binary patch
+delta 1673
+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
+T^hxeA00000NkvXXu0mjfQBVCJ
+
+delta 1447
+zcmV;Y1z7sI4%rNllYa$HNkl<Zc-rlnONbm*6o$XsH9g7*B8d`E5CR57P(&pv=)#RJ
+zq9WqLje-R6NpRsp#a(<r929k-h&T!&h7gRRK@mk1(M=pA3K~#B5qxDtqcfA~?&IQ|
+zJ9Vd~-c#M3F!e)GT~+to$A8Z~k9!+hv}n<yMT-_K)+t=sf`1}{a}E)yB)6u{IVaY3
+z)%L{q)wz7piJE<rQ4lbS_NoxztRp7^n}N;{2kd~~fnV);6L4Aq5duWO5#UFfCQU>l
+zyI&|Ge~ZXb5m~f*lh=ZXEQ!d@pzWRZZXri*-pYI&^tEv5)L8-!m;|~d$_|2=0qCQe
+zQ)W#^iQf|i{ePXXddu`{8FkfoV0X#*=D&AR2I2?b&yi2oEs1Yc`;^OClMrH3zX$dJ
+zp96EK)|?Jp4cvg*l751qk)ufh1~&L3z@xykz`rTwW`GNT$AGH>xv`+BhW*UX0XG6q
+z*x)-T$x(23zyaVo-~}r)sNUqULx9+|0Bi?7K-JyZz<+u`-#OPKUiT5O1l$R{Jx&su
+zAi%5e9$+tOg_mrgIOmq5u^=i7*ZzaR;efE?iU2>G0z7AfShntIVQ7Mc3E*qs{SpL7
+zg=?e)fLi<m_B_ZMd<qF-1Ao_^Cz1oO++$g^;DU;IN>fJgTVN?g)yohlz&EHy<e^NZ
+zm6No!x_?1GJuBQ@V%BoyEo)mOTXiGgMbx<V3i{GT?MdmNXsrZz#y8cJ7bELbvI8Oq
+z{9sq(Xo`UIfsG<^7>)3j$X7?d_PfA;z$L^6G^?Loif7c<adcD!_`#fv1~xOOx^6|6
+zMK_~-AJ~A#0sDb%!MCJc>H#}|d(c=T%Wn07DSzM#;5K{qDg4j~2phN`*p0fw_l%T0
+zykq5V1}-Lci)pU#3}8#iKFw7bKoee|V<emhJc%YhSE80Z3(upoeirbI4Lq+eKCtpJ
+zM%vZ0dujED=8~a~b?z>72JZ#V1#Shd1<tlI9|13;F~g<6Yp4OuOo+@&r1|?*MGL+U
+zm45&aLD%Xw;1S?W)GmZL2elL1?Rjj8P*VhW6^u~zdlmQ;xE**Hbzh4%&<(&wU>|S`
+za0hUO)iaj8fhGbWhpO*B;349*{|aijwgP9O8=T((UlIpSyHO+fIJ(j5E%$LlfKOu|
+z0G=XV%N^7x9kMHlaF6f};4_oI3Du&>QGXFo*9&;H@1trwogl=AtX?~!fEXXF_@E~O
+zenK^2#s)vKbB8(_;9ZVGRsJQbCoK)mO;0Th_G`Zn+>N@%%UBurds6eZ&wTquN!1F}
+z(Ex`AIiCQ#g3f2|0c2LRdV^#hxX<2&fz(Mx@+9&0c=9^I?x$24Ocf3AGx-}Dynno&
+z@+~zJ49*nu;7OQ8qsm``Z+q>zXu~7|eh&Im*l69uQ4b#l=89H4R9)T~@)}Yhy^bpx
+z^5LjQ)gY$KNJe__T7>{_;WwiyS~UB9CU>D$K0>p)E##-meq&=l@Rq&19=OKjvh3Et
+z<PHH(({zLx95`Ms)o_u?bwy;hf`8m}(Drl%x!GYKj`q-C#qS2Yg0i7I`-eCN$O?PC
+ztD6tr&6`Y-8;q=t(x`hn9F-&>`8_-=&D#R=K~qxBk?*=AD!TTuoyi?5XbBj12gZ$-
+zfN^(V+^Cxk4v2Sz^Sr<y<#`au=gB1hA~T@)FEW)+nClP_QT~reldROTDPmT;xFkA(
+zY_gs*a#O=1z|Y8^#D8ii(ttkjS0Mi(@CUj_m^Bz53LgyK9YoI%@<QkVni79Sg?wVI
+z*<iUw)*$EGuG?l&Hn{GM;JPQEMT-_KTC`}<V%_3@_`=3|yRj`+lgkDj6fsmWFgi3b
+zIyEpYFgH3dFxmRs(UbfJ9Uw7OF)%tbF*-FcEigAaFfgd6V{HHc002ovPDHLkV1n#S
+Bs)Yam
+
+diff --git a/packages/SystemUI/res/drawable-xhdpi/ic_notify_quicksettings_pressed.png b/packages/SystemUI/res/drawable-xhdpi/ic_notify_quicksettings_pressed.png
+index a97de79963d5d7a7b48a457e4a2971179dd5519c..6e5c4af240654b881eeeeeeeed561c305aae83d6 100644
+GIT binary patch
+delta 2656
+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
+O0000<MNUMnLSTaRR?wyZ
+
+delta 4738
+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
+Q2><{907*qoM6N<$g1kcpT>t<8
+
+diff --git a/packages/SystemUI/res/drawable/ic_notifications.xml b/packages/SystemUI/res/drawable/ic_notifications.xml
+new file mode 100644
+index 0000000..2c8012e
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/ic_notifications.xml
+@@ -0,0 +1,23 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2012 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:state_pressed="true"
++         android:drawable="@drawable/ic_notifications" />
++    <item
++         android:drawable="@drawable/ic_notifications" />
++</selector>
++
+diff --git a/packages/SystemUI/res/drawable/ic_notify_button_bg.xml b/packages/SystemUI/res/drawable/ic_notify_button_bg.xml
+new file mode 100644
+index 0000000..85f1ea2
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/ic_notify_button_bg.xml
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2012 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:state_pressed="true"  android:drawable="@*android:drawable/list_selector_pressed_holo_dark" />
++    <item                               android:drawable="@*android:drawable/list_selector_disabled_holo_dark" />
++</selector>
+diff --git a/packages/SystemUI/res/drawable/ic_notify_clear.xml b/packages/SystemUI/res/drawable/ic_notify_clear.xml
+index 9c432b2..2163198 100644
+--- a/packages/SystemUI/res/drawable/ic_notify_clear.xml
++++ b/packages/SystemUI/res/drawable/ic_notify_clear.xml
+@@ -16,6 +16,6 @@
+ 
+ <selector xmlns:android="http://schemas.android.com/apk/res/android">
+     <item android:state_pressed="true"
+-        android:drawable="@drawable/ic_notify_clear_pressed" />
++        android:drawable="@drawable/ic_notify_clear_normal" />
+     <item android:drawable="@drawable/ic_notify_clear_normal" />
+ </selector>
+diff --git a/packages/SystemUI/res/drawable/ic_notify_settings.xml b/packages/SystemUI/res/drawable/ic_notify_settings.xml
+index 6579d8e..9303ca4 100644
+--- a/packages/SystemUI/res/drawable/ic_notify_settings.xml
++++ b/packages/SystemUI/res/drawable/ic_notify_settings.xml
+@@ -16,7 +16,7 @@
+ 
+ <selector xmlns:android="http://schemas.android.com/apk/res/android">
+     <item android:state_pressed="true"
+-         android:drawable="@drawable/ic_notify_settings_pressed" />
++         android:drawable="@drawable/ic_notify_settings_normal" />
+     <item
+          android:drawable="@drawable/ic_notify_settings_normal" />
+ </selector>
+diff --git a/packages/SystemUI/res/layout/flip_settings.xml b/packages/SystemUI/res/layout/flip_settings.xml
+new file mode 100644
+index 0000000..1b8898c5
+--- /dev/null
++++ b/packages/SystemUI/res/layout/flip_settings.xml
+@@ -0,0 +1,31 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!-- Copyright (C) 2012 The Android Open Source Project
++
++     Licensed under the Apache License, Version 2.0 (the "License");
++     you may not use this file except in compliance with the License.
++     You may obtain a copy of the License at
++
++          http://www.apache.org/licenses/LICENSE-2.0
++
++     Unless required by applicable law or agreed to in writing, software
++     distributed under the License is distributed on an "AS IS" BASIS,
++     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++     See the License for the specific language governing permissions and
++     limitations under the License.
++-->
++
++<com.android.systemui.statusbar.phone.QuickSettingsScrollView
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:layout_marginBottom="@dimen/close_handle_underlap"
++    android:overScrollMode="ifContentScrolls"
++    >
++    <com.android.systemui.statusbar.phone.QuickSettingsContainerView
++        android:id="@+id/quick_settings_container"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:animateLayoutChanges="true"
++        android:columnCount="@integer/quick_settings_num_columns"
++        />
++</com.android.systemui.statusbar.phone.QuickSettingsScrollView>
+\ No newline at end of file
+diff --git a/packages/SystemUI/res/layout/status_bar_expanded.xml b/packages/SystemUI/res/layout/status_bar_expanded.xml
+index cb4c227..5408f76 100644
+--- a/packages/SystemUI/res/layout/status_bar_expanded.xml
++++ b/packages/SystemUI/res/layout/status_bar_expanded.xml
+@@ -50,7 +50,7 @@
+         android:layout_height="wrap_content"
+         android:layout_marginBottom="@dimen/close_handle_underlap"
+         android:orientation="vertical"
+-	    android:animateLayoutChanges="true"
++        android:animateLayoutChanges="false"
+         >
+ 
+         <include layout="@layout/status_bar_expanded_header"
+@@ -68,19 +68,30 @@
+             android:visibility="gone"
+             />
+ 
+-        <ScrollView
+-            android:id="@+id/scroll"
++        <FrameLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+-            android:fadingEdge="none"
+-            android:overScrollMode="ifContentScrolls"
+             >
+-            <com.android.systemui.statusbar.policy.NotificationRowLayout
+-                android:id="@+id/latestItems"
++            <ViewStub android:id="@+id/flip_settings_stub"
++                android:layout="@layout/flip_settings"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+-                systemui:rowHeight="@dimen/notification_row_min_height"
+                 />
+-        </ScrollView>
++    
++            <ScrollView
++                android:id="@+id/scroll"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:fadingEdge="none"
++                android:overScrollMode="ifContentScrolls"
++                >
++                <com.android.systemui.statusbar.policy.NotificationRowLayout
++                    android:id="@+id/latestItems"
++                    android:layout_width="match_parent"
++                    android:layout_height="wrap_content"
++                    systemui:rowHeight="@dimen/notification_row_min_height"
++                    />
++            </ScrollView>
++        </FrameLayout>
+     </LinearLayout>
+ </com.android.systemui.statusbar.phone.NotificationPanelView><!-- end of sliding panel -->
+diff --git a/packages/SystemUI/res/layout/status_bar_expanded_header.xml b/packages/SystemUI/res/layout/status_bar_expanded_header.xml
+index c921837..c13405a 100644
+--- a/packages/SystemUI/res/layout/status_bar_expanded_header.xml
++++ b/packages/SystemUI/res/layout/status_bar_expanded_header.xml
+@@ -70,21 +70,37 @@
+         android:textColor="#00A040"
+         android:padding="2dp"
+         />
+-    
+-    <ImageView android:id="@+id/settings_button"
+-        android:layout_width="50dp"
+-        android:layout_height="50dp"
+-        android:scaleType="center"
+-        android:src="@drawable/ic_notify_settings"
+-        android:contentDescription="@string/accessibility_settings_button"
+-        />
+ 
+     <ImageView android:id="@+id/clear_all_button"
+         android:layout_width="50dp"
+         android:layout_height="50dp"
+-        android:layout_marginLeft="12dp"
++        android:layout_marginRight="12dp"
+         android:scaleType="center"
+         android:src="@drawable/ic_notify_clear"
++        android:background="@drawable/ic_notify_button_bg"
+         android:contentDescription="@string/accessibility_clear_all"
+         />     
++
++    <FrameLayout
++        android:layout_width="50dp"
++        android:layout_height="50dp"
++        >
++        <ImageView android:id="@+id/settings_button"
++            android:layout_width="50dp"
++            android:layout_height="50dp"
++            android:scaleType="center"
++            android:src="@drawable/ic_notify_settings"
++            android:background="@drawable/ic_notify_button_bg"
++            android:contentDescription="@string/accessibility_settings_button"
++            />
++        <ImageView android:id="@+id/notification_button"
++            android:layout_width="50dp"
++            android:layout_height="50dp"
++            android:scaleType="center"
++            android:src="@drawable/ic_notifications"
++            android:background="@drawable/ic_notify_button_bg"
++            android:visibility="gone"
++            android:contentDescription="@string/accessibility_notifications_button"
++            />
++    </FrameLayout>
+ </LinearLayout>
+diff --git a/packages/SystemUI/res/values-sw600dp/config.xml b/packages/SystemUI/res/values-sw600dp/config.xml
+index 50575d0..48a02ab 100644
+--- a/packages/SystemUI/res/values-sw600dp/config.xml
++++ b/packages/SystemUI/res/values-sw600dp/config.xml
+@@ -31,4 +31,7 @@
+ 
+     <!-- Whether rotation lock shows up in quick settings or not -->
+     <bool name="quick_settings_show_rotation_lock">true</bool>
++
++    <!-- Enable the "flip settings" panel -->
++    <bool name="config_hasFlipSettingsPanel">false</bool>
+ </resources>
+diff --git a/packages/SystemUI/res/values/config.xml b/packages/SystemUI/res/values/config.xml
+index aec9555..a27630d 100644
+--- a/packages/SystemUI/res/values/config.xml
++++ b/packages/SystemUI/res/values/config.xml
+@@ -97,7 +97,10 @@
+ 
+     <integer name="blinds_pop_duration_ms">10</integer>
+ 
+-    <!-- Disable quick settings by default -->
+-    <bool name="config_hasSettingsPanel">false</bool>
++    <!-- Disable the separate quick settings panel -->
++    <bool name="config_hasSettingsPanel">true</bool>
++
++    <!-- Enable the "flip settings" panel -->
++    <bool name="config_hasFlipSettingsPanel">true</bool>
+ </resources>
+ 
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+index 75a2598..64bce22 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBar.java
+@@ -20,6 +20,7 @@ import android.animation.Animator;
+ import android.animation.AnimatorListenerAdapter;
+ import android.animation.AnimatorSet;
+ import android.animation.ObjectAnimator;
++import android.animation.TimeInterpolator;
+ import android.app.ActivityManager;
+ import android.app.ActivityManagerNative;
+ import android.app.Notification;
+@@ -61,6 +62,7 @@ import android.view.VelocityTracker;
+ import android.view.View;
+ import android.view.ViewGroup;
+ import android.view.ViewGroup.LayoutParams;
++import android.view.ViewPropertyAnimator;
+ import android.view.ViewStub;
+ import android.view.WindowManager;
+ import android.view.animation.AccelerateInterpolator;
+@@ -188,13 +190,16 @@ public class PhoneStatusBar extends BaseStatusBar {
+     TextView mNotificationPanelDebugText;
+ 
+     // settings
+-    boolean mHasSettingsPanel;
++    QuickSettings mQS;
++    boolean mHasSettingsPanel, mHasFlipSettings;
+     SettingsPanelView mSettingsPanel;
++    View mFlipSettingsView;
++    QuickSettingsContainerView mSettingsContainer;
+     int mSettingsPanelGravity;
+ 
+     // top bar
+     View mClearButton;
+-    ImageView mSettingsButton;
++    ImageView mSettingsButton, mNotificationButton;
+ 
+     // carrier/wifi label
+     private TextView mCarrierLabel;
+@@ -290,8 +295,12 @@ public class PhoneStatusBar extends BaseStatusBar {
+             if (MULTIUSER_DEBUG) Slog.d(TAG, String.format("User setup changed: " +
+                     "selfChange=%s userSetup=%s mUserSetup=%s",
+                     selfChange, userSetup, mUserSetup));
+-            if (mSettingsPanel != null)
++            if (mSettingsButton != null) {
++                mSettingsButton.setVisibility(userSetup ? View.VISIBLE : View.INVISIBLE);
++            }
++            if (mSettingsPanel != null) {
+                 mSettingsPanel.setEnabled(userSetup);
++            }
+             if (userSetup != mUserSetup) {
+                 mUserSetup = userSetup;
+                 if (!mUserSetup && mStatusBarView != null)
+@@ -355,10 +364,6 @@ public class PhoneStatusBar extends BaseStatusBar {
+         mNotificationPanel = (PanelView) mStatusBarWindow.findViewById(R.id.notification_panel);
+         mNotificationPanelIsFullScreenWidth =
+             (mNotificationPanel.getLayoutParams().width == ViewGroup.LayoutParams.MATCH_PARENT);
+-        mNotificationPanel.setSystemUiVisibility(
+-                  View.STATUS_BAR_DISABLE_NOTIFICATION_TICKER |
+-                  View.STATUS_BAR_DISABLE_NOTIFICATION_ICONS |
+-                  View.STATUS_BAR_DISABLE_CLOCK);
+ 
+         // make the header non-responsive to clicks
+         mNotificationPanel.findViewById(R.id.header).setOnTouchListener(
+@@ -423,6 +428,7 @@ public class PhoneStatusBar extends BaseStatusBar {
+         mDateView = (DateView)mStatusBarWindow.findViewById(R.id.date);
+ 
+         mHasSettingsPanel = res.getBoolean(R.bool.config_hasSettingsPanel);
++        mHasFlipSettings = res.getBoolean(R.bool.config_hasFlipSettingsPanel);
+ 
+         mSettingsButton = (ImageView) mStatusBarWindow.findViewById(R.id.settings_button);
+         if (mSettingsButton != null) {
+@@ -442,9 +448,19 @@ public class PhoneStatusBar extends BaseStatusBar {
+                 mSettingsButton.setImageResource(R.drawable.ic_notify_settings);
+             }
+         }
+-        
++        if (mHasFlipSettings) {
++            mNotificationButton = (ImageView) mStatusBarWindow.findViewById(R.id.notification_button);
++            if (mNotificationButton != null) {
++                mNotificationButton.setOnClickListener(mNotificationButtonListener);
++            }
++        }
++
+         mScrollView = (ScrollView)mStatusBarWindow.findViewById(R.id.scroll);
+         mScrollView.setVerticalScrollBarEnabled(false); // less drawing during pulldowns
++        mScrollView.setSystemUiVisibility(
++                View.STATUS_BAR_DISABLE_NOTIFICATION_TICKER |
++                View.STATUS_BAR_DISABLE_NOTIFICATION_ICONS |
++                View.STATUS_BAR_DISABLE_CLOCK);
+ 
+         mTicker = new MyTicker(context, mStatusBarView);
+ 
+@@ -505,28 +521,52 @@ public class PhoneStatusBar extends BaseStatusBar {
+ 
+         // Quick Settings (where available, some restrictions apply)
+         if (mHasSettingsPanel) {
+-            final View settings_stub 
+-                    = mStatusBarWindow.findViewById(R.id.quick_settings_stub);
+-
+-            if (settings_stub != null) {
+-                mSettingsPanel = (SettingsPanelView) ((ViewStub)settings_stub).inflate();
++            // first, figure out where quick settings should be inflated
++            final View settings_stub;
++            if (mHasFlipSettings) {
++                // a version of quick settings that flips around behind the notifications
++                settings_stub = mStatusBarWindow.findViewById(R.id.flip_settings_stub);
++                if (settings_stub != null) {
++                    mFlipSettingsView = ((ViewStub)settings_stub).inflate();
++                    mFlipSettingsView.setVisibility(View.GONE);
++                    mFlipSettingsView.setVerticalScrollBarEnabled(false);
++                }
+             } else {
+-                mSettingsPanel = (SettingsPanelView) mStatusBarWindow.findViewById(R.id.settings_panel);
++                // full quick settings panel
++                settings_stub = mStatusBarWindow.findViewById(R.id.quick_settings_stub);
++                if (settings_stub != null) {
++                    mSettingsPanel = (SettingsPanelView) ((ViewStub)settings_stub).inflate();
++                } else {
++                    mSettingsPanel = (SettingsPanelView) mStatusBarWindow.findViewById(R.id.settings_panel);
++                }
++
++                if (mSettingsPanel != null) {
++                    mSettingsPanel.setBar(mStatusBarView);
++                    
++                    if (!ActivityManager.isHighEndGfx()) {
++                        mSettingsPanel.setBackground(new FastColorDrawable(context.getResources().getColor(
++                                R.color.notification_panel_solid_background)));
++                    }
++                }
+             }
+ 
+-            if (mSettingsPanel != null) {
+-                mSettingsPanel.setBar(mStatusBarView);
+-                mSettingsPanel.setService(this);
+-                mSettingsPanel.setup(mNetworkController, mBluetoothController, mBatteryController,
+-                        mLocationController);
+-                mSettingsPanel.setSystemUiVisibility(
+-                          View.STATUS_BAR_DISABLE_NOTIFICATION_TICKER
++            // wherever you find it, Quick Settings needs a container to survive
++            mSettingsContainer = (QuickSettingsContainerView)
++                    mStatusBarWindow.findViewById(R.id.quick_settings_container);
++            if (mSettingsContainer != null) {
++                mQS = new QuickSettings(mContext, mSettingsContainer);
++                mSettingsContainer.setSystemUiVisibility(
++                        View.STATUS_BAR_DISABLE_NOTIFICATION_TICKER
+                         | View.STATUS_BAR_DISABLE_SYSTEM_INFO);
+-    
+-                if (!ActivityManager.isHighEndGfx()) {
+-                    mSettingsPanel.setBackground(new FastColorDrawable(context.getResources().getColor(
+-                            R.color.notification_panel_solid_background)));
++
++                if (mSettingsPanel != null) {
++                    mSettingsPanel.setQuickSettings(mQS);
+                 }
++                mQS.setService(this);
++                mQS.setup(mNetworkController, mBluetoothController, mBatteryController,
++                        mLocationController);
++            } else {
++                mQS = null; // fly away, be free
+             }
+         }
+ 
+@@ -984,7 +1024,8 @@ public class PhoneStatusBar extends BaseStatusBar {
+         final boolean emergencyCallsShownElsewhere = mEmergencyCallLabel != null;
+         final boolean makeVisible =
+             !(emergencyCallsShownElsewhere && mNetworkController.isEmergencyOnly())
+-            && mPile.getHeight() < (mNotificationPanel.getHeight() - mCarrierLabelHeight - mNotificationHeaderHeight);
++            && mPile.getHeight() < (mNotificationPanel.getHeight() - mCarrierLabelHeight - mNotificationHeaderHeight)
++            && mScrollView.getVisibility() == View.VISIBLE;
+         
+         if (force || mCarrierLabelVisible != makeVisible) {
+             mCarrierLabelVisible = makeVisible;
+@@ -1239,6 +1280,17 @@ public class PhoneStatusBar extends BaseStatusBar {
+             return;
+         }
+ 
++        if (mHasFlipSettings && !mExpandedVisible) {
++            // reset things to their proper state
++            mScrollView.setScaleX(1f);
++            mScrollView.setVisibility(View.VISIBLE);
++            mSettingsButton.setAlpha(1f);
++            mSettingsButton.setVisibility(View.VISIBLE);
++            mNotificationPanel.setVisibility(View.GONE);
++            mFlipSettingsView.setVisibility(View.GONE);
++            mNotificationButton.setVisibility(View.GONE);
++        }
++
+         mExpandedVisible = true;
+         mPile.setLayoutTransitionsEnabled(true);
+         if (mNavigationBarView != null)
+@@ -1293,6 +1345,53 @@ public class PhoneStatusBar extends BaseStatusBar {
+         mStatusBarView.collapseAllPanels(true);
+     }
+ 
++    public ViewPropertyAnimator setVisibilityWhenDone(
++            final ViewPropertyAnimator a, final View v, final int vis) {
++        a.setListener(new AnimatorListenerAdapter() {
++            @Override
++            public void onAnimationEnd(Animator animation) {
++                v.setVisibility(vis);
++                a.setListener(null); // oneshot
++            }
++        });
++        return a;
++    }
++
++    public Animator setVisibilityWhenDone(
++            final Animator a, final View v, final int vis) {
++        a.addListener(new AnimatorListenerAdapter() {
++            @Override
++            public void onAnimationEnd(Animator animation) {
++                v.setVisibility(vis);
++            }
++        });
++        return a;
++    }
++
++    public Animator interpolator(TimeInterpolator ti, Animator a) {
++        a.setInterpolator(ti);
++        return a;
++    }
++
++    public Animator startDelay(int d, Animator a) {
++        a.setStartDelay(d);
++        return a;
++    }
++    
++    public Animator start(Animator a) {
++        a.start();
++        return a;
++    }
++
++    final TimeInterpolator mAccelerateInterpolator = new AccelerateInterpolator();
++    final TimeInterpolator mDecelerateInterpolator = new DecelerateInterpolator();
++    final int FLIP_DURATION_OUT = 125;
++    final int FLIP_DURATION_IN = 225;
++    final int FLIP_DURATION = (FLIP_DURATION_IN + FLIP_DURATION_OUT);
++
++    Animator mScrollViewAnim, mFlipSettingsViewAnim, mNotificationButtonAnim,
++        mSettingsButtonAnim, mClearButtonAnim;
++
+     @Override
+     public void animateExpandNotificationsPanel() {
+         if (SPEW) Slog.d(TAG, "animateExpand: mExpandedVisible=" + mExpandedVisible);
+@@ -1301,6 +1400,47 @@ public class PhoneStatusBar extends BaseStatusBar {
+         }
+ 
+         mNotificationPanel.expand();
++        if (mHasFlipSettings) {
++            if (mScrollView.getVisibility() != View.VISIBLE) {
++                if (mFlipSettingsViewAnim != null) mFlipSettingsViewAnim.cancel();
++                if (mScrollViewAnim != null) mScrollViewAnim.cancel();
++                if (mSettingsButtonAnim != null) mSettingsButtonAnim.cancel();
++                if (mNotificationButtonAnim != null) mNotificationButtonAnim.cancel();
++                if (mClearButtonAnim != null) mClearButtonAnim.cancel();
++
++                mScrollView.setVisibility(View.VISIBLE);
++                mScrollViewAnim = start(
++                    startDelay(FLIP_DURATION_OUT,
++                        interpolator(mDecelerateInterpolator,
++                            ObjectAnimator.ofFloat(mScrollView, View.SCALE_X, 0f, 1f)
++                                .setDuration(FLIP_DURATION_IN)
++                            )));
++                mFlipSettingsViewAnim = start(
++                    setVisibilityWhenDone(
++                        interpolator(mAccelerateInterpolator,
++                                ObjectAnimator.ofFloat(mFlipSettingsView, View.SCALE_X, 1f, 0f)
++                                )
++                            .setDuration(FLIP_DURATION_OUT),
++                        mFlipSettingsView, View.INVISIBLE));
++                mNotificationButtonAnim = start(
++                    setVisibilityWhenDone(
++                        ObjectAnimator.ofFloat(mNotificationButton, View.ALPHA, 0f)
++                            .setDuration(FLIP_DURATION),
++                        mNotificationButton, View.INVISIBLE));
++                mSettingsButton.setVisibility(View.VISIBLE);
++                mSettingsButtonAnim = start(
++                    ObjectAnimator.ofFloat(mSettingsButton, View.ALPHA, 1f)
++                        .setDuration(FLIP_DURATION));
++                mClearButton.setVisibility(View.VISIBLE);
++                mClearButton.setAlpha(0f);
++                setAreThereNotifications(); // this will show/hide the button as necessary
++                mNotificationPanel.postDelayed(new Runnable() {
++                    public void run() {
++                        updateCarrierLabelVisibility(false);
++                    }
++                }, FLIP_DURATION - 150);
++            }
++        }
+ 
+         if (false) postStartTracing();
+     }
+@@ -1312,7 +1452,53 @@ public class PhoneStatusBar extends BaseStatusBar {
+             return;
+         }
+ 
+-        if (mSettingsPanel != null) mSettingsPanel.expand();
++        if (mHasFlipSettings) {
++            mNotificationPanel.expand();
++            if (mFlipSettingsView.getVisibility() != View.VISIBLE) {
++                if (mFlipSettingsViewAnim != null) mFlipSettingsViewAnim.cancel();
++                if (mScrollViewAnim != null) mScrollViewAnim.cancel();
++                if (mSettingsButtonAnim != null) mSettingsButtonAnim.cancel();
++                if (mNotificationButtonAnim != null) mNotificationButtonAnim.cancel();
++                if (mClearButtonAnim != null) mClearButtonAnim.cancel();
++
++                mFlipSettingsView.setVisibility(View.VISIBLE);
++                mFlipSettingsView.setScaleX(0f);
++                mFlipSettingsViewAnim = start(
++                    startDelay(FLIP_DURATION_OUT,
++                        interpolator(mDecelerateInterpolator,
++                            ObjectAnimator.ofFloat(mFlipSettingsView, View.SCALE_X, 0f, 1f)
++                                .setDuration(FLIP_DURATION_IN)
++                            )));
++                mScrollViewAnim = start(
++                    setVisibilityWhenDone(
++                        interpolator(mAccelerateInterpolator,
++                                ObjectAnimator.ofFloat(mScrollView, View.SCALE_X, 1f, 0f)
++                                )
++                            .setDuration(FLIP_DURATION_OUT), 
++                        mScrollView, View.INVISIBLE));
++                mSettingsButtonAnim = start(
++                    setVisibilityWhenDone(
++                        ObjectAnimator.ofFloat(mSettingsButton, View.ALPHA, 0f)
++                            .setDuration(FLIP_DURATION),
++                            mScrollView, View.INVISIBLE));
++                mNotificationButton.setVisibility(View.VISIBLE);
++                mNotificationButtonAnim = start(
++                    ObjectAnimator.ofFloat(mNotificationButton, View.ALPHA, 1f)
++                        .setDuration(FLIP_DURATION));
++                mClearButtonAnim = start(
++                    setVisibilityWhenDone(
++                        ObjectAnimator.ofFloat(mClearButton, View.ALPHA, 0f)
++                        .setDuration(FLIP_DURATION),
++                        mClearButton, View.INVISIBLE));
++                mNotificationPanel.postDelayed(new Runnable() {
++                    public void run() {
++                        updateCarrierLabelVisibility(false);
++                    }
++                }, FLIP_DURATION - 150);
++            }
++        } else if (mSettingsPanel != null) {
++            mSettingsPanel.expand();
++        }
+ 
+         if (false) postStartTracing();
+     }
+@@ -1622,7 +1808,7 @@ public class PhoneStatusBar extends BaseStatusBar {
+         mCommandQueue.setNavigationIconHints(
+                 altBack ? (mNavigationIconHints | StatusBarManager.NAVIGATION_HINT_BACK_ALT)
+                         : (mNavigationIconHints & ~StatusBarManager.NAVIGATION_HINT_BACK_ALT));
+-        if (mSettingsPanel != null) mSettingsPanel.setImeWindowStatus(vis > 0);
++        if (mQS != null) mQS.setImeWindowStatus(vis > 0);
+     }
+ 
+     @Override
+@@ -1960,6 +2146,12 @@ public class PhoneStatusBar extends BaseStatusBar {
+         }
+     };
+ 
++    private View.OnClickListener mNotificationButtonListener = new View.OnClickListener() {
++        public void onClick(View v) {
++            animateExpandNotificationsPanel();
++        }
++    };
++
+     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+         public void onReceive(Context context, Intent intent) {
+             Slog.v(TAG, "onReceive: " + intent);
+@@ -2050,7 +2242,7 @@ public class PhoneStatusBar extends BaseStatusBar {
+         }
+ 
+         // Update the QuickSettings container
+-        if (mSettingsPanel != null) mSettingsPanel.updateResources();
++        if (mQS != null) mQS.updateResources();
+ 
+         loadDimens();
+     }
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/QuickSettings.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/QuickSettings.java
+index faf20e2..5b550c2 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/QuickSettings.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/QuickSettings.java
+@@ -88,7 +88,7 @@ class QuickSettings {
+     private Context mContext;
+     private PanelBar mBar;
+     private QuickSettingsModel mModel;
+-    private QuickSettingsContainerView mContainerView;
++    private ViewGroup mContainerView;
+ 
+     private DisplayManager mDisplayManager;
+     private WifiDisplayStatus mWifiDisplayStatus;
+@@ -717,6 +717,7 @@ class QuickSettings {
+         for (QuickSettingsTileView v : mDynamicSpannedTiles) {
+             v.setColumnSpan(span);
+         }
++        ((QuickSettingsContainerView)mContainerView).updateResources();
+         mContainerView.requestLayout();
+ 
+         // Reset the dialog
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/SettingsPanelView.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/SettingsPanelView.java
+index 4e10fa3..a58eb22 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/SettingsPanelView.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/SettingsPanelView.java
+@@ -53,7 +53,6 @@ public class SettingsPanelView extends PanelView {
+         super.onFinishInflate();
+ 
+         mQSContainer = (QuickSettingsContainerView) findViewById(R.id.quick_settings_container);
+-        mQS = new QuickSettings(getContext(), mQSContainer);
+ 
+         Resources resources = getContext().getResources();
+         mHandleBar = resources.getDrawable(R.drawable.status_bar_close);
+@@ -62,6 +61,10 @@ public class SettingsPanelView extends PanelView {
+ 
+         setContentDescription(resources.getString(R.string.accessibility_desc_quick_settings));
+     }
++    
++    public void setQuickSettings(QuickSettings qs) {
++        mQS = qs;
++    }
+ 
+     @Override
+     public void setBar(PanelBar panelBar) {
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarWindowView.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarWindowView.java
+index 0176f42..89c70e8 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarWindowView.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarWindowView.java
+@@ -42,6 +42,7 @@ public class StatusBarWindowView extends FrameLayout
+     private ExpandHelper mExpandHelper;
+     private NotificationRowLayout latestItems;
+     private NotificationPanelView mNotificationPanel;
++    private ScrollView mScrollView;
+ 
+     PhoneStatusBar mService;
+ 
+@@ -55,13 +56,13 @@ public class StatusBarWindowView extends FrameLayout
+     protected void onAttachedToWindow () {
+         super.onAttachedToWindow();
+         latestItems = (NotificationRowLayout) findViewById(R.id.latestItems);
+-        ScrollView scroller = (ScrollView) findViewById(R.id.scroll);
++        mScrollView = (ScrollView) findViewById(R.id.scroll);
+         mNotificationPanel = (NotificationPanelView) findViewById(R.id.notification_panel);
+         int minHeight = getResources().getDimensionPixelSize(R.dimen.notification_row_min_height);
+         int maxHeight = getResources().getDimensionPixelSize(R.dimen.notification_row_max_height);
+         mExpandHelper = new ExpandHelper(mContext, latestItems, minHeight, maxHeight);
+         mExpandHelper.setEventSource(this);
+-        mExpandHelper.setScrollView(scroller);
++        mExpandHelper.setScrollView(mScrollView);
+     }
+ 
+     @Override
+@@ -80,7 +81,7 @@ public class StatusBarWindowView extends FrameLayout
+     @Override
+     public boolean onInterceptTouchEvent(MotionEvent ev) {
+         boolean intercept = false;
+-        if (mNotificationPanel.isFullyExpanded()) {
++        if (mNotificationPanel.isFullyExpanded() && mScrollView.getVisibility() == View.VISIBLE) {
+             intercept = mExpandHelper.onInterceptTouchEvent(ev);
+         }
+         if (!intercept) {
+-- 
+1.8.1.1
+

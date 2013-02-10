@@ -1,0 +1,41 @@
+From 56dc91f7ced66a38782204f682b81898994fc935 Mon Sep 17 00:00:00 2001
+From: Roger Chen <cxr514033970@gmail.com>
+Date: Fri, 16 Nov 2012 12:37:39 +0800
+Subject: [PATCH 209/283] Change the text color of timer in MediaController
+
+The color of timer and backgroud in MediaController
+are too closer to distinguish.
+
+Change-Id: Id60ecbc26233857c7ef291ef891c9d4720309dfa
+Signed-off-by: Roger Chen <cxr514033970@gmail.com>
+---
+ core/res/res/layout/media_controller.xml | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/core/res/res/layout/media_controller.xml b/core/res/res/layout/media_controller.xml
+index ad74a3a..7575836 100644
+--- a/core/res/res/layout/media_controller.xml
++++ b/core/res/res/layout/media_controller.xml
+@@ -48,7 +48,8 @@
+             android:layout_gravity="center_horizontal"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:paddingEnd="4dip" />
++            android:paddingEnd="4dip"
++            android:textColor="@color/dim_foreground_dark" />
+ 
+         <SeekBar
+             android:id="@+id/mediacontroller_progress"
+@@ -67,7 +68,8 @@
+             android:layout_gravity="center_horizontal"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:paddingStart="4dip" />
++            android:paddingStart="4dip"
++            android:textColor="@color/dim_foreground_dark" />
+     </LinearLayout>
+ 
+ </LinearLayout>
+-- 
+1.8.1.1
+

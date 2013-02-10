@@ -1,0 +1,40 @@
+From 86cf0cdfe14ce9606d42671b2961081f3220a789 Mon Sep 17 00:00:00 2001
+From: Justin Mattson <jmatt@google.com>
+Date: Mon, 8 Oct 2012 11:46:28 -0700
+Subject: [PATCH 052/283] Reverse movement direction of DPAD events
+
+The first way I had it produces somewhat unexpected behavior. If you
+scroll past the top of the list, focus moves down to the control
+below.
+
+This changes it so scrolling past the bottom of the list moves focus
+to the next control below.
+
+Change-Id: I886e1854df85ceb203dac61c7f8c7daf6749e90e
+---
+ core/java/android/widget/NumberPicker.java | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/core/java/android/widget/NumberPicker.java b/core/java/android/widget/NumberPicker.java
+index 2efcf41..6cfeb15 100644
+--- a/core/java/android/widget/NumberPicker.java
++++ b/core/java/android/widget/NumberPicker.java
+@@ -948,13 +948,13 @@ public class NumberPicker extends LinearLayout {
+                 }
+                 switch (event.getAction()) {
+                     case KeyEvent.ACTION_DOWN:
+-                        if (mWrapSelectorWheel || (keyCode == KeyEvent.KEYCODE_DPAD_UP)
++                        if (mWrapSelectorWheel || (keyCode == KeyEvent.KEYCODE_DPAD_DOWN)
+                                 ? getValue() < getMaxValue() : getValue() > getMinValue()) {
+                             requestFocus();
+                             mLastHandledDownDpadKeyCode = keyCode;
+                             removeAllCallbacks();
+                             if (mFlingScroller.isFinished()) {
+-                                changeValueByOne(keyCode == KeyEvent.KEYCODE_DPAD_UP);
++                                changeValueByOne(keyCode == KeyEvent.KEYCODE_DPAD_DOWN);
+                             }
+                             return true;
+                         }
+-- 
+1.8.1.1
+

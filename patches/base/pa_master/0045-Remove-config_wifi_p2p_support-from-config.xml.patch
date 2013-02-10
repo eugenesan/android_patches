@@ -1,0 +1,30 @@
+From a3014aafa84091bc952e01fbf02296f58842eb03 Mon Sep 17 00:00:00 2001
+From: Yoshihiko Ikenaga <yoshihiko.ikenaga@jp.sony.com>
+Date: Fri, 25 Jan 2013 11:35:33 +0900
+Subject: [PATCH 45/51] Remove config_wifi_p2p_support from config.xml.
+
+"config_wifi_p2p_support" is no longer used.
+It was replaced with PackageManager.FEATURE_WIFI_DIRECT.
+
+Change-Id: Ib57c5246b2ad218e65b4cbbb77fd37c04b5d9682
+Signed-off-by: Yoshihiko Ikenaga <yoshihiko.ikenaga@jp.sony.com>
+---
+ core/res/res/values/config.xml | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/core/res/res/values/config.xml b/core/res/res/values/config.xml
+index 162284e..5d91bbf 100755
+--- a/core/res/res/values/config.xml
++++ b/core/res/res/values/config.xml
+@@ -277,8 +277,6 @@
+     <!-- Boolean indicating whether the wifi chipset has dual frequency band support -->
+     <bool translatable="false" name="config_wifi_dual_band_support">false</bool>
+ 
+-    <!-- Boolean indicating whether the wifi chipset has p2p support -->
+-    <bool translatable="false" name="config_wifi_p2p_support">false</bool>
+     <!-- Device type information conforming to Annex B format in WiFi Direct specification.
+          The default represents a dual-mode smartphone -->
+     <string translatable="false" name="config_wifi_p2p_device_type">10-0050F204-5</string>
+-- 
+1.8.1.1
+

@@ -1,0 +1,47 @@
+From 729f6685f9dfb7a1813a89dbf2298024d9da3813 Mon Sep 17 00:00:00 2001
+From: Dmytro Dubovyk <dmytro.dubovyk@ti.com>
+Date: Tue, 18 Dec 2012 18:07:50 +0200
+Subject: [PATCH 241/283] Setting the default value for dock audio
+
+There was no default value for parameter "dock_audio_media_enabled"
+in global settings and because of that it couldn't be obtained before
+Settings app first start and improper actions, such as FORCE_NONE
+sending to AudioSystem instead of FORCE_ANALOG_DOCK, were taken.
+This patch sets default value to 'true'.
+
+Change-Id: Idbe343519db15f806f3a237e8b39f8420b9edde1
+Signed-off-by: Dmytro Dubovyk <dmytro.dubovyk@ti.com>
+---
+ packages/SettingsProvider/res/values/defaults.xml                      | 1 +
+ .../src/com/android/providers/settings/DatabaseHelper.java             | 3 +++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/packages/SettingsProvider/res/values/defaults.xml b/packages/SettingsProvider/res/values/defaults.xml
+index 94e2286..52df8d0 100644
+--- a/packages/SettingsProvider/res/values/defaults.xml
++++ b/packages/SettingsProvider/res/values/defaults.xml
+@@ -77,6 +77,7 @@
+     <string name="def_unlock_sound" translatable="false">/system/media/audio/ui/Unlock.ogg</string>
+     <bool name="def_lockscreen_disabled">false</bool>
+     <bool name="def_device_provisioned">false</bool>
++    <integer name="def_dock_audio_media_enabled">1</integer>
+ 
+     <!-- Notifications use ringer volume -->
+     <bool name="def_notifications_use_ring_volume">true</bool>
+diff --git a/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java b/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+index b649b43..7864ec2 100644
+--- a/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
++++ b/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+@@ -2181,6 +2181,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
+             loadStringSetting(stmt, Settings.Global.CAR_UNDOCK_SOUND,
+                     R.string.def_car_undock_sound);
+ 
++            loadIntegerSetting(stmt, Settings.Global.DOCK_AUDIO_MEDIA_ENABLED,
++                    R.integer.def_dock_audio_media_enabled);
++
+             loadSetting(stmt, Settings.Global.SET_INSTALL_LOCATION, 0);
+             loadSetting(stmt, Settings.Global.DEFAULT_INSTALL_LOCATION,
+                     PackageHelper.APP_INSTALL_AUTO);
+-- 
+1.8.1.1
+

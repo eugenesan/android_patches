@@ -1,0 +1,39 @@
+From cd3231f501b7ee038af5ab378ee5550090b7bc2e Mon Sep 17 00:00:00 2001
+From: Eric Laurent <elaurent@google.com>
+Date: Fri, 2 Nov 2012 16:48:26 -0700
+Subject: [PATCH 134/283] audio service fix dock after crash - DO NOT MERGE
+
+merge from master:
+"audio service: set dock use on mediaserver restart
+
+Restore forced usage of dock audio for media according to
+current setting when media server restarts."
+
+Bug 7485250.
+
+Change-Id: Ie67b80ede1ed92d223dd96de83c1beb985dfba06
+---
+ media/java/android/media/AudioService.java | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/media/java/android/media/AudioService.java b/media/java/android/media/AudioService.java
+index 315196e..87ece50 100644
+--- a/media/java/android/media/AudioService.java
++++ b/media/java/android/media/AudioService.java
+@@ -3324,6 +3324,13 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
+                                 mBluetoothA2dpEnabled ?
+                                         AudioSystem.FORCE_NONE : AudioSystem.FORCE_NO_BT_A2DP);
+                     }
++
++                    synchronized (mSettingsLock) {
++                        AudioSystem.setForceUse(AudioSystem.FOR_DOCK,
++                                mDockAudioMediaEnabled ?
++                                        AudioSystem.FORCE_ANALOG_DOCK : AudioSystem.FORCE_NONE);
++                    }
++
+                     // indicate the end of reconfiguration phase to audio HAL
+                     AudioSystem.setParameters("restarting=false");
+                     break;
+-- 
+1.8.1.1
+

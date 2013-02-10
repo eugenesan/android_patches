@@ -1,0 +1,55 @@
+From baf0192dec0ec02039fd147bae7ec957edfe8bde Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Thu, 24 Jan 2013 17:49:35 +0200
+Subject: [PATCH 5/7] add twrp recovery support
+
+Change-Id: I8a133accf7bbd5365f1d2307a2f8f116b058135b
+---
+ BoardConfig.mk | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index 1d26eb9..6d3bea4 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -31,6 +31,7 @@ TARGET_NO_BOOTLOADER := true
+ 
+ BOARD_KERNEL_BASE := 0x80200000
+ BOARD_KERNEL_PAGESIZE := 2048
++BOARD_FORCE_RAMDISK_ADDRESS := 0x81800000
+ BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.hardware=mako lpj=67677
+ BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x01600000
+ 
+@@ -76,7 +77,7 @@ TARGET_USES_SF_BYPASS := true
+ TARGET_USES_C2D_COMPOSITION := true
+ 
+ TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
+-TARGET_RECOVERY_UI_LIB := librecovery_ui_mako
++#TARGET_RECOVERY_UI_LIB := librecovery_ui_mako
+ 
+ TARGET_USERIMAGES_USE_EXT4 := true
+ BOARD_BOOTIMAGE_PARTITION_SIZE := 23068672 # 22M
+@@ -103,3 +104,20 @@ BOARD_CHARGER_ENABLE_SUSPEND := true
+ -include vendor/lge/mako/BoardConfigVendor.mk
+ 
+ BOARD_HAS_NO_SELECT_BUTTON := true
++
++# TWRP config
++DEVICE_RESOLUTION := 720x1280
++RECOVERY_SDCARD_ON_DATA := true
++RECOVERY_GRAPHICS_USE_LINELENGTH := true
++BOARD_HAS_NO_REAL_SDCARD := true
++PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
++#TARGET_RECOVERY_INITRC := device/samsung/tuna/init.recovery.rc
++#TW_INCLUDE_CRYPTO := true
++TW_INCLUDE_JB_CRYPTO := true
++TW_FLASH_FROM_STORAGE := true
++TW_NO_USB_STORAGE := true
++#TW_INCLUDE_DUMLOCK := true
++TW_INTERNAL_STORAGE_PATH := "/data/media"
++TW_INTERNAL_STORAGE_MOUNT_POINT := "data"
++TW_EXTERNAL_STORAGE_PATH := "/usb-otg"
++TW_EXTERNAL_STORAGE_MOUNT_POINT := "usb-otg"
+-- 
+1.8.1.1
+

@@ -1,0 +1,84 @@
+From 7018cfdc05dc6135949806749ff5c370dce09ced Mon Sep 17 00:00:00 2001
+From: Svetoslav Ganov <svetoslavganov@google.com>
+Date: Mon, 19 Nov 2012 12:33:41 -0800
+Subject: [PATCH 198/283] Revert "NumberPicker should adjust min and max when
+ displayed values are set." (a.k.a. Santa is back)
+
+This reverted change was adjusting the min and max values for the NumberPicker
+which is not desirable since it changes behavior and it will be possible for
+an app that works on the current platform to crash on an older one. Also the
+adjustment was not implemented correctly.
+
+Updated the documentation to clarify the reltionship between the min value,
+max value, and the displayed values array.
+
+Bug:7518172
+
+This reverts commit a1410e6789ce72bc423793315a51aea8b6bad6c7
+
+Change-Id: I109f1b1f54c1e609941243cabab9241871b6b12b
+---
+ core/java/android/widget/NumberPicker.java | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
+
+diff --git a/core/java/android/widget/NumberPicker.java b/core/java/android/widget/NumberPicker.java
+index 4918e48..ac21671 100644
+--- a/core/java/android/widget/NumberPicker.java
++++ b/core/java/android/widget/NumberPicker.java
+@@ -1284,7 +1284,12 @@ public class NumberPicker extends LinearLayout {
+     /**
+      * Sets the min value of the picker.
+      *
+-     * @param minValue The min value.
++     * @param minValue The min value inclusive.
++     *
++     * <strong>Note:</strong> The length of the displayed values array
++     * set via {@link #setDisplayedValues(String[])} must be equal to the
++     * range of selectable numbers which is equal to
++     * {@link #getMaxValue()} - {@link #getMinValue()} + 1.
+      */
+     public void setMinValue(int minValue) {
+         if (mMinValue == minValue) {
+@@ -1317,7 +1322,12 @@ public class NumberPicker extends LinearLayout {
+     /**
+      * Sets the max value of the picker.
+      *
+-     * @param maxValue The max value.
++     * @param maxValue The max value inclusive.
++     *
++     * <strong>Note:</strong> The length of the displayed values array
++     * set via {@link #setDisplayedValues(String[])} must be equal to the
++     * range of selectable numbers which is equal to
++     * {@link #getMaxValue()} - {@link #getMinValue()} + 1.
+      */
+     public void setMaxValue(int maxValue) {
+         if (mMaxValue == maxValue) {
+@@ -1351,6 +1361,10 @@ public class NumberPicker extends LinearLayout {
+      * Sets the values to be displayed.
+      *
+      * @param displayedValues The displayed values.
++     *
++     * <strong>Note:</strong> The length of the displayed values array
++     * must be equal to the range of selectable numbers which is equal to
++     * {@link #getMaxValue()} - {@link #getMinValue()} + 1.
+      */
+     public void setDisplayedValues(String[] displayedValues) {
+         if (mDisplayedValues == displayedValues) {
+@@ -1361,14 +1375,6 @@ public class NumberPicker extends LinearLayout {
+             // Allow text entry rather than strictly numeric entry.
+             mInputText.setRawInputType(InputType.TYPE_CLASS_TEXT
+                     | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+-            // Make sure the min, max, respect the size of the displayed
+-            // values. This will take care of the current value as well.
+-            if (getMinValue() >= displayedValues.length) {
+-                setMinValue(0);
+-            }
+-            if (getMaxValue() >= displayedValues.length) {
+-                setMaxValue(displayedValues.length - 1);
+-            }
+         } else {
+             mInputText.setRawInputType(InputType.TYPE_CLASS_NUMBER);
+         }
+-- 
+1.8.1.1
+

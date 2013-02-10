@@ -1,0 +1,420 @@
+From c9a1aabc49d31370e3bf41f85b805499640230b1 Mon Sep 17 00:00:00 2001
+From: Kenny Root <kroot@google.com>
+Date: Tue, 16 Oct 2012 23:28:21 -0700
+Subject: [PATCH 080/283] Remove HAVE_SELINUX guards
+
+Change-Id: I6c2161471f657aa1645695ffd56ff434b0c2b426
+---
+ cmds/installd/Android.mk        |  9 ++-----
+ cmds/installd/commands.c        | 38 +++++++--------------------
+ core/jni/Android.mk             |  7 +----
+ core/jni/android_os_SELinux.cpp | 57 -----------------------------------------
+ 4 files changed, 12 insertions(+), 99 deletions(-)
+
+diff --git a/cmds/installd/Android.mk b/cmds/installd/Android.mk
+index 3e722ea..1dd4ee5 100644
+--- a/cmds/installd/Android.mk
++++ b/cmds/installd/Android.mk
+@@ -29,17 +29,12 @@ LOCAL_SRC_FILES := \
+     $(common_src_files)
+ 
+ LOCAL_SHARED_LIBRARIES := \
+-    libcutils
++    libcutils \
++    libselinux
+ 
+ LOCAL_STATIC_LIBRARIES := \
+     libdiskusage
+ 
+-ifeq ($(HAVE_SELINUX),true)
+-LOCAL_C_INCLUDES += external/libselinux/include
+-LOCAL_SHARED_LIBRARIES += libselinux
+-LOCAL_CFLAGS := -DHAVE_SELINUX
+-endif # HAVE_SELINUX
+-
+ LOCAL_MODULE := installd
+ 
+ LOCAL_MODULE_TAGS := optional
+diff --git a/cmds/installd/commands.c b/cmds/installd/commands.c
+index 41e7b8d..9d0dc53 100644
+--- a/cmds/installd/commands.c
++++ b/cmds/installd/commands.c
+@@ -16,10 +16,7 @@
+ 
+ #include "installd.h"
+ #include <diskusage/dirsize.h>
+-
+-#ifdef HAVE_SELINUX
+ #include <selinux/android.h>
+-#endif
+ 
+ /* Directory records that are used in execution of commands. */
+ dir_rec_t android_data_dir;
+@@ -76,14 +73,12 @@ int install(const char *pkgname, uid_t uid, gid_t gid)
+         return -errno;
+     }
+ 
+-#ifdef HAVE_SELINUX
+-    if (selinux_android_setfilecon(libdir, pkgname, AID_SYSTEM) < 0) {
++    if (selinux_android_setfilecon(libdir, pkgname, uid) < 0) {
+         ALOGE("cannot setfilecon dir '%s': %s\n", libdir, strerror(errno));
+         unlink(libdir);
+         unlink(pkgdir);
+         return -errno;
+     }
+-#endif
+ 
+     if (chown(pkgdir, uid, gid) < 0) {
+         ALOGE("cannot chown dir '%s': %s\n", pkgdir, strerror(errno));
+@@ -92,15 +87,6 @@ int install(const char *pkgname, uid_t uid, gid_t gid)
+         return -errno;
+     }
+ 
+-#ifdef HAVE_SELINUX
+-    if (selinux_android_setfilecon(pkgdir, pkgname, uid) < 0) {
+-        ALOGE("cannot setfilecon dir '%s': %s\n", pkgdir, strerror(errno));
+-        unlink(libdir);
+-        unlink(pkgdir);
+-        return -errno;
+-    }
+-#endif
+-
+     return 0;
+ }
+ 
+@@ -193,19 +179,16 @@ int make_user_data(const char *pkgname, uid_t uid, uid_t persona)
+         ALOGE("cannot create dir '%s': %s\n", pkgdir, strerror(errno));
+         return -errno;
+     }
+-    if (chown(pkgdir, uid, uid) < 0) {
+-        ALOGE("cannot chown dir '%s': %s\n", pkgdir, strerror(errno));
++    if (selinux_android_setfilecon(pkgdir, pkgname, uid) < 0) {
++        ALOGE("cannot setfilecon dir '%s': %s\n", pkgdir, strerror(errno));
+         unlink(pkgdir);
+         return -errno;
+     }
+-
+-#ifdef HAVE_SELINUX
+-    if (selinux_android_setfilecon(pkgdir, pkgname, uid) < 0) {
+-        ALOGE("cannot setfilecon dir '%s': %s\n", pkgdir, strerror(errno));
++    if (chown(pkgdir, uid, uid) < 0) {
++        ALOGE("cannot chown dir '%s': %s\n", pkgdir, strerror(errno));
+         unlink(pkgdir);
+         return -errno;
+     }
+-#endif
+ 
+     return 0;
+ }
+@@ -394,21 +377,18 @@ int protect(char *pkgname, gid_t gid)
+ 
+     if (stat(pkgpath, &s) < 0) return -1;
+ 
+-    if (chown(pkgpath, s.st_uid, gid) < 0) {
+-        ALOGE("failed to chgrp '%s': %s\n", pkgpath, strerror(errno));
+-        return -1;
+-    }
+     if (chmod(pkgpath, S_IRUSR|S_IWUSR|S_IRGRP) < 0) {
+         ALOGE("failed to chmod '%s': %s\n", pkgpath, strerror(errno));
+         return -1;
+     }
+-
+-#ifdef HAVE_SELINUX
+     if (selinux_android_setfilecon(pkgpath, pkgname, s.st_uid) < 0) {
+         ALOGE("cannot setfilecon dir '%s': %s\n", pkgpath, strerror(errno));
+         return -1;
+     }
+-#endif
++    if (chown(pkgpath, s.st_uid, gid) < 0) {
++        ALOGE("failed to chgrp '%s': %s\n", pkgpath, strerror(errno));
++        return -1;
++    }
+ 
+     return 0;
+ }
+diff --git a/core/jni/Android.mk b/core/jni/Android.mk
+index 6f3653d..9b89a8b 100644
+--- a/core/jni/Android.mk
++++ b/core/jni/Android.mk
+@@ -205,6 +205,7 @@ LOCAL_SHARED_LIBRARIES := \
+ 	libETC1 \
+ 	libhardware \
+ 	libhardware_legacy \
++	libselinux \
+ 	libsonivox \
+ 	libcrypto \
+ 	libssl \
+@@ -218,12 +219,6 @@ LOCAL_SHARED_LIBRARIES := \
+ 	libharfbuzz \
+ 	libz
+ 
+-ifeq ($(HAVE_SELINUX),true)
+-LOCAL_C_INCLUDES += external/libselinux/include
+-LOCAL_SHARED_LIBRARIES += libselinux
+-LOCAL_CFLAGS += -DHAVE_SELINUX
+-endif # HAVE_SELINUX
+-
+ ifeq ($(USE_OPENGL_RENDERER),true)
+ 	LOCAL_SHARED_LIBRARIES += libhwui
+ endif
+diff --git a/core/jni/android_os_SELinux.cpp b/core/jni/android_os_SELinux.cpp
+index e813c38..b12fdfc 100644
+--- a/core/jni/android_os_SELinux.cpp
++++ b/core/jni/android_os_SELinux.cpp
+@@ -20,10 +20,8 @@
+ #include "JNIHelp.h"
+ #include "jni.h"
+ #include "android_runtime/AndroidRuntime.h"
+-#ifdef HAVE_SELINUX
+ #include "selinux/selinux.h"
+ #include "selinux/android.h"
+-#endif
+ #include <errno.h>
+ 
+ namespace android {
+@@ -56,11 +54,7 @@ namespace android {
+    * Exceptions: none
+    */
+   static jboolean isSELinuxEnforced(JNIEnv *env, jobject clazz) {
+-#ifdef HAVE_SELINUX
+     return (security_getenforce() == 1) ? true : false;
+-#else
+-    return false;
+-#endif
+   }
+ 
+   /*
+@@ -71,16 +65,12 @@ namespace android {
+    * Exceptions: none
+    */
+   static jboolean setSELinuxEnforce(JNIEnv *env, jobject clazz, jboolean value) {
+-#ifdef HAVE_SELINUX
+     if (isSELinuxDisabled)
+       return false;
+ 
+     int enforce = (value) ? 1 : 0;
+ 
+     return (security_setenforce(enforce) != -1) ? true : false;
+-#else
+-    return false;
+-#endif
+   }
+ 
+   /*
+@@ -92,7 +82,6 @@ namespace android {
+    * Exceptions: NullPointerException if fileDescriptor object is NULL
+    */
+   static jstring getPeerCon(JNIEnv *env, jobject clazz, jobject fileDescriptor) {
+-#ifdef HAVE_SELINUX
+     if (isSELinuxDisabled)
+       return NULL;
+ 
+@@ -123,9 +112,6 @@ namespace android {
+       freecon(context);
+ 
+     return securityString;
+-#else
+-    return NULL;
+-#endif
+   }
+ 
+   /*
+@@ -138,7 +124,6 @@ namespace android {
+    * Exception: none
+    */
+   static jboolean setFSCreateCon(JNIEnv *env, jobject clazz, jstring context) {
+-#ifdef HAVE_SELINUX
+     if (isSELinuxDisabled)
+       return false;
+ 
+@@ -163,9 +148,6 @@ namespace android {
+       env->ReleaseStringUTFChars(context, constant_securityContext);
+ 
+     return (ret == 0) ? true : false;
+-#else
+-    return false;
+-#endif
+   }
+ 
+   /*
+@@ -178,7 +160,6 @@ namespace android {
+    * Exception: NullPointerException is thrown if either path or context strign are NULL
+    */
+   static jboolean setFileCon(JNIEnv *env, jobject clazz, jstring path, jstring con) {
+-#ifdef HAVE_SELINUX
+     if (isSELinuxDisabled)
+       return false;
+ 
+@@ -208,9 +189,6 @@ namespace android {
+     env->ReleaseStringUTFChars(path, objectPath);
+     env->ReleaseStringUTFChars(con, constant_con);
+     return (ret == 0) ? true : false;
+-#else
+-    return false;
+-#endif
+   }
+ 
+   /*
+@@ -224,7 +202,6 @@ namespace android {
+    * Exceptions: NullPointerException if the path object is null
+    */
+   static jstring getFileCon(JNIEnv *env, jobject clazz, jstring path) {
+-#ifdef HAVE_SELINUX
+     if (isSELinuxDisabled)
+       return NULL;
+ 
+@@ -252,9 +229,6 @@ namespace android {
+     env->ReleaseStringUTFChars(path, objectPath);
+ 
+     return securityString;
+-#else
+-    return NULL;
+-#endif
+   }
+ 
+   /*
+@@ -266,7 +240,6 @@ namespace android {
+    * Exceptions: none
+    */
+   static jstring getCon(JNIEnv *env, jobject clazz) {
+-#ifdef HAVE_SELINUX
+     if (isSELinuxDisabled)
+       return NULL;
+ 
+@@ -285,9 +258,6 @@ namespace android {
+       freecon(context);
+ 
+     return securityString;
+-#else
+-    return NULL;
+-#endif
+   }
+ 
+   /*
+@@ -300,7 +270,6 @@ namespace android {
+    * Exceptions: none
+    */
+   static jstring getPidCon(JNIEnv *env, jobject clazz, jint pid) {
+-#ifdef HAVE_SELINUX
+     if (isSELinuxDisabled)
+       return NULL;
+ 
+@@ -321,9 +290,6 @@ namespace android {
+       freecon(context);
+ 
+     return securityString;
+-#else
+-    return NULL;
+-#endif
+   }
+ 
+   /*
+@@ -335,7 +301,6 @@ namespace android {
+    * Exceptions: None
+    */
+   static jobjectArray getBooleanNames(JNIEnv *env, JNIEnv clazz) {
+-#ifdef HAVE_SELINUX
+     if (isSELinuxDisabled)
+       return NULL;
+ 
+@@ -359,9 +324,6 @@ namespace android {
+     free(list);
+ 
+     return stringArray;
+-#else
+-    return NULL;
+-#endif
+   }
+ 
+   /*
+@@ -373,7 +335,6 @@ namespace android {
+    * Exceptions: None
+    */
+   static jboolean getBooleanValue(JNIEnv *env, jobject clazz, jstring name) {
+-#ifdef HAVE_SELINUX
+     if (isSELinuxDisabled)
+       return false;
+ 
+@@ -386,9 +347,6 @@ namespace android {
+     ret = security_get_boolean_active(boolean_name);
+     env->ReleaseStringUTFChars(name, boolean_name);
+     return (ret == 1) ? true : false;
+-#else
+-    return false;
+-#endif
+   }
+ 
+   /*
+@@ -401,7 +359,6 @@ namespace android {
+    * Exceptions: None
+    */
+   static jboolean setBooleanValue(JNIEnv *env, jobject clazz, jstring name, jboolean value) {
+-#ifdef HAVE_SELINUX
+     if (isSELinuxDisabled)
+       return false;
+ 
+@@ -420,9 +377,6 @@ namespace android {
+       return false;
+ 
+     return true;
+-#else
+-    return false;
+-#endif
+   }
+ 
+   /*
+@@ -436,7 +390,6 @@ namespace android {
+    * Exceptions: None
+    */
+   static jboolean checkSELinuxAccess(JNIEnv *env, jobject clazz, jstring scon, jstring tcon, jstring tclass, jstring perm) {
+-#ifdef HAVE_SELINUX
+     if (isSELinuxDisabled)
+       return true;
+ 
+@@ -468,10 +421,6 @@ namespace android {
+ 
+   bail:
+     return (accessGranted == 0) ? true : false;
+-
+-#else
+-    return true;
+-#endif
+   }
+ 
+   /*
+@@ -482,7 +431,6 @@ namespace android {
+    * Exceptions: none
+    */
+   static jboolean native_restorecon(JNIEnv *env, jobject clazz, jstring pathname) {
+-#ifdef HAVE_SELINUX
+     if (isSELinuxDisabled)
+       return true;
+ 
+@@ -490,9 +438,6 @@ namespace android {
+     int ret = selinux_android_restorecon(file);
+     env->ReleaseStringUTFChars(pathname, file);
+     return (ret == 0);
+-#else
+-    return true;
+-#endif
+   }
+ 
+   /*
+@@ -526,14 +471,12 @@ namespace android {
+   }
+ 
+   int register_android_os_SELinux(JNIEnv *env) {
+-#ifdef HAVE_SELINUX
+     union selinux_callback cb;
+     cb.func_log = log_callback;
+     selinux_set_callback(SELINUX_CB_LOG, cb);
+ 
+     isSELinuxDisabled = (is_selinux_enabled() != 1) ? true : false;
+ 
+-#endif
+     return AndroidRuntime::registerNativeMethods(
+          env, "android/os/SELinux",
+          method_table, NELEM(method_table));
+-- 
+1.8.1.1
+

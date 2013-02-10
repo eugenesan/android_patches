@@ -1,0 +1,41 @@
+From 2bea585494e14ff551eb02796b873473e8f0dd2e Mon Sep 17 00:00:00 2001
+From: You Kim <you.kim72@gmail.com>
+Date: Tue, 23 Oct 2012 22:56:51 +0900
+Subject: [PATCH 096/283] removing ineffective code in WifiService.java
+
+no need to use wrapper class Long.
+I think this looks like typo.
+However, this fix will give us more space.
+
+WifiService.class 33646 -> 33541.
+
+Change-Id: Ia3a57285170315a9563c6ccf687424fe95ccc2df
+---
+ services/java/com/android/server/WifiService.java | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/services/java/com/android/server/WifiService.java b/services/java/com/android/server/WifiService.java
+index 1f03d17..5bb855d 100644
+--- a/services/java/com/android/server/WifiService.java
++++ b/services/java/com/android/server/WifiService.java
+@@ -1534,7 +1534,7 @@ public class WifiService extends IWifiManager.Stub {
+         }
+ 
+         int uid = Binder.getCallingUid();
+-        Long ident = Binder.clearCallingIdentity();
++        final long ident = Binder.clearCallingIdentity();
+         try {
+             mBatteryStats.noteWifiMulticastEnabled(uid);
+         } catch (RemoteException e) {
+@@ -1570,7 +1570,7 @@ public class WifiService extends IWifiManager.Stub {
+             mWifiStateMachine.startFilteringMulticastV4Packets();
+         }
+ 
+-        Long ident = Binder.clearCallingIdentity();
++        final long ident = Binder.clearCallingIdentity();
+         try {
+             mBatteryStats.noteWifiMulticastDisabled(uid);
+         } catch (RemoteException e) {
+-- 
+1.8.1.1
+

@@ -1,0 +1,28 @@
+From 8ff1cb0cd5e4ad7beb9c26312ee0a30991bf9bc3 Mon Sep 17 00:00:00 2001
+From: Stephen Hines <srhines@google.com>
+Date: Tue, 22 Jan 2013 16:01:44 -0800
+Subject: [PATCH 43/51] Fix array index oob in Matrix3f.loadRotate().
+
+https://code.google.com/p/android/issues/detail?id=42860
+
+Change-Id: Idbf18576da3ad5b84b4209147dad34cc2f9044d2
+---
+ graphics/java/android/renderscript/Matrix3f.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/graphics/java/android/renderscript/Matrix3f.java b/graphics/java/android/renderscript/Matrix3f.java
+index 66f2c81..0bad7e0 100644
+--- a/graphics/java/android/renderscript/Matrix3f.java
++++ b/graphics/java/android/renderscript/Matrix3f.java
+@@ -138,7 +138,7 @@ public class Matrix3f {
+         mMat[6] =  zx*nc + ys;
+         mMat[1] =  xy*nc + zs;
+         mMat[4] = y*y*nc +  c;
+-        mMat[9] =  yz*nc - xs;
++        mMat[7] =  yz*nc - xs;
+         mMat[2] =  zx*nc - ys;
+         mMat[6] =  yz*nc + xs;
+         mMat[8] = z*z*nc +  c;
+-- 
+1.8.1.1
+

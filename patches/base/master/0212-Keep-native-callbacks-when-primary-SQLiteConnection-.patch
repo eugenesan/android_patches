@@ -1,0 +1,36 @@
+From 27a65247427d704ad98b1265bbf3a6be101a94ba Mon Sep 17 00:00:00 2001
+From: Niklas Brunlid <niklas.brunlid@sonymobile.com>
+Date: Tue, 25 Sep 2012 12:55:34 +0200
+Subject: [PATCH 212/283] Keep native callbacks when primary SQLiteConnection
+ is recreated
+
+When a database was ATTACHed/DETACHed to a database that had Write-Ahead
+Logging enabled, the primary SQLConnection was recreated but the
+registered native callbacks were not restored.
+
+Change-Id: I8787fee78e68197ae472e05cc694d11381defa71
+---
+ core/java/android/database/sqlite/SQLiteConnection.java | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/core/java/android/database/sqlite/SQLiteConnection.java b/core/java/android/database/sqlite/SQLiteConnection.java
+index 6f7c1f3..e89a25f 100644
+--- a/core/java/android/database/sqlite/SQLiteConnection.java
++++ b/core/java/android/database/sqlite/SQLiteConnection.java
+@@ -216,6 +216,13 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
+         setJournalSizeLimit();
+         setAutoCheckpointInterval();
+         setLocaleFromConfiguration();
++
++        // Register custom functions.
++        final int functionCount = mConfiguration.customFunctions.size();
++        for (int i = 0; i < functionCount; i++) {
++            SQLiteCustomFunction function = mConfiguration.customFunctions.get(i);
++            nativeRegisterCustomFunction(mConnectionPtr, function);
++        }
+     }
+ 
+     private void dispose(boolean finalized) {
+-- 
+1.8.1.1
+

@@ -1,0 +1,28 @@
+From 70af452c2b4364a6dd066da3db29d0f7d43c957b Mon Sep 17 00:00:00 2001
+From: You Kim <you.kim72@gmail.com>
+Date: Mon, 17 Dec 2012 03:36:10 +0900
+Subject: [PATCH 28/51] BackupHelpers: Fix Typo
+
+delete --> free
+
+Change-Id: Idbf7e677f8cc4a9a9d04e58b5cf7d0f1589c5211
+---
+ libs/androidfw/BackupHelpers.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libs/androidfw/BackupHelpers.cpp b/libs/androidfw/BackupHelpers.cpp
+index 7a817a7..dcf41b7 100644
+--- a/libs/androidfw/BackupHelpers.cpp
++++ b/libs/androidfw/BackupHelpers.cpp
+@@ -710,7 +710,7 @@ int write_tarfile(const String8& packageName, const String8& domain,
+     }
+ 
+ cleanup:
+-    delete [] buf;
++    free(buf);
+ done:
+     close(fd);
+     return err;
+-- 
+1.8.1.1
+

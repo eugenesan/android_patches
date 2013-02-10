@@ -1,0 +1,27 @@
+From 942085b8eed6a15522e0c030d72958c3030bbf36 Mon Sep 17 00:00:00 2001
+From: Sylvain Becuwe <sylvain.becuwe@gmail.com>
+Date: Sun, 28 Oct 2012 01:48:37 +0200
+Subject: [PATCH 104/283] Potential NPE in SQLiteConnection
+
+Change-Id: I4d768bda5ea2fccb4a7c6ce7a5f074bf41563eac
+Signed-off-by: Sylvain Becuwe <sylvain.becuwe@gmail.com>
+---
+ core/java/android/database/sqlite/SQLiteConnection.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/java/android/database/sqlite/SQLiteConnection.java b/core/java/android/database/sqlite/SQLiteConnection.java
+index 6f7c1f3..b2b6106 100644
+--- a/core/java/android/database/sqlite/SQLiteConnection.java
++++ b/core/java/android/database/sqlite/SQLiteConnection.java
+@@ -974,7 +974,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
+         if (count != statement.mNumParameters) {
+             throw new SQLiteBindOrColumnIndexOutOfRangeException(
+                     "Expected " + statement.mNumParameters + " bind arguments but "
+-                    + bindArgs.length + " were provided.");
++                    + count + " were provided.");
+         }
+         if (count == 0) {
+             return;
+-- 
+1.8.1.1
+

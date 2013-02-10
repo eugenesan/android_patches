@@ -1,0 +1,27 @@
+From 8e729936a616a748ab2b8d60b9fb46c9b66ea79a Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Thu, 31 Jan 2013 13:59:16 +0200
+Subject: [PATCH 6/7] disable graphite due stability issues in skia affecting
+ IME
+
+Change-Id: Ic4f37394b4ef7e27bf472cd82f9d36cfa0e07214
+---
+ BoardConfig.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index 6d3bea4..0a2905b 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -24,7 +24,7 @@ TARGET_ARCH_VARIANT := armv7-a-neon
+ ARCH_ARM_HAVE_TLS_REGISTER := true
+ TARGET_GCC_VERSION := 4.7
+ TARGET_USE_O3 := true
+-TARGET_USE_GRAPHITE := true
++TARGET_USE_GRAPHITE := false
+ TARGET_USE_LINARO_STRING_ROUTINES := true
+ 
+ TARGET_NO_BOOTLOADER := true
+-- 
+1.8.1.1
+

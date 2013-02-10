@@ -1,0 +1,39 @@
+From eb003b6cee0bc3c6c1235ad9f2c45637f59cfbef Mon Sep 17 00:00:00 2001
+From: Sungmin Choi <sungmin.choi@lge.com>
+Date: Fri, 25 Jan 2013 18:26:46 +0900
+Subject: [PATCH 46/51] avoid multiple-"0" to exceed the length of upper bound
+
+Limits number of "0"s not to exceed length of maximum number allowed
+for the NumberPicker.
+
+Steps to reproduce:
+1. Settings -> Date & time -> uncheck "Automatic date & time"
+2. Select "Set time"
+3. Select Time Area on Set time dialog
+4. insert 00000000 via NumberPicker
+
+Bug: 8073759
+Change-Id: I0f3f5303d9a4b559217adb436f244407a23e58c0
+---
+ core/java/android/widget/NumberPicker.java | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/core/java/android/widget/NumberPicker.java b/core/java/android/widget/NumberPicker.java
+index ac21671..9323f45 100644
+--- a/core/java/android/widget/NumberPicker.java
++++ b/core/java/android/widget/NumberPicker.java
+@@ -1939,8 +1939,10 @@ public class NumberPicker extends LinearLayout {
+                  * Ensure the user can't type in a value greater than the max
+                  * allowed. We have to allow less than min as the user might
+                  * want to delete some numbers and then type a new number.
++                 * And prevent multiple-"0" that exceeds the length of upper
++                 * bound number.
+                  */
+-                if (val > mMaxValue) {
++                if (val > mMaxValue || result.length() > String.valueOf(mMaxValue).length()) {
+                     return "";
+                 } else {
+                     return filtered;
+-- 
+1.8.1.1
+

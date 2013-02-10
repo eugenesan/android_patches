@@ -1,0 +1,69 @@
+From 0214f2b8560928d3160a938f3edde4d3aa03c6c5 Mon Sep 17 00:00:00 2001
+From: Eric Laurent <elaurent@google.com>
+Date: Mon, 5 Nov 2012 14:54:12 -0800
+Subject: [PATCH 135/283] AudioService: undock audio glitch - DO NOT MERGE
+
+merge from master:
+
+"AudioService: improve low end dock audio control
+
+Low end docks have a menu to enable use of audio
+for media: automatically enabling/disabling use of audio
+when the dock is connected/disconnected is useless
+and can be the source of audio glitches.
+
+Bug 7463620."
+
+Change-Id: I3b7e7ebe660bb3f0e4367d2a3ed63ee76f78fe58
+---
+ media/java/android/media/AudioService.java | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/media/java/android/media/AudioService.java b/media/java/android/media/AudioService.java
+index 87ece50..22f699f 100644
+--- a/media/java/android/media/AudioService.java
++++ b/media/java/android/media/AudioService.java
+@@ -436,6 +436,8 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
+ 
+     private boolean mDockAudioMediaEnabled = true;
+ 
++    private int mDockState = Intent.EXTRA_DOCK_STATE_UNDOCKED;
++
+     ///////////////////////////////////////////////////////////////////////////
+     // Construction
+     ///////////////////////////////////////////////////////////////////////////
+@@ -3758,13 +3760,7 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
+                         config = AudioSystem.FORCE_BT_CAR_DOCK;
+                         break;
+                     case Intent.EXTRA_DOCK_STATE_LE_DESK:
+-                        synchronized (mSettingsLock) {
+-                            if (mDockAudioMediaEnabled) {
+-                                config = AudioSystem.FORCE_ANALOG_DOCK;
+-                            } else {
+-                                config = AudioSystem.FORCE_NONE;
+-                            }
+-                        }
++                        config = AudioSystem.FORCE_ANALOG_DOCK;
+                         break;
+                     case Intent.EXTRA_DOCK_STATE_HE_DESK:
+                         config = AudioSystem.FORCE_DIGITAL_DOCK;
+@@ -3773,8 +3769,14 @@ public class AudioService extends IAudioService.Stub implements OnFinished {
+                     default:
+                         config = AudioSystem.FORCE_NONE;
+                 }
+-
+-                AudioSystem.setForceUse(AudioSystem.FOR_DOCK, config);
++                // Low end docks have a menu to enable or disable audio
++                // (see mDockAudioMediaEnabled)
++                if (!((dockState == Intent.EXTRA_DOCK_STATE_LE_DESK) ||
++                      ((dockState == Intent.EXTRA_DOCK_STATE_UNDOCKED) &&
++                       (mDockState == Intent.EXTRA_DOCK_STATE_LE_DESK)))) {
++                    AudioSystem.setForceUse(AudioSystem.FOR_DOCK, config);
++                }
++                mDockState = dockState;
+             } else if (action.equals(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)) {
+                 state = intent.getIntExtra(BluetoothProfile.EXTRA_STATE,
+                                                BluetoothProfile.STATE_DISCONNECTED);
+-- 
+1.8.1.1
+

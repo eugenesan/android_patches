@@ -1,0 +1,52 @@
+From 2128ec9892692e2256c817751e87588d7d9c22fc Mon Sep 17 00:00:00 2001
+From: && repo sync -j8 <kmccormick@google.com>
+Date: Mon, 12 Nov 2012 14:45:08 -0800
+Subject: [PATCH 148/283] Doc Update: param name change
+
+Change-Id: I320374f8d40ba090a561fe173bb08837abaa263a
+---
+ docs/html/guide/google/gcm/gcm.jd | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/docs/html/guide/google/gcm/gcm.jd b/docs/html/guide/google/gcm/gcm.jd
+index 04bf015..c0b07b5 100644
+--- a/docs/html/guide/google/gcm/gcm.jd
++++ b/docs/html/guide/google/gcm/gcm.jd
+@@ -668,8 +668,8 @@ sent. Optional. The default value is <code>false</code>, and must be a JSON bool
+     <td>How long (in seconds) the message should be kept on GCM storage if the device is offline. Optional (default time-to-live is 4 weeks, and must be set as a JSON number). </td>
+   </tr>
+ <tr>
+-  <td><code>category</code></td>
+-  <td>A string containing the package name of your application. When set, messages will only be sent to registration IDs that match the category. Optional.
++  <td><code>restricted_package_name</code></td>
++  <td>A string containing the package name of your application. When set, messages will only be sent to registration IDs that match the package name. Optional.
+   </td>
+ </tr>
+ <tr>
+@@ -707,7 +707,7 @@ sent. Optional. The default value is <code>false</code>, and must be a JSON bool
+     <td>Same as JSON (see previous table). Optional.</td>
+   </tr>
+ <tr>
+-  <td><code>category</code></td>
++  <td><code>restricted_package_name</code></td>
+   <td>Same as JSON (see previous table). Optional.
+   </td>
+ </tr>
+@@ -956,11 +956,11 @@ Happens when the HTTP status code is 500, or when the <code>error</code> field o
+ object in the results array is <code>InternalServerError</code>.
+ </dd>
+ 
+-<dt id="invalid_category"><strong>Invalid Category</strong></dt>
++<dt id="restricted_package_name"><strong>Invalid Package Name</strong></dt>
+ 
+ <dd>
+-A message was addressed to a registration ID whose category did not match the value passed in the request. Happens when error code is 
+-<code>InvalidCategory</code>.
++A message was addressed to a registration ID whose package name did not match the value passed in the request. Happens when error code is 
++<code>InvalidPackageName</code>.
+ </dd>
+ 
+ 
+-- 
+1.8.1.1
+

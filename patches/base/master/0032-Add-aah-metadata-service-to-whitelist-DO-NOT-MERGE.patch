@@ -1,0 +1,30 @@
+From 710d705eae7144cb5c0f45c6c080f7c703898ef4 Mon Sep 17 00:00:00 2001
+From: Dake Gu <dake@google.com>
+Date: Mon, 1 Oct 2012 12:35:58 -0700
+Subject: [PATCH 032/283] Add aah metadata service to whitelist DO NOT MERGE
+
+Temporary solution for b/7262633.  We are using binder service for IPC between
+mediaserver and client app for sending synchronized beat tempo.  The change
+will never be merged back to upstream.  Will replace it with a new IPC
+mechanism later.
+
+Change-Id: Ic06546a0085e401f49b65e0327247fcce1df681f
+---
+ cmds/servicemanager/service_manager.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/cmds/servicemanager/service_manager.c b/cmds/servicemanager/service_manager.c
+index 3314dc3..71e840e 100644
+--- a/cmds/servicemanager/service_manager.c
++++ b/cmds/servicemanager/service_manager.c
+@@ -31,6 +31,7 @@ static struct {
+     { AID_MEDIA, "media.player" },
+     { AID_MEDIA, "media.camera" },
+     { AID_MEDIA, "media.audio_policy" },
++    { AID_MEDIA, "android.media.IAAHMetaDataService" },
+     { AID_DRM,   "drm.drmManager" },
+     { AID_NFC,   "nfc" },
+     { AID_BLUETOOTH, "bluetooth" },
+-- 
+1.8.1.1
+

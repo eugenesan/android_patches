@@ -1,0 +1,31 @@
+From 7fef2b8a3782a94e1ad6bfef98807167db300aab Mon Sep 17 00:00:00 2001
+From: Ian Rogers <irogers@google.com>
+Date: Mon, 1 Oct 2012 14:54:24 -0700
+Subject: [PATCH 035/283] Fix target utilization property_get.
+
+Copy and paste error where wrong compare meant the code thought a target
+utilization option was specified even if there wasn't one.
+
+b/7062303
+
+Change-Id: Ibf1c6cf72743c5fbec7618a719d12d0373184754
+---
+ core/jni/AndroidRuntime.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/jni/AndroidRuntime.cpp b/core/jni/AndroidRuntime.cpp
+index 48fe7fa..9820e60 100644
+--- a/core/jni/AndroidRuntime.cpp
++++ b/core/jni/AndroidRuntime.cpp
+@@ -574,7 +574,7 @@ int AndroidRuntime::startVm(JavaVM** pJavaVM, JNIEnv** pEnv)
+ 
+     strcpy(heaptargetutilizationOptsBuf, "-XX:HeapTargetUtilization=");
+     property_get("dalvik.vm.heaptargetutilization", heaptargetutilizationOptsBuf+26, "");
+-    if (heapmaxfreeOptsBuf[26] != '\0') {
++    if (heaptargetutilizationOptsBuf[26] != '\0') {
+         opt.optionString = heaptargetutilizationOptsBuf;
+         mOptions.add(opt);
+     }
+-- 
+1.8.1.1
+

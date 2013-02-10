@@ -1,0 +1,117 @@
+From 7ba6a6778e1583f45bcfc81505d5b9016bc1eb60 Mon Sep 17 00:00:00 2001
+From: Wink Saville <wink@google.com>
+Date: Thu, 6 Dec 2012 13:10:45 -0800
+Subject: [PATCH 219/283] Add Rlog.java
+
+Rlog is like Log except that the destination buffer is
+the radio buffer instead of the main buffer.
+
+Change-Id: Ib4ce47abfda31dfc0b9193b10f8f42b225275f61
+---
+ telephony/java/android/telephony/Rlog.java | 94 ++++++++++++++++++++++++++++++
+ 1 file changed, 94 insertions(+)
+ create mode 100644 telephony/java/android/telephony/Rlog.java
+
+diff --git a/telephony/java/android/telephony/Rlog.java b/telephony/java/android/telephony/Rlog.java
+new file mode 100644
+index 0000000..9ac7bda
+--- /dev/null
++++ b/telephony/java/android/telephony/Rlog.java
+@@ -0,0 +1,94 @@
++/*
++ * Copyright (C) 2012 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package android.telephony;
++
++import com.android.internal.os.RuntimeInit;
++
++import android.util.Log;
++
++import java.io.PrintWriter;
++import java.io.StringWriter;
++
++/**
++ * A class to log strings to the RADIO LOG.
++ *
++ * @hide
++ */
++public final class Rlog {
++
++    private Rlog() {
++    }
++
++    public static int v(String tag, String msg) {
++        return Log.println_native(Log.LOG_ID_RADIO, Log.VERBOSE, tag, msg);
++    }
++
++    public static int v(String tag, String msg, Throwable tr) {
++        return Log.println_native(Log.LOG_ID_RADIO, Log.VERBOSE, tag,
++                msg + '\n' + Log.getStackTraceString(tr));
++    }
++
++    public static int d(String tag, String msg) {
++        return Log.println_native(Log.LOG_ID_RADIO, Log.DEBUG, tag, msg);
++    }
++
++    public static int d(String tag, String msg, Throwable tr) {
++        return Log.println_native(Log.LOG_ID_RADIO, Log.DEBUG, tag,
++                msg + '\n' + Log.getStackTraceString(tr));
++    }
++
++    public static int i(String tag, String msg) {
++        return Log.println_native(Log.LOG_ID_RADIO, Log.INFO, tag, msg);
++    }
++
++    public static int i(String tag, String msg, Throwable tr) {
++        return Log.println_native(Log.LOG_ID_RADIO, Log.INFO, tag,
++                msg + '\n' + Log.getStackTraceString(tr));
++    }
++
++    public static int w(String tag, String msg) {
++        return Log.println_native(Log.LOG_ID_RADIO, Log.WARN, tag, msg);
++    }
++
++    public static int w(String tag, String msg, Throwable tr) {
++        return Log.println_native(Log.LOG_ID_RADIO, Log.WARN, tag,
++                msg + '\n' + Log.getStackTraceString(tr));
++    }
++
++    public static int w(String tag, Throwable tr) {
++        return Log.println_native(Log.LOG_ID_RADIO, Log.WARN, tag, Log.getStackTraceString(tr));
++    }
++
++    public static int e(String tag, String msg) {
++        return Log.println_native(Log.LOG_ID_RADIO, Log.ERROR, tag, msg);
++    }
++
++    public static int e(String tag, String msg, Throwable tr) {
++        return Log.println_native(Log.LOG_ID_RADIO, Log.ERROR, tag,
++                msg + '\n' + Log.getStackTraceString(tr));
++    }
++
++    public static int println(int priority, String tag, String msg) {
++        return Log.println_native(Log.LOG_ID_RADIO, priority, tag, msg);
++    }
++
++    public static boolean isLoggable(String tag, int level) {
++        return Log.isLoggable(tag, level);
++    }
++
++}
++
+-- 
+1.8.1.1
+

@@ -1,0 +1,25 @@
+From 91cd7a7d52efd076d539d67c9f4dbaaf807c3514 Mon Sep 17 00:00:00 2001
+From: && repo sync -j8 <kmccormick@google.com>
+Date: Wed, 14 Nov 2012 18:15:53 -0800
+Subject: [PATCH 179/283] Doc Update: Removed "no guaranteed delivery" line.
+
+Change-Id: I6f5b80d263069752b7d47b5825ff024b1858e41e
+---
+ docs/html/guide/google/gcm/gcm.jd | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/docs/html/guide/google/gcm/gcm.jd b/docs/html/guide/google/gcm/gcm.jd
+index 04bf015..17158fb 100644
+--- a/docs/html/guide/google/gcm/gcm.jd
++++ b/docs/html/guide/google/gcm/gcm.jd
+@@ -74,7 +74,6 @@ Messaging (GCM):</p>
+ <ul>
+   <li>It allows 3rd-party application servers to send messages to
+ their Android applications.</li>
+-  <li>GCM makes no guarantees about delivery or the order of messages.</li>
+   <li>An Android application on an Android device doesn't need to be running to receive
+ messages. The system will wake up the Android application via Intent broadcast when the  message arrives, as long as the application is set up with the proper
+ broadcast receiver and permissions.</li>
+-- 
+1.8.1.1
+

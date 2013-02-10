@@ -1,0 +1,40 @@
+From ec7f4a69535151e04d11b66bd2de5c69c133f022 Mon Sep 17 00:00:00 2001
+From: Uma Maheswari Ramalingam <umam@codeaurora.org>
+Date: Tue, 10 Jul 2012 14:55:39 -0700
+Subject: [PATCH 247/283] frameworks/base: Support for LTE network modes
+
+Change-Id: I93c102f92ff2d10856d91108bb50fe5c0f06ad66
+---
+ telephony/java/android/telephony/TelephonyManager.java          | 2 ++
+ telephony/java/com/android/internal/telephony/RILConstants.java | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/telephony/java/android/telephony/TelephonyManager.java b/telephony/java/android/telephony/TelephonyManager.java
+index 8b140c8..b0349be 100644
+--- a/telephony/java/android/telephony/TelephonyManager.java
++++ b/telephony/java/android/telephony/TelephonyManager.java
+@@ -377,6 +377,8 @@ public class TelephonyManager {
+         case RILConstants.NETWORK_MODE_GSM_ONLY:
+         case RILConstants.NETWORK_MODE_WCDMA_ONLY:
+         case RILConstants.NETWORK_MODE_GSM_UMTS:
++        case RILConstants.NETWORK_MODE_LTE_GSM_WCDMA:
++        case RILConstants.NETWORK_MODE_LTE_WCDMA:
+             return PhoneConstants.PHONE_TYPE_GSM;
+ 
+         // Use CDMA Phone for the global mode including CDMA
+diff --git a/telephony/java/com/android/internal/telephony/RILConstants.java b/telephony/java/com/android/internal/telephony/RILConstants.java
+index f501b21..077ad68 100644
+--- a/telephony/java/com/android/internal/telephony/RILConstants.java
++++ b/telephony/java/com/android/internal/telephony/RILConstants.java
+@@ -72,7 +72,7 @@ public interface RILConstants {
+     int NETWORK_MODE_LTE_GSM_WCDMA  = 9; /* LTE, GSM/WCDMA */
+     int NETWORK_MODE_LTE_CMDA_EVDO_GSM_WCDMA = 10; /* LTE, CDMA, EvDo, GSM/WCDMA */
+     int NETWORK_MODE_LTE_ONLY       = 11; /* LTE Only mode. */
+-
++    int NETWORK_MODE_LTE_WCDMA      = 12; /* LTE/WCDMA */
+     int PREFERRED_NETWORK_MODE      = NETWORK_MODE_WCDMA_PREF;
+ 
+     int CDMA_CELL_BROADCAST_SMS_DISABLED = 1;
+-- 
+1.8.1.1
+

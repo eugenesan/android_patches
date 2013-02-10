@@ -1,0 +1,27 @@
+From 9c6536a079b943167212d4c326e499f90e7a73ae Mon Sep 17 00:00:00 2001
+From: alanv <alanv@google.com>
+Date: Mon, 15 Oct 2012 15:37:44 -0700
+Subject: [PATCH 065/283] Announce changes to the keyguard security message for
+ accessibility.
+
+Bug: 7352702
+Change-Id: I790d7be08b222ae3cb76459064802f587c3e6f30
+---
+ .../android/internal/policy/impl/keyguard/KeyguardStatusViewManager.java | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/policy/src/com/android/internal/policy/impl/keyguard/KeyguardStatusViewManager.java b/policy/src/com/android/internal/policy/impl/keyguard/KeyguardStatusViewManager.java
+index 9615e71..5b85064 100644
+--- a/policy/src/com/android/internal/policy/impl/keyguard/KeyguardStatusViewManager.java
++++ b/policy/src/com/android/internal/policy/impl/keyguard/KeyguardStatusViewManager.java
+@@ -221,6 +221,7 @@ class KeyguardStatusViewManager implements SecurityMessageDisplay {
+             mHandler.removeCallbacks(mClearSecurityMessageRunnable);
+             mHandler.postDelayed(mClearSecurityMessageRunnable, SECURITY_MESSAGE_DURATION);
+         }
++        mSecurityMessage.announceForAccessibility(mSecurityMessage.getText());
+     }
+ 
+     /**
+-- 
+1.8.1.1
+

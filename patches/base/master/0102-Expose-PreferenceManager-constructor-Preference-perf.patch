@@ -1,0 +1,50 @@
+From 37ae5586761993a5e9cede6f6c41609b5c63cc29 Mon Sep 17 00:00:00 2001
+From: Justin Koh <justinkoh@google.com>
+Date: Thu, 25 Oct 2012 15:26:36 -0700
+Subject: [PATCH 102/283] Expose PreferenceManager constructor /
+ Preference#performClick
+
+Expose PreferenceManager constructor and Preference#performClick so they can be
+used by other UIs beyond the standard PreferenceActivity. Marked @hide so public
+API is not affected.
+
+Change-Id: Ieb4aecba5f86e40ff70f2b252458602e6b9ad1ee
+---
+ core/java/android/preference/Preference.java        | 3 ++-
+ core/java/android/preference/PreferenceManager.java | 5 ++++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/core/java/android/preference/Preference.java b/core/java/android/preference/Preference.java
+index 336960e..e343e83 100644
+--- a/core/java/android/preference/Preference.java
++++ b/core/java/android/preference/Preference.java
+@@ -939,8 +939,9 @@ public class Preference implements Comparable<Preference>, OnDependencyChangeLis
+      * @param preferenceScreen A {@link PreferenceScreen} whose hierarchy click
+      *            listener should be called in the proper order (between other
+      *            processing). May be null.
++     * @hide
+      */
+-    void performClick(PreferenceScreen preferenceScreen) {
++    public void performClick(PreferenceScreen preferenceScreen) {
+         
+         if (!isEnabled()) {
+             return;
+diff --git a/core/java/android/preference/PreferenceManager.java b/core/java/android/preference/PreferenceManager.java
+index 5ca7d79..17f88f1 100644
+--- a/core/java/android/preference/PreferenceManager.java
++++ b/core/java/android/preference/PreferenceManager.java
+@@ -138,7 +138,10 @@ public class PreferenceManager {
+     
+     private OnPreferenceTreeClickListener mOnPreferenceTreeClickListener;
+     
+-    PreferenceManager(Activity activity, int firstRequestCode) {
++    /**
++     * @hide
++     */
++    public PreferenceManager(Activity activity, int firstRequestCode) {
+         mActivity = activity;
+         mNextRequestCode = firstRequestCode;
+         
+-- 
+1.8.1.1
+

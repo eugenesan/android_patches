@@ -1,0 +1,55 @@
+From 8b117c85781be106f16a1fecc73d6928e54a985b Mon Sep 17 00:00:00 2001
+From: Satoshi Kataoka <satok@google.com>
+Date: Tue, 6 Nov 2012 18:59:23 +0900
+Subject: [PATCH 127/283] Reduce jankiness of the transition between a text
+ field with FLAG_NO_FULLSCREEN and a text field with FLAG_NO_EXTRACT_UI
+
+Bug: 7393485
+
+Currently, the extract text view blinks at the transition of InputMethodService.
+This change reduces this blinking by making the extract text view invisible when the extract text view is hidden.
+
+Change-Id: I9af96058283a9a5b60707d025ad1abbbbc23c16f
+---
+ .../android/inputmethodservice/InputMethodService.java    | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/core/java/android/inputmethodservice/InputMethodService.java b/core/java/android/inputmethodservice/InputMethodService.java
+index f07002e..6f1cc94 100644
+--- a/core/java/android/inputmethodservice/InputMethodService.java
++++ b/core/java/android/inputmethodservice/InputMethodService.java
+@@ -930,11 +930,13 @@ public class InputMethodService extends AbstractInputMethodService {
+      */
+     public void onConfigureWindow(Window win, boolean isFullscreen,
+             boolean isCandidatesOnly) {
+-        if (isFullscreen) {
+-            mWindow.getWindow().setLayout(MATCH_PARENT, MATCH_PARENT);
+-        } else {
+-            mWindow.getWindow().setLayout(MATCH_PARENT, WRAP_CONTENT);
++        final int currentHeight = mWindow.getWindow().getAttributes().height;
++        final int newHeight = isFullscreen ? MATCH_PARENT : WRAP_CONTENT;
++        if (mIsInputViewShown && currentHeight != newHeight) {
++            Log.w(TAG, "Window size has been changed. This may cause jankiness of resizing window: "
++                    + currentHeight + " -> " + newHeight);
+         }
++        mWindow.getWindow().setLayout(MATCH_PARENT, newHeight);
+     }
+     
+     /**
+@@ -997,10 +999,11 @@ public class InputMethodService extends AbstractInputMethodService {
+     }
+     
+     void updateExtractFrameVisibility() {
+-        int vis;
++        final int vis;
+         if (isFullscreenMode()) {
+             vis = mExtractViewHidden ? View.INVISIBLE : View.VISIBLE;
+-            mExtractFrame.setVisibility(View.VISIBLE);
++            // "vis" should be applied for the extract frame as well in the fullscreen mode.
++            mExtractFrame.setVisibility(vis);
+         } else {
+             vis = View.VISIBLE;
+             mExtractFrame.setVisibility(View.GONE);
+-- 
+1.8.1.1
+

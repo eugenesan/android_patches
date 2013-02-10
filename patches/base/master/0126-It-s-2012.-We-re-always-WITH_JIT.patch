@@ -1,0 +1,82 @@
+From be8b47f6ce739739caa2e2b36d7b0b336ca9eebb Mon Sep 17 00:00:00 2001
+From: Elliott Hughes <enh@google.com>
+Date: Tue, 6 Nov 2012 17:16:21 -0800
+Subject: [PATCH 126/283] It's 2012. We're always WITH_JIT.
+
+Change-Id: Ia3d1a1b1df06816f2cfa3879ec669b34c62cf9b9
+---
+ core/jni/Android.mk         | 4 ----
+ core/jni/AndroidRuntime.cpp | 8 --------
+ 2 files changed, 12 deletions(-)
+
+diff --git a/core/jni/Android.mk b/core/jni/Android.mk
+index 9b89a8b..7d115ee 100644
+--- a/core/jni/Android.mk
++++ b/core/jni/Android.mk
+@@ -11,10 +11,6 @@ else
+ 	LOCAL_CFLAGS += -DPACKED=""
+ endif
+ 
+-ifeq ($(WITH_JIT),true)
+-	LOCAL_CFLAGS += -DWITH_JIT
+-endif
+-
+ ifneq ($(USE_CUSTOM_RUNTIME_HEAP_MAX),)
+   LOCAL_CFLAGS += -DCUSTOM_RUNTIME_HEAP_MAX=$(USE_CUSTOM_RUNTIME_HEAP_MAX)
+ endif
+diff --git a/core/jni/AndroidRuntime.cpp b/core/jni/AndroidRuntime.cpp
+index d08e651..e376a0b 100644
+--- a/core/jni/AndroidRuntime.cpp
++++ b/core/jni/AndroidRuntime.cpp
+@@ -466,9 +466,7 @@ int AndroidRuntime::startVm(JavaVM** pJavaVM, JNIEnv** pEnv)
+       kEMDefault,
+       kEMIntPortable,
+       kEMIntFast,
+-#if defined(WITH_JIT)
+       kEMJitCompiler,
+-#endif
+     } executionMode = kEMDefault;
+ 
+ 
+@@ -488,10 +486,8 @@ int AndroidRuntime::startVm(JavaVM** pJavaVM, JNIEnv** pEnv)
+         executionMode = kEMIntPortable;
+     } else if (strcmp(propBuf, "int:fast") == 0) {
+         executionMode = kEMIntFast;
+-#if defined(WITH_JIT)
+     } else if (strcmp(propBuf, "int:jit") == 0) {
+         executionMode = kEMJitCompiler;
+-#endif
+     }
+ 
+     property_get("dalvik.vm.stack-trace-file", stackTraceFileBuf, "");
+@@ -640,7 +636,6 @@ int AndroidRuntime::startVm(JavaVM** pJavaVM, JNIEnv** pEnv)
+       mOptions.add(opt);
+     }
+ 
+-#if defined(WITH_JIT)
+     /* Force interpreter-only mode for selected opcodes. Eg "1-0a,3c,f1-ff" */
+     char jitOpBuf[sizeof("-Xjitop:") + PROPERTY_VALUE_MAX];
+     property_get("dalvik.vm.jit.op", propBuf, "");
+@@ -660,7 +655,6 @@ int AndroidRuntime::startVm(JavaVM** pJavaVM, JNIEnv** pEnv)
+         opt.optionString = jitMethodBuf;
+         mOptions.add(opt);
+     }
+-#endif
+ 
+     if (executionMode == kEMIntPortable) {
+         opt.optionString = "-Xint:portable";
+@@ -668,11 +662,9 @@ int AndroidRuntime::startVm(JavaVM** pJavaVM, JNIEnv** pEnv)
+     } else if (executionMode == kEMIntFast) {
+         opt.optionString = "-Xint:fast";
+         mOptions.add(opt);
+-#if defined(WITH_JIT)
+     } else if (executionMode == kEMJitCompiler) {
+         opt.optionString = "-Xint:jit";
+         mOptions.add(opt);
+-#endif
+     }
+ 
+     if (checkDexSum) {
+-- 
+1.8.1.1
+

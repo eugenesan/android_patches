@@ -1,0 +1,112 @@
+From 5617b069171e149de204bbd1f5455520d36c5a94 Mon Sep 17 00:00:00 2001
+From: Scott Main <smain@google.com>
+Date: Tue, 13 Nov 2012 07:39:35 -0800
+Subject: [PATCH 163/283] docs: add templated tabs for jb highlights
+
+Change-Id: I2353ec2bf96b5c0da46a2803639ef607fd12e167
+---
+ docs/html/about/versions/jelly-bean.jd | 45 ++++++----------------------------
+ docs/html/tools/index.jd               |  6 ++---
+ 2 files changed, 10 insertions(+), 41 deletions(-)
+
+diff --git a/docs/html/about/versions/jelly-bean.jd b/docs/html/about/versions/jelly-bean.jd
+index 2680100..3888fa5 100644
+--- a/docs/html/about/versions/jelly-bean.jd
++++ b/docs/html/about/versions/jelly-bean.jd
+@@ -1,37 +1,13 @@
+ page.title=Jelly Bean
++tab1=Android 4.2
++tab1.link=#android-42
++tab2=Android 4.1
++tab2.link=#android-41
++
+ @jd:body
+ 
+ 
+ <style>
+-h1 {
+-  margin-bottom:0;
+-}
+-ul#version-tabs {
+-  list-style:none;
+-  border-bottom: 1px solid #93C;
+-  padding:0;
+-  height:29px;
+-  margin:0 0 20px;
+-  font-size:16px;
+-  line-height:26px;
+-}
+-ul#version-tabs li {
+-  display:block;
+-  float:left;
+-  margin-right:60px;
+-  border-bottom: 3px solid transparent;
+-}
+-ul#version-tabs li.selected {
+-  border-bottom: 3px solid #93C;
+-}
+-ul#version-tabs li a {
+-  color:#333;
+-}
+-ul#version-tabs li a:hover,
+-ul#version-tabs li a:active {
+-  color:#93C !important;
+-}
+-
+ #android-41 {display:none;}
+ </style>
+ 
+@@ -39,7 +15,7 @@ ul#version-tabs li a:active {
+ function revealSection(hashy) {
+   if (hashy != "" && !$(hashy).is(":visible")) {
+     sectionId = $(hashy).closest(".version-section").attr("id");
+-    link = $("#version-tabs a[href$="+sectionId+"]");
++    link = $("#title-tabs a[href$="+sectionId+"]");
+     link.parent().addClass("selected");
+     link.parent().siblings().removeClass("selected");
+     
+@@ -56,7 +32,7 @@ function revealSection(hashy) {
+ }
+ 
+ $(document).ready(function() {
+-  $("#version-tabs li a").each(function() {
++  $("#title-tabs li a").each(function() {
+     $(this).click(function(){
+       $(this).parent().addClass("selected");
+       $(this).parent().siblings().removeClass("selected");
+@@ -78,13 +54,6 @@ window.onhashchange = function () {
+ 
+ 
+ 
+-<ul id="version-tabs">
+-  <li class="selected"><a href="#android-42">Android 4.2</a></li>
+-  <li><a href="#android-41">Android 4.1</a></li>
+-</ul>
+-
+-
+-
+ <!-- BEGIN ANDROID 4.2 -->
+ <div id="android-42" class="version-section">
+ <div style="float:right;padding:0px 0px 12px 34px;">
+diff --git a/docs/html/tools/index.jd b/docs/html/tools/index.jd
+index 38401aa..f9d452c 100644
+--- a/docs/html/tools/index.jd
++++ b/docs/html/tools/index.jd
+@@ -51,11 +51,11 @@ page.title=Developer Tools
+   <li>Quickly capture bug reports onto the device.</li>
+   <li>Show CPU usage on screen.</li>
+   <li>Draw debugging information on screen such as layout bounds,
+-    updates on GPU views and hardware layers, touch location, and others.</li>
++    updates on GPU views and hardware layers, and other information.</li>
+   <li>Plus many more options to simulate app stresses or enable debugging options.</li>
+ </ul>
+-<p>To access these on your device, open the <em>Developer options</em> in the
+-system Settings. Note that on Android 4.2 and higher, the Developer options screen is
++<p>To access these settings, open the <em>Developer options</em> in the
++system Settings. On Android 4.2 and higher, the Developer options screen is
+ hidden by default. To make it available, go to
+ <b>Settings > About phone</b> and tap <b>Build number</b> seven times. Return to the previous
+ screen to find Developer options.</p>
+-- 
+1.8.1.1
+

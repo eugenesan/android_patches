@@ -1,0 +1,26 @@
+From 9d7a9078e1b1652656348053839c09f80447b7ff Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Thu, 24 Jan 2013 16:29:55 +0200
+Subject: [PATCH 1/7] enable linaro string routines
+
+Change-Id: I4301085c2ba15643730a980c938cff516f9307d1
+---
+ BoardConfig.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index ce043a3..1d26eb9 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -25,7 +25,7 @@ ARCH_ARM_HAVE_TLS_REGISTER := true
+ TARGET_GCC_VERSION := 4.7
+ TARGET_USE_O3 := true
+ TARGET_USE_GRAPHITE := true
+-#TARGET_USE_LINARO_STRING_ROUTINES := true
++TARGET_USE_LINARO_STRING_ROUTINES := true
+ 
+ TARGET_NO_BOOTLOADER := true
+ 
+-- 
+1.8.1.1
+

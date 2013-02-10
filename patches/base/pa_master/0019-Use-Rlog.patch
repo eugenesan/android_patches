@@ -1,0 +1,793 @@
+From ac5305cb0cbcf24c69933ecaf04df766a01cb92c Mon Sep 17 00:00:00 2001
+From: Wink Saville <wink@google.com>
+Date: Fri, 7 Dec 2012 10:26:41 -0800
+Subject: [PATCH 19/51] Use Rlog
+
+Change-Id: I44919126606cd55f7dce7c942027ed0d914f04bd
+---
+ .../java/android/telephony/CellIdentityCdma.java   |  4 +--
+ .../java/android/telephony/CellIdentityGsm.java    |  4 +--
+ .../java/android/telephony/CellIdentityLte.java    |  4 +--
+ telephony/java/android/telephony/CellInfoCdma.java |  4 +--
+ telephony/java/android/telephony/CellInfoGsm.java  |  4 +--
+ telephony/java/android/telephony/CellInfoLte.java  |  4 +--
+ .../android/telephony/CellSignalStrengthCdma.java  |  4 +--
+ .../android/telephony/CellSignalStrengthGsm.java   |  4 +--
+ .../android/telephony/CellSignalStrengthLte.java   |  4 +--
+ .../java/android/telephony/PhoneNumberUtils.java   | 20 +++++------
+ .../java/android/telephony/PhoneStateListener.java |  4 +--
+ telephony/java/android/telephony/ServiceState.java |  4 +--
+ .../java/android/telephony/SignalStrength.java     |  4 +--
+ .../java/android/telephony/TelephonyManager.java   |  8 ++---
+ .../com/android/internal/telephony/CallerInfo.java | 39 +++++++++++-----------
+ .../internal/telephony/CallerInfoAsyncQuery.java   | 36 ++++++++++----------
+ .../android/internal/telephony/GsmAlphabet.java    | 22 ++++++------
+ 17 files changed, 87 insertions(+), 86 deletions(-)
+
+diff --git a/telephony/java/android/telephony/CellIdentityCdma.java b/telephony/java/android/telephony/CellIdentityCdma.java
+index 9579b91..6e2a70d 100644
+--- a/telephony/java/android/telephony/CellIdentityCdma.java
++++ b/telephony/java/android/telephony/CellIdentityCdma.java
+@@ -18,7 +18,7 @@ package android.telephony;
+ 
+ import android.os.Parcel;
+ import android.os.Parcelable;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ /**
+  * CellIdentity is to represent a unique CDMA cell
+@@ -219,6 +219,6 @@ public final class CellIdentityCdma implements Parcelable {
+      * log
+      */
+     private static void log(String s) {
+-        Log.w(LOG_TAG, s);
++        Rlog.w(LOG_TAG, s);
+     }
+ }
+diff --git a/telephony/java/android/telephony/CellIdentityGsm.java b/telephony/java/android/telephony/CellIdentityGsm.java
+index 21cb790..bda96be 100644
+--- a/telephony/java/android/telephony/CellIdentityGsm.java
++++ b/telephony/java/android/telephony/CellIdentityGsm.java
+@@ -18,7 +18,7 @@ package android.telephony;
+ 
+ import android.os.Parcel;
+ import android.os.Parcelable;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ /**
+  * CellIdentity to represent a unique GSM or UMTS cell
+@@ -204,6 +204,6 @@ public final class CellIdentityGsm implements Parcelable {
+      * log
+      */
+     private static void log(String s) {
+-        Log.w(LOG_TAG, s);
++        Rlog.w(LOG_TAG, s);
+     }
+ }
+diff --git a/telephony/java/android/telephony/CellIdentityLte.java b/telephony/java/android/telephony/CellIdentityLte.java
+index ad822bb..f72d583 100644
+--- a/telephony/java/android/telephony/CellIdentityLte.java
++++ b/telephony/java/android/telephony/CellIdentityLte.java
+@@ -18,7 +18,7 @@ package android.telephony;
+ 
+ import android.os.Parcel;
+ import android.os.Parcelable;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ /**
+  * CellIdentity is to represent a unique LTE cell
+@@ -199,6 +199,6 @@ public final class CellIdentityLte implements Parcelable {
+      * log
+      */
+     private static void log(String s) {
+-        Log.w(LOG_TAG, s);
++        Rlog.w(LOG_TAG, s);
+     }
+ }
+diff --git a/telephony/java/android/telephony/CellInfoCdma.java b/telephony/java/android/telephony/CellInfoCdma.java
+index ea48e2e..a5d6e9c 100644
+--- a/telephony/java/android/telephony/CellInfoCdma.java
++++ b/telephony/java/android/telephony/CellInfoCdma.java
+@@ -18,7 +18,7 @@ package android.telephony;
+ 
+ import android.os.Parcel;
+ import android.os.Parcelable;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ /**
+  * Immutable cell information from a point in time.
+@@ -143,6 +143,6 @@ public final class CellInfoCdma extends CellInfo implements Parcelable {
+      * log
+      */
+     private static void log(String s) {
+-        Log.w(LOG_TAG, s);
++        Rlog.w(LOG_TAG, s);
+     }
+ }
+diff --git a/telephony/java/android/telephony/CellInfoGsm.java b/telephony/java/android/telephony/CellInfoGsm.java
+index bd14d45..bf0eca8 100644
+--- a/telephony/java/android/telephony/CellInfoGsm.java
++++ b/telephony/java/android/telephony/CellInfoGsm.java
+@@ -18,7 +18,7 @@ package android.telephony;
+ 
+ import android.os.Parcel;
+ import android.os.Parcelable;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ /**
+  * Immutable cell information from a point in time.
+@@ -142,6 +142,6 @@ public final class CellInfoGsm extends CellInfo implements Parcelable {
+      * log
+      */
+     private static void log(String s) {
+-        Log.w(LOG_TAG, s);
++        Rlog.w(LOG_TAG, s);
+     }
+ }
+diff --git a/telephony/java/android/telephony/CellInfoLte.java b/telephony/java/android/telephony/CellInfoLte.java
+index 2f81b65..35dea24 100644
+--- a/telephony/java/android/telephony/CellInfoLte.java
++++ b/telephony/java/android/telephony/CellInfoLte.java
+@@ -18,7 +18,7 @@ package android.telephony;
+ 
+ import android.os.Parcel;
+ import android.os.Parcelable;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ /**
+  * Immutable cell information from a point in time.
+@@ -148,6 +148,6 @@ public final class CellInfoLte extends CellInfo implements Parcelable {
+      * log
+      */
+     private static void log(String s) {
+-        Log.w(LOG_TAG, s);
++        Rlog.w(LOG_TAG, s);
+     }
+ }
+diff --git a/telephony/java/android/telephony/CellSignalStrengthCdma.java b/telephony/java/android/telephony/CellSignalStrengthCdma.java
+index 660326c..190fea2 100644
+--- a/telephony/java/android/telephony/CellSignalStrengthCdma.java
++++ b/telephony/java/android/telephony/CellSignalStrengthCdma.java
+@@ -18,7 +18,7 @@ package android.telephony;
+ 
+ import android.os.Parcel;
+ import android.os.Parcelable;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ /**
+  * LTE signal strength related information.
+@@ -376,6 +376,6 @@ public final class CellSignalStrengthCdma extends CellSignalStrength implements
+      * log
+      */
+     private static void log(String s) {
+-        Log.w(LOG_TAG, s);
++        Rlog.w(LOG_TAG, s);
+     }
+ }
+diff --git a/telephony/java/android/telephony/CellSignalStrengthGsm.java b/telephony/java/android/telephony/CellSignalStrengthGsm.java
+index 4108f61..2c36344 100644
+--- a/telephony/java/android/telephony/CellSignalStrengthGsm.java
++++ b/telephony/java/android/telephony/CellSignalStrengthGsm.java
+@@ -18,7 +18,7 @@ package android.telephony;
+ 
+ import android.os.Parcel;
+ import android.os.Parcelable;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ /**
+  * LTE signal strength related information.
+@@ -229,6 +229,6 @@ public final class CellSignalStrengthGsm extends CellSignalStrength implements P
+      * log
+      */
+     private static void log(String s) {
+-        Log.w(LOG_TAG, s);
++        Rlog.w(LOG_TAG, s);
+     }
+ }
+diff --git a/telephony/java/android/telephony/CellSignalStrengthLte.java b/telephony/java/android/telephony/CellSignalStrengthLte.java
+index 925f4d4..55680c8 100644
+--- a/telephony/java/android/telephony/CellSignalStrengthLte.java
++++ b/telephony/java/android/telephony/CellSignalStrengthLte.java
+@@ -18,7 +18,7 @@ package android.telephony;
+ 
+ import android.os.Parcel;
+ import android.os.Parcelable;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ /**
+  * LTE signal strength related information.
+@@ -293,6 +293,6 @@ public final class CellSignalStrengthLte extends CellSignalStrength implements P
+      * log
+      */
+     private static void log(String s) {
+-        Log.w(LOG_TAG, s);
++        Rlog.w(LOG_TAG, s);
+     }
+ }
+diff --git a/telephony/java/android/telephony/PhoneNumberUtils.java b/telephony/java/android/telephony/PhoneNumberUtils.java
+index f740718..8b85d8c 100644
+--- a/telephony/java/android/telephony/PhoneNumberUtils.java
++++ b/telephony/java/android/telephony/PhoneNumberUtils.java
+@@ -33,7 +33,7 @@ import android.provider.ContactsContract;
+ import android.text.Editable;
+ import android.text.SpannableStringBuilder;
+ import android.text.TextUtils;
+-import android.util.Log;
++import android.telephony.Rlog;
+ import android.util.SparseIntArray;
+ 
+ import static com.android.internal.telephony.TelephonyProperties.PROPERTY_ICC_OPERATOR_ISO_COUNTRY;
+@@ -353,7 +353,7 @@ public class PhoneNumberUtils
+     }
+ 
+     private static void log(String msg) {
+-        Log.d(LOG_TAG, msg);
++        Rlog.d(LOG_TAG, msg);
+     }
+     /** index of the last character of the network portion
+      *  (eg anything after is a post-dial string)
+@@ -1711,7 +1711,7 @@ public class PhoneNumberUtils
+             return false;
+         }
+ 
+-        Log.d(LOG_TAG, "System property doesn't provide any emergency numbers."
++        Rlog.d(LOG_TAG, "System property doesn't provide any emergency numbers."
+                 + " Use embedded logic for determining ones.");
+ 
+         // No ecclist system property, so use our own list.
+@@ -1805,7 +1805,7 @@ public class PhoneNumberUtils
+         } else {
+             Locale locale = context.getResources().getConfiguration().locale;
+             countryIso = locale.getCountry();
+-            Log.w(LOG_TAG, "No CountryDetector; falling back to countryIso based on locale: "
++            Rlog.w(LOG_TAG, "No CountryDetector; falling back to countryIso based on locale: "
+                     + countryIso);
+         }
+         return isEmergencyNumberInternal(number, countryIso, useExactMatch);
+@@ -2015,7 +2015,7 @@ public class PhoneNumberUtils
+                         // This should never happen since we checked the if dialStr is null
+                         // and if it contains the plus sign in the beginning of this function.
+                         // The plus sign is part of the network portion.
+-                        Log.e("checkAndProcessPlusCode: null newDialStr", networkDialStr);
++                        Rlog.e("checkAndProcessPlusCode: null newDialStr", networkDialStr);
+                         return dialStr;
+                     }
+                     postDialStr = extractPostDialPortion(tempDialStr);
+@@ -2035,7 +2035,7 @@ public class PhoneNumberUtils
+                             if (dialableIndex < 0) {
+                                 postDialStr = "";
+                             }
+-                            Log.e("wrong postDialStr=", postDialStr);
++                            Rlog.e("wrong postDialStr=", postDialStr);
+                         }
+                     }
+                     if (DBG) log("checkAndProcessPlusCode,postDialStr=" + postDialStr);
+@@ -2044,7 +2044,7 @@ public class PhoneNumberUtils
+                 // TODO: Support NANP international conversion and other telephone numbering plans.
+                 // Currently the phone is never used in non-NANP system, so return the original
+                 // dial string.
+-                Log.e("checkAndProcessPlusCode:non-NANP not supported", dialStr);
++                Rlog.e("checkAndProcessPlusCode:non-NANP not supported", dialStr);
+             }
+         }
+         return retStr;
+@@ -2103,7 +2103,7 @@ public class PhoneNumberUtils
+                 }
+             }
+         } else {
+-            Log.e("isNanp: null dialStr passed in", dialStr);
++            Rlog.e("isNanp: null dialStr passed in", dialStr);
+         }
+         return retVal;
+     }
+@@ -2119,7 +2119,7 @@ public class PhoneNumberUtils
+                 retVal = true;
+             }
+         } else {
+-            Log.e("isOneNanp: null dialStr passed in", dialStr);
++            Rlog.e("isOneNanp: null dialStr passed in", dialStr);
+         }
+         return retVal;
+     }
+@@ -2158,7 +2158,7 @@ public class PhoneNumberUtils
+             delimiterIndex = number.indexOf("%40");
+         }
+         if (delimiterIndex < 0) {
+-            Log.w(LOG_TAG,
++            Rlog.w(LOG_TAG,
+                   "getUsernameFromUriNumber: no delimiter found in SIP addr '" + number + "'");
+             delimiterIndex = number.length();
+         }
+diff --git a/telephony/java/android/telephony/PhoneStateListener.java b/telephony/java/android/telephony/PhoneStateListener.java
+index f3ccae6..ff77fc0 100644
+--- a/telephony/java/android/telephony/PhoneStateListener.java
++++ b/telephony/java/android/telephony/PhoneStateListener.java
+@@ -23,7 +23,7 @@ import android.telephony.ServiceState;
+ import android.telephony.SignalStrength;
+ import android.telephony.CellLocation;
+ import android.telephony.CellInfo;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ import com.android.internal.telephony.IPhoneStateListener;
+ 
+@@ -348,7 +348,7 @@ public class PhoneStateListener {
+ 
+     Handler mHandler = new Handler() {
+         public void handleMessage(Message msg) {
+-            //Log.d("TelephonyRegistry", "what=0x" + Integer.toHexString(msg.what) + " msg=" + msg);
++            //Rlog.d("TelephonyRegistry", "what=0x" + Integer.toHexString(msg.what) + " msg=" + msg);
+             switch (msg.what) {
+                 case LISTEN_SERVICE_STATE:
+                     PhoneStateListener.this.onServiceStateChanged((ServiceState)msg.obj);
+diff --git a/telephony/java/android/telephony/ServiceState.java b/telephony/java/android/telephony/ServiceState.java
+index a9a5e90..dcb73dc 100644
+--- a/telephony/java/android/telephony/ServiceState.java
++++ b/telephony/java/android/telephony/ServiceState.java
+@@ -19,7 +19,7 @@ package android.telephony;
+ import android.os.Bundle;
+ import android.os.Parcel;
+ import android.os.Parcelable;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ /**
+  * Contains phone state and service related information.
+@@ -460,7 +460,7 @@ public class ServiceState implements Parcelable {
+                 break;
+             default:
+                 rtString = "Unexpected";
+-                Log.w(LOG_TAG, "Unexpected radioTechnology=" + rt);
++                Rlog.w(LOG_TAG, "Unexpected radioTechnology=" + rt);
+                 break;
+         }
+         return rtString;
+diff --git a/telephony/java/android/telephony/SignalStrength.java b/telephony/java/android/telephony/SignalStrength.java
+index f998935..e2da53e 100644
+--- a/telephony/java/android/telephony/SignalStrength.java
++++ b/telephony/java/android/telephony/SignalStrength.java
+@@ -19,7 +19,7 @@ package android.telephony;
+ import android.os.Bundle;
+ import android.os.Parcel;
+ import android.os.Parcelable;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ /**
+  * Contains phone signal strength related information.
+@@ -919,6 +919,6 @@ public class SignalStrength implements Parcelable {
+      * log
+      */
+     private static void log(String s) {
+-        Log.w(LOG_TAG, s);
++        Rlog.w(LOG_TAG, s);
+     }
+ }
+diff --git a/telephony/java/android/telephony/TelephonyManager.java b/telephony/java/android/telephony/TelephonyManager.java
+index d486529..37627aa 100755
+--- a/telephony/java/android/telephony/TelephonyManager.java
++++ b/telephony/java/android/telephony/TelephonyManager.java
+@@ -23,7 +23,7 @@ import android.os.Bundle;
+ import android.os.RemoteException;
+ import android.os.ServiceManager;
+ import android.os.SystemProperties;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ import com.android.internal.telephony.IPhoneSubInfo;
+ import com.android.internal.telephony.ITelephony;
+@@ -413,7 +413,7 @@ public class TelephonyManager {
+                 cmdline = new String(buffer, 0, count);
+             }
+         } catch (IOException e) {
+-            Log.d(TAG, "No /proc/cmdline exception=" + e);
++            Rlog.d(TAG, "No /proc/cmdline exception=" + e);
+         } finally {
+             if (is != null) {
+                 try {
+@@ -422,7 +422,7 @@ public class TelephonyManager {
+                 }
+             }
+         }
+-        Log.d(TAG, "/proc/cmdline=" + cmdline);
++        Rlog.d(TAG, "/proc/cmdline=" + cmdline);
+         return cmdline;
+     }
+ 
+@@ -469,7 +469,7 @@ public class TelephonyManager {
+             }
+         }
+ 
+-        Log.d(TAG, "getLteOnCdmaMode=" + retVal + " curVal=" + curVal +
++        Rlog.d(TAG, "getLteOnCdmaMode=" + retVal + " curVal=" + curVal +
+                 " product_type='" + productType +
+                 "' lteOnCdmaProductType='" + sLteOnCdmaProductType + "'");
+         return retVal;
+diff --git a/telephony/java/com/android/internal/telephony/CallerInfo.java b/telephony/java/com/android/internal/telephony/CallerInfo.java
+index b1a5872..228a630 100644
+--- a/telephony/java/com/android/internal/telephony/CallerInfo.java
++++ b/telephony/java/com/android/internal/telephony/CallerInfo.java
+@@ -29,6 +29,7 @@ import android.provider.ContactsContract.RawContacts;
+ import android.telephony.PhoneNumberUtils;
+ import android.telephony.TelephonyManager;
+ import android.text.TextUtils;
++import android.telephony.Rlog;
+ import android.util.Log;
+ 
+ import com.android.i18n.phonenumbers.geocoding.PhoneNumberOfflineGeocoder;
+@@ -46,7 +47,7 @@ import java.util.Locale;
+  */
+ public class CallerInfo {
+     private static final String TAG = "CallerInfo";
+-    private static final boolean VDBG = Log.isLoggable(TAG, Log.VERBOSE);
++    private static final boolean VDBG = Rlog.isLoggable(TAG, Log.VERBOSE);
+ 
+     public static final String UNKNOWN_NUMBER = "-1";
+     public static final String PRIVATE_NUMBER = "-2";
+@@ -164,7 +165,7 @@ public class CallerInfo {
+         info.isCachedPhotoCurrent = false;
+         info.contactExists = false;
+ 
+-        if (VDBG) Log.v(TAG, "getCallerInfo() based on cursor...");
++        if (VDBG) Rlog.v(TAG, "getCallerInfo() based on cursor...");
+ 
+         if (cursor != null) {
+             if (cursor.moveToFirst()) {
+@@ -209,10 +210,10 @@ public class CallerInfo {
+                 columnIndex = getColumnIndexForPersonId(contactRef, cursor);
+                 if (columnIndex != -1) {
+                     info.person_id = cursor.getLong(columnIndex);
+-                    if (VDBG) Log.v(TAG, "==> got info.person_id: " + info.person_id);
++                    if (VDBG) Rlog.v(TAG, "==> got info.person_id: " + info.person_id);
+                 } else {
+                     // No valid columnIndex, so we can't look up person_id.
+-                    Log.w(TAG, "Couldn't find person_id column for " + contactRef);
++                    Rlog.w(TAG, "Couldn't find person_id column for " + contactRef);
+                     // Watch out: this means that anything that depends on
+                     // person_id will be broken (like contact photo lookups in
+                     // the in-call UI, for example.)
+@@ -269,7 +270,7 @@ public class CallerInfo {
+      * with all relevant fields empty or null.
+      */
+     public static CallerInfo getCallerInfo(Context context, String number) {
+-        if (VDBG) Log.v(TAG, "getCallerInfo() based on number...");
++        if (VDBG) Rlog.v(TAG, "getCallerInfo() based on number...");
+ 
+         if (TextUtils.isEmpty(number)) {
+             return null;
+@@ -414,7 +415,7 @@ public class CallerInfo {
+             // permission to retrieve VM number and would not call
+             // this method.
+             // Leave phoneNumber untouched.
+-            Log.e(TAG, "Cannot access VoiceMail.", se);
++            Rlog.e(TAG, "Cannot access VoiceMail.", se);
+         }
+         // TODO: There is no voicemail picture?
+         // FIXME: FIND ANOTHER ICON
+@@ -473,10 +474,10 @@ public class CallerInfo {
+         // So instead, figure out the column to use for person_id by just
+         // looking at the URI itself.
+ 
+-        if (VDBG) Log.v(TAG, "- getColumnIndexForPersonId: contactRef URI = '"
++        if (VDBG) Rlog.v(TAG, "- getColumnIndexForPersonId: contactRef URI = '"
+                         + contactRef + "'...");
+         // Warning: Do not enable the following logging (due to ANR risk.)
+-        // if (VDBG) Log.v(TAG, "- MIME type: "
++        // if (VDBG) Rlog.v(TAG, "- MIME type: "
+         //                 + context.getContentResolver().getType(contactRef));
+ 
+         String url = contactRef.toString();
+@@ -484,25 +485,25 @@ public class CallerInfo {
+         if (url.startsWith("content://com.android.contacts/data/phones")) {
+             // Direct lookup in the Phone table.
+             // MIME type: Phone.CONTENT_ITEM_TYPE (= "vnd.android.cursor.item/phone_v2")
+-            if (VDBG) Log.v(TAG, "'data/phones' URI; using RawContacts.CONTACT_ID");
++            if (VDBG) Rlog.v(TAG, "'data/phones' URI; using RawContacts.CONTACT_ID");
+             columnName = RawContacts.CONTACT_ID;
+         } else if (url.startsWith("content://com.android.contacts/data")) {
+             // Direct lookup in the Data table.
+             // MIME type: Data.CONTENT_TYPE (= "vnd.android.cursor.dir/data")
+-            if (VDBG) Log.v(TAG, "'data' URI; using Data.CONTACT_ID");
++            if (VDBG) Rlog.v(TAG, "'data' URI; using Data.CONTACT_ID");
+             // (Note Data.CONTACT_ID and RawContacts.CONTACT_ID are equivalent.)
+             columnName = Data.CONTACT_ID;
+         } else if (url.startsWith("content://com.android.contacts/phone_lookup")) {
+             // Lookup in the PhoneLookup table, which provides "fuzzy matching"
+             // for phone numbers.
+             // MIME type: PhoneLookup.CONTENT_TYPE (= "vnd.android.cursor.dir/phone_lookup")
+-            if (VDBG) Log.v(TAG, "'phone_lookup' URI; using PhoneLookup._ID");
++            if (VDBG) Rlog.v(TAG, "'phone_lookup' URI; using PhoneLookup._ID");
+             columnName = PhoneLookup._ID;
+         } else {
+-            Log.w(TAG, "Unexpected prefix for contactRef '" + url + "'");
++            Rlog.w(TAG, "Unexpected prefix for contactRef '" + url + "'");
+         }
+         int columnIndex = (columnName != null) ? cursor.getColumnIndex(columnName) : -1;
+-        if (VDBG) Log.v(TAG, "==> Using column '" + columnName
++        if (VDBG) Rlog.v(TAG, "==> Using column '" + columnName
+                         + "' (columnIndex = " + columnIndex + ") for person_id lookup...");
+         return columnIndex;
+     }
+@@ -529,7 +530,7 @@ public class CallerInfo {
+      * @see com.android.i18n.phonenumbers.PhoneNumberOfflineGeocoder
+      */
+     private static String getGeoDescription(Context context, String number) {
+-        if (VDBG) Log.v(TAG, "getGeoDescription('" + number + "')...");
++        if (VDBG) Rlog.v(TAG, "getGeoDescription('" + number + "')...");
+ 
+         if (TextUtils.isEmpty(number)) {
+             return null;
+@@ -542,17 +543,17 @@ public class CallerInfo {
+         String countryIso = getCurrentCountryIso(context, locale);
+         PhoneNumber pn = null;
+         try {
+-            if (VDBG) Log.v(TAG, "parsing '" + number
++            if (VDBG) Rlog.v(TAG, "parsing '" + number
+                             + "' for countryIso '" + countryIso + "'...");
+             pn = util.parse(number, countryIso);
+-            if (VDBG) Log.v(TAG, "- parsed number: " + pn);
++            if (VDBG) Rlog.v(TAG, "- parsed number: " + pn);
+         } catch (NumberParseException e) {
+-            Log.w(TAG, "getGeoDescription: NumberParseException for incoming number '" + number + "'");
++            Rlog.w(TAG, "getGeoDescription: NumberParseException for incoming number '" + number + "'");
+         }
+ 
+         if (pn != null) {
+             String description = geocoder.getDescriptionForNumber(pn, locale);
+-            if (VDBG) Log.v(TAG, "- got description: '" + description + "'");
++            if (VDBG) Rlog.v(TAG, "- got description: '" + description + "'");
+             return description;
+         } else {
+             return null;
+@@ -571,7 +572,7 @@ public class CallerInfo {
+         countryIso = detector.detectCountry().getCountryIso();
+       } else {
+         countryIso = locale.getCountry();
+-        Log.w(TAG, "No CountryDetector; falling back to countryIso based on locale: "
++        Rlog.w(TAG, "No CountryDetector; falling back to countryIso based on locale: "
+               + countryIso);
+       }
+       return countryIso;
+diff --git a/telephony/java/com/android/internal/telephony/CallerInfoAsyncQuery.java b/telephony/java/com/android/internal/telephony/CallerInfoAsyncQuery.java
+index 4912749..dd5f644 100644
+--- a/telephony/java/com/android/internal/telephony/CallerInfoAsyncQuery.java
++++ b/telephony/java/com/android/internal/telephony/CallerInfoAsyncQuery.java
+@@ -31,7 +31,7 @@ import android.provider.ContactsContract.Data;
+ import android.provider.ContactsContract.PhoneLookup;
+ import android.telephony.PhoneNumberUtils;
+ import android.text.TextUtils;
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ /**
+  * Helper class to make it easier to run asynchronous caller-id lookup queries.
+@@ -137,13 +137,13 @@ public class CallerInfoAsyncQuery {
+                     // However, if there is any code that this Handler calls (such as in
+                     // super.handleMessage) that DOES place unexpected messages on the
+                     // queue, then we need pass these messages on.
+-                    if (DBG) Log.d(LOG_TAG, "Unexpected command (CookieWrapper is null): " + msg.what +
++                    if (DBG) Rlog.d(LOG_TAG, "Unexpected command (CookieWrapper is null): " + msg.what +
+                             " ignored by CallerInfoWorkerHandler, passing onto parent.");
+ 
+                     super.handleMessage(msg);
+                 } else {
+ 
+-                    if (DBG) Log.d(LOG_TAG, "Processing event: " + cw.event + " token (arg1): " + msg.arg1 +
++                    if (DBG) Rlog.d(LOG_TAG, "Processing event: " + cw.event + " token (arg1): " + msg.arg1 +
+                         " command: " + msg.what + " query URI: " + sanitizeUriToString(args.uri));
+ 
+                     switch (cw.event) {
+@@ -199,7 +199,7 @@ public class CallerInfoAsyncQuery {
+          */
+         @Override
+         protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+-            if (DBG) Log.d(LOG_TAG, "##### onQueryComplete() #####   query complete for token: " + token);
++            if (DBG) Rlog.d(LOG_TAG, "##### onQueryComplete() #####   query complete for token: " + token);
+ 
+             //get the cookie and notify the listener.
+             CookieWrapper cw = (CookieWrapper) cookie;
+@@ -208,7 +208,7 @@ public class CallerInfoAsyncQuery {
+                 // from within this code.
+                 // However, if there is any code that calls this method, we should
+                 // check the parameters to make sure they're viable.
+-                if (DBG) Log.d(LOG_TAG, "Cookie is null, ignoring onQueryComplete() request.");
++                if (DBG) Rlog.d(LOG_TAG, "Cookie is null, ignoring onQueryComplete() request.");
+                 return;
+             }
+ 
+@@ -237,13 +237,13 @@ public class CallerInfoAsyncQuery {
+                     mCallerInfo = new CallerInfo().markAsVoiceMail();
+                 } else {
+                     mCallerInfo = CallerInfo.getCallerInfo(mQueryContext, mQueryUri, cursor);
+-                    if (DBG) Log.d(LOG_TAG, "==> Got mCallerInfo: " + mCallerInfo);
++                    if (DBG) Rlog.d(LOG_TAG, "==> Got mCallerInfo: " + mCallerInfo);
+ 
+                     CallerInfo newCallerInfo = CallerInfo.doSecondaryLookupIfNecessary(
+                             mQueryContext, cw.number, mCallerInfo);
+                     if (newCallerInfo != mCallerInfo) {
+                         mCallerInfo = newCallerInfo;
+-                        if (DBG) Log.d(LOG_TAG, "#####async contact look up with numeric username"
++                        if (DBG) Rlog.d(LOG_TAG, "#####async contact look up with numeric username"
+                                 + mCallerInfo);
+                     }
+ 
+@@ -279,7 +279,7 @@ public class CallerInfoAsyncQuery {
+                     }
+                 }
+ 
+-                if (DBG) Log.d(LOG_TAG, "constructing CallerInfo object for token: " + token);
++                if (DBG) Rlog.d(LOG_TAG, "constructing CallerInfo object for token: " + token);
+ 
+                 //notify that we can clean up the queue after this.
+                 CookieWrapper endMarker = new CookieWrapper();
+@@ -289,7 +289,7 @@ public class CallerInfoAsyncQuery {
+ 
+             //notify the listener that the query is complete.
+             if (cw.listener != null) {
+-                if (DBG) Log.d(LOG_TAG, "notifying listener: " + cw.listener.getClass().toString() +
++                if (DBG) Rlog.d(LOG_TAG, "notifying listener: " + cw.listener.getClass().toString() +
+                              " for token: " + token + mCallerInfo);
+                 cw.listener.onQueryComplete(token, cw.cookie, mCallerInfo);
+             }
+@@ -312,7 +312,7 @@ public class CallerInfoAsyncQuery {
+         CallerInfoAsyncQuery c = new CallerInfoAsyncQuery();
+         c.allocate(context, contactRef);
+ 
+-        if (DBG) Log.d(LOG_TAG, "starting query for URI: " + contactRef + " handler: " + c.toString());
++        if (DBG) Rlog.d(LOG_TAG, "starting query for URI: " + contactRef + " handler: " + c.toString());
+ 
+         //create cookieWrapper, start query
+         CookieWrapper cw = new CookieWrapper();
+@@ -339,9 +339,9 @@ public class CallerInfoAsyncQuery {
+     public static CallerInfoAsyncQuery startQuery(int token, Context context, String number,
+             OnQueryCompleteListener listener, Object cookie) {
+         if (DBG) {
+-            Log.d(LOG_TAG, "##### CallerInfoAsyncQuery startQuery()... #####");
+-            Log.d(LOG_TAG, "- number: " + /*number*/ "xxxxxxx");
+-            Log.d(LOG_TAG, "- cookie: " + cookie);
++            Rlog.d(LOG_TAG, "##### CallerInfoAsyncQuery startQuery()... #####");
++            Rlog.d(LOG_TAG, "- number: " + /*number*/ "xxxxxxx");
++            Rlog.d(LOG_TAG, "- cookie: " + cookie);
+         }
+ 
+         // Construct the URI object and query params, and start the query.
+@@ -352,7 +352,7 @@ public class CallerInfoAsyncQuery {
+ 
+         if (PhoneNumberUtils.isUriNumber(number)) {
+             // "number" is really a SIP address.
+-            if (DBG) Log.d(LOG_TAG, "  - Treating number as a SIP address: " + /*number*/ "xxxxxxx");
++            if (DBG) Rlog.d(LOG_TAG, "  - Treating number as a SIP address: " + /*number*/ "xxxxxxx");
+ 
+             // We look up SIP addresses directly in the Data table:
+             contactRef = Data.CONTENT_URI;
+@@ -384,11 +384,11 @@ public class CallerInfoAsyncQuery {
+         }
+ 
+         if (DBG) {
+-            Log.d(LOG_TAG, "==> contactRef: " + sanitizeUriToString(contactRef));
+-            Log.d(LOG_TAG, "==> selection: " + selection);
++            Rlog.d(LOG_TAG, "==> contactRef: " + sanitizeUriToString(contactRef));
++            Rlog.d(LOG_TAG, "==> selection: " + selection);
+             if (selectionArgs != null) {
+                 for (int i = 0; i < selectionArgs.length; i++) {
+-                    Log.d(LOG_TAG, "==> selectionArgs[" + i + "]: " + selectionArgs[i]);
++                    Rlog.d(LOG_TAG, "==> selectionArgs[" + i + "]: " + selectionArgs[i]);
+                 }
+             }
+         }
+@@ -426,7 +426,7 @@ public class CallerInfoAsyncQuery {
+      */
+     public void addQueryListener(int token, OnQueryCompleteListener listener, Object cookie) {
+ 
+-        if (DBG) Log.d(LOG_TAG, "adding listener to query: " + sanitizeUriToString(mHandler.mQueryUri) +
++        if (DBG) Rlog.d(LOG_TAG, "adding listener to query: " + sanitizeUriToString(mHandler.mQueryUri) +
+                 " handler: " + mHandler.toString());
+ 
+         //create cookieWrapper, add query request to end of queue.
+diff --git a/telephony/java/com/android/internal/telephony/GsmAlphabet.java b/telephony/java/com/android/internal/telephony/GsmAlphabet.java
+index 04b1220..19047c8 100644
+--- a/telephony/java/com/android/internal/telephony/GsmAlphabet.java
++++ b/telephony/java/com/android/internal/telephony/GsmAlphabet.java
+@@ -20,7 +20,7 @@ import android.content.res.Resources;
+ import android.text.TextUtils;
+ import android.util.SparseIntArray;
+ 
+-import android.util.Log;
++import android.telephony.Rlog;
+ 
+ import java.nio.ByteBuffer;
+ import java.nio.charset.Charset;
+@@ -477,11 +477,11 @@ public class GsmAlphabet {
+         StringBuilder ret = new StringBuilder(lengthSeptets);
+ 
+         if (languageTable < 0 || languageTable > sLanguageTables.length) {
+-            Log.w(TAG, "unknown language table " + languageTable + ", using default");
++            Rlog.w(TAG, "unknown language table " + languageTable + ", using default");
+             languageTable = 0;
+         }
+         if (shiftTable < 0 || shiftTable > sLanguageShiftTables.length) {
+-            Log.w(TAG, "unknown single shift table " + shiftTable + ", using default");
++            Rlog.w(TAG, "unknown single shift table " + shiftTable + ", using default");
+             shiftTable = 0;
+         }
+ 
+@@ -491,11 +491,11 @@ public class GsmAlphabet {
+             String shiftTableToChar = sLanguageShiftTables[shiftTable];
+ 
+             if (languageTableToChar.isEmpty()) {
+-                Log.w(TAG, "no language table for code " + languageTable + ", using default");
++                Rlog.w(TAG, "no language table for code " + languageTable + ", using default");
+                 languageTableToChar = sLanguageTables[0];
+             }
+             if (shiftTableToChar.isEmpty()) {
+-                Log.w(TAG, "no single shift table for code " + shiftTable + ", using default");
++                Rlog.w(TAG, "no single shift table for code " + shiftTable + ", using default");
+                 shiftTableToChar = sLanguageShiftTables[0];
+             }
+ 
+@@ -535,7 +535,7 @@ public class GsmAlphabet {
+                 }
+             }
+         } catch (RuntimeException ex) {
+-            Log.e(TAG, "Error GSM 7 bit packed: ", ex);
++            Rlog.e(TAG, "Error GSM 7 bit packed: ", ex);
+             return null;
+         }
+ 
+@@ -767,7 +767,7 @@ public class GsmAlphabet {
+         for (int i = 0; i < sz; i++) {
+             char c = s.charAt(i);
+             if (c == GSM_EXTENDED_ESCAPE) {
+-                Log.w(TAG, "countGsmSeptets() string contains Escape character, skipping.");
++                Rlog.w(TAG, "countGsmSeptets() string contains Escape character, skipping.");
+                 continue;
+             }
+             if (charToLanguageTable.get(c, -1) != -1) {
+@@ -843,7 +843,7 @@ public class GsmAlphabet {
+         for (int i = 0; i < sz && !lpcList.isEmpty(); i++) {
+             char c = s.charAt(i);
+             if (c == GSM_EXTENDED_ESCAPE) {
+-                Log.w(TAG, "countGsmSeptets() string contains Escape character, ignoring!");
++                Rlog.w(TAG, "countGsmSeptets() string contains Escape character, ignoring!");
+                 continue;
+             }
+             // iterate through enabled locking shift tables
+@@ -1415,7 +1415,7 @@ public class GsmAlphabet {
+         int numTables = sLanguageTables.length;
+         int numShiftTables = sLanguageShiftTables.length;
+         if (numTables != numShiftTables) {
+-            Log.e(TAG, "Error: language tables array length " + numTables +
++            Rlog.e(TAG, "Error: language tables array length " + numTables +
+                     " != shift tables array length " + numShiftTables);
+         }
+ 
+@@ -1432,7 +1432,7 @@ public class GsmAlphabet {
+ 
+             int tableLen = table.length();
+             if (tableLen != 0 && tableLen != 128) {
+-                Log.e(TAG, "Error: language tables index " + i +
++                Rlog.e(TAG, "Error: language tables index " + i +
+                         " length " + tableLen + " (expected 128 or 0)");
+             }
+ 
+@@ -1450,7 +1450,7 @@ public class GsmAlphabet {
+ 
+             int shiftTableLen = shiftTable.length();
+             if (shiftTableLen != 0 && shiftTableLen != 128) {
+-                Log.e(TAG, "Error: language shift tables index " + i +
++                Rlog.e(TAG, "Error: language shift tables index " + i +
+                         " length " + shiftTableLen + " (expected 128 or 0)");
+             }
+ 
+-- 
+1.8.1.1
+
