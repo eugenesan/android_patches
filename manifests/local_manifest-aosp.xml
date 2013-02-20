@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<manifest>
+  <remote  name="github"
+           fetch="git://github.com"
+           review="review.paranoid-rom.com"
+           revision="jellybean" />
+
+  <project name="ParanoidAndroid/proprietary_vendor_lge" path="vendor/lge" remote="github" revision="jellybean" />
+</manifest>
