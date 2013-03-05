@@ -1,0 +1,26 @@
+From b2f5dc99864dc2f4f3ddf07318ae475cd6488a64 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Wed, 20 Feb 2013 07:53:55 +0200
+Subject: [PATCH 11/16] update bbs
+
+Change-Id: I9756d226fd89789a526ecb1828b1f7ae739754ab
+---
+ get-prebuilts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/get-prebuilts b/get-prebuilts
+index 433298f..38a4913 100755
+--- a/get-prebuilts
++++ b/get-prebuilts
+@@ -38,7 +38,7 @@ if [ "${PREBUILTS_ALL}" == "true" ]; then
+ 
+ 	# Get Better Battery Stats (Source: http://forum.xda-developers.com/showthread.php?t=1179809)
+ 	echo "* Better Battery Stats"
+-	$CURL -L -o $BASEDIR/prebuilt/common/apk/BetterBatteryStats.apk -O -L "http://dl.xda-developers.com/attachdl/00e7f7e82704ea2995d3790728b0e13f/5123cabe/1/7/4/1/3/9/9/BetterBatteryStats_xdaedition_1.12.0.0RC10.apk"
++	$CURL -L -o $BASEDIR/prebuilt/common/apk/BetterBatteryStats.apk -O -L "http://forum.xda-developers.com/attachment.php?s=bb7a45265d7a7d36c3d17ddc83c66270&attachmentid=1744305&d=1361314388"
+ 
+ 	# Get LuckyPatcher (http://chelpus.defcon5.biz)
+ 	echo "* Lucky Patcher"
+-- 
+1.8.1.1
+

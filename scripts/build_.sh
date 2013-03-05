@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# Version 2.0
-
-# Ge don't allow scrollback buffer
-echo -e '\0033\0143'
-clear
-
 # Get current path
 DIR="$(cd `dirname $0`; pwd)"
 
@@ -25,7 +19,7 @@ txtrst=$(tput sgr0)             # Reset
 : ${PREFS_FROM_SOURCE:="false"}
 : ${USE_CCACHE:="true"}
 : ${CCACHE_NOSTATS:="false"}
-: ${CCACHE_DIR:="$(dirname `readlink $DIR/out`)/ccache"}
+: ${CCACHE_DIR:="$DIR/../ccache"}
 : ${THREADS:="16"}
 
 # If there is more the one jdk installed, use last 6.x among them
@@ -35,22 +29,6 @@ if [ "`update-alternatives --list javac | wc -l`" -gt 1 ]; then
 	export PATH=${JDK6}:${JRE6}:$PATH
 fi
 JVER=$(javac -version  2>&1 | head -n1 | cut -f2 -d' ')
-
-java_wrapper() {
-	if [ "${1}" == "-version" ]; then
-		java ${@} 2>&1 | grep -v -i openjdk
-	else
-		java ${@}
-	fi
-}
-
-javac_wrapper() {
-	if [ "${1}" == "-version" ]; then
-		javac ${@} 2>&1 | grep -v -i openjdk
-	else
-		javac ${@}
-	fi
-}
 
 DEVICE="$1"
 EXTRAS="$2"
@@ -68,11 +46,11 @@ elif [ -r vendor/cm/config/common.mk ]; then
 	MAINTENANCE=$(cat $DIR/vendor/cm/config/common.mk | grep 'PRODUCT_VERSION_MAINTENANCE = *' | sed  's/PRODUCT_VERSION_MAINTENANCE = //g')
 else
 	VENDOR="aosp"
-	MAJOR=$(cat $DIR/.repo/manifests.git/config | grep 'merge = *' | cut -f2 -d- | cut -f1 -d.)
-	MINOR=$(cat $DIR/.repo/manifests.git/config | grep 'merge = *' | cut -f2 -d- | cut -f2 -d.)
-	MAINTENANCE=$(cat $DIR/.repo/manifests.git/config | grep 'merge = *' | cut -f2 -d- | cut -f3 -d.)
+	MAJOR=4
+	MINOR=2
+	MAINTENANCE=1
 fi
-VERSION=$VENDOR-$MAJOR.$MINOR.$MAINTENANCE
+VERSION=$VENDOR-$MAJOR.$MINOR$MAINTENANCE
 
 # If we have not extras, reduce parameter index by 1
 if [ "$EXTRAS" == "true" ] || [ "$EXTRAS" == "false" ]; then
@@ -99,7 +77,6 @@ if [ "${USE_CCACHE}" == "true" ]; then
 	else
 		CCACHE_DIR="${HOME}/.ccache"
 	fi
-
 	if [ -z "${cache1}" ]; then
 		if [ "${CCACHE_NOSTATS}" == "true" ]; then
 			cache1=$(du -sh ${CCACHE_DIR} | awk '{print $1}')
@@ -108,6 +85,10 @@ if [ "${USE_CCACHE}" == "true" ]; then
 		fi
 	fi
 fi
+
+# Ge don't allow scrollback buffer
+echo -e '\0033\0143'
+clear
 
 echo -e "${cya}Building ${bldcya}Android $VERSION for $DEVICE using Java-$JVER${txtrst}";
 echo -e "${bldgrn}Start time: $(date) ${txtrst}"
@@ -120,7 +101,7 @@ if [ -d vendor/pa ]; then
 	./vendor/pa/tools/getdevicetree.py $DEVICE
 	echo -e "${txtrst}"
 else
-	echo -e "${bldcya}Not PA tree, skipping device tree${txtrst}"
+	echo -e "${bldcya}Not PA tree, skipping prebuilts${txtrst}"
 fi
 
 # Decide what command to execute
@@ -137,10 +118,7 @@ case "$EXTRAS" in
 			echo "${bldblu}Cleaning ccache${txtrst}"
 			prebuilts/misc/linux-x86/ccache/ccache -C -M 5G
 		fi
-		set -e
-		mkdir -p ${DIR}/out
-		rm -Rf ${DIR}/out/*
-		set +e
+		make clean > /dev/null
 	;;
 esac
 
@@ -152,13 +130,7 @@ if [ "$SYNC" == "true" ]; then
 	echo -e ""
 fi
 
-if [ -n "$(java -version 2>&1 | grep -i openjdk)" ]; then
-	echo -e "${bldcya}Your java is OpenJDK and will be masqueraded${txtrst}"
-	#alias java=java_wrapper
-	#alias javac=javac_wrapper
-	echo -e "VERSIONS_CHECKED := 3\n BUILD_EMULATOR := true\n" > ${DIR}/out/versions_checked.mk
-fi
-
+export PREBUILTS_ALL
 if [ -r vendor/cm/get-prebuilts ]; then
 	if [ -r vendor/cm/proprietary/.get-prebuilts ]; then
 		echo -e "${bldgrn}Already downloaded prebuilts${txtrst}"
@@ -207,17 +179,9 @@ else
 		echo -e "${bldblu}Starting compilation${txtrst}"
 		mka bacon
 		echo -e ""
-	elif [ -d vendor/cm ]; then
+	else
 		echo -e "${bldblu}Brunching device [$DEVICE]${txtrst}"
 		brunch $DEVICE
-		echo -e ""
-        else
-		echo -e ""
-		echo -e "${bldblu}Lunching device [$DEVICE]${txtrst}"
-		lunch "full_$DEVICE-userdebug";
-
-		echo -e "${bldblu}Starting compilation${txtrst}"
-		make -j${THREADS}
 		echo -e ""
 	fi
 fi
@@ -229,7 +193,7 @@ if [ -n "${CCACHE_DIR}" ]; then
 	else
 		cache2=$(prebuilts/misc/linux-x86/ccache/ccache -s | grep "^cache size" | awk '{print $3$4}')
 	fi
-	echo -e "${bldgrn}ccache size is ${txtrst} ${grn}${cache2}${txtrst} (was ${grn}${cache1}${txtrst})"
+	echo -e "${bldgrn}cccache size is ${txtrst} ${grn}${cache2}${txtrst} (was ${grn}${cache1}${txtrst})"
 fi
 
 # Finished? Get elapsed time

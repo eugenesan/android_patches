@@ -1,0 +1,96 @@
+From 29c74c57f1f997befe8671284f451dca2dea03a1 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Wed, 27 Feb 2013 08:15:15 +0200
+Subject: [PATCH 15/16] update builds of nexus devices to 4.2.2
+
+Change-Id: Ib8d50481aba328a8f7d1ef5cc87b1a5fd91b7278
+---
+ products/pa_grouper.mk  | 2 +-
+ products/pa_maguro.mk   | 2 +-
+ products/pa_mako.mk     | 2 +-
+ products/pa_manta.mk    | 2 +-
+ products/pa_toro.mk     | 2 +-
+ products/pa_toroplus.mk | 2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/products/pa_grouper.mk b/products/pa_grouper.mk
+index 4c31b91..130e7cc 100644
+--- a/products/pa_grouper.mk
++++ b/products/pa_grouper.mk
+@@ -35,7 +35,7 @@ PRODUCT_NAME := pa_grouper
+ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Nexus 7
+ PRODUCT_MANUFACTURER := asus
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=nakasi BUILD_FINGERPRINT="google/nakasi/grouper:4.2.1/JOP40D/533553:user/release-keys" PRIVATE_BUILD_DESC="nakasi-user 4.2.1 JOP40D 533553 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=nakasi BUILD_FINGERPRINT="google/nakasi/grouper:4.2.2/JDQ39/573038:user/release-keys" PRIVATE_BUILD_DESC="nakasi-user 4.2.2 JDQ39 573038 release-keys"
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+ -include vendor/pa/packages/$(PRODUCT_NAME).mk
+diff --git a/products/pa_maguro.mk b/products/pa_maguro.mk
+index 031c7a8..3feab10 100644
+--- a/products/pa_maguro.mk
++++ b/products/pa_maguro.mk
+@@ -35,7 +35,7 @@ PRODUCT_NAME := pa_maguro
+ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Galaxy Nexus
+ PRODUCT_MANUFACTURER := Samsung
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=yakju BUILD_FINGERPRINT="google/yakju/maguro:4.2.1/JOP40D/533553:user/release-keys" PRIVATE_BUILD_DESC="yakju-user 4.2.1 JOP40D 533553 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=yakju BUILD_FINGERPRINT="google/yakju/maguro:4.2.2/JDQ39/573038:user/release-keys" PRIVATE_BUILD_DESC="yakju-user 4.2.2 JDQ39 573038 release-keys"
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+ -include vendor/pa/packages/$(PRODUCT_NAME).mk
+diff --git a/products/pa_mako.mk b/products/pa_mako.mk
+index a2aa4cc..bb72f3e 100644
+--- a/products/pa_mako.mk
++++ b/products/pa_mako.mk
+@@ -35,7 +35,7 @@ PRODUCT_NAME := pa_mako
+ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Nexus 4
+ PRODUCT_MANUFACTURER := LGE
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=occam BUILD_FINGERPRINT="google/occam/mako:4.2.1/JOP40D/533553:user/release-keys" PRIVATE_BUILD_DESC="occam-user 4.2.1 JOP40D 533553 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=occam BUILD_FINGERPRINT="google/occam/mako:4.2.2/JDQ39/573038:user/release-keys" PRIVATE_BUILD_DESC="occam-user 4.2.2 JDQ39 573038 release-keys"
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+ -include vendor/pa/packages/$(PRODUCT_NAME).mk
+diff --git a/products/pa_manta.mk b/products/pa_manta.mk
+index a8d415d..666d91e 100644
+--- a/products/pa_manta.mk
++++ b/products/pa_manta.mk
+@@ -35,7 +35,7 @@ PRODUCT_NAME := pa_manta
+ PRODUCT_BRAND := google
+ PRODUCT_MODEL := Nexus 10
+ PRODUCT_MANUFACTURER := Samsung
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=mantaray BUILD_FINGERPRINT="google/mantaray/manta:4.2.1/JOP40D/533553:user/release-keys" PRIVATE_BUILD_DESC="mantaray-user 4.2.1 JOP40D 533553 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=mantaray BUILD_FINGERPRINT="google/mantaray/manta:4.2.2/JDQ39/573038:user/release-keys" PRIVATE_BUILD_DESC="mantaray-user 4.2.2 JDQ39 573038 release-keys"
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+ -include vendor/pa/packages/$(PRODUCT_NAME).mk
+diff --git a/products/pa_toro.mk b/products/pa_toro.mk
+index 9eee76d..7c41f08 100644
+--- a/products/pa_toro.mk
++++ b/products/pa_toro.mk
+@@ -35,7 +35,7 @@ PRODUCT_NAME := pa_toro
+ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Galaxy Nexus
+ PRODUCT_MANUFACTURER := Samsung
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=yakju BUILD_FINGERPRINT="google/yakju/maguro:4.2.1/JOP40D/533553:user/release-keys" PRIVATE_BUILD_DESC="yakju-user 4.2.1 JOP40D 533553 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=yakju BUILD_FINGERPRINT="google/yakju/maguro:4.2.2/JDQ39/573038:user/release-keys" PRIVATE_BUILD_DESC="yakju-user 4.2.2 JDQ39 573038 release-keys"
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+ -include vendor/pa/packages/$(PRODUCT_NAME).mk
+diff --git a/products/pa_toroplus.mk b/products/pa_toroplus.mk
+index a3daf2f..c6e5ad3 100644
+--- a/products/pa_toroplus.mk
++++ b/products/pa_toroplus.mk
+@@ -35,7 +35,7 @@ PRODUCT_NAME := pa_toroplus
+ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Galaxy Nexus
+ PRODUCT_MANUFACTURER := Samsung
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=yakju BUILD_FINGERPRINT="google/yakju/maguro:4.2.1/JOP40D/533553:user/release-keys" PRIVATE_BUILD_DESC="yakju-user 4.2 JOP40D 533553 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=yakju BUILD_FINGERPRINT="google/yakju/maguro:4.2.2/JDQ39/573038:user/release-keys" PRIVATE_BUILD_DESC="yakju-user 4.2.2 JDQ39 573038 release-keys"
+ 
+ # Product Package Extras - Repos can be added manually or via addprojects.py
+ -include vendor/pa/packages/$(PRODUCT_NAME).mk
+-- 
+1.8.1.1
+

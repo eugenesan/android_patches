@@ -1,0 +1,36 @@
+From 898dfaa5a2aff63d2e5a4dd6e1a4725cd6071bb9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Emilio=20L=C3=B3pez?= <turl@tuxfamily.org>
+Date: Thu, 30 Aug 2012 20:28:35 +0000
+Subject: [PATCH 09/13] tuna: power: make sure we don't apply the screen off
+ freq on screen on
+
+This fixes issues when pressing the power button repeatedly in a short
+period of time. The "on" call might not run, and when we re-read the
+value on screen off to store it, we will be actually reading the capped
+screen off value. Make sure that's not the case.
+---
+ power/power_tuna.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/power/power_tuna.c b/power/power_tuna.c
+index 0a2aa8f..80330a1 100644
+--- a/power/power_tuna.c
++++ b/power/power_tuna.c
+@@ -135,7 +135,13 @@ static void tuna_power_set_interactive(struct power_module *module, int on)
+         /* read the current scaling max freq and save it before updating */
+         len = sysfs_read(SCALINGMAXFREQ_PATH, buf, sizeof(buf));
+ 
+-        if (len != -1)
++        /* make sure it's not the screen off freq, if the "on"
++         * call is skipped (can happen if you press the power
++         * button repeatedly) we might have read it. We should
++         * skip it if that's the case
++         */
++        if (len != -1 && strncmp(buf, screen_off_max_freq,
++                strlen(screen_off_max_freq)) != 0)
+             memcpy(scaling_max_freq, buf, sizeof(buf));
+ 
+         sysfs_write("/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq",
+-- 
+1.8.1.1
+

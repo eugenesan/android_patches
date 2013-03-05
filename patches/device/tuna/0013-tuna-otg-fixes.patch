@@ -1,0 +1,31 @@
+From 1cde081ffe098ab7ebf9c5b845dda6677b949487 Mon Sep 17 00:00:00 2001
+From: kecinzer <kecinzer@gmail.com>
+Date: Tue, 12 Feb 2013 15:42:54 -0500
+Subject: [PATCH 13/13] tuna: otg fixes
+
+copypasta from grouper storage_list.xml, helps make otg removed
+notification dismissable
+
+Change-Id: I4440bccfc21286393f612367bc8f2e54136440c9
+---
+ overlay/frameworks/base/core/res/res/xml/storage_list.xml | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/overlay/frameworks/base/core/res/res/xml/storage_list.xml b/overlay/frameworks/base/core/res/res/xml/storage_list.xml
+index 0f1eb45..95030e2 100644
+--- a/overlay/frameworks/base/core/res/res/xml/storage_list.xml
++++ b/overlay/frameworks/base/core/res/res/xml/storage_list.xml
+@@ -21,8 +21,9 @@
+ 
+ <StorageList xmlns:android="http://schemas.android.com/apk/res/android">
+     <!-- internal emulated storage -->
+-    <storage
++    <storage android:mountPoint="/storage/sdcard0"
+         android:storageDescription="@string/storage_internal"
++        android:primary="true"
+         android:emulated="true"
+         android:mtpReserve="100" />
+     <!-- external USB OTG storage -->
+-- 
+1.8.1.1
+

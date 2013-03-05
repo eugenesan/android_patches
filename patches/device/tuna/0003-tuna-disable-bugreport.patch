@@ -1,0 +1,38 @@
+From 30225793899fe16f228e5f1af5d487969630a033 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Emilio=20L=C3=B3pez?= <turl@tuxfamily.org>
+Date: Sun, 22 Apr 2012 05:20:44 +0000
+Subject: [PATCH 03/13] tuna: disable bugreport
+
+It's too easy to trigger bugreports when wanting to take a
+screenshot, let's disable it.
+
+Change-Id: I82c0bccd4cdebda94128fb3d7290afbbc38fb8e2
+---
+ init.tuna.rc | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/init.tuna.rc b/init.tuna.rc
+index 466ee7c..8a923c9 100755
+--- a/init.tuna.rc
++++ b/init.tuna.rc
+@@ -217,11 +217,12 @@ service iprenew_bnep0 /system/bin/dhcpcd -n
+ 	oneshot
+ 
+ # bugreport is triggered by holding down volume down, volume up and power
+-service bugreport /system/bin/bugmailer.sh -v
+-	class main
+-	disabled
+-	oneshot
+-	keycodes 114 115 116
++# it's easy to trigger when wanting to take screenshots. let's disable it
++#service bugreport /system/bin/bugmailer.sh -v
++#	class main
++#	disabled
++#	oneshot
++#	keycodes 114 115 116
+ 
+ service battery_charger /charger
+ 	class charger
+-- 
+1.8.1.1
+

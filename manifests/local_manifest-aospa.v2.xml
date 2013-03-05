@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project name="ParanoidAndroid/android_device_lge_mako" path="device/lge/mako" remote="github" revision="jellybean" />
+  <project name="ParanoidAndroid/lge-kernel-mako" path="kernel/lge/mako" remote="github" revision="jellybean" />
+  <project name="platform/hardware/qcom/audio" path="hardware/qcom/audio" />
+  <project name="platform/hardware/qcom/bt" path="hardware/qcom/bt" />
+  <project name="platform/hardware/qcom/camera" path="hardware/qcom/camera" />
+  <project name="platform/hardware/qcom/display" path="hardware/qcom/display" />
+  <project name="platform/hardware/qcom/gps" path="hardware/qcom/gps" />
+  <project name="platform/hardware/qcom/media" path="hardware/qcom/media" />
+  <project name="platform/hardware/qcom/power" path="hardware/qcom/power" />
+  <project name="platform/hardware/qcom/keymaster" path="hardware/qcom/keymaster" />
+  <project name="platform/hardware/qcom/sensors" path="hardware/qcom/sensors" />
+  <project name="platform/hardware/qcom/wlan" path="hardware/qcom/wlan" />
+  <project name="ParanoidAndroid/proprietary_vendor_lge" path="vendor/lge" remote="github" revision="jellybean" />
+  <!-- <project name="ParanoidAndroid/proprietary_vendor_broadcom" path="vendor/broadcom" remote="github" revision="jellybean" /> -->
+  <project name="ParanoidAndroid/proprietary_vendor_qcom" path="vendor/qcom" remote="github" revision="jellybean" />
+
+  <project name="ParanoidAndroid/android_device_samsung_maguro" path="device/samsung/maguro" remote="github" revision="jellybean" />
+  <project name="ParanoidAndroid/android_device_samsung_tuna" path="device/samsung/tuna" remote="github" revision="jellybean" />
+  <project name="ParanoidAndroid/android_kernel_samsung_tuna" path="kernel/samsung/tuna" remote="github" revision="cm-10.1" />
+  <project name="platform/hardware/broadcom/wlan" path="hardware/broadcom/wlan" />
+  <project name="platform/hardware/invensense" path="hardware/invensense" />
+  <project name="platform/hardware/ti/omap3" path="hardware/ti/omap3" />
+  <project name="platform/hardware/ti/omap4xxx" path="hardware/ti/omap4xxx" />
+  <project name="platform/hardware/ti/wlan" path="hardware/ti/wlan" />
+  <project name="platform/hardware/ti/wpan" path="hardware/ti/wpan" />
+  <project name="TheMuppets/proprietary_vendor_samsung" path="vendor/samsung" remote="github" revision="cm-10.1" />
+  <project name="TheMuppets/proprietary_vendor_imgtec" path="vendor/imgtec" remote="github" revision="cm-10.1" />
+  <project name="TheMuppets/proprietary_vendor_invensense" path="vendor/invensense" remote="github" revision="cm-10.1" />
+  <!-- <project name="TheMuppets/proprietary_vendor_broadcom" path="vendor/broadcom" remote="github" revision="cm-10.1" /> -->
+  <project name="TheMuppets/proprietary_vendor_nxp" path="vendor/nxp" remote="github" revision="cm-10.1" />
+  <project name="TheMuppets/proprietary_vendor_widevine" path="vendor/widevine" remote="github" revision="cm-10.1" />
+
+  <project name="CyanogenMod/android_packages_apps_Torch" path="packages/apps/Torch" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_packages_apps_CMFileManager" path="packages/apps/CMFileManager" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_rsync" path="external/rsync" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_bash" path="external/bash" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_htop" path="external/htop" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_libncurses" path="external/libncurses" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_lsof" path="external/lsof" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_lzo" path="external/lzo" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_nano" path="external/nano" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_openvpn" path="external/openvpn" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_powertop" path="external/powertop" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_external_vim" path="external/vim" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_packages_apps_DSPManager" path="packages/apps/DSPManager" remote="github" revision="177d90019c16cb53a5944d92687f7aa79aaf5677" />
+
+  <project name="eugenesan/proprietary_vendor_broadcom" path="vendor/broadcom" remote="github" revision="cm-10.1" />
+
+  <remove-project name="ParanoidAndroid/android_device_lge_mako" />
+  <project name="ParanoidAndroid/android_device_lge_mako" path="device/lge/mako" remote="github" revision="staging" />
+<!--
+  <remove-project name="ParanoidAndroid/android_device_samsung_maguro" />
+  <project name="ParanoidAndroid/android_device_samsung_maguro" path="device/samsung/maguro" remote="github" revision="staging" />
+-->
+  <remove-project name="ParanoidAndroid/android_device_samsung_tuna" />
+  <project name="ParanoidAndroid/android_device_samsung_tuna" path="device/samsung/tuna" remote="github" revision="staging" />
+
+  <remove-project name="ParanoidAndroid/lge-kernel-mako" />
+  <project name="ParanoidAndroid/lge-kernel-mako" path="kernel/lge/mako" remote="github" revision="staging" />
+<!--
+  <remove-project name="ParanoidAndroid/android_kernel_samsung_tuna" />
+  <project name="ParanoidAndroid/android_kernel_samsung_tuna" path="kernel/samsung/tuna" remote="github" revision="staging" />
+-->
+  <remove-project name="ParanoidAndroid/android_frameworks_base" />
+  <project name="ParanoidAndroid/android_frameworks_base" path="frameworks/base" remote="github" revision="staging" />
+
+  <remove-project name="ParanoidAndroid/android_packages_apps_Phone" />
+  <project name="ParanoidAndroid/android_packages_apps_Phone" path="packages/apps/Phone" remote="github" revision="staging" />
+
+  <remove-project name="ParanoidAndroid/android_packages_apps_Settings" />
+  <project name="ParanoidAndroid/android_packages_apps_Settings" path="packages/apps/Settings" remote="github" revision="staging" />
+
+  <remove-project name="ParanoidAndroid/android_vendor_pa" />
+  <project name="ParanoidAndroid/android_vendor_pa" path="vendor/pa" remote="github" revision="staging" />
+
+  <remove-project name="ParanoidAndroid/paranoid" />
+  <project name="ParanoidAndroid/paranoid" path="paranoid" remote="github" revision="staging">
+    <copyfile dest="build.sh" src="build.sh" />
+  </project>
+
+  <remove-project name="ParanoidAndroid/android_build" />
+  <project name="ParanoidAndroid/android_build" path="build" remote="github" revision="staging">
+    <copyfile dest="Makefile" src="core/root.mk" />
+  </project>
+
+  <remove-project name="platform/packages/apps/SoundRecorder" />
+  <project name="CyanogenMod/android_packages_apps_SoundRecorder" path="packages/apps/SoundRecorder" remote="github" revision="cm-10.1" />
+
+  <remove-project name="platform/packages/apps/Calculator" />
+  <project name="CyanogenMod/android_packages_apps_Calculator" path="packages/apps/Calculator" remote="github" revision="cm-10.1" />
+
+  <remove-project name="platform/packages/inputmethods/OpenWnn" />
+  <remove-project name="platform/packages/inputmethods/PinyinIME" />
+  <remove-project name="platform/packages/inputmethods/LatinIME" />
+  <project name="CyanogenMod/android_packages_inputmethods_LatinIME" path="packages/inputmethods/LatinIME" remote="github" revision="cm-10.1" />
+</manifest>

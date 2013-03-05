@@ -1,0 +1,49 @@
+From d8e691f4948b355dba5d908b473af6cc8109d021 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Tue, 26 Feb 2013 16:35:02 +0200
+Subject: [PATCH 13/16] move exynos5 hw lib to correcct device
+
+Change-Id: Ic2a56856f29dcd0c3c4cda382aba76556c8ee638
+---
+ vendorprops/maguro.proprietaries | 7 -------
+ vendorprops/manta.proprietaries  | 7 +++++++
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/vendorprops/maguro.proprietaries b/vendorprops/maguro.proprietaries
+index 8d6d35a..10b91fa 100644
+--- a/vendorprops/maguro.proprietaries
++++ b/vendorprops/maguro.proprietaries
+@@ -58,13 +58,6 @@
+     {
+         "remote":       "aosp",
+         "account":      "platform",
+-        "repository":   "hardware/samsung_slsi/exynos5",
+-        "target_path":  "hardware/samsung_slsi/exynos5",
+-        "branch":       "refs/tags/android-4.2.1_r1.2"
+-    },
+-    {
+-        "remote":       "aosp",
+-        "account":      "platform",
+         "repository":   "hardware/ti/omap3",
+         "target_path":  "hardware/ti/omap3",
+         "branch":       "refs/tags/android-4.2.1_r1.2"
+diff --git a/vendorprops/manta.proprietaries b/vendorprops/manta.proprietaries
+index e044b10..8e5479d 100644
+--- a/vendorprops/manta.proprietaries
++++ b/vendorprops/manta.proprietaries
+@@ -19,5 +19,12 @@
+         "repository":   "proprietary_vendor_samsung",
+         "target_path":  "vendor/samsung",
+         "revision":     "cm-10.1"
++    },
++    {
++        "remote":       "aosp",
++        "account":      "platform",
++        "repository":   "hardware/samsung_slsi/exynos5",
++        "target_path":  "hardware/samsung_slsi/exynos5",
++        "branch":       "refs/tags/android-4.2.1_r1.2"
+     }
+ ]
+-- 
+1.8.1.1
+

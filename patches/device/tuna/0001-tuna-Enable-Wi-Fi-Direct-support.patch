@@ -1,0 +1,31 @@
+From a5dc3962207020d7b74ae7d49433be633e77946b Mon Sep 17 00:00:00 2001
+From: Andreas Schneider <asn@cryptomilk.org>
+Date: Wed, 12 Sep 2012 20:17:16 +0200
+Subject: [PATCH 01/13] tuna: Enable Wi-Fi Direct support.
+
+Change-Id: Id010e125e441e0ddd9470e99664b2d447981d38a
+---
+ overlay/frameworks/base/core/res/res/values/config.xml | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/overlay/frameworks/base/core/res/res/values/config.xml b/overlay/frameworks/base/core/res/res/values/config.xml
+index 2cd1c67..52cd198 100644
+--- a/overlay/frameworks/base/core/res/res/values/config.xml
++++ b/overlay/frameworks/base/core/res/res/values/config.xml
+@@ -232,6 +232,13 @@
+     <!-- Boolean indicating whether the wifi chipset has background scan support -->
+     <bool translatable="false" name="config_wifi_background_scan_support">true</bool>
+ 
++    <!-- Boolean indicating whether the wifi chipset has p2p support -->
++    <bool translatable="false" name="config_wifi_p2p_support">true</bool>
++
++    <!-- Device type information conforming to Annex B format in WiFi Direct specification.
++         The default represents a dual-mode smartphone -->
++    <string translatable="false" name="config_wifi_p2p_device_type">10-0050F204-5</string>
++
+     <bool name="config_ui_enableFadingMarquee">false</bool>
+ 
+     <!-- Is the notification LED intrusive? Used to decide if there should be a disable option -->
+-- 
+1.8.1.1
+

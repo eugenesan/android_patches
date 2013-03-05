@@ -1,0 +1,29 @@
+From 2f72072c333542e73f58e03d3b7c376b71b8c38d Mon Sep 17 00:00:00 2001
+From: KalimochoAz <calimochoazucarado@gmail.com>
+Date: Wed, 6 Jun 2012 17:35:56 +0200
+Subject: [PATCH 07/13] Correct toroplus detection in audio library
+
+Since that was incorrectly detected, it was failing to use
+toro audio settings and was using maguro ones
+
+Change-Id: I0a5524011365e3ef39ab110b0e608dbce9edbae6
+---
+ audio/audio_hw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/audio/audio_hw.c b/audio/audio_hw.c
+index 50caf00..5567f8b 100644
+--- a/audio/audio_hw.c
++++ b/audio/audio_hw.c
+@@ -785,7 +785,7 @@ static int is_device_toro(void)
+     property_get(PRODUCT_DEVICE_PROPERTY, property, PRODUCT_DEVICE_TORO);
+ 
+     /* return true if the property matches the given value */
+-    return strcmp(property, PRODUCT_DEVICE_TORO) == 0;
++    return strncmp(property, PRODUCT_DEVICE_TORO, 4) == 0;
+ }
+ 
+ /* The enable flag when 0 makes the assumption that enums are disabled by
+-- 
+1.8.1.1
+

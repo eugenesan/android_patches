@@ -1,0 +1,272 @@
+From 999350edf3ce00ca56ca95e1294676ade272fc2d Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Tue, 19 Feb 2013 17:18:31 +0200
+Subject: [PATCH 4/7] move hw libs from manifest to vendor_pa
+
+Change-Id: I01dec3b421c45b94503925d47962ca933851ae2e
+---
+ vendorprops/crespo.proprietaries   |  1 -
+ vendorprops/maguro.proprietaries   | 30 +++++++++++++++++++++++++
+ vendorprops/mako.proprietaries     | 35 ++++++-----------------------
+ vendorprops/manta.proprietaries    |  5 +++++
+ vendorprops/toro.proprietaries     | 45 +-------------------------------------
+ vendorprops/toroplus.proprietaries | 45 +-------------------------------------
+ 6 files changed, 44 insertions(+), 117 deletions(-)
+ mode change 100644 => 120000 vendorprops/toro.proprietaries
+ mode change 100644 => 120000 vendorprops/toroplus.proprietaries
+
+diff --git a/vendorprops/crespo.proprietaries b/vendorprops/crespo.proprietaries
+index d16744b..d2ed26e 100644
+--- a/vendorprops/crespo.proprietaries
++++ b/vendorprops/crespo.proprietaries
+@@ -48,5 +48,4 @@
+         "target_path":  "vendor/widevine",
+         "branch":       "cm-10.1"
+     }
+-    
+ ]
+diff --git a/vendorprops/maguro.proprietaries b/vendorprops/maguro.proprietaries
+index 08d161c..836268d 100644
+--- a/vendorprops/maguro.proprietaries
++++ b/vendorprops/maguro.proprietaries
+@@ -40,5 +40,35 @@
+         "repository":   "proprietary_vendor_widevine",
+         "target_path":  "vendor/widevine",
+         "revision":     "cm-10.1"
++    },
++    {
++        "account":      "platform",
++        "repository":   "hardware/broadcom/wlan",
++        "target_path":  "hardware/broadcom/wlan"
++    },
++    {
++        "account":      "platform",
++        "repository":   "hardware/invensense",
++        "target_path":  "hardware/invensense"
++    },
++    {
++        "account":      "platform",
++        "repository":   "hardware/ti/omap3",
++        "target_path":  "hardware/ti/omap3"
++    },
++    {
++        "account":      "platform",
++        "repository":   "hardware/ti/omap4xxx",
++        "target_path":  "hardware/ti/omap4xxx"
++    },
++    {
++        "account":      "platform",
++        "repository":   "hardware/ti/wlan",
++        "target_path":  "hardware/ti/wlan"
++    },
++    {
++        "account":      "platform",
++        "repository":   "hardware/ti/wpan",
++        "target_path":  "hardware/ti/wpan"
+     }
+ ]
+diff --git a/vendorprops/mako.proprietaries b/vendorprops/mako.proprietaries
+index 26dbe01..e32c14c 100644
+--- a/vendorprops/mako.proprietaries
++++ b/vendorprops/mako.proprietaries
+@@ -28,59 +28,38 @@
+         "branch":       "jellybean"
+     },
+     {
+-        "remote":       "aosp",
+         "account":      "platform",
+         "repository":   "hardware/qcom/audio",
+-        "target_path":  "hardware/qcom/audio",
+-        "branch":       "jb-mr1.1-release"
++        "target_path":  "hardware/qcom/audio"
+     },
+     {
+-        "remote":       "aosp",
+         "account":      "platform",
+         "repository":   "hardware/qcom/bt",
+-        "target_path":  "hardware/qcom/bt",
+-        "branch":       "jb-mr1.1-release"
++        "target_path":  "hardware/qcom/bt"
+     },
+     {
+-        "remote":       "aosp",
+         "account":      "platform",
+         "repository":   "hardware/qcom/camera",
+-        "target_path":  "hardware/qcom/camera",
+-        "branch":       "jb-mr1.1-release"
++        "target_path":  "hardware/qcom/camera"
+     },
+     {
+-        "remote":       "github",
+-        "account":      "ParanoidAndroid",
+-        "repository":   "android_hardware_qcom_display",
+-        "target_path":  "hardware/qcom/display",
+-        "branch":       "jellybean"
+-    },
+-    {
+-        "remote":       "aosp",
+         "account":      "platform",
+         "repository":   "hardware/qcom/gps",
+-        "target_path":  "hardware/qcom/gps",
+-        "branch":       "jb-mr1.1-release"
++        "target_path":  "hardware/qcom/gps"
+     },
+     {
+-        "remote":       "aosp",
+         "account":      "platform",
+         "repository":   "hardware/qcom/media",
+-        "target_path":  "hardware/qcom/media",
+-        "branch":       "jb-mr1.1-release"
++        "target_path":  "hardware/qcom/media"
+     },
+     {
+-        "remote":       "aosp",
+         "account":      "platform",
+         "repository":   "hardware/qcom/power",
+-        "target_path":  "hardware/qcom/power",
+-        "branch":       "jb-mr1.1-release"
++        "target_path":  "hardware/qcom/power"
+     },
+     {
+-        "remote":       "aosp",
+         "account":      "platform",
+         "repository":   "hardware/qcom/wlan",
+-        "target_path":  "hardware/qcom/wlan",
+-        "branch":       "jb-mr1.1-release"
++        "target_path":  "hardware/qcom/wlan"
+     }
+ ]
+diff --git a/vendorprops/manta.proprietaries b/vendorprops/manta.proprietaries
+index e044b10..ec9ca08 100644
+--- a/vendorprops/manta.proprietaries
++++ b/vendorprops/manta.proprietaries
+@@ -19,5 +19,10 @@
+         "repository":   "proprietary_vendor_samsung",
+         "target_path":  "vendor/samsung",
+         "revision":     "cm-10.1"
++    },
++    {
++        "account":      "platform",
++        "repository":   "hardware/samsung_slsi/exynos5",
++        "target_path":  "hardware/samsung_slsi/exynos5"
+     }
+ ]
+diff --git a/vendorprops/toro.proprietaries b/vendorprops/toro.proprietaries
+deleted file mode 100644
+index 08d161c..0000000
+--- a/vendorprops/toro.proprietaries
++++ /dev/null
+@@ -1,44 +0,0 @@
+-[
+-    {
+-        "remote":       "github",
+-        "account":      "TheMuppets",
+-        "repository":   "proprietary_vendor_samsung",
+-        "target_path":  "vendor/samsung",
+-        "revision":     "cm-10.1"
+-    },
+-    {
+-        "remote":       "github",
+-        "account":      "TheMuppets",
+-        "repository":   "proprietary_vendor_imgtec",
+-        "target_path":  "vendor/imgtec",
+-        "revision":     "cm-10.1"
+-    },
+-    {
+-        "remote":       "github",
+-        "account":      "TheMuppets",
+-        "repository":   "proprietary_vendor_invensense",
+-        "target_path":  "vendor/invensense",
+-        "revision":     "cm-10.1"
+-    },
+-    {
+-        "remote":       "github",
+-        "account":      "TheMuppets",
+-        "repository":   "proprietary_vendor_broadcom",
+-        "target_path":  "vendor/broadcom",
+-        "revision":     "cm-10.1"
+-    },
+-    {
+-        "remote":       "github",
+-        "account":      "TheMuppets",
+-        "repository":   "proprietary_vendor_nxp",
+-        "target_path":  "vendor/nxp",
+-        "revision":     "cm-10.1"
+-    },
+-    {
+-        "remote":       "github",
+-        "account":      "TheMuppets",
+-        "repository":   "proprietary_vendor_widevine",
+-        "target_path":  "vendor/widevine",
+-        "revision":     "cm-10.1"
+-    }
+-]
+diff --git a/vendorprops/toro.proprietaries b/vendorprops/toro.proprietaries
+new file mode 120000
+index 0000000..946424c
+--- /dev/null
++++ b/vendorprops/toro.proprietaries
+@@ -0,0 +1 @@
++maguro.proprietaries
+\ No newline at end of file
+diff --git a/vendorprops/toroplus.proprietaries b/vendorprops/toroplus.proprietaries
+deleted file mode 100644
+index 08d161c..0000000
+--- a/vendorprops/toroplus.proprietaries
++++ /dev/null
+@@ -1,44 +0,0 @@
+-[
+-    {
+-        "remote":       "github",
+-        "account":      "TheMuppets",
+-        "repository":   "proprietary_vendor_samsung",
+-        "target_path":  "vendor/samsung",
+-        "revision":     "cm-10.1"
+-    },
+-    {
+-        "remote":       "github",
+-        "account":      "TheMuppets",
+-        "repository":   "proprietary_vendor_imgtec",
+-        "target_path":  "vendor/imgtec",
+-        "revision":     "cm-10.1"
+-    },
+-    {
+-        "remote":       "github",
+-        "account":      "TheMuppets",
+-        "repository":   "proprietary_vendor_invensense",
+-        "target_path":  "vendor/invensense",
+-        "revision":     "cm-10.1"
+-    },
+-    {
+-        "remote":       "github",
+-        "account":      "TheMuppets",
+-        "repository":   "proprietary_vendor_broadcom",
+-        "target_path":  "vendor/broadcom",
+-        "revision":     "cm-10.1"
+-    },
+-    {
+-        "remote":       "github",
+-        "account":      "TheMuppets",
+-        "repository":   "proprietary_vendor_nxp",
+-        "target_path":  "vendor/nxp",
+-        "revision":     "cm-10.1"
+-    },
+-    {
+-        "remote":       "github",
+-        "account":      "TheMuppets",
+-        "repository":   "proprietary_vendor_widevine",
+-        "target_path":  "vendor/widevine",
+-        "revision":     "cm-10.1"
+-    }
+-]
+diff --git a/vendorprops/toroplus.proprietaries b/vendorprops/toroplus.proprietaries
+new file mode 120000
+index 0000000..946424c
+--- /dev/null
++++ b/vendorprops/toroplus.proprietaries
+@@ -0,0 +1 @@
++maguro.proprietaries
+\ No newline at end of file
+-- 
+1.8.1.5
+

@@ -1,0 +1,71 @@
+From c6ea7f19f2a585cd46d69b669e5f9fb6aae0a719 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Tue, 19 Feb 2013 20:56:50 +0200
+Subject: [PATCH 09/16] update prebuilts
+
+Change-Id: If9599defee03b604ba5c543ccb389652fa7b1be7
+---
+ config/pa_common.mk | 7 +++++--
+ get-prebuilts       | 4 ++--
+ tools/squisher      | 2 +-
+ 3 files changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/config/pa_common.mk b/config/pa_common.mk
+index d9dbbda..d764a5b 100644
+--- a/config/pa_common.mk
++++ b/config/pa_common.mk
+@@ -6,11 +6,14 @@ PRODUCT_PROPERTY_OVERRIDES += \
+ 
+ # Copy specific ROM files
+ PRODUCT_COPY_FILES += \
+-    vendor/pa/prebuilt/common/apk/Term.apk:system/app/Term.apk \
+-    vendor/pa/prebuilt/common/lib/armeabi/libjackpal-androidterm4.so:system/lib/libjackpal-androidterm4.so \
+     vendor/pa/prebuilt/common/apk/AmazonAppstore.apk:system/app/AmazonAppstore.apk \
+     vendor/pa/prebuilt/common/apk/MarketEnabler.apk:system/app/MarketEnabler.apk \
+     vendor/pa/prebuilt/common/apk/AdobeFlashPlayer.apk:system/app/AdobeFlashPlayer.apk \
++    vendor/pa/prebuilt/common/apk/BetterBatteryStats.apk:system/app/BetterBatteryStats.apk \
++    vendor/pa/prebuilt/common/apk/Fdroid.apk:system/app/Fdroid.apk \
++    vendor/pa/prebuilt/common/apk/LuckyPatcher.apk:system/app/LuckyPatcher.apk \
++    vendor/pa/prebuilt/common/apk/Term.apk:system/app/Term.apk \
++    vendor/pa/prebuilt/common/lib/libjackpal-androidterm4.so:system/lib/libjackpal-androidterm4.so \
+     vendor/pa/prebuilt/common/apk/GooManager.apk:system/app/GooManager.apk \
+     vendor/pa/prebuilt/common/apk/SuperSU.apk:system/app/SuperSU.apk \
+     vendor/pa/prebuilt/common/xbin/su:system/xbin/su \
+diff --git a/get-prebuilts b/get-prebuilts
+index b9f4279..433298f 100755
+--- a/get-prebuilts
++++ b/get-prebuilts
+@@ -30,7 +30,7 @@ if [ "${PREBUILTS_ALL}" == "true" ]; then
+ 
+ 	# Get Adobe Flash Player (Source: http://helpx.adobe.com/flash-player/kb/archived-flash-player-versions.html)
+ 	echo "* Adobe Flash Player"
+-	$CURL -L -o $BASEDIR/prebuilt/common/apk/AdobeFlashPlayer.apk -O -L "http://download.macromedia.com/pub/flashplayer/installers/archive/android/11.1.115.37/install_flash_player_ics.apk"
++	$CURL -L -o $BASEDIR/prebuilt/common/apk/AdobeFlashPlayer.apk -O -L "http://download.macromedia.com/pub/flashplayer/installers/archive/android/11.1.115.47/install_flash_player_ics.apk"
+ 
+ 	# Get Amazon Apps Store (Source: http://www.amazon.com/gp/mas/get/android)
+ 	echo "* Amazon App Store"
+@@ -38,7 +38,7 @@ if [ "${PREBUILTS_ALL}" == "true" ]; then
+ 
+ 	# Get Better Battery Stats (Source: http://forum.xda-developers.com/showthread.php?t=1179809)
+ 	echo "* Better Battery Stats"
+-	$CURL -L -o $BASEDIR/prebuilt/common/apk/BetterBatteryStats.apk -O -L "http://forum.xda-developers.com/attachment.php?attachmentid=1677961&d=1359206646"
++	$CURL -L -o $BASEDIR/prebuilt/common/apk/BetterBatteryStats.apk -O -L "http://dl.xda-developers.com/attachdl/00e7f7e82704ea2995d3790728b0e13f/5123cabe/1/7/4/1/3/9/9/BetterBatteryStats_xdaedition_1.12.0.0RC10.apk"
+ 
+ 	# Get LuckyPatcher (http://chelpus.defcon5.biz)
+ 	echo "* Lucky Patcher"
+diff --git a/tools/squisher b/tools/squisher
+index 8eb1bd9..a62e791 100755
+--- a/tools/squisher
++++ b/tools/squisher
+@@ -4,7 +4,7 @@
+ # cyanogen
+ #
+ 
+-. $ANDROID_BUILD_TOP/vendor/cm/tools/functions
++. $ANDROID_BUILD_TOP/vendor/pa/tools/functions
+ 
+ OUT_TARGET_HOST=`uname -a | grep Darwin`
+ if [ -z "$OUT_TARGET_HOST" ]
+-- 
+1.8.1.1
+

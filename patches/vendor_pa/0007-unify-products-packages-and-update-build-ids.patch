@@ -1,0 +1,640 @@
+From 1ec36f817f0de6afc23d89b1e56eb4d3d5405571 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sat, 19 Jan 2013 10:04:36 +0200
+Subject: [PATCH 7/7] unify products, packages and update build ids
+
+Change-Id: I5f8b0c07c5049a4d1ed009e9ef0862061cbf19fe
+---
+ packages/cm.mk           |  1 +
+ packages/i9100.mk        |  3 ---
+ packages/maguro.mk       |  3 ---
+ packages/mako.mk         |  3 ---
+ packages/n7100.mk        |  3 ---
+ packages/pa_i9100.mk     |  3 +++
+ packages/pa_maguro.mk    |  3 +++
+ packages/pa_mako.mk      |  3 +++
+ packages/pa_n7100.mk     |  3 +++
+ packages/pa_tf700t.mk    |  3 +++
+ packages/tf700t.mk       |  3 ---
+ products/pa_bravo.mk     | 12 ++++++------
+ products/pa_crespo.mk    | 15 +++++++++------
+ products/pa_endeavoru.mk | 14 ++++++--------
+ products/pa_grouper.mk   | 13 ++++++++++---
+ products/pa_i9100.mk     | 15 +++++++++------
+ products/pa_i9300.mk     | 17 ++++++++---------
+ products/pa_maguro.mk    | 13 +++++++------
+ products/pa_mako.mk      | 12 +++++++-----
+ products/pa_manta.mk     | 14 ++++++--------
+ products/pa_n7100.mk     | 18 +++++++-----------
+ products/pa_tf700t.mk    | 14 ++++++--------
+ products/pa_tilapia.mk   | 13 ++++++++++---
+ products/pa_toro.mk      | 19 +++++++------------
+ products/pa_toroplus.mk  | 14 ++++++--------
+ 25 files changed, 120 insertions(+), 114 deletions(-)
+ delete mode 100644 packages/i9100.mk
+ delete mode 100644 packages/maguro.mk
+ delete mode 100644 packages/mako.mk
+ delete mode 100644 packages/n7100.mk
+ create mode 100644 packages/pa_i9100.mk
+ create mode 100644 packages/pa_maguro.mk
+ create mode 100644 packages/pa_mako.mk
+ create mode 100644 packages/pa_n7100.mk
+ create mode 100644 packages/pa_tf700t.mk
+ delete mode 100644 packages/tf700t.mk
+
+diff --git a/packages/cm.mk b/packages/cm.mk
+index 4e303fb..ef96685 100644
+--- a/packages/cm.mk
++++ b/packages/cm.mk
+@@ -3,6 +3,7 @@ PRODUCT_PACKAGES += \
+     DSPManager \
+     libcyanogen-dsp \
+     CMFileManager \
++    CMFileManagerThemes \
+     Torch \
+     openvpn \
+     e2fsck \
+diff --git a/packages/i9100.mk b/packages/i9100.mk
+deleted file mode 100644
+index 5d4a7b9..0000000
+--- a/packages/i9100.mk
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Extra Product Packages
+-PRODUCT_PACKAGES += \
+-    
+diff --git a/packages/maguro.mk b/packages/maguro.mk
+deleted file mode 100644
+index c02a167..0000000
+--- a/packages/maguro.mk
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Extra packages
+-PRODUCT_PACKAGES += \
+-    Torch
+diff --git a/packages/mako.mk b/packages/mako.mk
+deleted file mode 100644
+index c02a167..0000000
+--- a/packages/mako.mk
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Extra packages
+-PRODUCT_PACKAGES += \
+-    Torch
+diff --git a/packages/n7100.mk b/packages/n7100.mk
+deleted file mode 100644
+index 5d4a7b9..0000000
+--- a/packages/n7100.mk
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Extra Product Packages
+-PRODUCT_PACKAGES += \
+-    
+diff --git a/packages/pa_i9100.mk b/packages/pa_i9100.mk
+new file mode 100644
+index 0000000..6157586
+--- /dev/null
++++ b/packages/pa_i9100.mk
+@@ -0,0 +1,3 @@
++# Extra packages
++PRODUCT_PACKAGES += \
++
+diff --git a/packages/pa_maguro.mk b/packages/pa_maguro.mk
+new file mode 100644
+index 0000000..c02a167
+--- /dev/null
++++ b/packages/pa_maguro.mk
+@@ -0,0 +1,3 @@
++# Extra packages
++PRODUCT_PACKAGES += \
++    Torch
+diff --git a/packages/pa_mako.mk b/packages/pa_mako.mk
+new file mode 100644
+index 0000000..c02a167
+--- /dev/null
++++ b/packages/pa_mako.mk
+@@ -0,0 +1,3 @@
++# Extra packages
++PRODUCT_PACKAGES += \
++    Torch
+diff --git a/packages/pa_n7100.mk b/packages/pa_n7100.mk
+new file mode 100644
+index 0000000..6157586
+--- /dev/null
++++ b/packages/pa_n7100.mk
+@@ -0,0 +1,3 @@
++# Extra packages
++PRODUCT_PACKAGES += \
++
+diff --git a/packages/pa_tf700t.mk b/packages/pa_tf700t.mk
+new file mode 100644
+index 0000000..6157586
+--- /dev/null
++++ b/packages/pa_tf700t.mk
+@@ -0,0 +1,3 @@
++# Extra packages
++PRODUCT_PACKAGES += \
++
+diff --git a/packages/tf700t.mk b/packages/tf700t.mk
+deleted file mode 100644
+index 5d4a7b9..0000000
+--- a/packages/tf700t.mk
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Extra Product Packages
+-PRODUCT_PACKAGES += \
+-    
+diff --git a/products/pa_bravo.mk b/products/pa_bravo.mk
+index 28b31a7..2c76dc2 100644
+--- a/products/pa_bravo.mk
++++ b/products/pa_bravo.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := HDPI
+ OVERLAY_TARGET := pa_hdpi
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE ?= false
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+@@ -30,17 +30,17 @@ include vendor/pa/config/pa_common.mk
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/htc/bravo/full_bravo.mk)
+ 
+-# Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/cm.mk
+-
+ # Override AOSP build properties
+ PRODUCT_NAME    := pa_bravo
+ PRODUCT_BRAND   := htc_wwe
+-PRODUCT_DEVICE  := bravo
+ PRODUCT_MODEL   := HTC Desire
+ PRODUCT_MANUFACTURER := HTC
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=htc_bravo BUILD_FINGERPRINT=htc_wwe/htc_bravo/bravo:2.3.3/GRI40/96875.1:user/release-keys TARGET_BUILD_TYPE=userdebug BUILD_VERSION_TAGS=release-keys PRIVATE_BUILD_DESC="3.14.405.1 CL96875 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=htc_bravo BUILD_FINGERPRINT=htc_wwe/htc_bravo/bravo:2.3.3/GRI40/96875.1:user/release-keys TARGET_BUILD_TYPE=userdebug BUILD_VERSION_TAGS=release-keys
++PRIVATE_BUILD_DESC="3.14.405.1 CL96875 release-keys"
+ 
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
+ 
+ # Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+diff --git a/products/pa_crespo.mk b/products/pa_crespo.mk
+index 70fbe49..b9197a7 100644
+--- a/products/pa_crespo.mk
++++ b/products/pa_crespo.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := HDPI
+ OVERLAY_TARGET := pa_hdpi
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE := false
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+@@ -30,19 +30,22 @@ include vendor/pa/config/pa_common.mk
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/samsung/crespo/full_crespo.mk)
+ 
+-# Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/cm.mk
+-
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_crespo
+ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Nexus S
+ PRODUCT_MANUFACTURER := Samsung
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=soju BUILD_FINGERPRINT="google/soju/crespo:4.1.2/JZO54K/485486:user/release-keys" PRIVATE_BUILD_DESC="soju-user 4.1.2 JZO54K 485486 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=soju BUILD_FINGERPRINT="google/soju/crespo:4.1.2/JZO54K/485486:user/release-keys"
++PRIVATE_BUILD_DESC="soju-user 4.1.2 JZO54K 485486 release-keys"
++
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
+ 
+ # Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
++GET_PROJECT_RMS := $(shell vendor/pa/tools/removeprojects.py $(PRODUCT_NAME))
++GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
+ GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+-
+diff --git a/products/pa_endeavoru.mk b/products/pa_endeavoru.mk
+index e9d584e..b1e2552 100644
+--- a/products/pa_endeavoru.mk
++++ b/products/pa_endeavoru.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := XHDPI
+ OVERLAY_TARGET := pa_xhdpi
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE := false
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+@@ -30,12 +30,6 @@ include vendor/pa/config/pa_common.mk
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/htc/endeavoru/full_endeavoru.mk)
+ 
+-# Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/endeavoru.mk
+-
+-# CM Extras
+--include vendor/pa/packages/cm.mk
+-
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_endeavoru
+ PRODUCT_BRAND := htc
+@@ -44,10 +38,14 @@ PRODUCT_MANUFACTURER := HTC
+ PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=endeavoru BUILD_FINGERPRINT="htc_europe/endeavoru/endeavoru:4.1.1/JRO03C/128187.27:user/release-keys"
+ PRIVATE_BUILD_DESC="3.14.401.27 CL128187 release-keys"
+ 
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
++
+ # Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+ GET_PROJECT_RMS := $(shell vendor/pa/tools/removeprojects.py $(PRODUCT_NAME))
+ GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
++GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+-
+diff --git a/products/pa_grouper.mk b/products/pa_grouper.mk
+index 6b538d9..76749ed 100644
+--- a/products/pa_grouper.mk
++++ b/products/pa_grouper.mk
+@@ -35,10 +35,17 @@ PRODUCT_NAME := pa_grouper
+ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Nexus 7
+ PRODUCT_MANUFACTURER := Asus
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=nakasi BUILD_FINGERPRINT="google/nakasi/grouper:4.2/JOP40C/527662:user/release-keys"
+-PRIVATE_BUILD_DESC="nakasi-user 4.2 JOP40C 527662 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=nakasi BUILD_FINGERPRINT="google/nakasi/grouper:4.2.2/JDQ39/573038:user/release-keys"
++PRIVATE_BUILD_DESC="nakasi-user 4.2.2 JDQ39 573038 release-keys"
+ 
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
++
++# Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
++GET_PROJECT_RMS := $(shell vendor/pa/tools/removeprojects.py $(PRODUCT_NAME))
++GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
++GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+-
+diff --git a/products/pa_i9100.mk b/products/pa_i9100.mk
+index 46a357e..aed33e6 100644
+--- a/products/pa_i9100.mk
++++ b/products/pa_i9100.mk
+@@ -22,7 +22,7 @@ PARANOID_BOOTANIMATION_NAME := HDPI
+ OVERLAY_TARGET := pa_hdpi
+ 
+ # Build paprefs from sources
+-PREFS_FROM_SOURCE ?= false
++PREFS_FROM_SOURCE ?= true
+ 
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+@@ -30,19 +30,22 @@ include vendor/pa/config/pa_common.mk
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/samsung/i9100/full_i9100.mk)
+ 
+-# Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/i9100.mk
+-
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_i9100
+ PRODUCT_BRAND := samsung
+ PRODUCT_MODEL := GT-i9100
+-PRODUCT_MANUFACTURER := samsung
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=GT-I9100 TARGET_DEVICE=GT-I9100 BUILD_FINGERPRINT=samsung/GT-I9100/GT-I9100:4.0.3/IML74K/XXLPQ:user/release-keys PRIVATE_BUILD_DESC="GT-I9100-user 4.0.3 IML74K XXLPQ release-keys"
++PRODUCT_MANUFACTURER := Samsung
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=GT-I9100 TARGET_DEVICE=GT-I9100 BUILD_FINGERPRINT="samsung/GT-I9100/GT-I9100:4.0.3/IML74K/XXLPQ:user/release-keys"
++PRIVATE_BUILD_DESC="GT-I9100-user 4.0.3 IML74K XXLPQ release-keys"
++
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
+ 
+ # Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+ GET_PROJECT_RMS := $(shell vendor/pa/tools/removeprojects.py $(PRODUCT_NAME))
+ GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
++GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+diff --git a/products/pa_i9300.mk b/products/pa_i9300.mk
+index 16119e7..c0e6387 100644
+--- a/products/pa_i9300.mk
++++ b/products/pa_i9300.mk
+@@ -30,18 +30,17 @@ include vendor/pa/config/pa_common.mk
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/samsung/i9300/full_i9300.mk)
+ 
+-# Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/i9300.mk
+-
+-# CM Package Extras
+--include vendor/pa/packages/cm.mk
+-
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_i9300
+-PRODUCT_BRAND := samsung
++PRODUCT_BRAND := Samsung
+ PRODUCT_MODEL := GT-I9300
+-PRODUCT_MANUFACTURER := samsung
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=m0xx TARGET_DEVICE=m0 BUILD_FINGERPRINT="samsung/m0xx/m0:4.1.1/JRO03C/I9300XXDLIB:user/release-keys" PRIVATE_BUILD_DESC="m0xx-user 4.1.1 JRO03C I9300XXDLIB release-keys"
++PRODUCT_MANUFACTURER := Samsung
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=m0xx TARGET_DEVICE=m0 BUILD_FINGERPRINT="samsung/m0xx/m0:4.1.1/JRO03C/I9300XXDLIB:user/release-keys"
++PRIVATE_BUILD_DESC="m0xx-user 4.1.1 JRO03C I9300XXDLIB release-keys"
++
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
+ 
+ # Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+diff --git a/products/pa_maguro.mk b/products/pa_maguro.mk
+index b662afa..5fd846a 100644
+--- a/products/pa_maguro.mk
++++ b/products/pa_maguro.mk
+@@ -30,21 +30,22 @@ include vendor/pa/config/pa_common.mk
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/samsung/maguro/full_maguro.mk)
+ 
+-# Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/maguro.mk
+-
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_maguro
+ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Galaxy Nexus
+ PRODUCT_MANUFACTURER := Samsung
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=yakju BUILD_FINGERPRINT="google/yakju/maguro:4.2.1/JOP40D/533553:user/release-keys"
+-PRIVATE_BUILD_DESC="yakju-user 4.2.1 JOP40D 533553 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=yakju BUILD_FINGERPRINT="google/yakju/maguro:4.2.2/JDQ39/573038:user/release-keys"
++PRIVATE_BUILD_DESC="yakju-user 4.2.2 JDQ39 573038 release-keys"
++
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
+ 
+ # Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+ GET_PROJECT_RMS := $(shell vendor/pa/tools/removeprojects.py $(PRODUCT_NAME))
+ GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
++GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+-
+diff --git a/products/pa_mako.mk b/products/pa_mako.mk
+index 4cfe271..1df3796 100644
+--- a/products/pa_mako.mk
++++ b/products/pa_mako.mk
+@@ -30,20 +30,22 @@ include vendor/pa/config/pa_common.mk
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/lge/mako/full_mako.mk)
+ 
+-# Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/mako.mk
+-
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_mako
+ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Nexus 4
+ PRODUCT_MANUFACTURER := LGE
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=occam BUILD_FINGERPRINT="google/occam/mako:4.2/JOP40C/527662:user/release-keys" PRIVATE_BUILD_DESC="occam-user 4.2 JOP40C 527662 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=occam BUILD_FINGERPRINT="google/occam/mako:4.2.2/JDQ39/573038:user/release-keys"
++PRIVATE_BUILD_DESC="occam-user 4.2.2 JDQ39 573038 release-keys"
++
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
+ 
+ # Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+ GET_PROJECT_RMS := $(shell vendor/pa/tools/removeprojects.py $(PRODUCT_NAME))
+ GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
++GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+-
+diff --git a/products/pa_manta.mk b/products/pa_manta.mk
+index 77ffdc3..666f940 100644
+--- a/products/pa_manta.mk
++++ b/products/pa_manta.mk
+@@ -30,18 +30,17 @@ include vendor/pa/config/pa_common.mk
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/samsung/manta/full_manta.mk)
+ 
+-# Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/manta.mk
+-
+-# CM Package Extras
+--include vendor/pa/packages/cm.mk
+-
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_manta
+ PRODUCT_BRAND := google
+ PRODUCT_MODEL := Nexus 10
+ PRODUCT_MANUFACTURER := Samsung
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=mantaray BUILD_FINGERPRINT="google/mantaray/manta:4.2/JOP40C/527662:user/release-keys" PRIVATE_BUILD_DESC="mantaray-user 4.2 JOP40C 527662 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=mantaray BUILD_FINGERPRINT="google/mantaray/manta:4.2.2/JDQ39/573038:user/release-keys"
++PRIVATE_BUILD_DESC="mantaray-user 4.2.2 JDQ39 573038 release-keys"
++
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
+ 
+ # Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+@@ -50,4 +49,3 @@ GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
+ GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+-
+diff --git a/products/pa_n7100.mk b/products/pa_n7100.mk
+index f371125..5739b66 100644
+--- a/products/pa_n7100.mk
++++ b/products/pa_n7100.mk
+@@ -27,29 +27,25 @@ PREFS_FROM_SOURCE ?= true
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+ 
+-# Include missing proprietaries
+-#PRODUCT_COPY_FILES += \
+-
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/samsung/n7100/full_n7100.mk)
+ 
+-# Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/n7100.mk
+-
+-# CM Package Extras
+--include vendor/pa/packages/cm.mk
+-
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_n7100
+ PRODUCT_BRAND := Samsung
+ PRODUCT_MODEL := Galaxy Note II
+ PRODUCT_MANUFACTURER := Samsung
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=t03gxx TARGET_DEVICE=t03g BUILD_FINGERPRINT="samsung/t03gxx/t03g:4.1.1/JRO03C/N7100XXALJ3:user/release-keys" PRIVATE_BUILD_DESC="t03gxx-user 4.1.1 JRO03C N7100XXALJ3 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=t03gxx TARGET_DEVICE=t03g BUILD_FINGERPRINT="samsung/t03gxx/t03g:4.1.1/JRO03C/N7100XXALJ3:user/release-keys"
++PRIVATE_BUILD_DESC="t03gxx-user 4.1.1 JRO03C N7100XXALJ3 release-keys"
+ 
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
++
++# Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+ GET_PROJECT_RMS := $(shell vendor/pa/tools/removeprojects.py $(PRODUCT_NAME))
+ GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
+ GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+-
+diff --git a/products/pa_tf700t.mk b/products/pa_tf700t.mk
+index 7b560eb..c768c0e 100644
+--- a/products/pa_tf700t.mk
++++ b/products/pa_tf700t.mk
+@@ -30,18 +30,17 @@ include vendor/pa/config/pa_common.mk
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/asus/tf700t/full_tf700t.mk)
+ 
+-# Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/tf700t.mk
+-
+-# CM Package Extras
+--include vendor/pa/packages/cm.mk
+-
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_tf700t
+ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Transformer Infinity
+ PRODUCT_MANUFACTURER := Asus
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=mantaray BUILD_FINGERPRINT="google/mantaray/manta:4.2.1/JOP40D/533553:user/release-keys" PRIVATE_BUILD_DESC="mantaray-user 4.2.1 JOP40D 533553 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=mantaray BUILD_FINGERPRINT="google/mantaray/manta:4.2.1/JOP40D/533553:user/release-keys"
++PRIVATE_BUILD_DESC="mantaray-user 4.2.1 JOP40D 533553 release-keys"
++
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
+ 
+ # Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+@@ -50,4 +49,3 @@ GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
+ GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+-
+diff --git a/products/pa_tilapia.mk b/products/pa_tilapia.mk
+index 5849141..2392cb1 100644
+--- a/products/pa_tilapia.mk
++++ b/products/pa_tilapia.mk
+@@ -35,10 +35,17 @@ PRODUCT_NAME := pa_tilapia
+ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Nexus 7
+ PRODUCT_MANUFACTURER := Asus
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=nakasi BUILD_FINGERPRINT="google/nakasig/tilapia:4.2/JOP40C/527662:user/release-keys"
+-PRIVATE_BUILD_DESC="nakasi-user 4.2 JOP40C 527662 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=nakasi BUILD_FINGERPRINT="google/nakasig/tilapia:4.2.2/JDQ39/573038:user/release-keys"
++PRIVATE_BUILD_DESC="nakasi-user 4.2.2 JDQ39 573038 release-keys"
+ 
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
++
++# Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
++GET_PROJECT_RMS := $(shell vendor/pa/tools/removeprojects.py $(PRODUCT_NAME))
++GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
++GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+-
+diff --git a/products/pa_toro.mk b/products/pa_toro.mk
+index 6aebd2b..5be71b1 100644
+--- a/products/pa_toro.mk
++++ b/products/pa_toro.mk
+@@ -27,30 +27,25 @@ PREFS_FROM_SOURCE ?= true
+ # Include ParanoidAndroid common configuration
+ include vendor/pa/config/pa_common.mk
+ 
+-# Include missing proprietaries
+-#PRODUCT_COPY_FILES += \
+-#  vendor/pa/proprietary/toro/bcm4330.hcd:system/vendor/firmware/bcm4330.hcd
+-
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/samsung/toro/full_toro.mk)
+ 
+-# Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/toro.mk
+-
+-# CM Package Extras
+--include vendor/pa/packages/cm.mk
+-
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_toro
+ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Galaxy Nexus
+ PRODUCT_MANUFACTURER := Samsung
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=yakju BUILD_FINGERPRINT="google/yakju/maguro:4.2/JOP40C/527662:user/release-keys" PRIVATE_BUILD_DESC="yakju-user 4.2 JOP40C 527662 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=yakju BUILD_FINGERPRINT="google/yakju/maguro:4.2.2/JDQ39/573038:user/release-keys"
++PRIVATE_BUILD_DESC="yakju-user 4.2.2 JDQ39 573038 release-keys"
+ 
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
++
++# Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+ GET_PROJECT_RMS := $(shell vendor/pa/tools/removeprojects.py $(PRODUCT_NAME))
+ GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
+ GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+-
+diff --git a/products/pa_toroplus.mk b/products/pa_toroplus.mk
+index f3fcb65..1a3fa8a 100644
+--- a/products/pa_toroplus.mk
++++ b/products/pa_toroplus.mk
+@@ -30,18 +30,17 @@ include vendor/pa/config/pa_common.mk
+ # Inherit AOSP device configuration
+ $(call inherit-product, device/samsung/toroplus/full_toroplus.mk)
+ 
+-# Product Package Extras - Repos can be added manually or via addprojects.py
+--include vendor/pa/packages/toroplus.mk
+-
+-# CM Package Extras
+--include vendor/pa/packages/cm.mk
+-
+ # Override AOSP build properties
+ PRODUCT_NAME := pa_toroplus
+ PRODUCT_BRAND := Google
+ PRODUCT_MODEL := Galaxy Nexus
+ PRODUCT_MANUFACTURER := Samsung
+-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=yakju BUILD_FINGERPRINT="google/yakju/maguro:4.2/JOP40C/527662:user/release-keys" PRIVATE_BUILD_DESC="yakju-user 4.2 JOP40C 527662 release-keys"
++PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=yakju BUILD_FINGERPRINT="google/yakju/maguro:4.2.2/JDQ39/573038:user/release-keys"
++PRIVATE_BUILD_DESC="yakju-user 4.2.2 JDQ39 573038 release-keys"
++
++# Product Package Extras - Repos can be added manually or via addprojects.py
++-include vendor/pa/packages/$(PRODUCT_NAME).mk
++-include vendor/pa/packages/cm.mk
+ 
+ # Update local_manifest.xml
+ GET_VENDOR_PROPS := $(shell vendor/pa/tools/getvendorprops.py $(PRODUCT_NAME))
+@@ -50,4 +49,3 @@ GET_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py $(PRODUCT_NAME))
+ GET_CM_PROJECT_ADDS := $(shell vendor/pa/tools/addprojects.py cm.adds)
+ 
+ endif
+-
+-- 
+1.8.1.5
+

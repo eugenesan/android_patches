@@ -1,0 +1,104 @@
+From 6aa8cd02ce4bfc3723bf32ef37c094142a07f2e6 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Wed, 23 Jan 2013 11:10:57 +0200
+Subject: [PATCH 5/8] colorize squisher
+
+Change-Id: Ibfadb50ba0052a4249faf8b597e7daf6aa83cde5
+---
+ config/themes_common.mk |  2 +-
+ tools/functions         | 15 +++++++++++++++
+ tools/squisher          | 13 +++++++------
+ 3 files changed, 23 insertions(+), 7 deletions(-)
+ create mode 100644 tools/functions
+
+diff --git a/config/themes_common.mk b/config/themes_common.mk
+index cdbd0de..8b2f960 100644
+--- a/config/themes_common.mk
++++ b/config/themes_common.mk
+@@ -2,7 +2,7 @@
+ PRODUCT_PACKAGES += \
+        ThemeManager \
+        ThemeChooser \
+-       com.tmobile.themes 
++       com.tmobile.themes
+ 
+ PRODUCT_COPY_FILES += \
+        vendor/pa/config/permissions/com.tmobile.software.themes.xml:system/etc/permissions/com.tmobile.software.themes.xml
+diff --git a/tools/functions b/tools/functions
+new file mode 100644
+index 0000000..30ef005
+--- /dev/null
++++ b/tools/functions
+@@ -0,0 +1,15 @@
++#!/bin/bash
++# Common functions for CM otatools
++#
++# cdesai
++
++if [ ! "$BUILD_WITH_COLORS" = "0" ];
++then
++CL_RED="\033[31m"
++CL_GRN="\033[32m"
++CL_YLW="\033[33m"
++CL_BLU="\033[34m"
++CL_MAG="\033[35m"
++CL_CYN="\033[36m"
++CL_RST="\033[0m"
++fi
+diff --git a/tools/squisher b/tools/squisher
+index 116469a..8eb1bd9 100755
+--- a/tools/squisher
++++ b/tools/squisher
+@@ -1,9 +1,11 @@
+-#!/bin/sh
++#!/bin/bash
+ #
+ # Squish a CM otapackage for distribution
+ # cyanogen
+ #
+ 
++. $ANDROID_BUILD_TOP/vendor/cm/tools/functions
++
+ OUT_TARGET_HOST=`uname -a | grep Darwin`
+ if [ -z "$OUT_TARGET_HOST" ]
+ then
+@@ -19,7 +21,7 @@ else
+ fi
+ 
+ if [ -z "$OUT" -o ! -d "$OUT" ]; then
+-	echo "ERROR: $0 only works with a full build environment. $OUT should exist."
++	echo -e $CL_RED"ERROR: $0 only works with a full build environment. $OUT should exist."$CL_RST
+ 	exit 1
+ fi
+ 
+@@ -31,7 +33,7 @@ else
+     OTAPACKAGE=$OUT/$TARGET_PRODUCT-ota-$TARGET_BUILD_VARIANT.$USER.zip
+ fi
+ if [ ! -f "$OTAPACKAGE" ]; then
+-	echo "$OTAPACKAGE doesn't exist!";
++	echo -e $CL_RED"$OTAPACKAGE doesn't exist!"$CL_RST;
+ 	exit 1
+ fi
+ 
+@@ -45,7 +47,6 @@ rm -rf $REPACK
+ mkdir -p $REPACK
+ echo
+ 
+-
+ # Unpack the otapackage and opticharge all apks
+ mkdir $REPACK/ota
+ (
+@@ -129,8 +130,8 @@ img=`basename $OUTFILE`
+ cd `dirname $OUTFILE`
+ $MD5 $img >$img.md5sum
+ echo
+-echo "Package complete: $OUTFILE"
+-cat $img.md5sum
++echo -e $CL_GRN"Package complete: $OUTFILE"$CL_RST
++echo -e $CL_GRN"md5: $(cat $img.md5sum | awk '{ print $1 }')"$CL_RST
+ echo
+ )
+ export ROMPATH=$OUTFILE
+-- 
+1.8.1.1
+

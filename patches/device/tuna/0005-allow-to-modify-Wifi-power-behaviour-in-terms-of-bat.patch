@@ -1,0 +1,28 @@
+From e85bbff7eac37c93a355ed897a2b2ee632d07a8e Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Thu, 31 Jan 2013 22:30:59 +0200
+Subject: [PATCH 05/13] allow to modify Wifi power behaviour in terms of
+ battery/speed at sleep time
+
+Change-Id: Ib9ec2b9c3d9a8bb27bfba8b134c59dc5d00053b5
+---
+ init.tuna.rc | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/init.tuna.rc b/init.tuna.rc
+index a298dd0..374e425 100755
+--- a/init.tuna.rc
++++ b/init.tuna.rc
+@@ -82,6 +82,9 @@ on fs
+ # add symlink for HDCP key
+         symlink /factory/hdcp.keys /system/vendor/firmware/hdcp.keys
+ 
++# allow to modify Wifi power behaviour in terms of battery/speed at sleep time
++    chown root system sys/module/bcmdhd/parameters/uiFastWifi
++
+ # nfc
+     setprop ro.nfc.port "COM4"
+     chmod 0600 /dev/ttyO3
+-- 
+1.8.1.1
+

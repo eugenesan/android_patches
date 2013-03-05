@@ -1,0 +1,25 @@
+From ddb829ccc049d4f90fb17a492b423494dff84ec6 Mon Sep 17 00:00:00 2001
+From: Koushik Dutta <koushd@gmail.com>
+Date: Wed, 20 Jun 2012 01:55:10 -0700
+Subject: [PATCH 02/13] datamedia support
+
+Change-Id: I3a2e952b21afe8f7bd5bba4579dd378e13831e89
+---
+ recovery.fstab | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/recovery.fstab b/recovery.fstab
+index 6e33ce7..59de0ef 100644
+--- a/recovery.fstab
++++ b/recovery.fstab
+@@ -1,6 +1,6 @@
+ # mount point	fstype		device
+ 
+-/sdcard		vfat		/dev/block/sda1
++/sdcard		datamedia	/dev/null
+ /system		ext4		/dev/block/platform/omap/omap_hsmmc.0/by-name/system
+ /cache		ext4		/dev/block/platform/omap/omap_hsmmc.0/by-name/cache
+ /data		ext4		/dev/block/platform/omap/omap_hsmmc.0/by-name/userdata
+-- 
+1.8.1.1
+

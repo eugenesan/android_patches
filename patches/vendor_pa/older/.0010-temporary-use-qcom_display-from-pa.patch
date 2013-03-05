@@ -1,0 +1,31 @@
+From fd487da095f2d1294d626f6a772aee13cb321351 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Tue, 19 Feb 2013 22:03:51 +0200
+Subject: [PATCH 10/16] temporary use qcom_display from pa
+
+Change-Id: I9f55b6c378e7519231733388e6888305087e7315
+---
+ vendorprops/mako.proprietaries | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/vendorprops/mako.proprietaries b/vendorprops/mako.proprietaries
+index c275c52..56c143e 100644
+--- a/vendorprops/mako.proprietaries
++++ b/vendorprops/mako.proprietaries
+@@ -36,10 +36,10 @@
+     },
+     {
+         "remote":       "github",
+-        "account":      "platform",
+-        "repository":   "hardware/qcom/display",
++        "account":      "ParanoidAndroid",
++        "repository":   "android_hardware_qcom_display",
+         "target_path":  "hardware/qcom/display",
+-        "branch":       "refs/tags/android-4.2.1_r1.2"
++        "branch":       "jellybean"
+     },
+     {
+         "remote":       "aosp",
+-- 
+1.8.1.1
+

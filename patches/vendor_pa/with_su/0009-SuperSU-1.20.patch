@@ -1,0 +1,26 @@
+From 956217d9b416ba95c87b29d28c775be0eabaa0e7 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Fri, 1 Mar 2013 19:42:18 +0200
+Subject: [PATCH 9/9] SuperSU 1.20
+
+Change-Id: I5025c720861b5da3633cd00b5cd56579403a472d
+---
+ get-prebuilts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/get-prebuilts b/get-prebuilts
+index 52a7f2a..0e79102 100755
+--- a/get-prebuilts
++++ b/get-prebuilts
+@@ -13,7 +13,7 @@ $CURL -L -o $BASEDIR/prebuilt/common/apk/GooManager.apk -O -L "http://goo.im/dev
+ 
+ # Get SuperSU (Source: http://forum.xda-developers.com/showthread.php?t=1538053)
+ echo "* Super SU"
+-$CURL -L -o $BASEDIR/prebuilt/common/apk/SuperSU.zip -O -L "http://download.chainfire.eu/312/SuperSU/UPDATE-SuperSU-v1.10.zip?retrieve_file=1" --referer "http://download.chainfire.eu/312/SuperSU/UPDATE-SuperSU-v1.10.zip"
++$CURL -L -o $BASEDIR/prebuilt/common/apk/SuperSU.zip -O -L "http://download.chainfire.eu/314/SuperSU/UPDATE-SuperSU-v1.20.zip?retrieve_file=1" --referer "http://download.chainfire.eu/314/SuperSU/UPDATE-SuperSU-v1.20.zip"
+ $UNPACK -j -d $BASEDIR/prebuilt/common/apk $BASEDIR/prebuilt/common/apk/SuperSU.zip system/app/Superuser.apk
+ $UNPACK -j -d $BASEDIR/prebuilt/common/xbin $BASEDIR/prebuilt/common/apk/SuperSU.zip system/xbin/su
+ rm $BASEDIR/prebuilt/common/apk/SuperSU.zip
+-- 
+1.8.1.1
+

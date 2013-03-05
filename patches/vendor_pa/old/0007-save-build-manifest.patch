@@ -1,0 +1,42 @@
+From 126924d7a8405c551eeb3d331d658e1cfec18d4e Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Mon, 21 Jan 2013 11:56:24 +0200
+Subject: [PATCH 7/8] save build manifest
+
+Change-Id: I4ec41dae7b12c2d019112096944b91a90d0fbe29
+---
+ .gitignore          | 3 +++
+ config/pa_common.mk | 4 ++++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/.gitignore b/.gitignore
+index e9550b3..cb063c3 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -4,5 +4,8 @@ prebuilt/common/apk/*.zip
+ prebuilt/common/lib/*
+ prebuilt/common/xbin/*
+ 
++# Ignore generated manifest
++prebuilt/common/etc/build-manifest.xml
++
+ # Ignore download stamp
+ prebuilt/common/.get-prebuilts
+diff --git a/config/pa_common.mk b/config/pa_common.mk
+index 2f657c8..6d82208 100644
+--- a/config/pa_common.mk
++++ b/config/pa_common.mk
+@@ -13,6 +13,10 @@ PRODUCT_COPY_FILES += \
+     vendor/pa/prebuilt/common/xbin/su:system/xbin/su \
+     vendor/pa/prebuilt/common/xbin/su:system/bib/.ext/.su
+ 
++# Save build manifest
++PRODUCT_COPY_FILES += \
++    vendor/pa/prebuilt/common/etc/build-manifest.xml:system/etc/build-manifest.xml
++
+ # init.d support
+ PRODUCT_COPY_FILES += \
+     vendor/pa/prebuilt/common/bin/sysinit:system/bin/sysinit \
+-- 
+1.8.1.1
+

@@ -1,0 +1,58 @@
+diff --git a/config/pa_common.mk b/config/pa_common.mk
+index 0dba225..6d82208 100644
+--- a/config/pa_common.mk
++++ b/config/pa_common.mk
+@@ -6,12 +6,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
+ 
+ # Copy specific ROM files
+ PRODUCT_COPY_FILES += \
+-    vendor/pa/prebuilt/common/apk/AmazonAppstore.apk:system/app/AmazonAppstore.apk \
+-    vendor/pa/prebuilt/common/apk/MarketEnabler.apk:system/app/MarketEnabler.apk \
+-    vendor/pa/prebuilt/common/apk/AdobeFlashPlayer.apk:system/app/AdobeFlashPlayer.apk \
+-    vendor/pa/prebuilt/common/apk/BetterBatteryStats.apk:system/app/BetterBatteryStats.apk \
+-    vendor/pa/prebuilt/common/apk/Fdroid.apk:system/app/Fdroid.apk \
+-    vendor/pa/prebuilt/common/apk/LuckyPatcher.apk:system/app/LuckyPatcher.apk \
+     vendor/pa/prebuilt/common/apk/Term.apk:system/app/Term.apk \
+     vendor/pa/prebuilt/common/lib/libjackpal-androidterm4.so:system/lib/libjackpal-androidterm4.so \
+     vendor/pa/prebuilt/common/apk/GooManager.apk:system/app/GooManager.apk \
+diff --git a/get-prebuilts b/get-prebuilts
+index ff510e9..52a7f2a 100755
+--- a/get-prebuilts
++++ b/get-prebuilts
+@@ -23,36 +23,4 @@ echo "* Android Terminal Emulator"
+ $CURL -L -o $BASEDIR/prebuilt/common/apk/Term.apk -O -L "http://jackpal.github.com/Android-Terminal-Emulator/downloads/Term.apk"
+ $UNPACK -j -d $BASEDIR/prebuilt/common/lib $BASEDIR/prebuilt/common/apk/Term.apk lib/armeabi/libjackpal-androidterm4.so
+ 
+-if [ "${PREBUILTS_EXTRA}" == "true" ]; then
+-	# Get Market Enabler (Source: https://code.google.com/p/market-enabler/downloads/list)
+-	echo "* Market Enabler"
+-	$CURL -L -o $BASEDIR/prebuilt/common/apk/MarketEnabler.apk -O -L "http://market-enabler.googlecode.com/files/MarketEnabler_v3113.apk"
+-
+-	# Get Adobe Flash Player (Source: http://helpx.adobe.com/flash-player/kb/archived-flash-player-versions.html)
+-	echo "* Adobe Flash Player"
+-	$CURL -L -o $BASEDIR/prebuilt/common/apk/AdobeFlashPlayer.apk -O -L "http://download.macromedia.com/pub/flashplayer/installers/archive/android/11.1.115.47/install_flash_player_ics.apk"
+-
+-	# Get Amazon Apps Store (Source: http://www.amazon.com/gp/mas/get/android)
+-	echo "* Amazon App Store"
+-	$CURL -L -o $BASEDIR/prebuilt/common/apk/AmazonAppstore.apk -O -L "http://www.amazon.com/gp/mas/get/android/ref=mas_mbl_ldg?ie=UTF8&dl=1"
+-
+-	# Get Better Battery Stats (Source: http://forum.xda-developers.com/showthread.php?t=1179809)
+-	echo "* Better Battery Stats"
+-	$CURL -L -o $BASEDIR/prebuilt/common/apk/BetterBatteryStats.apk -O -L "http://forum.xda-developers.com/attachment.php?s=bb7a45265d7a7d36c3d17ddc83c66270&attachmentid=1744305&d=1361314388"
+-
+-	# Get LuckyPatcher (http://chelpus.defcon5.biz)
+-	echo "* Lucky Patcher"
+-	$CURL  -L -o $BASEDIR/prebuilt/common/apk/LuckyPatcher.apk -O -L "http://chelpus.defcon5.biz/LuckyPatcher.apk"
+-
+-	# Get Fdroid FOSS Market (http://forum.xda-developers.com/showthread.php?p=34190204)
+-	echo "* Fdroid FOSS Market"
+-	$CURL  -L -o $BASEDIR/prebuilt/common/apk/Fdroid.apk -O -L "https://f-droid.org/FDroid.apk"
+-
+-	# Get Pdroid Manager (http://forum.xda-developers.com/showthread.php?p=34190204)
+-	#echo "* Pdroid Manager"
+-	#$CURL  -L -o $BASEDIR/prebuilt/common/apk/Pdroid.apk -O -L "http://forum.xda-developers.com/attachment.php?attachmentid=1638382&d=1357994614"
+-else
+-	echo " * Skipping additional prebuilts, export PREBUILTS_ALL=true to change that"
+-fi
+-
+ set +e

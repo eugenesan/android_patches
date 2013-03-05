@@ -1,0 +1,30 @@
+From 024f83b593f8dd84977a6832569fb505c0c2ff66 Mon Sep 17 00:00:00 2001
+From: KalimochoAz <calimochoazucarado@gmail.com>
+Date: Wed, 2 May 2012 16:52:40 +0200
+Subject: [PATCH 04/13] Add control for DSS gamma settings
+
+Imoseyon discovered that patch from ti. With this setting
+we can also control this new kernel feature alredy commited
+
+Change-Id: Ie863edf1c45f73024ac4a0eab8ccfd048062e262
+---
+ init.tuna.rc | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/init.tuna.rc b/init.tuna.rc
+index 8a923c9..a298dd0 100755
+--- a/init.tuna.rc
++++ b/init.tuna.rc
+@@ -69,6 +69,9 @@ on fs
+     chmod 0777 /dev/tiler
+     chmod 0777 /dev/dmm
+ 
++# change permissions for gamma settings
++    chmod 0666 /sys/devices/platform/omapdss/manager0/gamma
++
+ # change permissions for ION driver
+     chmod 0777 /dev/ion
+ 
+-- 
+1.8.1.1
+

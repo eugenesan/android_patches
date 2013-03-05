@@ -1,0 +1,26 @@
+From 9f1dfa27aca5f89c3840885c9f925588427295a1 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Wed, 23 Jan 2013 11:10:07 +0200
+Subject: [PATCH 04/16] revert DSPManager to working commit
+
+Change-Id: I4496aa0fe96c6f8378fa571ef1eae03448c90029
+---
+ manifest/cm.adds | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/manifest/cm.adds b/manifest/cm.adds
+index 99cda65..6de1583 100644
+--- a/manifest/cm.adds
++++ b/manifest/cm.adds
+@@ -81,7 +81,7 @@
+         "account":      "CyanogenMod",
+         "repository":   "android_packages_apps_DSPManager",
+         "target_path":  "packages/apps/DSPManager",
+-        "revision":     "cm-10.1"
++        "revision":     "177d90019c16cb53a5944d92687f7aa79aaf5677"
+     },
+     {
+         "remote":       "github",
+-- 
+1.8.1.1
+

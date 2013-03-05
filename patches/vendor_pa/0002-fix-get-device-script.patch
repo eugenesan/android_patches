@@ -1,0 +1,43 @@
+From b55fdf8c5cade0caa95e470b8b7fdad6da997c42 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Wed, 23 Jan 2013 14:40:36 +0200
+Subject: [PATCH 2/7] fix get device script
+
+Change-Id: Ic61e5624f6c1eff33e74716e4c57eed0f5ec90cd
+---
+ tools/getdevicetree.py | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/tools/getdevicetree.py b/tools/getdevicetree.py
+index 2746665..ea31db0 100755
+--- a/tools/getdevicetree.py
++++ b/tools/getdevicetree.py
+@@ -13,11 +13,21 @@ manufacturer = None
+ def isNullOrEmpty(value):
+     return value is None or len(value) < 0
+ 
+-for dirname, dirnames, filenames in os.walk('./device/'):
++def walklevel(some_dir, level=1):
++    some_dir = some_dir.rstrip(os.path.sep)
++    assert os.path.isdir(some_dir)
++    num_sep = some_dir.count(os.path.sep)
++    for root, dirs, files in os.walk(some_dir):
++        yield root, dirs, files
++        num_sep_this = root.count(os.path.sep)
++        if num_sep + level <= num_sep_this:
++            del dirs[:]
++
++for dirname, dirnames, subdirnames in walklevel('device', 1):
+     for subdirname in dirnames:
+-        path = os.path.join(dirname, subdirname)[9:]
+-        if path.find(device) != -1:
+-            manufacturer = path[:path.find('/')];
++        if subdirname == device:
++            manufacturer = dirname[dirname.find(os.path.sep)+1:];
++
+ 
+ if isNullOrEmpty(manufacturer):
+     manufacturer = raw_input('Manufacturer not found, please write your device manufacturer: ')
+-- 
+1.8.1.5
+
