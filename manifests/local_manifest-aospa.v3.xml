@@ -56,7 +56,7 @@
   <project name="ParanoidAndroid/android_packages_apps_Phone" path="packages/apps/Phone" remote="github" revision="staging" />
   <remove-project name="ParanoidAndroid/android_packages_apps_Settings" />
   <project name="ParanoidAndroid/android_packages_apps_Settings" path="packages/apps/Settings" remote="github" revision="staging" />
-  <remove-project name="platform/packages/inputmethods/LatinIME" />
+  <remove-project name="ParanoidAndroid/android_packages_inputmethods_LatinIME" />
   <project name="ParanoidAndroid/android_packages_inputmethods_LatinIME" path="packages/inputmethods/LatinIME" remote="github" revision="staging" />
   <remove-project name="ParanoidAndroid/android_vendor_pa" />
   <project name="ParanoidAndroid/android_vendor_pa" path="vendor/pa" remote="github" revision="staging" />
