@@ -1,0 +1,25 @@
+diff --git a/tools/getdevicetree.py b/tools/getdevicetree.py
+index 422e0b9..f19dd91 100755
+--- a/tools/getdevicetree.py
++++ b/tools/getdevicetree.py
+@@ -25,13 +25,17 @@ def walklevel(some_dir, level=1):
+ 
+ for dirname, dirnames, subdirnames in walklevel('./device/', 1):
+     for subdirname in dirnames:
+-        if subdirname == device:
+-            manufacturer = dirname[dirname.find(os.path.sep)+1:];
+-
++        path = os.path.join(dirname, subdirname)[9:]
++        # Exclude common, sample and google device manufacturers
++        if path.find('common') == -1 and path.find('sample') == -1 and path.find('google') == -1:
++            if path.find(device) != -1:
++                manufacturer = path[:path.find('/')];
+ 
+ if isNullOrEmpty(manufacturer):
+     manufacturer = raw_input('Manufacturer not found, please write your device manufacturer: ')
+ 
++print 'Device: %s -> %s' % (manufacturer, device)
++
+ device_path = 'device/'+manufacturer+'/'+device
+ repo_full = 'ParanoidAndroid/android_' + device_path.replace('/', '_')
+ 
