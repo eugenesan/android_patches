@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- Remove OTA, useless for custom builds -->
+  <remove-project name="ParanoidAndroid/android_packages_apps_ParanoidOTA" />
+
+  <!-- Remove useless Asian languages support -->
+  <remove-project name="platform/packages/inputmethods/OpenWnn" />
+  <remove-project name="platform/packages/inputmethods/PinyinIME" />
+
+  <!-- Use CM's Keyboard due to better language support and secondary symbols -->
+  <remove-project name="ParanoidAndroid/android_packages_inputmethods_LatinIME" />
+  <project name="android_packages_inputmethods_LatinIME" path="packages/inputmethods/LatinIME" remote="cm" revision="cm-10.2" />
+
+  <!-- Replace AOSPA packages with custom ones -->
+  <remove-project name="ParanoidAndroid/paranoid" />
+  <project name="eugenesan/paranoid" path="paranoid" remote="github" revision="jb43"> <copyfile dest="build.sh" src="build.sh" /> </project>
+
+  <remove-project name="ParanoidAndroid/android_frameworks_base" />
+  <project name="eugenesan/android_frameworks_base" path="frameworks/base" remote="github" revision="jb43" />
+
+  <remove-project name="ParanoidAndroid/android_packages_apps_Phone" />
+  <project name="eugenesan/android_packages_apps_Phone" path="packages/apps/Phone" remote="github" revision="jb43" />
+
+  <remove-project name="ParanoidAndroid/android_packages_apps_Settings" />
+  <project name="eugenesan/android_packages_apps_Settings" path="packages/apps/Settings" remote="github" revision="jb43" />
+
+  <remove-project name="ParanoidAndroid/android_vendor_pa" />
+  <project name="eugenesan/android_vendor_pa" path="vendor/pa" remote="github" revision="jb43" />
+
+  <remove-project name="ParanoidAndroid/lge-kernel-mako" />
+  <project name="eugenesan/lge-kernel-mako" path="kernel/lge/mako" remote="github" revision="jb43" />
+<!--
+  <remove-project name="ParanoidAndroid/android_build" />
+  <project name="eugenesan/android_build" path="build" remote="github" revision="jb43"> <copyfile dest="Makefile" src="core/root.mk" /> </project>
+-->
+
+  <!-- Import usefull packages from CM -->
+  <project name="android_external_rsync" path="external/rsync" remote="cm" revision="cm-10.2" />
+  <project name="android_packages_apps_CMFileManager" path="packages/apps/CMFileManager" remote="cm" revision="cm-10.2" />
+<!--
+  <project name="android_external_libncurses" path="external/libncurses" remote="cm" revision="cm-10.2" />
+  <project name="android_external_htop" path="external/htop" remote="cm" revision="cm-10.2" />
+  <project name="android_external_bash" path="external/bash" remote="cm" revision="cm-10.2" />
+  <project name="android_external_lsof" path="external/lsof" remote="cm" revision="cm-10.2" />
+  <project name="android_external_lzo" path="external/lzo" remote="cm" revision="cm-10.2" />
+  <project name="android_external_nano" path="external/nano" remote="cm" revision="cm-10.2" />
+  <project name="android_external_openvpn" path="external/openvpn" remote="cm" revision="cm-10.2" />
+  <project name="android_external_powertop" path="external/powertop" remote="cm" revision="cm-10.2" />
+  <project name="android_external_vim" path="external/vim" remote="cm" revision="cm-10.2" />
+  <project name="android_packages_apps_DSPManager" path="packages/apps/DSPManager" remote="cm" revision="cm-10.2" />
+-->
+</manifest>
