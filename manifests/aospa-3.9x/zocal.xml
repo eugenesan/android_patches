@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <!-- Remove OTA, useless for custom builds -->
+  <!-- Remove OTA, not used in custom builds -->
   <remove-project name="ParanoidAndroid/android_packages_apps_ParanoidOTA" />
 
-  <!-- Remove useless Asian languages support -->
+  <!-- Remove Asian languages support -->
   <remove-project name="platform/packages/inputmethods/OpenWnn" />
   <remove-project name="platform/packages/inputmethods/PinyinIME" />
+
+  <!-- Remove Stock Calendar to be replaced with Google's one -->
+  <remove-project name="platform/packages/apps/Calendar" />
 
   <!-- Use CM's Keyboard due to better language support and secondary symbols -->
   <remove-project name="ParanoidAndroid/android_packages_inputmethods_LatinIME" />
