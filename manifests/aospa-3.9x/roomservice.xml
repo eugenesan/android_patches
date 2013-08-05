@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project name="ParanoidAndroid/android_device_lge_mako" path="device/lge/mako" remote="github" revision="jb43" />
+  <project name="ParanoidAndroid/lge-kernel-mako" path="kernel/lge/mako" remote="github" revision="jb43" />
+  <project name="ParanoidAndroid/proprietary_vendor_lge" path="vendor/lge" remote="github" revision="jb43" />
+  <project name="CyanogenMod/android_hardware_qcom_power" path="hardware/qcom/power" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_hardware_qcom_display" path="hardware/qcom/display" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_hardware_qcom_media" path="hardware/qcom/media" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_hardware_qcom_wlan" path="hardware/qcom/wlan" remote="github" revision="cm-10.2" />
+  <project name="platform/hardware/qcom/audio" path="hardware/qcom/audio" remote="aosp" revision="refs/tags/android-4.3_r2.1" />
+  <project name="platform/hardware/qcom/bt" path="hardware/qcom/bt" remote="aosp" revision="refs/tags/android-4.3_r2.1" />
+  <project name="platform/hardware/qcom/msm8960" path="hardware/qcom/msm8960" remote="aosp" revision="refs/tags/android-4.3_r2.1" />
+  <project name="platform/hardware/qcom/keymaster" path="hardware/qcom/keymaster" remote="aosp" revision="refs/tags/android-4.3_r2.1" />
+  <project name="platform/hardware/qcom/sensors" path="hardware/qcom/sensors" remote="aosp" revision="refs/tags/android-4.3_r2.1" />
+  <project name="CyanogenMod/android_packages_apps_Torch" path="packages/apps/Torch" remote="github" revision="cm-10.2" />
+</manifest>
