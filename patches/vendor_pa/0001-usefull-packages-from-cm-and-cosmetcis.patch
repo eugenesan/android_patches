@@ -1,0 +1,29 @@
+From b4ea69320ee8e32634b2b3761bb22c419d185e80 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Sun, 4 Aug 2013 07:25:20 +0300
+Subject: [PATCH 1/2] usefull packages from cm and cosmetcis
+
+Change-Id: I7fa0d482645631fc8e1e9e8d5d6dd38952cd0b35
+---
+ config/pa_common.mk | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/config/pa_common.mk b/config/pa_common.mk
+index 062bdbf..a3af3a8 100644
+--- a/config/pa_common.mk
++++ b/config/pa_common.mk
+@@ -55,6 +55,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
+ PRODUCT_PACKAGES += \
+     su
+ 
++# Useful CM packages
++PRODUCT_PACKAGES += \
++    CMFileManager \
++    rsync
++
+ # device common prebuilts
+ ifneq ($(DEVICE_COMMON),)
+     -include vendor/pa/prebuilt/$(DEVICE_COMMON)/prebuilt.mk
+-- 
+1.8.3.4
+
