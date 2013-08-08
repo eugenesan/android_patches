@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
+  <remove-project name="platform/packages/apps/SoundRecorder" />
+  <remove-project name="platform/external/openssh" />
+  <remove-project name="platform/external/e2fsprogs" />
+  <remove-project name="ParanoidAndroid/android_packages_inputmethods_LatinIME" />
   <project name="ParanoidAndroid/android_device_lge_mako" path="device/lge/mako" remote="github" revision="jb43" />
-  <project name="ParanoidAndroid/lge-kernel-mako" path="kernel/lge/mako" remote="github" revision="jb43" />
   <project name="ParanoidAndroid/proprietary_vendor_lge" path="vendor/lge" remote="github" revision="jb43" />
+  <project name="ParanoidAndroid/lge-kernel-mako" path="kernel/lge/mako" remote="github" revision="jb43" />
   <project name="CyanogenMod/android_hardware_qcom_power" path="hardware/qcom/power" remote="github" revision="cm-10.2" />
   <project name="CyanogenMod/android_hardware_qcom_display" path="hardware/qcom/display" remote="github" revision="cm-10.2" />
   <project name="CyanogenMod/android_hardware_qcom_media" path="hardware/qcom/media" remote="github" revision="cm-10.2" />
@@ -13,4 +17,23 @@
   <project name="platform/hardware/qcom/keymaster" path="hardware/qcom/keymaster" remote="aosp" revision="refs/tags/android-4.3_r2.1" />
   <project name="platform/hardware/qcom/sensors" path="hardware/qcom/sensors" remote="aosp" revision="refs/tags/android-4.3_r2.1" />
   <project name="CyanogenMod/android_packages_apps_Torch" path="packages/apps/Torch" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_bash" path="external/bash" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_packages_apps_CMFileManager" path="packages/apps/CMFileManager" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_packages_apps_DSPManager" path="packages/apps/DSPManager" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_e2fsprogs" path="external/e2fsprogs" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_exfat" path="external/exfat" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_htop" path="external/htop" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_packages_inputmethods_LatinIME" path="packages/inputmethods/LatinIME" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_libncurses" path="external/libncurses" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_lsof" path="external/lsof" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_lzo" path="external/lzo" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_nano" path="external/nano" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_ntfs-3g" path="external/ntfs-3g" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_openssh" path="external/openssh" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_openvpn" path="external/openvpn" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_powertop" path="external/powertop" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_rsync" path="external/rsync" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_packages_apps_SoundRecorder" path="packages/apps/SoundRecorder" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_vim" path="external/vim" remote="github" revision="cm-10.2" />
+  <project name="CyanogenMod/android_external_fuse" path="external/fuse" remote="github" revision="cm-10.2" />
 </manifest>
