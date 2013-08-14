@@ -20,11 +20,13 @@
   <default revision="refs/tags/android-4.3_r1"
            remote="aosp"
            sync-c="true"
+           sync-f="true"
            sync-j="4" />
 
   <project path="build" name="ParanoidAndroid/android_build" remote="github" revision="jb43" >
     <copyfile src="core/root.mk" dest="Makefile" />
   </project>
+  
   <project path="abi/cpp" name="platform/abi/cpp" groups="pdk" />
   <project path="bionic" name="platform/bionic" />
   <project path="bootable/bootloader/legacy" name="platform/bootable/bootloader/legacy" />
@@ -211,7 +213,7 @@
   <project path="external/v8" name="platform/external/v8" />
   <project path="external/valgrind" name="platform/external/valgrind" groups="pdk" />
   <project path="external/webkit" name="platform/external/webkit" />
-  <project path="external/webp" name="platform/external/webp" />
+  <project path="external/webp" name="ParanoidAndroid/android_external_webp" remote="github" revision="jb43" />
   <project path="external/webrtc" name="platform/external/webrtc" groups="pdk" />
   <project path="external/wpa_supplicant_8" name="platform/external/wpa_supplicant_8" groups="pdk" />
   <project path="external/xmlwriter" name="platform/external/xmlwriter" />
@@ -220,7 +222,7 @@
   <project path="external/zlib" name="platform/external/zlib" groups="pdk" />
   <project path="external/zxing" name="platform/external/zxing" />
   <project path="frameworks/av" name="platform/frameworks/av" groups="pdk" />
-  <project path="frameworks/base" name="ParanoidAndroid/android_frameworks_base" remote="github" revision="jb43"  />
+  <project path="frameworks/base" name="ParanoidAndroid/android_frameworks_base" remote="github" revision="jb43" />
   <project path="frameworks/compile/libbcc" name="platform/frameworks/compile/libbcc" groups="pdk" />
   <project path="frameworks/compile/mclinker" name="platform/frameworks/compile/mclinker" groups="pdk" />
   <project path="frameworks/compile/slang" name="platform/frameworks/compile/slang" groups="pdk" />
@@ -385,6 +387,7 @@
 
   <project path="paranoid" name="ParanoidAndroid/paranoid" remote="github" revision="jb43" >
     <copyfile src="build.sh" dest="rom-build.sh" />
+    
   </project>
 
 </manifest>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- Remove OTA, not used in custom builds -->
+  <remove-project name="ParanoidAndroid/android_packages_apps_ParanoidOTA" />
+
+  <!-- Remove Asian languages support -->
+  <remove-project name="platform/packages/inputmethods/OpenWnn" />
+  <remove-project name="platform/packages/inputmethods/PinyinIME" />
+
+  <!-- Remove Stock Calendar to be replaced with Google's one -->
+  <remove-project name="platform/packages/apps/Calendar" />
+
+  <!-- Replace AOSPA packages with custom ones -->
+  <remove-project name="ParanoidAndroid/paranoid" />
+  <project name="eugenesan/paranoid" path="paranoid" remote="github" revision="jb43"> <copyfile dest="build.sh" src="build.sh" /> </project>
+
+  <remove-project name="ParanoidAndroid/android_frameworks_base" />
+  <project name="eugenesan/android_frameworks_base" path="frameworks/base" remote="github" revision="jb43" />
+
+  <remove-project name="ParanoidAndroid/lge-kernel-mako" />
+  <project name="eugenesan/lge-kernel-mako" path="kernel/lge/mako" remote="github" revision="jb43" />
+<!--
+  <project name="kernel/msm" path="kernel/lge/mako" revision="f43c3d9dd98e351a98bbcccff5933061493f30a4" />
+-->
+  <remove-project name="ParanoidAndroid/android_device_lge_mako" />
+  <project name="eugenesan/android_device_lge_mako" path="device/lge/mako" remote="github" revision="jb43" />
+
+  <remove-project name="ParanoidAndroid/android_vendor_pa" />
+  <project name="eugenesan/android_vendor_pa" path="vendor/pa" remote="github" revision="jb43" />
+
+<!--
+  <remove-project name="ParanoidAndroid/android_packages_apps_Phone" />
+  <project name="eugenesan/android_packages_apps_Phone" path="packages/apps/Phone" remote="github" revision="jb43" />
+
+  <remove-project name="ParanoidAndroid/android_packages_apps_Settings" />
+  <project name="eugenesan/android_packages_apps_Settings" path="packages/apps/Settings" remote="github" revision="jb43" />
+
+  <remove-project name="ParanoidAndroid/android_build" />
+  <project name="eugenesan/android_build" path="build" remote="github" revision="jb43"> <copyfile dest="Makefile" src="core/root.mk" /> </project>
+-->
+</manifest>
