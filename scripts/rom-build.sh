@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Android AOSP/AOSPA build script
-# Version 2.0.5
+# Android AOSP/AOSPA/SLIM build script
+# Version 2.0.6
 
 # Clean scrollback buffer
 echo -e '\0033\0143'
@@ -13,16 +13,16 @@ OUT="$(readlink $DIR/out)"
 [ -z "${OUT}" ] && OUT="${DIR}/out"
 
 # Prepare output customization commands
-red=$(tput setaf 1)             #  red
-grn=$(tput setaf 2)             #  green
-blu=$(tput setaf 4)             #  blue
-cya=$(tput setaf 6)             #  cyan
-txtbld=$(tput bold)             # Bold
-bldred=${txtbld}$(tput setaf 1) #  red
-bldgrn=${txtbld}$(tput setaf 2) #  green
-bldblu=${txtbld}$(tput setaf 4) #  blue
-bldcya=${txtbld}$(tput setaf 6) #  cyan
-txtrst=$(tput sgr0)             # Reset
+red=$(tput setaf 1)             # red
+grn=$(tput setaf 2)             # green
+blu=$(tput setaf 4)             # blue
+cya=$(tput setaf 6)             # cyan
+bldred=${txtbld}$(tput setaf 1) # red
+bldgrn=${txtbld}$(tput setaf 2) # green
+bldblu=${txtbld}$(tput setaf 4) # blue
+bldcya=${txtbld}$(tput setaf 6) # cyan
+txtbld=$(tput bold)             # bold
+txtrst=$(tput sgr0)             # reset
 
 # Local defaults, can be overriden by environment
 : ${PREFS_FROM_SOURCE:="false"}
@@ -46,21 +46,27 @@ EXTRAS="$2"
 # Get build version
 if [ -r $DIR/vendor/pa/vendor.mk ]; then
         VENDOR="aospa"
-        VENDOR_LUNCH="pa"
+        VENDOR_LUNCH="pa_"
         MAJOR=$(cat $DIR/vendor/pa/vendor.mk | grep 'ROM_VERSION_MAJOR := *' | sed  's/ROM_VERSION_MAJOR := //g')
         MINOR=$(cat $DIR/vendor/pa/vendor.mk | grep 'ROM_VERSION_MINOR := *' | sed  's/ROM_VERSION_MINOR := //g')
-        MAINTENANCE=$(cat $DIR/vendor/pa/vendor.mk | grep 'ROM_VERSION_MAINTENANCE := *' | sed  's/ROM_VERSION_MAINTENANCE := //g')
+        MAINT=$(cat $DIR/vendor/pa/vendor.mk | grep 'ROM_VERSION_MAINTENANCE := *' | sed  's/ROM_VERSION_MAINTENANCE := //g')
+elif [ -r $DIR/vendor/slim/vendorsetup.sh ]; then
+        VENDOR="slim"
+        VENDOR_LUNCH="slim_"
+        MAJOR=$(cat $DIR/vendor/slim/config/common.mk | grep 'PRODUCT_VERSION_MAJOR = *' | sed  's/PRODUCT_VERSION_MAJOR = //g')
+        MINOR=$(cat $DIR/vendor/slim/config/common.mk | grep 'PRODUCT_VERSION_MINOR = *' | sed  's/PRODUCT_VERSION_MINOR = //g')
+        MAINT=$(cat $DIR/vendor/slim/config/common.mk | grep 'PRODUCT_VERSION_MAINTENANCE = *' | sed  's/PRODUCT_VERSION_MAINTENANCE = //g')
 elif [ -r $DIR/build/core/version_defaults.mk ]; then
         VENDOR="aosp"
         VENDOR_LUNCH=""
         MAJOR=$(cat $DIR/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f1 -d.)
         MINOR=$(cat $DIR/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f2 -d.)
-        MAINTENANCE=$(cat $DIR/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f3 -d.)
+        MAINT=$(cat $DIR/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f3 -d.)
 else
         echo -e "${redbld}Invalid android tree, exiting...${txtrst}"
         exit 1
 fi
-VERSION=$VENDOR-$MAJOR.$MINOR$([ -n "$MAINTENANCE" ] && echo .)$MAINTENANCE
+VERSION=$VENDOR-$MAJOR.$MINOR$([ -n "$MAINT" ] && echo .)$MAINT
 
 # If there is no extra parameter, reduce parameters index by 1
 if [ "$EXTRAS" == "true" ] || [ "$EXTRAS" == "false" ]; then
@@ -156,28 +162,26 @@ echo -e ""
 
 # Fetch latest sources
 if [ "$SYNC" == "true" ]; then
-        echo -e ""
-        echo -e "${bldblu}Fetching latest sources${txtrst}"
+        echo -e "\n${bldblu}Fetching latest sources${txtrst}"
         repo sync -j"$THREADS"
-        echo -e ""
 fi
 
 # Print java caveats
 if [ ! -r "${DIR}/out/versions_checked.mk" ] && [ -n "$(java -version 2>&1 | grep -i openjdk)" ]; then
-        echo -e "${bldcya}Your java version still not checked and is candidate to fail, masquerading.${txtrst}"
+        echo -e "\n${bldcya}Your java version still not checked and is candidate to fail, masquerading.${txtrst}"
         JAVA_VERSION="java_version=${JVER}"
 fi
 
 # Decide if we enter interactive mode or default build mode
 if [ -n "${INTERACTIVE}" ]; then
-        echo -e "${bldblu}Enabling interactive mode. Possible commands are:${txtrst}"
+        echo -e "\n${bldblu}Enabling interactive mode. Possible commands are:${txtrst}"
 
         echo -e "Prepare device environment:[${bldgrn}lunch ${VENDOR_LUNCH}${DEVICE}-eng${txtrst}]"
 
-        if [ "${VENDOR}" == "aospa" ]; then
-                echo -e "Build device:[${bldgrn}mka bacon${txtrst}]"
-        else
+        if [ "${VENDOR}" == "aosp" ]; then
                 echo -e "Build device:[${bldgrn}schedtool -B -n 1 -e ionice -n 1 make -j${THREADS} ${CCACHE_OPT} ${JAVA_VERSION}${txtrst}]"
+        else
+                echo -e "Build device:[${bldgrn}mka bacon${txtrst}]"
         fi
 
         echo -e "Emulate device:[${bldgrn}vncserver :1; DISPLAY=:1 emulator&${txtrst}]"
@@ -187,25 +191,22 @@ if [ -n "${INTERACTIVE}" ]; then
         bash --init-file build/envsetup.sh -i
 else
         # Setup environment
-        echo -e ""
-        echo -e "${bldblu}Setting up environment${txtrst}"
+        echo -e "\n${bldblu}Setting up environment${txtrst}"
         . build/envsetup.sh
-        echo -e ""
 
         # Prepare device
-        echo -e "${bldblu}Lunching device [${DEVICE}]${txtrst}"
+        echo -e "\n${bldblu}Lunching device [${DEVICE}]${txtrst}"
         export PREFS_FROM_SOURCE
         lunch "${VENDOR_LUNCH}${DEVICE}-userdebug";
 
         # Build device
         echo -e "${bldblu}Starting compilation${txtrst}"
-        if [ "${VENDOR}" == "aospa" ]; then
-                mka bacon
-        else
+        if [ "${VENDOR}" == "aosp" ]; then
                 schedtool -B -n 1 -e ionice -n 1 make -j${THREADS} ${CCACHE_OPT} ${JAVA_VERSION}
+        else
+                mka bacon
         fi
 fi
-echo -e ""
 
 # Get and print increased ccache size
 if [ -n "${CCACHE_DIR}" ]; then
@@ -214,9 +215,9 @@ if [ -n "${CCACHE_DIR}" ]; then
         else
                 cache2=$(prebuilts/misc/linux-x86/ccache/ccache -s | grep "^cache size" | awk '{print $3$4}')
         fi
-                echo -e "${bldgrn}ccache size is ${txtrst} ${grn}${cache2}${txtrst} (was ${grn}${cache1}${txtrst})"
+                echo -e "\n${bldgrn}ccache size is ${txtrst} ${grn}${cache2}${txtrst} (was ${grn}${cache1}${txtrst})"
 fi
 
 # Get and print elapsed time
 res2=$(date +%s.%N)
-echo -e "${bldgrn}Total time elapsed: ${txtrst}${grn}$(echo "($res2 - $res1) / 60"|bc ) minutes ($(echo "$res2 - $res1"|bc ) seconds)${txtrst}"
+echo -e "\n${bldgrn}Total time elapsed: ${txtrst}${grn}$(echo "($res2 - $res1) / 60"|bc ) minutes ($(echo "$res2 - $res1"|bc ) seconds)${txtrst}"
