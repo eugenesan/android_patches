@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Android AOSP/AOSPA/SLIM build script
-# Version 2.0.6
+# Android AOSP/AOSPA/CM/SLIM build script
+# Version 2.0.9
 
 # Clean scrollback buffer
 echo -e '\0033\0143'
@@ -56,6 +56,12 @@ elif [ -r $DIR/vendor/slim/vendorsetup.sh ]; then
         MAJOR=$(cat $DIR/vendor/slim/config/common.mk | grep 'PRODUCT_VERSION_MAJOR = *' | sed  's/PRODUCT_VERSION_MAJOR = //g')
         MINOR=$(cat $DIR/vendor/slim/config/common.mk | grep 'PRODUCT_VERSION_MINOR = *' | sed  's/PRODUCT_VERSION_MINOR = //g')
         MAINT=$(cat $DIR/vendor/slim/config/common.mk | grep 'PRODUCT_VERSION_MAINTENANCE = *' | sed  's/PRODUCT_VERSION_MAINTENANCE = //g')
+elif [ -r vendor/cm/config/common.mk ]; then
+        VENDOR="cm"
+        VENDOR_LUNCH=""
+        MAJOR=$(cat $DIR/vendor/cm/config/common.mk | grep 'PRODUCT_VERSION_MAJOR = *' | sed  's/PRODUCT_VERSION_MAJOR = //g')
+        MINOR=$(cat $DIR/vendor/cm/config/common.mk | grep 'PRODUCT_VERSION_MINOR = *' | sed  's/PRODUCT_VERSION_MINOR = //g')
+        MAINT=$(cat $DIR/vendor/cm/config/common.mk | grep 'PRODUCT_VERSION_MAINTENANCE = *' | sed  's/PRODUCT_VERSION_MAINTENANCE = //g')
 elif [ -r $DIR/build/core/version_defaults.mk ]; then
         VENDOR="aosp"
         VENDOR_LUNCH=""
@@ -172,6 +178,19 @@ if [ ! -r "${DIR}/out/versions_checked.mk" ] && [ -n "$(java -version 2>&1 | gre
         JAVA_VERSION="java_version=${JVER}"
 fi
 
+if [ -r vendor/cm/get-prebuilts ]; then
+        if [ -r vendor/cm/proprietary/.get-prebuilts ]; then
+                echo -e "${bldgrn}Already downloaded prebuilts${txtrst}"
+        else
+                echo -e "${bldblu}Downloading prebuilts${txtrst}"
+                pushd vendor/cm > /dev/null
+                ./get-prebuilts && touch proprietary/.get-prebuilts
+                popd > /dev/null
+        fi
+else
+        echo -e "${bldcya}No prebuilts script in this tree${txtrst}"
+fi
+
 # Decide if we enter interactive mode or default build mode
 if [ -n "${INTERACTIVE}" ]; then
         echo -e "\n${bldblu}Enabling interactive mode. Possible commands are:${txtrst}"
@@ -194,15 +213,20 @@ else
         echo -e "\n${bldblu}Setting up environment${txtrst}"
         . build/envsetup.sh
 
-        # Prepare device
-        echo -e "\n${bldblu}Lunching device [${DEVICE}]${txtrst}"
+        # Preparing
+        echo -e "\n${bldblu}Preparing device [${DEVICE}]${txtrst}"
         export PREFS_FROM_SOURCE
-        lunch "${VENDOR_LUNCH}${DEVICE}-userdebug";
+        if [ "${VENDOR}" == "cm" ]; then
+                breakfast "${VENDOR_LUNCH}${DEVICE}"
+        else
+                lunch "${VENDOR_LUNCH}${DEVICE}-userdebug"
+        fi
 
-        # Build device
         echo -e "${bldblu}Starting compilation${txtrst}"
         if [ "${VENDOR}" == "aosp" ]; then
                 schedtool -B -n 1 -e ionice -n 1 make -j${THREADS} ${CCACHE_OPT} ${JAVA_VERSION}
+        elif [ "${VENDOR}" == "cm" ]; then
+                brunch "${VENDOR_LUNCH}${DEVICE}"
         else
                 mka bacon
         fi
