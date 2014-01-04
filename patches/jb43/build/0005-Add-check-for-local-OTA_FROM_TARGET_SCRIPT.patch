@@ -1,0 +1,34 @@
+From 5aae352ff98ce1a2199eb0d61a30e7ca2993d152 Mon Sep 17 00:00:00 2001
+From: wjb <jaybob413@gmail.com>
+Date: Fri, 30 Nov 2012 23:20:59 -0500
+Subject: [PATCH 05/10] Add check for local OTA_FROM_TARGET_SCRIPT
+
+Change-Id: I69ac2572b902f67fe66f97be38ab5277923c246f
+---
+ core/Makefile | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/core/Makefile b/core/Makefile
+index 790a070..39e4c38 100644
+--- a/core/Makefile
++++ b/core/Makefile
+@@ -1257,9 +1257,15 @@ INTERNAL_OTA_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
+ 
+ $(INTERNAL_OTA_PACKAGE_TARGET): KEY_CERT_PAIR := $(DEFAULT_KEY_CERT_PAIR)
+ 
++ifeq ($(TARGET_RELEASETOOL_OTA_FROM_TARGET_SCRIPT),)
++    OTA_FROM_TARGET_SCRIPT := ./build/tools/releasetools/ota_from_target_files
++else
++    OTA_FROM_TARGET_SCRIPT := $(TARGET_RELEASETOOL_OTA_FROM_TARGET_SCRIPT)
++endif
++
+ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
+ 	@echo "Package OTA: $@"
+-	$(hide) ./build/tools/releasetools/ota_from_target_files -v \
++	$(OTA_FROM_TARGET_SCRIPT) -v \
+ 	   -p $(HOST_OUT) \
+ 	   -k $(KEY_CERT_PAIR) \
+        --backup=$(backuptool) \
+-- 
+1.8.3.4
+

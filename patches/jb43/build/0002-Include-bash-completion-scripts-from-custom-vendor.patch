@@ -1,0 +1,34 @@
+From 6b708a87a7036e86cf1b42dc02e4a722dd100a9d Mon Sep 17 00:00:00 2001
+From: Chirayu Desai <cdesai@cyanogenmod.org>
+Date: Sat, 16 Mar 2013 20:00:17 +0530
+Subject: [PATCH 02/10] Include bash completion scripts from custom vendor
+
+Change-Id: Id90d84748df41d6626dfd46befabe0054c6d14e7
+---
+ envsetup.sh | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/envsetup.sh b/envsetup.sh
+index 8d7dabb..07dbd7b 100644
+--- a/envsetup.sh
++++ b/envsetup.sh
+@@ -253,13 +253,15 @@ function addcompletions()
+         return
+     fi
+ 
+-    dir="sdk/bash_completion"
++    dirs="sdk/bash_completion vendor/pa/bash_completion"
++    for dir in $dirs; do
+     if [ -d ${dir} ]; then
+         for f in `/bin/ls ${dir}/[a-z]*.bash 2> /dev/null`; do
+             echo "including $f"
+             . $f
+         done
+     fi
++    done
+ }
+ 
+ function choosetype()
+-- 
+1.8.3.4
+

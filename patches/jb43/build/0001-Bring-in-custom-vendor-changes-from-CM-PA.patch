@@ -1,0 +1,404 @@
+From 5325f27c894dfb974f5dc339271ec2f98b807fac Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jes=C3=BAs=20David?= <jedga_95@outlook.com>
+Date: Wed, 14 Nov 2012 06:11:33 -0500
+Subject: [PATCH 01/10] Bring in custom vendor changes from CM/PA
+
+* Adds all the vendorsetup files over vendor/* or device/*
+* Doesn't throw errors when java version differs. Just tries to build
+* Allows to copy APK prebuilts via PRODUCT_COPY_FILES
+* Allows overlays on vendor trees
+* Do not check for ownership on vendor files (ok, we gotta fix this)
+* Add mka function
+* Allow use of openjdk and other versions of make
+* Add *.zip.md5sum to installclean_files
+* Add support for overriding build.prop settings
+* Modular backuptool.sh
+* Custom release tool support
+* Make clobber used to call rm -rf out/
+* Additional OUT_DIR processing
+* Avoid overriding of default recovery
+
+Change-Id: I43b20a8052f24626dae1adb986c676730368e9f8
+---
+ core/Makefile                            | 13 ++++++-----
+ core/cleanbuild.mk                       |  1 +
+ core/envsetup.mk                         |  4 ++++
+ core/main.mk                             |  8 +++----
+ core/product.mk                          |  1 +
+ core/product_config.mk                   |  3 +++
+ core/tasks/vendor_module_check.mk        | 37 -------------------------------
+ envsetup.sh                              | 12 ++++++++++
+ tools/releasetools/edify_generator.py    | 16 ++++++++++++++
+ tools/releasetools/ota_from_target_files | 38 ++++++++++++++++----------------
+ 10 files changed, 67 insertions(+), 66 deletions(-)
+
+diff --git a/core/Makefile b/core/Makefile
+index 55ab6a5..790a070 100644
+--- a/core/Makefile
++++ b/core/Makefile
+@@ -19,10 +19,6 @@ is_tests_build := $(filter tests,$(MAKECMDGOALS))
+ # The filter part means "only eval the copy-one-file rule if this
+ # src:dest pair is the first one to match the same dest"
+ #$(1): the src:dest pair
+-define check-product-copy-files
+-$(if $(filter %.apk, $(1)),$(error \
+-    Prebuilt apk found in PRODUCT_COPY_FILES: $(1), use BUILD_PREBUILT instead!))
+-endef
+ # filter out the duplicate <source file>:<dest file> pairs.
+ unique_product_copy_files_pairs :=
+ $(foreach cf,$(PRODUCT_COPY_FILES), \
+@@ -189,6 +185,7 @@ $(INSTALLED_BUILD_PROP_TARGET): $(BUILDINFO_SH) $(INTERNAL_BUILD_ID_MAKEFILE) $(
+ 			TARGET_CPU_ABI="$(TARGET_CPU_ABI)" \
+ 			TARGET_CPU_ABI2="$(TARGET_CPU_ABI2)" \
+ 			TARGET_AAPT_CHARACTERISTICS="$(TARGET_AAPT_CHARACTERISTICS)" \
++			$(PRODUCT_BUILD_PROP_OVERRIDES) \
+ 	        bash $(BUILDINFO_SH) > $@
+ 	$(hide) if [ -f "$(system_prop_file)" ]; then \
+ 	          cat $(system_prop_file) >> $@; \
+@@ -1265,10 +1262,16 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
+ 	$(hide) ./build/tools/releasetools/ota_from_target_files -v \
+ 	   -p $(HOST_OUT) \
+ 	   -k $(KEY_CERT_PAIR) \
++       --backup=$(backuptool) \
+ 	   $(BUILT_TARGET_FILES_PACKAGE) $@
++ifneq ($(TARGET_CUSTOM_RELEASETOOL),)
++	@echo "Running releasetool"
++	$(hide) $(TARGET_CUSTOM_RELEASETOOL)
++endif
+ 
+-.PHONY: otapackage
++.PHONY: otapackage bacon
+ otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
++bacon: otapackage
+ 
+ # -----------------------------------------------------------------
+ # The update package
+diff --git a/core/cleanbuild.mk b/core/cleanbuild.mk
+index 1d17f77..5fa49b3 100644
+--- a/core/cleanbuild.mk
++++ b/core/cleanbuild.mk
+@@ -182,6 +182,7 @@ installclean_files := \
+ 	$(PRODUCT_OUT)/*.txt \
+ 	$(PRODUCT_OUT)/*.xlb \
+ 	$(PRODUCT_OUT)/*.zip \
++	$(PRODUCT_OUT)/*.zip.md5sum \
+ 	$(PRODUCT_OUT)/data \
+ 	$(PRODUCT_OUT)/obj/APPS \
+ 	$(PRODUCT_OUT)/obj/NOTICE_FILES \
+diff --git a/core/envsetup.mk b/core/envsetup.mk
+index f861586..5cd2e03 100644
+--- a/core/envsetup.mk
++++ b/core/envsetup.mk
+@@ -139,8 +139,12 @@ endif
+ 
+ ifeq (,$(strip $(OUT_DIR)))
+ ifeq (,$(strip $(OUT_DIR_COMMON_BASE)))
++ifneq ($(TOPDIR),)
+ OUT_DIR := $(TOPDIR)out
+ else
++OUT_DIR := $(shell python -c 'import os,sys; print os.path.realpath(sys.argv[1])' .)/out
++endif
++else
+ OUT_DIR := $(OUT_DIR_COMMON_BASE)/$(notdir $(PWD))
+ endif
+ endif
+diff --git a/core/main.mk b/core/main.mk
+index e03801c..b0d2316 100644
+--- a/core/main.mk
++++ b/core/main.mk
+@@ -44,10 +44,9 @@ ifeq (0,$(shell expr $$(echo $(MAKE_VERSION) | sed "s/[^0-9\.].*//") = 3.81))
+ ifeq (0,$(shell expr $$(echo $(MAKE_VERSION) | sed "s/[^0-9\.].*//") = 3.82))
+ $(warning ********************************************************************************)
+ $(warning *  You are using version $(MAKE_VERSION) of make.)
+-$(warning *  Android can only be built by versions 3.81 and 3.82.)
++$(warning *  Android is tested to build with versions 3.81 and 3.82.)
+ $(warning *  see https://source.android.com/source/download.html)
+ $(warning ********************************************************************************)
+-$(error stopping)
+ endif
+ endif
+ endif
+@@ -155,7 +154,7 @@ endif
+ java_version := $(shell java -version 2>&1 | head -n 1 | grep '^java .*[ "]1\.6[\. "$$]')
+ ifeq ($(strip $(java_version)),)
+ $(info ************************************************************)
+-$(info You are attempting to build with the incorrect version)
++$(info You are attempting to build with an unsupported version)
+ $(info of java.)
+ $(info $(space))
+ $(info Your version is: $(shell java -version 2>&1 | head -n 1).)
+@@ -164,7 +163,6 @@ $(info $(space))
+ $(info Please follow the machine setup instructions at)
+ $(info $(space)$(space)$(space)$(space)https://source.android.com/source/download.html)
+ $(info ************************************************************)
+-$(error stop)
+ endif
+ 
+ # Check for the correct version of javac
+@@ -890,7 +888,7 @@ findbugs: $(INTERNAL_FINDBUGS_HTML_TARGET) $(INTERNAL_FINDBUGS_XML_TARGET)
+ 
+ .PHONY: clean
+ clean:
+-	@rm -rf $(OUT_DIR)
++	@rm -rf $(OUT_DIR)/*
+ 	@echo "Entire build directory removed."
+ 
+ .PHONY: clobber
+diff --git a/core/product.mk b/core/product.mk
+index bbd0c31..488d6f9 100644
+--- a/core/product.mk
++++ b/core/product.mk
+@@ -65,6 +65,7 @@ endef
+ #
+ 
+ _product_var_list := \
++    PRODUCT_BUILD_PROP_OVERRIDES \
+     PRODUCT_NAME \
+     PRODUCT_MODEL \
+     PRODUCT_LOCALES \
+diff --git a/core/product_config.mk b/core/product_config.mk
+index bfbdf78..83bec1e 100644
+--- a/core/product_config.mk
++++ b/core/product_config.mk
+@@ -339,6 +339,9 @@ PRODUCT_PROPERTY_OVERRIDES := \
+ PRODUCT_DEFAULT_PROPERTY_OVERRIDES := \
+     $(strip $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_DEFAULT_PROPERTY_OVERRIDES))
+ 
++PRODUCT_BUILD_PROP_OVERRIDES := \
++	$(strip $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_BUILD_PROP_OVERRIDES))
++
+ # Should we use the default resources or add any product specific overlays
+ PRODUCT_PACKAGE_OVERLAYS := \
+     $(strip $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_PACKAGE_OVERLAYS))
+diff --git a/core/tasks/vendor_module_check.mk b/core/tasks/vendor_module_check.mk
+index fcf2bbe..2122e21 100644
+--- a/core/tasks/vendor_module_check.mk
++++ b/core/tasks/vendor_module_check.mk
+@@ -53,44 +53,7 @@ endef
+ $(call expand-required-shared-libraries,$(_vendor_check_modules))
+ 
+ _vendor_module_owner_info :=
+-# Restrict owners
+-ifneq (,$(filter true owner all, $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_RESTRICT_VENDOR_FILES)))
+ 
+-ifneq (,$(filter vendor/%, $(PRODUCT_PACKAGE_OVERLAYS) $(DEVICE_PACKAGE_OVERLAYS)))
+-$(error Error: Product "$(TARGET_PRODUCT)" cannot have overlay in vendor tree: \
+-    $(filter vendor/%, $(PRODUCT_PACKAGE_OVERLAYS) $(DEVICE_PACKAGE_OVERLAYS)))
+-endif
+-_vendor_check_copy_files := $(filter vendor/%, $(PRODUCT_COPY_FILES))
+-ifneq (,$(_vendor_check_copy_files))
+-$(foreach c, $(_vendor_check_copy_files), \
+-  $(if $(filter $(_vendor_owner_whitelist), $(call word-colon,3,$(c))),,\
+-    $(error Error: vendor PRODUCT_COPY_FILES file "$(c)" has unknown owner))\
+-  $(eval _vendor_module_owner_info += $(call word-colon,2,$(c)):$(call word-colon,3,$(c))))
+-endif
+-_vendor_check_copy_files :=
+-
+-$(foreach m, $(_vendor_check_modules), \
+-  $(if $(filter vendor/%, $(ALL_MODULES.$(m).PATH)),\
+-    $(if $(filter $(_vendor_owner_whitelist), $(ALL_MODULES.$(m).OWNER)),,\
+-      $(error Error: vendor module "$(m)" in $(ALL_MODULES.$(m).PATH) with unknown owner \
+-        "$(ALL_MODULES.$(m).OWNER)" in product "$(TARGET_PRODUCT)"))\
+-    $(if $(ALL_MODULES.$(m).INSTALLED),\
+-      $(eval _vendor_module_owner_info += $(patsubst $(PRODUCT_OUT)/%,%,$(ALL_MODULES.$(m).INSTALLED)):$(ALL_MODULES.$(m).OWNER)))))
+-
+-endif
+-
+-
+-# Restrict paths
+-ifneq (,$(filter path all, $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_RESTRICT_VENDOR_FILES)))
+-
+-$(foreach m, $(_vendor_check_modules), \
+-  $(if $(filter vendor/%, $(ALL_MODULES.$(m).PATH)),\
+-    $(if $(filter $(TARGET_OUT_VENDOR)/%, $(ALL_MODULES.$(m).INSTALLED)),,\
+-      $(error Error: vendor module "$(m)" in $(ALL_MODULES.$(m).PATH) \
+-        in product "$(TARGET_PRODUCT)" being installed to \
+-        $(ALL_MODULES.$(m).INSTALLED) which is not in the vendor tree))))
+-
+-endif
+ 
+ _vendor_module_owner_info_txt := $(call intermediates-dir-for,PACKAGING,vendor_owner_info)/vendor_owner_info.txt
+ $(_vendor_module_owner_info_txt): PRIVATE_INFO := $(_vendor_module_owner_info)
+diff --git a/envsetup.sh b/envsetup.sh
+index 2de2375..8d7dabb 100644
+--- a/envsetup.sh
++++ b/envsetup.sh
+@@ -81,6 +81,18 @@ function check_variant()
+     return 1
+ }
+ 
++#credit cm
++function mka() {
++    case `uname -s` in
++        Darwin)
++            make -j `sysctl hw.ncpu|cut -d" " -f2` "$@"
++            ;;
++        *)
++            schedtool -B -n 1 -e ionice -n 1 make -j `cat /proc/cpuinfo | grep "^processor" | wc -l` "$@"
++            ;;
++    esac
++}
++
+ function setpaths()
+ {
+     T=$(gettop)
+diff --git a/tools/releasetools/edify_generator.py b/tools/releasetools/edify_generator.py
+index 5672b5a..b882f37 100644
+--- a/tools/releasetools/edify_generator.py
++++ b/tools/releasetools/edify_generator.py
+@@ -99,6 +99,16 @@ class EdifyGenerator(object):
+            ");")
+     self.script.append(self._WordWrap(cmd))
+ 
++  def RunBackup(self, command):
++    self.script.append('package_extract_file("system/bin/backuptool.sh", "/tmp/backuptool.sh");')
++    self.script.append('package_extract_file("system/bin/backuptool.functions", "/tmp/backuptool.functions");')
++    self.script.append('set_perm(0, 0, 0777, "/tmp/backuptool.sh");')
++    self.script.append('set_perm(0, 0, 0644, "/tmp/backuptool.functions");')
++    self.script.append(('run_program("/tmp/backuptool.sh", "%s");' % command))
++    if command == "restore":
++        self.script.append('delete("/system/bin/backuptool.sh");')
++        self.script.append('delete("/system/bin/backuptool.functions");')
++
+   def ShowProgress(self, frac, dur):
+     """Update the progress bar, advancing it over 'frac' over the next
+     'dur' seconds.  'dur' may be zero to advance it via SetProgress
+@@ -141,6 +151,12 @@ class EdifyGenerator(object):
+                           p.device, p.mount_point))
+       self.mounts.add(p.mount_point)
+ 
++  def Unmount(self, mount_point):
++    """Unmount the partiiton with the given mount_point."""
++    if mount_point in self.mounts:
++      self.mounts.remove(mount_point)
++      self.script.append('unmount("%s");' % (mount_point,))
++
+   def UnpackPackageDir(self, src, dst):
+     """Unpack a given directory from the OTA package into the given
+     destination directory."""
+diff --git a/tools/releasetools/ota_from_target_files b/tools/releasetools/ota_from_target_files
+index e0d5d91..6ac52d3 100755
+--- a/tools/releasetools/ota_from_target_files
++++ b/tools/releasetools/ota_from_target_files
+@@ -52,6 +52,10 @@ Usage:  ota_from_target_files [flags] input_target_files output_ota_package
+   -a  (--aslr_mode)  <on|off>
+       Specify whether to turn on ASLR for the package (on by default).
+ 
++  --backup <boolean>
++      Enable or disable the execution of backuptool.sh.
++      Disabled by default.
++
+ """
+ 
+ import sys
+@@ -88,6 +92,7 @@ OPTIONS.omit_prereq = False
+ OPTIONS.extra_script = None
+ OPTIONS.aslr_mode = True
+ OPTIONS.worker_threads = 3
++OPTIONS.backuptool = True
+ 
+ def MostPopularKey(d, default):
+   """Given a dict, return the key corresponding to the largest
+@@ -101,7 +106,7 @@ def MostPopularKey(d, default):
+ def IsSymlink(info):
+   """Return true if the zipfile.ZipInfo object passed in represents a
+   symlink."""
+-  return (info.external_attr >> 16) == 0120777
++  return (info.external_attr >> 16) & 0770000 == 0120000
+ 
+ def IsRegular(info):
+   """Return true if the zipfile.ZipInfo object passed in represents a
+@@ -385,14 +390,15 @@ def WriteFullOTAPackage(input_zip, output_zip):
+       metadata=metadata,
+       info_dict=OPTIONS.info_dict)
+ 
+-  if not OPTIONS.omit_prereq:
+-    ts = GetBuildProp("ro.build.date.utc", OPTIONS.info_dict)
+-    script.AssertOlderBuild(ts)
+-
+   AppendAssertions(script, OPTIONS.info_dict)
+   device_specific.FullOTA_Assertions()
+   device_specific.FullOTA_InstallBegin()
+ 
++  if OPTIONS.backuptool:
++    script.Mount("/system")
++    script.RunBackup("backup")
++    script.Unmount("/system")
++
+   script.ShowProgress(0.5, 0)
+ 
+   if OPTIONS.wipe_user_data:
+@@ -403,7 +409,6 @@ def WriteFullOTAPackage(input_zip, output_zip):
+ 
+   script.FormatPartition("/system")
+   script.Mount("/system")
+-  script.UnpackPackageDir("recovery", "/system")
+   script.UnpackPackageDir("system", "/system")
+ 
+   symlinks = CopySystemFiles(input_zip, output_zip)
+@@ -411,9 +416,6 @@ def WriteFullOTAPackage(input_zip, output_zip):
+ 
+   boot_img = common.GetBootableImage("boot.img", "boot.img",
+                                      OPTIONS.input_tmp, "BOOT")
+-  recovery_img = common.GetBootableImage("recovery.img", "recovery.img",
+-                                         OPTIONS.input_tmp, "RECOVERY")
+-  MakeRecoveryPatch(OPTIONS.input_tmp, output_zip, recovery_img, boot_img)
+ 
+   Item.GetMetadata(input_zip)
+   Item.Get("system").SetPermissions(script)
+@@ -422,6 +424,10 @@ def WriteFullOTAPackage(input_zip, output_zip):
+   common.ZipWriteStr(output_zip, "boot.img", boot_img.data)
+   script.ShowProgress(0.2, 0)
+ 
++  if OPTIONS.backuptool:
++    script.ShowProgress(0.2, 10)
++    script.RunBackup("restore")
++
+   script.ShowProgress(0.2, 10)
+   script.WriteRawImage("/boot", "boot.img")
+ 
+@@ -549,12 +555,7 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
+       "/tmp/boot.img", "boot.img", OPTIONS.target_tmp, "BOOT")
+   updating_boot = (source_boot.data != target_boot.data)
+ 
+-  source_recovery = common.GetBootableImage(
+-      "/tmp/recovery.img", "recovery.img", OPTIONS.source_tmp, "RECOVERY",
+-      OPTIONS.source_info_dict)
+-  target_recovery = common.GetBootableImage(
+-      "/tmp/recovery.img", "recovery.img", OPTIONS.target_tmp, "RECOVERY")
+-  updating_recovery = (source_recovery.data != target_recovery.data)
++  updating_recovery = False
+ 
+   # Here's how we divide up the progress bar:
+   #  0.1 for verifying the start state (PatchCheck calls)
+@@ -696,10 +697,6 @@ def WriteIncrementalOTAPackage(target_zip, source_zip, output_zip):
+     script.Print("Unpacking new files...")
+     script.UnpackPackageDir("system", "/system")
+ 
+-  if updating_recovery:
+-    script.Print("Unpacking new recovery...")
+-    script.UnpackPackageDir("recovery", "/system")
+-
+   script.Print("Symlinks and permissions...")
+ 
+   # Create all the symlinks that don't already exist, or point to
+@@ -760,6 +757,8 @@ def main(argv):
+         OPTIONS.aslr_mode = False
+     elif o in ("--worker_threads"):
+       OPTIONS.worker_threads = int(a)
++    elif o in ("--backup"):
++      OPTIONS.backuptool = True
+     else:
+       return False
+     return True
+@@ -774,6 +773,7 @@ def main(argv):
+                                               "extra_script=",
+                                               "worker_threads=",
+                                               "aslr_mode=",
++                                              "backup=",
+                                               ],
+                              extra_option_handler=option_handler)
+ 
+-- 
+1.8.3.4
+

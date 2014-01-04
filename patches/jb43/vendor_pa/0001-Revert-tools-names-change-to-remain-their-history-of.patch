@@ -1,0 +1,578 @@
+From f1ce8a1b2e3796bd7e5abdbabf4052c6a3da3dfe Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Fri, 9 Aug 2013 17:29:16 +0300
+Subject: [PATCH 1/6] Revert tools names change to remain their history of
+ changes tools/{add,remove}repos.py => tools/{removeprojects,addprojects}.py
+
+Thanks to Jon for pointing out.
+
+Change-Id: Ib84eb66805a7afe2a6c3a860daa8dd3baffbae76
+---
+ config/pa_addons.mk     |   4 +-
+ tools/addprojects.py    | 150 ++++++++++++++++++++++++++++++++++++++++++++++++
+ tools/addrepos.py       | 150 ------------------------------------------------
+ tools/removeprojects.py | 109 +++++++++++++++++++++++++++++++++++
+ tools/removerepos.py    | 109 -----------------------------------
+ 5 files changed, 261 insertions(+), 261 deletions(-)
+ create mode 100755 tools/addprojects.py
+ delete mode 100755 tools/addrepos.py
+ create mode 100755 tools/removeprojects.py
+ delete mode 100755 tools/removerepos.py
+
+diff --git a/config/pa_addons.mk b/config/pa_addons.mk
+index b4168f9..5ee454b 100644
+--- a/config/pa_addons.mk
++++ b/config/pa_addons.mk
+@@ -9,5 +9,5 @@ REPOS_LIST += cm
+ endif
+ 
+ # Remove/Get extra repos (roomservice.xml)
+-ADD_REPOS := $(shell vendor/pa/tools/removerepos.py $(REPOS_LIST))
+-REMOVE_REPOS := $(shell vendor/pa/tools/addrepos.py $(REPOS_LIST))
++REMOVE_REPOS := $(shell vendor/pa/tools/removeprojects.py $(REPOS_LIST))
++ADD_REPOS    := $(shell vendor/pa/tools/addprojects.py    $(REPOS_LIST))
+diff --git a/tools/addprojects.py b/tools/addprojects.py
+new file mode 100755
+index 0000000..0d7426c
+--- /dev/null
++++ b/tools/addprojects.py
+@@ -0,0 +1,150 @@
++#!/usr/bin/env python
++import os
++import sys
++import urllib2
++import json
++import re
++from xml.etree import ElementTree
++
++syncable_repos = []
++
++def exists_in_tree(lm, repository):
++    for child in lm.getchildren():
++        if child.attrib['name'].endswith(repository):
++            return True
++    return False
++
++# in-place prettyprint formatter
++def indent(elem, level=0):
++    i = "\n" + level*"  "
++    if len(elem):
++        if not elem.text or not elem.text.strip():
++            elem.text = i + "  "
++        if not elem.tail or not elem.tail.strip():
++            elem.tail = i
++        for elem in elem:
++            indent(elem, level+1)
++        if not elem.tail or not elem.tail.strip():
++            elem.tail = i
++    else:
++        if level and (not elem.tail or not elem.tail.strip()):
++            elem.tail = i
++
++def is_in_manifest(projectname, type=""):
++    try:
++        lm = ElementTree.parse(".repo/local_manifests/roomservice.xml")
++        lm = lm.getroot()
++    except:
++        lm = ElementTree.Element("manifest")
++
++    if type == "remove":
++        for localpath in lm.findall("remove-project"):
++            if localpath.get("name")[localpath.get("name").find('/')+1:] == projectname:
++                return 1
++    else:
++        for localpath in lm.findall("project"):
++            if localpath.get("name") == projectname:
++                return 1
++
++    return None
++
++def add_to_manifest(repositories):
++    if not os.path.exists(".repo/local_manifests/"):
++        os.makedirs(".repo/local_manifests/")
++
++    try:
++        lm = ElementTree.parse(".repo/local_manifests/roomservice.xml")
++        lm = lm.getroot()
++    except:
++        lm = ElementTree.Element("manifest")
++
++    for repository in repositories:
++        repo_name = repository['repository']
++        repo_target = repository['target_path']
++
++        try:
++            repo_remote = repository['remote']
++        except:
++            repo_remote = "github"
++
++        try:
++            repo_revision = repository['revision']
++        except:
++            repo_revision = "jb43"
++
++        try:
++            repo_account = repository['account']
++            repo_full = repo_account + '/' + repo_name
++        except:
++            repo_full = repo_name
++
++        if exists_in_tree(lm, repo_full):
++            if is_in_manifest(repo_name, "remove"):
++                print '%s exists but as remove-project' % repo_full
++            else:
++                print '%s already exists' % repo_full
++                continue
++
++        print 'Adding project: %s -> %s' % (repo_full, repo_target)
++        project = ElementTree.Element("project", attrib = { "path": repo_target,
++            "remote": repo_remote, "name": repo_full, "revision": repo_revision })
++
++        if 'branch' in repository:
++            project.set('revision',repository['branch'])
++
++        lm.append(project)
++
++    indent(lm, 0)
++    raw_xml = ElementTree.tostring(lm)
++    raw_xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + raw_xml
++
++    f = open('.repo/local_manifests/roomservice.xml', 'w')
++    f.write(raw_xml)
++    f.close()
++
++def fetch_extras(def_file):
++    print 'Looking for add projects entries'
++    projects_path = 'vendor/pa/manifests/' + def_file
++
++
++    if os.path.exists(projects_path):
++        projects_file = open(projects_path, 'r')
++        projects = json.loads(projects_file.read())
++        fetch_list = []
++
++        for project in projects:
++            try:
++                repo_account = project['account']
++                repo_full = repo_account + '/' + project['repository']
++            except:
++                repo_full = project['repository']
++
++            print '  Check for %s in local_manifest' % repo_full
++            if not is_in_manifest(repo_full):
++                print 'Appending %s to fetch_list and %s to syncable_repos' % (repo_full, project['target_path'])
++                fetch_list.append(project)
++                syncable_repos.append(project['target_path'])
++            else:
++                print '  %s already in local_manifest' % repo_full
++
++        projects_file.close()
++
++        if len(fetch_list) > 0:
++            print 'Adding projects to local_manifest'
++            add_to_manifest(fetch_list)
++    else:
++        print 'add projects definition file not found, bailing out.'
++
++for target in sys.argv[1:]:
++    try:
++        def_file = target[target.index("_") + 1:]
++        def_file = def_file + ".adds"
++    except:
++        def_file = target + ".adds"
++
++    print 'Add projects definition from %s' % def_file
++    fetch_extras(def_file)
++
++if len(syncable_repos) > 0:
++    print 'Syncing projects'
++    os.system('repo sync %s' % ' '.join(syncable_repos))
+diff --git a/tools/addrepos.py b/tools/addrepos.py
+deleted file mode 100755
+index 0d7426c..0000000
+--- a/tools/addrepos.py
++++ /dev/null
+@@ -1,150 +0,0 @@
+-#!/usr/bin/env python
+-import os
+-import sys
+-import urllib2
+-import json
+-import re
+-from xml.etree import ElementTree
+-
+-syncable_repos = []
+-
+-def exists_in_tree(lm, repository):
+-    for child in lm.getchildren():
+-        if child.attrib['name'].endswith(repository):
+-            return True
+-    return False
+-
+-# in-place prettyprint formatter
+-def indent(elem, level=0):
+-    i = "\n" + level*"  "
+-    if len(elem):
+-        if not elem.text or not elem.text.strip():
+-            elem.text = i + "  "
+-        if not elem.tail or not elem.tail.strip():
+-            elem.tail = i
+-        for elem in elem:
+-            indent(elem, level+1)
+-        if not elem.tail or not elem.tail.strip():
+-            elem.tail = i
+-    else:
+-        if level and (not elem.tail or not elem.tail.strip()):
+-            elem.tail = i
+-
+-def is_in_manifest(projectname, type=""):
+-    try:
+-        lm = ElementTree.parse(".repo/local_manifests/roomservice.xml")
+-        lm = lm.getroot()
+-    except:
+-        lm = ElementTree.Element("manifest")
+-
+-    if type == "remove":
+-        for localpath in lm.findall("remove-project"):
+-            if localpath.get("name")[localpath.get("name").find('/')+1:] == projectname:
+-                return 1
+-    else:
+-        for localpath in lm.findall("project"):
+-            if localpath.get("name") == projectname:
+-                return 1
+-
+-    return None
+-
+-def add_to_manifest(repositories):
+-    if not os.path.exists(".repo/local_manifests/"):
+-        os.makedirs(".repo/local_manifests/")
+-
+-    try:
+-        lm = ElementTree.parse(".repo/local_manifests/roomservice.xml")
+-        lm = lm.getroot()
+-    except:
+-        lm = ElementTree.Element("manifest")
+-
+-    for repository in repositories:
+-        repo_name = repository['repository']
+-        repo_target = repository['target_path']
+-
+-        try:
+-            repo_remote = repository['remote']
+-        except:
+-            repo_remote = "github"
+-
+-        try:
+-            repo_revision = repository['revision']
+-        except:
+-            repo_revision = "jb43"
+-
+-        try:
+-            repo_account = repository['account']
+-            repo_full = repo_account + '/' + repo_name
+-        except:
+-            repo_full = repo_name
+-
+-        if exists_in_tree(lm, repo_full):
+-            if is_in_manifest(repo_name, "remove"):
+-                print '%s exists but as remove-project' % repo_full
+-            else:
+-                print '%s already exists' % repo_full
+-                continue
+-
+-        print 'Adding project: %s -> %s' % (repo_full, repo_target)
+-        project = ElementTree.Element("project", attrib = { "path": repo_target,
+-            "remote": repo_remote, "name": repo_full, "revision": repo_revision })
+-
+-        if 'branch' in repository:
+-            project.set('revision',repository['branch'])
+-
+-        lm.append(project)
+-
+-    indent(lm, 0)
+-    raw_xml = ElementTree.tostring(lm)
+-    raw_xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + raw_xml
+-
+-    f = open('.repo/local_manifests/roomservice.xml', 'w')
+-    f.write(raw_xml)
+-    f.close()
+-
+-def fetch_extras(def_file):
+-    print 'Looking for add projects entries'
+-    projects_path = 'vendor/pa/manifests/' + def_file
+-
+-
+-    if os.path.exists(projects_path):
+-        projects_file = open(projects_path, 'r')
+-        projects = json.loads(projects_file.read())
+-        fetch_list = []
+-
+-        for project in projects:
+-            try:
+-                repo_account = project['account']
+-                repo_full = repo_account + '/' + project['repository']
+-            except:
+-                repo_full = project['repository']
+-
+-            print '  Check for %s in local_manifest' % repo_full
+-            if not is_in_manifest(repo_full):
+-                print 'Appending %s to fetch_list and %s to syncable_repos' % (repo_full, project['target_path'])
+-                fetch_list.append(project)
+-                syncable_repos.append(project['target_path'])
+-            else:
+-                print '  %s already in local_manifest' % repo_full
+-
+-        projects_file.close()
+-
+-        if len(fetch_list) > 0:
+-            print 'Adding projects to local_manifest'
+-            add_to_manifest(fetch_list)
+-    else:
+-        print 'add projects definition file not found, bailing out.'
+-
+-for target in sys.argv[1:]:
+-    try:
+-        def_file = target[target.index("_") + 1:]
+-        def_file = def_file + ".adds"
+-    except:
+-        def_file = target + ".adds"
+-
+-    print 'Add projects definition from %s' % def_file
+-    fetch_extras(def_file)
+-
+-if len(syncable_repos) > 0:
+-    print 'Syncing projects'
+-    os.system('repo sync %s' % ' '.join(syncable_repos))
+diff --git a/tools/removeprojects.py b/tools/removeprojects.py
+new file mode 100755
+index 0000000..38837b5
+--- /dev/null
++++ b/tools/removeprojects.py
+@@ -0,0 +1,109 @@
++#!/usr/bin/env python
++import os
++import sys
++import urllib2
++import json
++import re
++from xml.etree import ElementTree
++
++def exists_in_tree(lm, repository):
++    for child in lm.getchildren():
++        if child.attrib['name'].endswith(repository):
++            return True
++    return False
++
++# in-place prettyprint formatter
++def indent(elem, level=0):
++    i = "\n" + level*"  "
++    if len(elem):
++        if not elem.text or not elem.text.strip():
++            elem.text = i + "  "
++        if not elem.tail or not elem.tail.strip():
++            elem.tail = i
++        for elem in elem:
++            indent(elem, level+1)
++        if not elem.tail or not elem.tail.strip():
++            elem.tail = i
++    else:
++        if level and (not elem.tail or not elem.tail.strip()):
++            elem.tail = i
++
++def is_in_manifest(projectname):
++    try:
++        lm = ElementTree.parse(".repo/local_manifests/roomservice.xml")
++        lm = lm.getroot()
++    except:
++        lm = ElementTree.Element("manifest")
++
++    for localpath in lm.findall("remove-project"):
++        if localpath.get("name") == projectname:
++            return 1
++
++    return None
++
++def add_to_manifest(repositories):
++    if not os.path.exists(".repo/local_manifests/"):
++        os.makedirs(".repo/local_manifests/")
++
++    try:
++        lm = ElementTree.parse(".repo/local_manifests/roomservice.xml")
++        lm = lm.getroot()
++    except:
++        lm = ElementTree.Element("manifest")
++
++    for repository in repositories:
++        repo_name = repository['name']
++        if exists_in_tree(lm, repo_name):
++            print '%s already exists' % repo_name
++            continue
++
++        print 'Adding remove-project: %s' % (repo_name)
++        project = ElementTree.Element("remove-project", attrib = { "name": repo_name })
++
++        if 'branch' in repository:
++            project.set('revision',repository['branch'])
++
++        lm.insert(0,project)
++
++    indent(lm, 0)
++    raw_xml = ElementTree.tostring(lm)
++    raw_xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + raw_xml
++
++    f = open('.repo/local_manifests/roomservice.xml', 'w')
++    f.write(raw_xml)
++    f.close()
++
++def process_removes(def_file):
++    print 'Looking for remove projects entries'
++    projects_path = 'vendor/pa/manifests/' + def_file
++
++    if os.path.exists(projects_path):
++        projects_file = open(projects_path, 'r')
++        projects = json.loads(projects_file.read())
++        fetch_list = []
++
++        for project in projects:
++            repo_name = project['name']
++            print '  Check for %s in local_manifest' % repo_name
++            if not is_in_manifest(repo_name):
++                fetch_list.append(project)
++            else:
++                print '  %s already in local_manifest' % repo_name
++
++        projects_file.close()
++
++        if len(fetch_list) > 0:
++            print 'Adding remove-project entries to local_manifest'
++            add_to_manifest(fetch_list)
++    else:
++        print 'remove projects definition file not found, bailing out.'
++
++for target in sys.argv[1:]:
++    try:
++        def_file = target[target.index("_") + 1:]
++        def_file = def_file + ".removes"
++    except:
++        def_file = target + ".removes"
++
++    print 'Remove projects definition from %s' % def_file
++    process_removes(def_file)
+diff --git a/tools/removerepos.py b/tools/removerepos.py
+deleted file mode 100755
+index 38837b5..0000000
+--- a/tools/removerepos.py
++++ /dev/null
+@@ -1,109 +0,0 @@
+-#!/usr/bin/env python
+-import os
+-import sys
+-import urllib2
+-import json
+-import re
+-from xml.etree import ElementTree
+-
+-def exists_in_tree(lm, repository):
+-    for child in lm.getchildren():
+-        if child.attrib['name'].endswith(repository):
+-            return True
+-    return False
+-
+-# in-place prettyprint formatter
+-def indent(elem, level=0):
+-    i = "\n" + level*"  "
+-    if len(elem):
+-        if not elem.text or not elem.text.strip():
+-            elem.text = i + "  "
+-        if not elem.tail or not elem.tail.strip():
+-            elem.tail = i
+-        for elem in elem:
+-            indent(elem, level+1)
+-        if not elem.tail or not elem.tail.strip():
+-            elem.tail = i
+-    else:
+-        if level and (not elem.tail or not elem.tail.strip()):
+-            elem.tail = i
+-
+-def is_in_manifest(projectname):
+-    try:
+-        lm = ElementTree.parse(".repo/local_manifests/roomservice.xml")
+-        lm = lm.getroot()
+-    except:
+-        lm = ElementTree.Element("manifest")
+-
+-    for localpath in lm.findall("remove-project"):
+-        if localpath.get("name") == projectname:
+-            return 1
+-
+-    return None
+-
+-def add_to_manifest(repositories):
+-    if not os.path.exists(".repo/local_manifests/"):
+-        os.makedirs(".repo/local_manifests/")
+-
+-    try:
+-        lm = ElementTree.parse(".repo/local_manifests/roomservice.xml")
+-        lm = lm.getroot()
+-    except:
+-        lm = ElementTree.Element("manifest")
+-
+-    for repository in repositories:
+-        repo_name = repository['name']
+-        if exists_in_tree(lm, repo_name):
+-            print '%s already exists' % repo_name
+-            continue
+-
+-        print 'Adding remove-project: %s' % (repo_name)
+-        project = ElementTree.Element("remove-project", attrib = { "name": repo_name })
+-
+-        if 'branch' in repository:
+-            project.set('revision',repository['branch'])
+-
+-        lm.insert(0,project)
+-
+-    indent(lm, 0)
+-    raw_xml = ElementTree.tostring(lm)
+-    raw_xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + raw_xml
+-
+-    f = open('.repo/local_manifests/roomservice.xml', 'w')
+-    f.write(raw_xml)
+-    f.close()
+-
+-def process_removes(def_file):
+-    print 'Looking for remove projects entries'
+-    projects_path = 'vendor/pa/manifests/' + def_file
+-
+-    if os.path.exists(projects_path):
+-        projects_file = open(projects_path, 'r')
+-        projects = json.loads(projects_file.read())
+-        fetch_list = []
+-
+-        for project in projects:
+-            repo_name = project['name']
+-            print '  Check for %s in local_manifest' % repo_name
+-            if not is_in_manifest(repo_name):
+-                fetch_list.append(project)
+-            else:
+-                print '  %s already in local_manifest' % repo_name
+-
+-        projects_file.close()
+-
+-        if len(fetch_list) > 0:
+-            print 'Adding remove-project entries to local_manifest'
+-            add_to_manifest(fetch_list)
+-    else:
+-        print 'remove projects definition file not found, bailing out.'
+-
+-for target in sys.argv[1:]:
+-    try:
+-        def_file = target[target.index("_") + 1:]
+-        def_file = def_file + ".removes"
+-    except:
+-        def_file = target + ".removes"
+-
+-    print 'Remove projects definition from %s' % def_file
+-    process_removes(def_file)
+-- 
+1.8.3.4
+

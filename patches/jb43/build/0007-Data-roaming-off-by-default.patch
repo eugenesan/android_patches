@@ -1,0 +1,26 @@
+From 12030169caa28d209a73df86904658236a4d432e Mon Sep 17 00:00:00 2001
+From: drcmda <drcmda@gmail.com>
+Date: Wed, 27 Mar 2013 23:30:36 +0000
+Subject: [PATCH 07/10] Data roaming off by default
+
+Change-Id: I258ae1120cbcd2a500b825f6295087e68b245ae9
+---
+ target/product/full_base_telephony.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/target/product/full_base_telephony.mk b/target/product/full_base_telephony.mk
+index f98e9a2..5ddb6d7 100644
+--- a/target/product/full_base_telephony.mk
++++ b/target/product/full_base_telephony.mk
+@@ -24,7 +24,7 @@ PRODUCT_PACKAGES := \
+ 
+ PRODUCT_PROPERTY_OVERRIDES := \
+     keyguard.no_require_sim=true \
+-    ro.com.android.dataroaming=true
++    ro.com.android.dataroaming=false
+ 
+ PRODUCT_COPY_FILES := \
+     device/generic/goldfish/data/etc/apns-conf.xml:system/etc/apns-conf.xml
+-- 
+1.8.3.4
+

@@ -1,0 +1,256 @@
+From 1ace87a609eba55cda440e0bd765d7d952afa427 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Wed, 23 Jan 2013 11:10:57 +0200
+Subject: [PATCH 6/6] Colorize squisher (to align output with build) and retire
+ opticharger (too much work with almost zero result)
+
+Change-Id: Ibfadb50ba0052a4249faf8b597e7daf6aa83cde5
+---
+ tools/opticharger | 150 ------------------------------------------------------
+ tools/squisher    |  30 ++++++-----
+ tools/squisher.rm |   0
+ 3 files changed, 17 insertions(+), 163 deletions(-)
+ delete mode 100755 tools/opticharger
+ delete mode 100644 tools/squisher.rm
+
+diff --git a/tools/opticharger b/tools/opticharger
+deleted file mode 100755
+index c8c86f5..0000000
+--- a/tools/opticharger
++++ /dev/null
+@@ -1,150 +0,0 @@
+-#!/bin/sh
+-#
+-# Super-mega opticharger of doom
+-# Shrinks apks by running pngcrush or optipng or pngout on png images
+-#
+-# Point APKCERTS at the full path to a generated apkcerts.txt file, such as:
+-# /home/shade/dev/sources/android-cm-eclair/out/target/product/dream_sapphire/obj/PACKAGING/target_files_intermediates/cyanogen_dream_sapphire-target_files-eng.shade/META/apkcerts.txt
+-#
+-# cyanogen - shade@chemlab.org
+-# ChrisSoyars - me@ctso.me
+-
+-OUT_TARGET_HOST=$(uname -a | grep Darwin)
+-if [ -z "$OUT_TARGET_HOST" ]
+-then
+-    OUT_TARGET_HOST=linux-x86
+-else
+-    OUT_TARGET_HOST=darwin-x86
+-fi
+-
+-set -e
+-QUIET=1
+-BASE=`pwd`
+-BRUTECRUSH="-brute"
+-TMPDIR=/tmp/opticharge-$$
+-
+-if [ -z "$BRUTE_PNGCRUSH" ]
+-then
+-    BRUTECRUSH=""
+-fi
+-
+-if [ "$APKCERTS" = "" ];
+-then
+-    if [ "$TARGET_BUILD_VARIANT" = "userdebug" ]; then
+-       TARGET_BUILD_VARIANT="eng"
+-    fi
+-
+-    APKCERTS=$OUT/obj/PACKAGING/target_files_intermediates/$TARGET_PRODUCT-target_files-$TARGET_BUILD_VARIANT.$USER/META/apkcerts.txt
+-    if [ ! -f "$APKCERTS" ];
+-    then
+-        echo "Set APKCERTS to the path to your apkcerts.txt file"
+-        exit 1;
+-    fi
+-fi
+-
+-if [ ! -f "$APKCERTS" ];
+-then
+-    echo "Invalid path to apkcerts.txt, set APKCERTS to the correct path."
+-fi
+-
+-if [ "$(which pngcrush)" != "" ];
+-then
+-    optimize_png () {
+-        pngcrush -q ${BRUTECRUSH} $1 ${1}.out 1> /dev/null 2> /dev/null
+-        mv ${1}.out ${1}
+-    }
+-elif [ "$(which optipng)" != "" ];
+-then
+-    optimize_png () {
+-        optipng -o7 -quiet $1 1> /dev/null 2> /dev/null
+-    }
+-elif [ "$(which pngout-static)" != "" ];
+-then
+-    optimize_png () {
+-        pngout-static $1
+-    }
+-elif [ "$(which pngout)" != "" ];
+-then
+-    optimize_png () {
+-        pngout $1
+-    }
+-else
+-    echo "Please install pngcrush, optipng, or pngout"
+-    exit 1;
+-fi
+-
+-if [ "`which aapt`" = "" ];
+-then
+-    echo "Please ensure aapt is in your \$PATH"
+-    exit 1;
+-fi
+-
+-if [ "`which zipalign`" = "" ];
+-then
+-    echo "Please ensure zipalign is in your \$PATH"
+-    exit 1;
+-fi
+-
+-if [ -e "$1" ];
+-then
+-    NAME=`basename $1`;
+-    echo "Optimizing $NAME...";
+-
+-    if [ "$2" != "" ];
+-    then
+-        CERT=build/target/product/security/$2.x509.pem
+-        KEY=build/target/product/security/$2.pk8
+-        if [ ! -f "$ANDROID_BUILD_TOP/$CERT" ];
+-        then
+-            echo "$CERT does not exist!";
+-            exit 1;
+-        fi
+-    else
+-        APKINFO=`grep "name=\"$NAME\"" $APKCERTS`;
+-        [ $QUIET ] || echo "APKINFO: $APKINFO";
+-        if [ "$APKINFO" = "" ];
+-        then
+-            echo "No apk info for $NAME";
+-            exit 1;
+-        fi
+-        CERT=`echo $APKINFO | awk {'print $2'} | cut -f 2 -d "=" | tr -d "\""`;
+-        KEY=`echo $APKINFO | awk {'print $3'} | cut -f 2 -d "=" | tr -d "\""`;
+-        if [ "$CERT" = "" ];
+-        then
+-            echo "Unable to find certificate for $NAME"
+-            exit 1;
+-        fi
+-    fi
+-
+-    [ $QUIET ] || echo "Certificate: $CERT";
+-
+-    [ -d $TMPDIR/$NAME ] && rm -rf $TMPDIR/$NAME
+-    mkdir -p $TMPDIR/$NAME
+-    trap "rm -rf $TMPDIR; exit" INT TERM EXIT
+-    cd $TMPDIR/$NAME
+-    unzip -q $BASE/$1
+-    for x in `find . -name "*.png" | grep -v "\.9.png$" | tr "\n" " "`
+-    do
+-        [ $QUIET ] || echo "Crushing $x"
+-        optimize_png $x
+-    done
+-    cp $BASE/$1 $BASE/$1.old
+-
+-    [ $QUIET ] || echo "Repacking apk.."
+-    aapt p -0 .dat -0 .dict -F $NAME .
+-    
+-    [ $QUIET ] || echo "Resigning with cert: `echo $CERT`"
+-
+-    [ $QUIET ] || echo java -jar $ANDROID_BUILD_TOP/out/host/$OUT_TARGET_HOST/framework/signapk.jar $ANDROID_BUILD_TOP/$CERT $ANDROID_BUILD_TOP/$KEY $NAME signed_$NAME
+-    java -jar $ANDROID_BUILD_TOP/out/host/$OUT_TARGET_HOST/framework/signapk.jar $ANDROID_BUILD_TOP/$CERT $ANDROID_BUILD_TOP/$KEY $NAME signed_$NAME
+-    [ $QUIET ] || echo "Zipalign.."
+-    zipalign -f 4 signed_$NAME $BASE/$1
+-    if [ ! $QUIET ]; then
+-        ls -l $BASE/$1.old
+-        ls -l $BASE/$1
+-    fi
+-    rm $BASE/$1.old
+-else
+-    echo "Usage: $0 [apk file]"
+-fi
+-
+diff --git a/tools/squisher b/tools/squisher
+index cbe20d5..4ef7a23 100755
+--- a/tools/squisher
++++ b/tools/squisher
+@@ -1,9 +1,19 @@
+-#!/bin/sh
++#!/bin/bash
+ #
+-# Squish a CM otapackage for distribution
+-# cyanogen
++# Squish an otapackage for distribution
++# (c) cyanogen
+ #
+ 
++if [ ! "$BUILD_WITH_COLORS" = "0" ]; then
++	CL_RED="\033[31m"
++	CL_GRN="\033[32m"
++	CL_YLW="\033[33m"
++	CL_BLU="\033[34m"
++	CL_MAG="\033[35m"
++	CL_CYN="\033[36m"
++	CL_RST="\033[0m"
++fi
++
+ OUT_TARGET_HOST=`uname -a | grep Darwin`
+ if [ -z "$OUT_TARGET_HOST" ]; then
+ 	OUT_TARGET_HOST=linux-x86
+@@ -18,7 +28,7 @@ else
+ fi
+ 
+ if [ -z "$OUT" -o ! -d "$OUT" ]; then
+-	echo "ERROR: $0 only works with a full build environment. $OUT should exist."
++	echo -e $CL_RED"ERROR: $0 only works with a full build environment. $OUT should exist."$CL_RST
+ 	exit 1
+ fi
+ 
+@@ -31,11 +41,10 @@ else
+ fi
+ 
+ if [ ! -f "$OTAPACKAGE" ]; then
+-	echo "$OTAPACKAGE doesn't exist!";
++	echo -e $CL_RED"$OTAPACKAGE doesn't exist!"$CL_RST;
+ 	exit 1
+ fi
+ 
+-OPTICHARGER=$ANDROID_BUILD_TOP/vendor/pa/tools/opticharger
+ QUIET=-q
+ DELETE_BINS="applypatch applypatch_static check_prereq recovery updater"
+ 
+@@ -45,7 +54,6 @@ rm -rf $REPACK
+ mkdir -p $REPACK
+ echo
+ 
+-
+ # Unpack the otapackage and opticharge all apks
+ mkdir $REPACK/ota
+ (
+@@ -53,10 +61,6 @@ cd $REPACK/ota
+ printf "Unpacking $OTAPACKAGE..."
+ unzip $QUIET $OTAPACKAGE
+ echo
+-cd $REPACK/ota/system/framework
+-$OPTICHARGER framework-res.apk
+-cd $REPACK/ota/system/app
+-find ./ -name \*.apk | $XARGS $OPTICHARGER
+ )
+ 
+ # Fix build.prop
+@@ -134,8 +138,8 @@ img=`basename $OUTFILE`
+ cd `dirname $OUTFILE`
+ $MD5 $img >$img.md5sum
+ echo
+-echo "Package complete: $OUTFILE"
+-cat $img.md5sum
++echo -e $CL_GRN"Package complete: $OUTFILE"$CL_RST
++echo -e $CL_GRN"md5: $(cat $img.md5sum | awk '{ print $1 }')"$CL_RST
+ echo
+ )
+ 
+diff --git a/tools/squisher.rm b/tools/squisher.rm
+deleted file mode 100644
+index e69de29..0000000
+-- 
+1.8.3.4
+

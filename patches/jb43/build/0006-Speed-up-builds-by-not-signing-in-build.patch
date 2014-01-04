@@ -1,0 +1,29 @@
+From 60bdcb724b5748036da8d3e0d3678e59a49ef4b0 Mon Sep 17 00:00:00 2001
+From: aaronpoweruser <atlrudeboi1@gmail.com>
+Date: Mon, 3 Dec 2012 23:37:34 -0500
+Subject: [PATCH 06/10] Speed up builds by not signing in build
+
+Squisher resigns the apks, so no need to double sign.
+
+Change-Id: I036f8933589e598204d873ff15b4918b51435334
+---
+ tools/releasetools/common.py | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/tools/releasetools/common.py b/tools/releasetools/common.py
+index 58582ba..bdbbe34 100644
+--- a/tools/releasetools/common.py
++++ b/tools/releasetools/common.py
+@@ -441,6 +441,9 @@ def SignFile(input_name, output_name, key, password, align=None,
+   zip file.
+   """
+ 
++  shutil.copy(input_name, output_name)
++  return
++
+   if align == 0 or align == 1:
+     align = None
+ 
+-- 
+1.8.3.4
+

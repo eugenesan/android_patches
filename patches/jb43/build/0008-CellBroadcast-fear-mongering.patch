@@ -1,0 +1,26 @@
+From 4b2d466691fcad53d92261a1f6ac86a9bd5dcbac Mon Sep 17 00:00:00 2001
+From: drcmda <drcmda@gmail.com>
+Date: Wed, 7 Aug 2013 12:16:40 +0100
+Subject: [PATCH 08/10] CellBroadcast fear mongering
+
+Change-Id: I25a053658c94f28b9b4bec34e061b5659b2dc96f
+---
+ target/product/telephony.mk | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/target/product/telephony.mk b/target/product/telephony.mk
+index da1497d..368c3d9 100644
+--- a/target/product/telephony.mk
++++ b/target/product/telephony.mk
+@@ -20,6 +20,7 @@
+ PRODUCT_PACKAGES := \
+     Dialer \
+     Mms \
+-    rild
++    rild \
++    CellBroadcastReceiver
+ 
+ PRODUCT_COPY_FILES := \
+-- 
+1.8.3.4
+

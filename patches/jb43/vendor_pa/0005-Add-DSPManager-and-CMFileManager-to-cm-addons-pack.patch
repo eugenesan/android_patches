@@ -1,0 +1,30 @@
+From ec6f539afe2add988d1ed95133c6b33227385850 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Mon, 12 Aug 2013 13:52:50 +0300
+Subject: [PATCH 5/6] Add DSPManager and CMFileManager to cm addons pack
+
+Change-Id: Idaf3bd010087da116de97e21b9738483bd4500e2
+---
+ packages/cm.mk | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/packages/cm.mk b/packages/cm.mk
+index da7f8b1..a92b35a 100644
+--- a/packages/cm.mk
++++ b/packages/cm.mk
+@@ -6,6 +6,12 @@
+ #    Superuser \
+ #    su
+ 
++# Useful CM packages
++PRODUCT_PACKAGES += \
++    CMFileManager \
++    DSPManager \
++    libcyanogen-dsp
++
+ # Optional CM packages
+ #PRODUCT_PACKAGES += \
+ #    VoicePlus \
+-- 
+1.8.3.4
+

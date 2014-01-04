@@ -1,0 +1,128 @@
+diff --git a/overlay/frameworks/base/core/res/res/xml/storage_list.xml b/overlay/frameworks/base/core/res/res/xml/storage_list.xml
+index 44ed062..f8a6bd2 100644
+--- a/overlay/frameworks/base/core/res/res/xml/storage_list.xml
++++ b/overlay/frameworks/base/core/res/res/xml/storage_list.xml
+@@ -33,17 +33,17 @@
+ -->
+ 
+ <StorageList xmlns:android="http://schemas.android.com/apk/res/android">
+-    <storage android:mountPoint="/storage/sdcard0"
++    <storage
+              android:storageDescription="@string/storage_internal"
+              android:primary="true"
+-             android:removable="false"
+-             android:allowMassStorage="true" />
++             android:emulated="true"
++             android:mtpReserve="100" />
+ 
+     <storage android:mountPoint="/storage/sdcard1"
+              android:storageDescription="@string/storage_sd_card"
+              android:primary="false"
+              android:removable="false"
+-             android:allowMassStorage="true" />
++             android:mtpReserve="100" />
+ 
+     <storage android:mountPoint="/storage/usbdisk0"
+              android:storageDescription="@string/storage_usb"
+diff --git a/rootdir/fstab.smdk4210 b/rootdir/fstab.smdk4210
+index e3fd2e4..b81f80e 100755
+--- a/rootdir/fstab.smdk4210
++++ b/rootdir/fstab.smdk4210
+@@ -11,7 +11,6 @@
+ /dev/block/mmcblk0p12                       /preload                ext4      noatime,nosuid,nodev,journal_async_commit                 wait
+ 
+ # vold-managed volumes ("block device" is actually a sysfs devpath)
+-/devices/platform/dw_mmc/mmc_host/mmc0/mmc0 /storage/sdcard0        auto      defaults      voldmanaged=sdcard0:11,nonremovable
+ /devices/platform/s3c-sdhci.2/mmc_host/mmc1 /storage/sdcard1        auto      defaults      voldmanaged=sdcard1:auto
+ /devices/platform/s3c_otghcd/usb            /storage/usbdisk0       auto      defaults      voldmanaged=usbdisk0:auto
+ 
+diff --git a/rootdir/init.smdk4210.rc b/rootdir/init.smdk4210.rc
+index 301e608..1737dab 100644
+--- a/rootdir/init.smdk4210.rc
++++ b/rootdir/init.smdk4210.rc
+@@ -2,10 +2,13 @@ import init.smdk4210.usb.rc
+ import init.gps.rc
+ 
+ on init
+-    export EXTERNAL_STORAGE /storage/sdcard0
++    export EXTERNAL_STORAGE /storage/emulated/legacy
++    export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
++    export EMULATED_STORAGE_TARGET /storage/emulated
+     export SECONDARY_STORAGE /storage/sdcard1
+     mkdir /storage 0775 system system
+-    mkdir /storage/sdcard0 0775 system system
++    mkdir /mnt/shell/emulated 0700 shell shell
++    mkdir /storage/emulated 0555 root root
+     mkdir /storage/sdcard1 0775 system system
+     mkdir /storage/usbdisk0 0775 system system
+     mkdir /efs 0771 radio system
+@@ -14,8 +17,10 @@ on init
+     mkdir /mnt/.lfs 0755 root root
+ 
+     # for backwards compatibility
+-    symlink /storage/sdcard0 /sdcard
+-    symlink /storage/sdcard0 /mnt/sdcard
++    symlink /storage/emulated/legacy /sdcard
++    symlink /storage/emulated/legacy /mnt/sdcard
++    symlink /storage/emulated/legacy /storage/sdcard0
++    symlink /mnt/shell/emulated/0 /storage/emulated/legacy
+     symlink /storage/sdcard1 /extSdCard
+     symlink /storage/sdcard1 /mnt/extSdCard
+     symlink /storage/usbdisk0 /usbdisk0
+@@ -38,6 +43,8 @@ on fs
+     mkdir /data/misc/radio 0775 radio system
+     chmod 0770 /data/misc/wifi 
+ 
++    setprop ro.crypto.fuse_sdcard true
++
+ # Restorecon
+     restorecon /efs/nv_data.bin
+     restorecon /efs/nv_data.bin.md5
+@@ -54,6 +61,7 @@ on fs
+     restorecon /efs/imei/mps_code.dat
+ 
+ on post-fs-data
++    mkdir /data/media 0770 media_rw media_rw
+ # insmod kernel modules
+     insmod /system/lib/modules/j4fs.ko
+     insmod /system/lib/modules/Si4709_driver.ko
+@@ -320,7 +328,7 @@ on boot
+     chown nfc nfc /dev/pn544
+ 
+ # Device Encryption by B2B Security Lab. 
+-    setprop ro.crypto.keyfile.userdata /efs/metadata
++#   setprop ro.crypto.keyfile.userdata /efs/metadata
+ 
+ # fake some battery state
+     setprop status.battery.state Slow
+@@ -410,3 +418,15 @@ service bugreport /system/bin/bugmailer.sh -v
+     disabled
+     oneshot
+     keycodes 114 115 116
++
++# virtual sdcard daemon running as media_rw (1023)
++service sdcard /system/bin/sdcard /data/media /mnt/shell/emulated 1023 1023
++    class late_start
++
++service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
++    class late_start
++    disabled
++
++service fuse_usbdisk0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/usbdisk0 /storage/usbdisk0
++    class late_start
++    disabled
+diff --git a/rootdir/lpm.rc b/rootdir/lpm.rc
+index 755fd2a..9718513 100644
+--- a/rootdir/lpm.rc
++++ b/rootdir/lpm.rc
+@@ -7,8 +7,8 @@ on init
+     export ANDROID_ROOT /system
+     export ANDROID_DATA /data
+     export ANDROID_CACHE /cache
+-    export SECONDARY_STORAGE /mnt/emmc
+-    export EXTERNAL_STORAGE /mnt/sdcard
++    export EXTERNAL_STORAGE /storage/emulated/legacy
++    export SECONDARY_STORAGE /storage/sdcard1
+ 
+     symlink /system/etc /etc
+     mkdir /mnt 0775 root system

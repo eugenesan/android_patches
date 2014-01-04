@@ -1,0 +1,27 @@
+From d374b46a8ac113849a029e689b06a84329b71267 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Thu, 15 Aug 2013 11:21:24 +0300
+Subject: [PATCH 2/6] Misc permissions fixes
+
+Change-Id: Ia074bffd25541af255d0a72cb398a0d53f3ee7c6
+---
+ prebuilt/common/bin/50-backupScript.sh   |   0
+ prebuilt/common/bin/backuptool.functions |   0
+ prebuilt/common/bootanimation/XHDPI.zip  | Bin
+ 3 files changed, 0 insertions(+), 0 deletions(-)
+ mode change 100644 => 100755 prebuilt/common/bin/50-backupScript.sh
+ mode change 100755 => 100644 prebuilt/common/bin/backuptool.functions
+ mode change 100755 => 100644 prebuilt/common/bootanimation/XHDPI.zip
+
+diff --git a/prebuilt/common/bin/50-backupScript.sh b/prebuilt/common/bin/50-backupScript.sh
+old mode 100644
+new mode 100755
+diff --git a/prebuilt/common/bin/backuptool.functions b/prebuilt/common/bin/backuptool.functions
+old mode 100755
+new mode 100644
+diff --git a/prebuilt/common/bootanimation/XHDPI.zip b/prebuilt/common/bootanimation/XHDPI.zip
+old mode 100755
+new mode 100644
+-- 
+1.8.3.4
+
