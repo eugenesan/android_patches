@@ -1,16 +1,17 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM build script
-# Version 2.0.9
+# Version 2.1.0
 
 # Clean scrollback buffer
 echo -e '\0033\0143'
 clear
 
-# Get current path
+# Get current paths
 DIR="$(cd `dirname $0`; pwd)"
 OUT="$(readlink $DIR/out)"
 [ -z "${OUT}" ] && OUT="${DIR}/out"
+PATH_ORIG="${PATH}"
 
 # Prepare output customization commands
 red=$(tput setaf 1)             # red
@@ -30,14 +31,15 @@ txtrst=$(tput sgr0)             # reset
 : ${CCACHE_NOSTATS:="false"}
 : ${CCACHE_DIR:="$(dirname $OUT)/ccache"}
 : ${THREADS:="$(cat /proc/cpuinfo | grep "^processor" | wc -l)"}
+: ${JSER:="7"}
 
-# If there is more than one jdk installed, use latest 6.x
+# If there is more than one jdk installed, use latest in series (JSER)
 if [ "`update-alternatives --list javac | wc -l`" -gt 1 ]; then
-        JDK6=$(dirname `update-alternatives --list javac | grep "\-6\-"` | tail -n1)
-        JRE6=$(dirname ${JDK6}/../jre/bin/java)
-        export PATH=${JDK6}:${JRE6}:$PATH
+        JDK=$(dirname `update-alternatives --list javac | grep "\-${JSER}\-"` | tail -n1)
+        JRE=$(dirname ${JDK}/../jre/bin/java)
+        export PATH=${JDK}:${JRE}:${PATH_ORIG}
 fi
-JVER=$(javac -version  2>&1 | head -n1 | cut -f2 -d' ')
+JVER=$(${JDK}/javac -version  2>&1 | head -n1 | cut -f2 -d' ')
 
 # Import command line parameters
 DEVICE="$1"
@@ -138,7 +140,7 @@ else
         unset CCACHE
 fi
 
-echo -e "${cya}Building ${bldcya}Android $VERSION for $DEVICE using Java-$JVER${txtrst}";
+echo -e "${cya}Building ${bldcya}Android ${VERSION} for ${DEVICE} using Java-${JVER}${txtrst}"
 echo -e "${bldgrn}Start time: $(date) ${txtrst}"
 
 # Print ccache stats
@@ -170,12 +172,6 @@ echo -e ""
 if [ "$SYNC" == "true" ]; then
         echo -e "\n${bldblu}Fetching latest sources${txtrst}"
         repo sync -j"$THREADS"
-fi
-
-# Print java caveats
-if [ ! -r "${DIR}/out/versions_checked.mk" ] && [ -n "$(java -version 2>&1 | grep -i openjdk)" ]; then
-        echo -e "\n${bldcya}Your java version still not checked and is candidate to fail, masquerading.${txtrst}"
-        JAVA_VERSION="java_version=${JVER}"
 fi
 
 if [ -r vendor/cm/get-prebuilts ]; then
@@ -212,6 +208,17 @@ else
         # Setup environment
         echo -e "\n${bldblu}Setting up environment${txtrst}"
         . build/envsetup.sh
+
+        # Print java caveats
+        if [ ! -r "${DIR}/out/versions_checked.mk" ] && [ -n "$(java -version 2>&1 | grep -i openjdk)" ]; then
+                echo -e "\n${bldcya}Your java version still not checked and is candidate to fail, masquerading.${txtrst}"
+                export JAVA_VERSION="java_version=${JVER}"
+        fi
+
+        # Ensure java is set correctly
+        export PATH=${JDK}:${JRE}:${PATH_ORIG}
+        export JAVA_HOME="${JDK}"
+        export J2REDIR="${JRE}"
 
         # Preparing
         echo -e "\n${bldblu}Preparing device [${DEVICE}]${txtrst}"
