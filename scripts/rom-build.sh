@@ -45,6 +45,9 @@ JVER=$(${JDK}/javac -version  2>&1 | head -n1 | cut -f2 -d' ')
 DEVICE="$1"
 EXTRAS="$2"
 
+# Default to building Nexus 5 2013
+[ -n "${DEVICE}" ] || DEVICE="hammerhead"
+
 # Get build version
 if [ -r $DIR/vendor/pa/vendor.mk ]; then
         VENDOR="aospa"
@@ -191,13 +194,19 @@ fi
 if [ -n "${INTERACTIVE}" ]; then
         echo -e "\n${bldblu}Enabling interactive mode. Possible commands are:${txtrst}"
 
-        echo -e "Prepare device environment:[${bldgrn}lunch ${VENDOR_LUNCH}${DEVICE}-eng${txtrst}]"
+        if [ "${VENDOR}" == "cm" ]; then
+                echo -e "Prepare device environment:[${bldgrn}breakfast ${VENDOR_LUNCH}${DEVICE}${txtrst}]"
+        else
+                echo -e "Prepare device environment:[${bldgrn}lunch ${VENDOR_LUNCH}${DEVICE}-userdebug${txtrst}]"
+        fi
 
         if [ "${VENDOR}" == "aosp" ]; then
                 echo -e "Build device:[${bldgrn}schedtool -B -n 1 -e ionice -n 1 make -j${THREADS} ${CCACHE_OPT} ${JAVA_VERSION}${txtrst}]"
         else
                 echo -e "Build device:[${bldgrn}mka bacon${txtrst}]"
         fi
+
+        echo -e "Build recovery:[${bldgrn}make -j"$THREADS" recoveryimage${txtrst}]"
 
         echo -e "Emulate device:[${bldgrn}vncserver :1; DISPLAY=:1 emulator&${txtrst}]"
 
