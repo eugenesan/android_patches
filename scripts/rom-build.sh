@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Android AOSP/AOSPA/CM/SLIM build script
-# Version 2.1.0
+# Android AOSP/AOSPA/CM/SLIM/OMNI build script
+# Version 2.1.1
 
 # Clean scrollback buffer
 echo -e '\0033\0143'
@@ -67,6 +67,12 @@ elif [ -r vendor/cm/config/common.mk ]; then
         MAJOR=$(cat $DIR/vendor/cm/config/common.mk | grep 'PRODUCT_VERSION_MAJOR = *' | sed  's/PRODUCT_VERSION_MAJOR = //g')
         MINOR=$(cat $DIR/vendor/cm/config/common.mk | grep 'PRODUCT_VERSION_MINOR = *' | sed  's/PRODUCT_VERSION_MINOR = //g')
         MAINT=$(cat $DIR/vendor/cm/config/common.mk | grep 'PRODUCT_VERSION_MAINTENANCE = *' | sed  's/PRODUCT_VERSION_MAINTENANCE = //g')
+elif [ -r vendor/omni/config/common.mk ]; then
+        VENDOR="omni"
+        VENDOR_LUNCH=""
+        MAJOR=$(cat $DIR/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f1 -d.)
+        MINOR=$(cat $DIR/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f2 -d.)
+        MAINT=$(cat $DIR/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f3 -d.)
 elif [ -r $DIR/build/core/version_defaults.mk ]; then
         VENDOR="aosp"
         VENDOR_LUNCH=""
@@ -196,12 +202,18 @@ if [ -n "${INTERACTIVE}" ]; then
 
         if [ "${VENDOR}" == "cm" ]; then
                 echo -e "Prepare device environment:[${bldgrn}breakfast ${VENDOR_LUNCH}${DEVICE}${txtrst}]"
+        elif [ "${VENDOR}" == "omni" ]; then
+                echo -e "Prepare device environment:[${bldgrn}breakfast ${DEVICE}${txtrst}]"
         else
                 echo -e "Prepare device environment:[${bldgrn}lunch ${VENDOR_LUNCH}${DEVICE}-userdebug${txtrst}]"
         fi
 
         if [ "${VENDOR}" == "aosp" ]; then
                 echo -e "Build device:[${bldgrn}schedtool -B -n 1 -e ionice -n 1 make -j${THREADS} ${CCACHE_OPT} ${JAVA_VERSION}${txtrst}]"
+        elif [ "${VENDOR}" == "cm" ]; then
+                echo -e "Build device:[${bldgrn}brunch ${VENDOR_LUNCH}${DEVICE}${txtrst}]"
+        elif [ "${VENDOR}" == "omni" ]; then
+                echo -e "Build device:[${bldgrn}brunch ${DEVICE}${txtrst}]"
         else
                 echo -e "Build device:[${bldgrn}mka bacon${txtrst}]"
         fi
@@ -234,6 +246,8 @@ else
         export PREFS_FROM_SOURCE
         if [ "${VENDOR}" == "cm" ]; then
                 breakfast "${VENDOR_LUNCH}${DEVICE}"
+        elif [ "${VENDOR}" == "omni" ]; then
+                breakfast "${DEVICE}"
         else
                 lunch "${VENDOR_LUNCH}${DEVICE}-userdebug"
         fi
@@ -243,6 +257,8 @@ else
                 schedtool -B -n 1 -e ionice -n 1 make -j${THREADS} ${CCACHE_OPT} ${JAVA_VERSION}
         elif [ "${VENDOR}" == "cm" ]; then
                 brunch "${VENDOR_LUNCH}${DEVICE}"
+        elif [ "${VENDOR}" == "omni" ]; then
+                brunch "${DEVICE}"
         else
                 mka bacon
         fi
