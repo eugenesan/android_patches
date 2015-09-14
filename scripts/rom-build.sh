@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.1.1
+# Version 2.1.2
 
 # Clean scrollback buffer
 echo -e '\0033\0143'
@@ -32,6 +32,8 @@ txtrst=$(tput sgr0)             # reset
 : ${CCACHE_DIR:="$(dirname $OUT)/ccache"}
 : ${THREADS:="$(cat /proc/cpuinfo | grep "^processor" | wc -l)"}
 : ${JSER:="7"}
+: ${BUILD_TYPE="userdebug"}
+: ${RECOVERY_BUILD_TYPE="eng"}
 
 # If there is more than one jdk installed, use latest in series (JSER)
 if [ "`update-alternatives --list javac | wc -l`" -gt 1 ]; then
@@ -201,26 +203,27 @@ if [ -n "${INTERACTIVE}" ]; then
         echo -e "\n${bldblu}Enabling interactive mode. Possible commands are:${txtrst}"
 
         if [ "${VENDOR}" == "cm" ]; then
-                echo -e "Prepare device environment:[${bldgrn}breakfast ${VENDOR_LUNCH}${DEVICE}${txtrst}]"
+                echo -e "Prepare device environment: [${bldgrn}breakfast ${VENDOR_LUNCH}${DEVICE}${txtrst}]"
+                echo -e "Or for recovery: [${bldgrn}lunch ${VENDOR_LUNCH}${DEVICE}-${RECOVERY_BUILD_TYPE}${txtrst}]"
         elif [ "${VENDOR}" == "omni" ]; then
-                echo -e "Prepare device environment:[${bldgrn}breakfast ${DEVICE}${txtrst}]"
+                echo -e "Prepare device environment: [${bldgrn}breakfast ${DEVICE}${txtrst}]"
         else
-                echo -e "Prepare device environment:[${bldgrn}lunch ${VENDOR_LUNCH}${DEVICE}-userdebug${txtrst}]"
+                echo -e "Prepare device environment: [${bldgrn}lunch ${VENDOR_LUNCH}${DEVICE}-${BUILD_TYPE}${txtrst}]"
         fi
 
         if [ "${VENDOR}" == "aosp" ]; then
-                echo -e "Build device:[${bldgrn}schedtool -B -n 1 -e ionice -n 1 make -j${THREADS} ${CCACHE_OPT} ${JAVA_VERSION}${txtrst}]"
+                echo -e "Build device: [${bldgrn}schedtool -B -n 1 -e ionice -n 1 make -j${THREADS} ${CCACHE_OPT} ${JAVA_VERSION}${txtrst}]"
         elif [ "${VENDOR}" == "cm" ]; then
-                echo -e "Build device:[${bldgrn}brunch ${VENDOR_LUNCH}${DEVICE}${txtrst}]"
+                echo -e "Build device: [${bldgrn}brunch ${VENDOR_LUNCH}${DEVICE}${txtrst}]"
         elif [ "${VENDOR}" == "omni" ]; then
-                echo -e "Build device:[${bldgrn}brunch ${DEVICE}${txtrst}]"
+                echo -e "Build device: [${bldgrn}brunch ${DEVICE}${txtrst}]"
         else
-                echo -e "Build device:[${bldgrn}mka bacon${txtrst}]"
+                echo -e "Build device: [${bldgrn}mka bacon${txtrst}]"
         fi
 
-        echo -e "Build recovery:[${bldgrn}make -j"$THREADS" recoveryimage${txtrst}]"
+        echo -e "Build recovery: [${bldgrn}make -j"$THREADS" recoveryimage${txtrst}]"
 
-        echo -e "Emulate device:[${bldgrn}vncserver :1; DISPLAY=:1 emulator&${txtrst}]"
+        echo -e "Emulate device: [${bldgrn}vncserver :1; DISPLAY=:1 emulator&${txtrst}]"
 
         # Setup and enter interactive environment
         echo -e "${bldblu}Dropping to interactive shell...${txtrst}"
@@ -249,7 +252,7 @@ else
         elif [ "${VENDOR}" == "omni" ]; then
                 breakfast "${DEVICE}"
         else
-                lunch "${VENDOR_LUNCH}${DEVICE}-userdebug"
+                lunch "${VENDOR_LUNCH}${DEVICE}-${BUILD_TYPE}"
         fi
 
         echo -e "${bldblu}Starting compilation${txtrst}"
