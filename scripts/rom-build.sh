@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.1.2
+# Version 2.1.3
 
 # Clean scrollback buffer
 echo -e '\0033\0143'
@@ -30,7 +30,7 @@ txtrst=$(tput sgr0)             # reset
 : ${USE_CCACHE:="true"}
 : ${CCACHE_NOSTATS:="false"}
 : ${CCACHE_DIR:="$(dirname $OUT)/ccache"}
-: ${THREADS:="$(cat /proc/cpuinfo | grep "^processor" | wc -l)"}
+: ${THREADS:="$(($(cat /proc/cpuinfo | grep "^processor" | wc -l) / 4 * 3))"}
 : ${JSER:="7"}
 : ${BUILD_TYPE="userdebug"}
 : ${RECOVERY_BUILD_TYPE="eng"}
@@ -151,7 +151,7 @@ else
         unset CCACHE
 fi
 
-echo -e "${cya}Building ${bldcya}Android ${VERSION} for ${DEVICE} using Java-${JVER}${txtrst}"
+echo -e "${cya}Building ${bldcya}Android ${VERSION} for ${DEVICE} using Java-${JVER}${txtrst} with ${THREADS} threads"
 echo -e "${bldgrn}Start time: $(date) ${txtrst}"
 
 # Print ccache stats
@@ -204,7 +204,7 @@ if [ -n "${INTERACTIVE}" ]; then
 
         if [ "${VENDOR}" == "cm" ]; then
                 echo -e "Prepare device environment: [${bldgrn}breakfast ${VENDOR_LUNCH}${DEVICE}${txtrst}]"
-                echo -e "Or for recovery: [${bldgrn}lunch ${VENDOR_LUNCH}${DEVICE}-${RECOVERY_BUILD_TYPE}${txtrst}]"
+                echo -e "Or for recovery: [${bldgrn}lunch ${VENDOR}_${DEVICE}-${RECOVERY_BUILD_TYPE}${txtrst}]"
         elif [ "${VENDOR}" == "omni" ]; then
                 echo -e "Prepare device environment: [${bldgrn}breakfast ${DEVICE}${txtrst}]"
         else
