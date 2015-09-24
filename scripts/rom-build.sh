@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.1.3
+# Version 2.1.4
 
 # Clean scrollback buffer
 echo -e '\0033\0143'
@@ -9,7 +9,7 @@ clear
 
 # Get current paths
 DIR="$(cd `dirname $0`; pwd)"
-OUT="$(readlink $DIR/out)"
+OUT="$(readlink ${DIR}/out)"
 [ -z "${OUT}" ] && OUT="${DIR}/out"
 PATH_ORIG="${PATH}"
 
@@ -29,7 +29,7 @@ txtrst=$(tput sgr0)             # reset
 : ${PREFS_FROM_SOURCE:="false"}
 : ${USE_CCACHE:="true"}
 : ${CCACHE_NOSTATS:="false"}
-: ${CCACHE_DIR:="$(dirname $OUT)/ccache"}
+: ${CCACHE_DIR:="$(dirname ${OUT})/ccache"}
 : ${THREADS:="$(($(cat /proc/cpuinfo | grep "^processor" | wc -l) / 4 * 3))"}
 : ${JSER:="7"}
 : ${BUILD_TYPE="userdebug"}
@@ -44,56 +44,56 @@ fi
 JVER=$(${JDK}/javac -version  2>&1 | head -n1 | cut -f2 -d' ')
 
 # Import command line parameters
-DEVICE="$1"
-EXTRAS="$2"
+DEVICE="${1}"
+EXTRAS="${2}"
 
 # Default to building Nexus 5 2013
 [ -n "${DEVICE}" ] || DEVICE="hammerhead"
 
 # Get build version
-if [ -r $DIR/vendor/pa/vendor.mk ]; then
+if [ -r ${DIR}/vendor/pa/vendor.mk ]; then
         VENDOR="aospa"
         VENDOR_LUNCH="pa_"
-        MAJOR=$(cat $DIR/vendor/pa/vendor.mk | grep 'ROM_VERSION_MAJOR := *' | sed  's/ROM_VERSION_MAJOR := //g')
-        MINOR=$(cat $DIR/vendor/pa/vendor.mk | grep 'ROM_VERSION_MINOR := *' | sed  's/ROM_VERSION_MINOR := //g')
-        MAINT=$(cat $DIR/vendor/pa/vendor.mk | grep 'ROM_VERSION_MAINTENANCE := *' | sed  's/ROM_VERSION_MAINTENANCE := //g')
-elif [ -r $DIR/vendor/slim/vendorsetup.sh ]; then
+        MAJOR=$(cat ${DIR}/vendor/pa/vendor.mk | grep 'ROM_VERSION_MAJOR := *' | sed  's/ROM_VERSION_MAJOR := //g')
+        MINOR=$(cat ${DIR}/vendor/pa/vendor.mk | grep 'ROM_VERSION_MINOR := *' | sed  's/ROM_VERSION_MINOR := //g')
+        MAINT=$(cat ${DIR}/vendor/pa/vendor.mk | grep 'ROM_VERSION_MAINTENANCE := *' | sed  's/ROM_VERSION_MAINTENANCE := //g')
+elif [ -r ${DIR}/vendor/slim/vendorsetup.sh ]; then
         VENDOR="slim"
         VENDOR_LUNCH="slim_"
-        MAJOR=$(cat $DIR/vendor/slim/config/common.mk | grep 'PRODUCT_VERSION_MAJOR = *' | sed  's/PRODUCT_VERSION_MAJOR = //g')
-        MINOR=$(cat $DIR/vendor/slim/config/common.mk | grep 'PRODUCT_VERSION_MINOR = *' | sed  's/PRODUCT_VERSION_MINOR = //g')
-        MAINT=$(cat $DIR/vendor/slim/config/common.mk | grep 'PRODUCT_VERSION_MAINTENANCE = *' | sed  's/PRODUCT_VERSION_MAINTENANCE = //g')
-elif [ -r vendor/cm/config/common.mk ]; then
+        MAJOR=$(cat ${DIR}/vendor/slim/config/common.mk | grep 'PRODUCT_VERSION_MAJOR = *' | sed  's/PRODUCT_VERSION_MAJOR = //g')
+        MINOR=$(cat ${DIR}/vendor/slim/config/common.mk | grep 'PRODUCT_VERSION_MINOR = *' | sed  's/PRODUCT_VERSION_MINOR = //g')
+        MAINT=$(cat ${DIR}/vendor/slim/config/common.mk | grep 'PRODUCT_VERSION_MAINTENANCE = *' | sed  's/PRODUCT_VERSION_MAINTENANCE = //g')
+elif [ -r ${DIR}/vendor/cm/config/common.mk ]; then
         VENDOR="cm"
         VENDOR_LUNCH=""
-        MAJOR=$(cat $DIR/vendor/cm/config/common.mk | grep 'PRODUCT_VERSION_MAJOR = *' | sed  's/PRODUCT_VERSION_MAJOR = //g')
-        MINOR=$(cat $DIR/vendor/cm/config/common.mk | grep 'PRODUCT_VERSION_MINOR = *' | sed  's/PRODUCT_VERSION_MINOR = //g')
-        MAINT=$(cat $DIR/vendor/cm/config/common.mk | grep 'PRODUCT_VERSION_MAINTENANCE = *' | sed  's/PRODUCT_VERSION_MAINTENANCE = //g')
-elif [ -r vendor/omni/config/common.mk ]; then
+        MAJOR=$(cat ${DIR}/vendor/cm/config/common.mk | grep 'PRODUCT_VERSION_MAJOR = *' | sed  's/PRODUCT_VERSION_MAJOR = //g')
+        MINOR=$(cat ${DIR}/vendor/cm/config/common.mk | grep 'PRODUCT_VERSION_MINOR = *' | sed  's/PRODUCT_VERSION_MINOR = //g')
+        MAINT=$(cat ${DIR}/vendor/cm/config/common.mk | grep 'PRODUCT_VERSION_MAINTENANCE = *' | sed  's/PRODUCT_VERSION_MAINTENANCE = //g')
+elif [ -r ${DIR}/vendor/omni/config/common.mk ]; then
         VENDOR="omni"
         VENDOR_LUNCH=""
-        MAJOR=$(cat $DIR/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f1 -d.)
-        MINOR=$(cat $DIR/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f2 -d.)
-        MAINT=$(cat $DIR/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f3 -d.)
-elif [ -r $DIR/build/core/version_defaults.mk ]; then
+        MAJOR=$(cat ${DIR}/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f1 -d.)
+        MINOR=$(cat ${DIR}/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f2 -d.)
+        MAINT=$(cat ${DIR}/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f3 -d.)
+elif [ -r ${DIR}/build/core/version_defaults.mk ]; then
         VENDOR="aosp"
         VENDOR_LUNCH=""
-        MAJOR=$(cat $DIR/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f1 -d.)
-        MINOR=$(cat $DIR/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f2 -d.)
-        MAINT=$(cat $DIR/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f3 -d.)
+        MAJOR=$(cat ${DIR}/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f1 -d.)
+        MINOR=$(cat ${DIR}/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f2 -d.)
+        MAINT=$(cat ${DIR}/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f3 -d.)
 else
         echo -e "${redbld}Invalid android tree, exiting...${txtrst}"
         exit 1
 fi
-VERSION=$VENDOR-$MAJOR.$MINOR$([ -n "$MAINT" ] && echo .)$MAINT
+VERSION=${VENDOR}-${MAJOR}.${MINOR}$([ -n "${MAINT}" ] && echo .)${MAINT}
 
 # If there is no extra parameter, reduce parameters index by 1
-if [ "$EXTRAS" == "true" ] || [ "$EXTRAS" == "false" ]; then
-        SYNC="$2"
-        UPLOAD="$3"
+if [ "${EXTRAS}" == "true" ] || [ "${EXTRAS}" == "false" ]; then
+        SYNC="${2}"
+        UPLOAD="${3}"
 else
-        SYNC="$3"
-        UPLOAD="$4"
+        SYNC="${3}"
+        UPLOAD="${4}"
 fi
 
 # Get start time
@@ -159,18 +159,17 @@ echo -e "${bldgrn}Start time: $(date) ${txtrst}"
 [ -n "${CCACHE_DIR}" ] && export CCACHE_DIR && echo -e "${bldgrn}CCACHE: location = [${txtrst}${grn}${CCACHE_DIR}${bldgrn}], size = [${txtrst}${grn}${cache1}${bldgrn}]${txtrst}"
 
 # Decide what command to execute
-case "$EXTRAS" in
+case "${EXTRAS}" in
         threads)
                 echo -e "${bldblu}Please enter desired building/syncing threads number followed by [ENTER]${txtrst}"
-                read threads
-                THREADS=$threads
+                read THREADS
         ;;
         clean|cclean)
                 echo -e "${bldblu}Cleaning intermediates and output files${txtrst}"
                 export CLEAN_BUILD="true"
                 [ -d "${DIR}/out" ] && rm -Rf ${DIR}/out/*
                 # Clean ccache if we have to
-                if [ -n "${CCACHE_DIR}" ] && [ $EXTRAS == cclean ]; then
+                if [ -n "${CCACHE_DIR}" ] && [ ${EXTRAS} == cclean ]; then
                         echo "${bldblu}Cleaning ccache${txtrst}"
                         ${CCACHE} -C -M 5G
                 fi
@@ -180,9 +179,9 @@ esac
 echo -e ""
 
 # Fetch latest sources
-if [ "$SYNC" == "true" ]; then
+if [ "${SYNC}" == "true" ]; then
         echo -e "\n${bldblu}Fetching latest sources${txtrst}"
-        repo sync -j"$THREADS"
+        repo sync -j"${THREADS}"
 fi
 
 if [ -r vendor/cm/get-prebuilts ]; then
@@ -221,7 +220,7 @@ if [ -n "${INTERACTIVE}" ]; then
                 echo -e "Build device: [${bldgrn}mka bacon${txtrst}]"
         fi
 
-        echo -e "Build recovery: [${bldgrn}make -j"$THREADS" recoveryimage${txtrst}]"
+        echo -e "Build recovery: [${bldgrn}make -j"${THREADS}" recoveryimage${txtrst}]"
 
         echo -e "Emulate device: [${bldgrn}vncserver :1; DISPLAY=:1 emulator&${txtrst}]"
 
@@ -279,4 +278,4 @@ fi
 
 # Get and print elapsed time
 res2=$(date +%s.%N)
-echo -e "\n${bldgrn}Total time elapsed: ${txtrst}${grn}$(echo "($res2 - $res1) / 60"|bc ) minutes ($(echo "$res2 - $res1"|bc ) seconds)${txtrst}"
+echo -e "\n${bldgrn}Total time elapsed: ${txtrst}${grn}$(echo "(${res2} - ${res1}) / 60"|bc ) minutes ($(echo "${res2} - ${res1}"|bc ) seconds)${txtrst}"
