@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+<!-- Pyramid  -->
+  <remove-project name="CyanogenMod/android_bionic" />
+  <!-- <project path="bionic" name="ivanich/android_bionic" /> -->
+  <project path="bionic" name="eugenesan/android_bionic" />
+
+  <!-- <project path="device/htc/pyramid" name="ivanich/android_device_htc_pyramid" revision="cm-12.1" /> -->
+  <project path="device/htc/pyramid" name="eugenesan/android_device_htc_pyramid" revision="cm-12.1" />
+  <project path="kernel/htc/pyramid" name="ivanich/android_kernel_htc_pyramid" revision="cm-12.0" />
+  <project path="vendor/htc" name="ivanich/proprietary_vendor_htc" revision="cm-12.1" />
+
+  <project path="hardware/qcom/audio-caf/msm8660" name="ivanich/android_hardware_qcom_audio" groups="qcom,qcom_audio" revision="cm-12.1" />
+  <project path="hardware/qcom/display-caf/msm8660" name="ivanich/android_hardware_qcom_display" groups="qcom,qcom_display" revision="cm-12.1-caf-8660" />
+  <project path="hardware/qcom/media-caf/msm8660" name="ivanich/android_hardware_qcom_media" groups="qcom" revision="cm-12.1-caf-8660" />
+
+<!-- SkyRocket -->
+<!--
+  <project path="prebuilts/gcc/linux-x86/arm/arm-eabi-4.7" name="platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7" groups="pdk,linux,arm" remote="aosp" revision="refs/tags/android-4.4.4_r2" />
+
+  <project name="CyanogenMod/android_device_samsung_skyrocket" path="device/samsung/skyrocket" remote="github" />
+  <project name="CyanogenMod/android_device_samsung_celox-common" path="device/samsung/celox-common" remote="github" />
+  <project name="CyanogenMod/android_device_samsung_msm8660-common" path="device/samsung/msm8660-common" remote="github" />
+  <project name="CyanogenMod/android_kernel_samsung_msm8660-common" path="kernel/samsung/msm8660-common" remote="github" />
+  <project name="CyanogenMod/android_device_samsung_qcom-common" path="device/samsung/qcom-common" remote="github" />
+  <project name="CyanogenMod/android_hardware_samsung" path="hardware/samsung" remote="github" />
+
+  <project name="CyanogenMod/android_hardware_qcom_audio" path="hardware/qcom/audio-caf/msm8660" groups="qcom,qcom_audio"  revision="cm-12.1-caf-8660" />
+  <project name="CyanogenMod/android_hardware_qcom_display" path="hardware/qcom/display-caf/msm8660" groups="qcom,qcom_display" revision="cm-12.1-caf-8660" />
+  <project name="CyanogenMod/android_hardware_qcom_media" path="hardware/qcom/media-caf/msm8660" groups="qcom" revision="cm-12.1-caf-8660" />
+-->
+</manifest>
