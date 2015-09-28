@@ -2,6 +2,7 @@
 <manifest>
 
 <!-- Generic cleanups -->
+
 <remove-project name="platform/prebuilts/clang/darwin-x86/3.1" />
 <remove-project name="platform/prebuilts/clang/darwin-x86/3.2" />
 <remove-project name="platform/prebuilts/clang/darwin-x86/arm/3.3" />
@@ -33,15 +34,16 @@
 <remove-project name="CyanogenMod/android_packages_apps_Settings" />
 <project path="packages/apps/Settings" name="eugenesan/android_packages_apps_Settings" />
 
-<!-- Recovery -->
-<remove-project name="CyanogenMod/android_bootable_recovery" />
-<!-- <project path="bootable/recovery" name="omnirom/android_bootable_recovery" revision="android-5.1" /> -->
-<project path="bootable/recovery" name="eugenesan/android_bootable_recovery" revision="android-5.1" />
-
 <!--
 <remove-project name="CyanogenMod/android_vendor_cm" />
 <project path="vendor/cm" name="eugenesan/android_vendor_cm" />
 -->
+
+<!-- Recovery -->
+
+<!-- <project path="bootable/recovery" name="omnirom/android_bootable_recovery" revision="android-5.1" /> -->
+<remove-project name="CyanogenMod/android_bootable_recovery" />
+<project path="bootable/recovery" name="eugenesan/android_bootable_recovery" revision="android-5.1" />
 
 <!-- Misc projects -->
 <!--
