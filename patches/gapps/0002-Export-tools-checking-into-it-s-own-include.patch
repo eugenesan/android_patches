@@ -1,0 +1,199 @@
+From 99f9d380e80f6af57dff355c780bb17e1220ae99 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Mon, 28 Sep 2015 16:18:05 -0400
+Subject: [PATCH 2/3] Export tools checking into it's own include
+
+---
+ add_sourceapp.sh       | 12 +++++-------
+ report_sources.sh      |  9 +++++----
+ scripts/build_gapps.sh | 18 ++++++-----------
+ scripts/inc.tools.sh   | 52 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ upload_sources.sh      |  9 +++++----
+ 5 files changed, 73 insertions(+), 27 deletions(-)
+ create mode 100644 scripts/inc.tools.sh
+
+diff --git a/add_sourceapp.sh b/add_sourceapp.sh
+index cac5173..72a103d 100755
+--- a/add_sourceapp.sh
++++ b/add_sourceapp.sh
+@@ -11,19 +11,17 @@
+ #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ #    GNU General Public License for more details.
+ #
+-command -v aapt >/dev/null 2>&1 || { echo "aapt is required but it's not installed.  Aborting." >&2; exit 1; }
+-command -v file >/dev/null 2>&1 || { echo "file is required but it's not installed.  Aborting." >&2; exit 1; }
+-command -v install >/dev/null 2>&1 || { echo "coreutils is required but it's not installed.  Aborting." >&2; exit 1; } #coreutils also contains the basename and realpath command
+-command -v jarsigner >/dev/null 2>&1 || { echo "jarsigner is required but it's not installed.  Aborting." >&2; exit 1; } #part of JDK
+-command -v keytool >/dev/null 2>&1 || { echo "openssl is required but it's not installed.  Aborting." >&2; exit 1; } #part of JDK
+-command -v openssl >/dev/null 2>&1 || { echo "openssl is required but it's not installed.  Aborting." >&2; exit 1; }
+-command -v unzip >/dev/null 2>&1 || { echo "unzip is required but it's not installed.  Aborting." >&2; exit 1; }
+ 
++command -v realpath >/dev/null 2>&1 || { echo "realpath is required but it's not installed, aborting." >&2; exit 1; }
+ TOP="$(realpath .)"
+ SOURCES="$TOP/sources"
+ SCRIPTS="$TOP/scripts"
+ CERTIFICATES="$SCRIPTS/certificates"
+ . "$SCRIPTS/inc.sourceshelper.sh"
++. "$SCRIPTS/inc.tools.sh"
++
++# Check tools
++checktools aapt file install jarsigner keytool openssl unzip
+ 
+ installapk() {
+   architecture="$1"
+diff --git a/report_sources.sh b/report_sources.sh
+index c3f8a06..c614bdf 100755
+--- a/report_sources.sh
++++ b/report_sources.sh
+@@ -11,16 +11,17 @@
+ #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ #    GNU General Public License for more details.
+ #
+-command -v aapt >/dev/null 2>&1 || { echo "aapt is required but it's not installed.  Aborting." >&2; exit 1; }
+-command -v install >/dev/null 2>&1 || { echo "coreutils is required but it's not installed.  Aborting." >&2; exit 1; } #coreutils also contains the basename and realpath command
+-command -v jarsigner >/dev/null 2>&1 || { echo "jarsigner is required but it's not installed.  Aborting." >&2; exit 1; } #part of JDK
+-command -v md5sum >/dev/null 2>&1 || { echo "md5sum is required but it's not installed.  Aborting." >&2; exit 1; }
+ 
++command -v realpath >/dev/null 2>&1 || { echo "realpath is required but it's not installed, aborting." >&2; exit 1; }
+ TOP="$(realpath .)"
+ SOURCES="$TOP/sources"
+ SCRIPTS="$TOP/scripts"
+ CERTIFICATES="$SCRIPTS/certificates"
+ . "$SCRIPTS/inc.sourceshelper.sh"
++. "$SCRIPTS/inc.tools.sh"
++
++# Check tools
++checktools aapt install jarsigner md5sum
+ 
+ argument(){
+   case $1 in
+diff --git a/scripts/build_gapps.sh b/scripts/build_gapps.sh
+index 6e5d207..154d67d 100755
+--- a/scripts/build_gapps.sh
++++ b/scripts/build_gapps.sh
+@@ -17,6 +17,8 @@ if { [ "$1" != "arm" ] && [ "$1" != "arm64" ] && [ "$1" != "x86" ] && [ "$1" !=
+   echo "Usage: $0 (arm|arm64|x86|x86_64) API_LEVEL"
+   exit 1
+ fi
++
++command -v realpath >/dev/null 2>&1 || { echo "realpath is required but it's not installed, aborting." >&2; exit 1; }
+ DATE=$(date +"%Y%m%d")
+ TOP="$(realpath .)"
+ ARCH="$1"
+@@ -28,6 +30,7 @@ OUT="$TOP/out"
+ SOURCES="$TOP/sources"
+ SCRIPTS="$TOP/scripts"
+ CERTIFICATES="$SCRIPTS/certificates"
++: ${THREADS:="$(($(cat /proc/cpuinfo | grep "^processor" | wc -l) / 4 * 3))"}
+ . "$SCRIPTS/inc.aromadata.sh"
+ . "$SCRIPTS/inc.buildhelper.sh"
+ . "$SCRIPTS/inc.buildtarget.sh"
+@@ -35,19 +38,10 @@ CERTIFICATES="$SCRIPTS/certificates"
+ . "$SCRIPTS/inc.installdata.sh"
+ . "$SCRIPTS/inc.packagetarget.sh"
+ . "$SCRIPTS/inc.updatebinary.sh"
++. "$SCRIPTS/inc.tools.sh"
+ 
+-#####---------CHECK FOR EXISTANCE OF SOME BINARIES---------
+-command -v aapt >/dev/null 2>&1 || { echo "aapt is required but it's not installed.  Aborting." >&2; exit 1; }
+-command -v install >/dev/null 2>&1 || { echo "coreutils is required but it's not installed.  Aborting." >&2; exit 1; } #coreutils also contains the basename command
+-command -v java >/dev/null 2>&1 || { echo "java is required but it's not installed.  Aborting." >&2; exit 1; } #necessary to use signapk
+-command -v jarsigner >/dev/null 2>&1 || { echo "jarsigner is required but it's not installed.  Aborting." >&2; exit 1; } #part of JDK
+-command -v md5sum >/dev/null 2>&1 || { echo "md5sum is required but it's not installed.  Aborting." >&2; exit 1; }
+-command -v unzip >/dev/null 2>&1 || { echo "unzip is required but it's not installed.  Aborting." >&2; exit 1; }
+-command -v zip >/dev/null 2>&1 || { echo "zip is required but it's not installed.  Aborting." >&2; exit 1; }
+-command -v zipalign >/dev/null 2>&1 || { echo "zipalign is required but it's not installed.  Aborting." >&2; exit 1; }
+-zipalign 2>&1 | grep -q "page align stored shared object files" || { echo "zipalign is outdated. Install a recent version from the Android SDK.  Aborting." >&2; exit 1; }
+-command -v tar >/dev/null 2>&1 || { echo "tar is required but it's not installed.  Aborting." >&2; exit 1; }
+-command -v xz >/dev/null 2>&1 || { echo "xz is required but it's not installed.  Aborting." >&2; exit 1; }
++# Check tools
++checktools aapt install java jarsigner md5sum unzip zip tar xz realpath zipalign
+ 
+ case "$API" in
+   19) PLATFORM="4.4";;
+diff --git a/scripts/inc.tools.sh b/scripts/inc.tools.sh
+new file mode 100644
+index 0000000..42a3236
+--- /dev/null
++++ b/scripts/inc.tools.sh
+@@ -0,0 +1,52 @@
++#This file is part of The Open GApps script of @mfonville.
++#
++#    The Open GApps scripts are free software: you can redistribute it and/or modify
++#    it under the terms of the GNU General Public License as published by
++#    the Free Software Foundation, either version 3 of the License, or
++#    (at your option) any later version.
++#
++#    These scripts are distributed in the hope that it will be useful,
++#    but WITHOUT ANY WARRANTY; without even the implied warranty of
++#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++#    GNU General Public License for more details.
++#
++
++checktools() {
++  missing=""
++  # Check existance of specified tools
++  for command in $@; do
++    if ! command -v $command >/dev/null 2>&1; then
++      case $command in
++        install)
++          echo "Coreutils is required for install and basename utilities but is not installed"
++        ;;
++        jarsigner|keytool)
++          echo "JDK is required for jarsigner and keytools utilities but is not installed"
++        ;;
++        aapt|zipalign)
++          echo "Android SDK is required for aapt and zipalign utilities but is not installed"
++        ;;
++        *)
++          echo "$command is required but is not installed."
++        ;;
++      esac
++      missing="$missing $command"
++    else
++      case $command in
++      zipalign)
++        if ! zipalign 2>&1 | grep -q "page align stored shared object files"; then
++          echo "zipalign is outdated. Install a recent version from the Android SDK." >&2
++          missing="$missing $command"
++        fi
++      ;;
++      esac
++    fi
++  done
++
++  if [ -n "$missing" ]; then
++    echo "Aborting." >&2
++    exit 1
++  else
++    echo "All tools are set."
++  fi
++}
+diff --git a/upload_sources.sh b/upload_sources.sh
+index ddfe9b9..d967e16 100755
+--- a/upload_sources.sh
++++ b/upload_sources.sh
+@@ -11,15 +11,16 @@
+ #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ #    GNU General Public License for more details.
+ #
+-command -v aapt >/dev/null 2>&1 || { echo "aapt is required but it's not installed.  Aborting." >&2; exit 1; }
+-command -v basename >/dev/null 2>&1 || { echo "coreutils is required but it's not installed.  Aborting." >&2; exit 1; }
+-command -v install >/dev/null 2>&1 || { echo "coreutils is required but it's not installed.  Aborting." >&2; exit 1; } #coreutils also contains the basename and realpath command
+-command -v git >/dev/null 2>&1 || { echo "git is required but it's not installed.  Aborting." >&2; exit 1; }
+ 
++command -v realpath >/dev/null 2>&1 || { echo "realpath is required but it's not installed, aborting." >&2; exit 1; }
+ TOP="$(realpath .)"
+ SOURCES="$TOP/sources"
+ SCRIPTS="$TOP/scripts"
+ . "$SCRIPTS/inc.sourceshelper.sh"
++. "$SCRIPTS/inc.tools.sh"
++
++# Check tools
++checktools aapt basename install git
+ 
+ createcommit(){
+   getapkproperties "$1"
+-- 
+2.5.3
+

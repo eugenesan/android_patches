@@ -1,0 +1,110 @@
+From 5e3c4cdd8b8215a288f55aec292626146855b246 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Mon, 28 Sep 2015 16:19:29 -0400
+Subject: [PATCH 3/3] Add support for parallelism and settle source code
+ permissions
+
+---
+ scripts/inc.buildhelper.sh   |   0
+ scripts/inc.buildtarget.sh   |   0
+ scripts/inc.compatibility.sh |   0
+ scripts/inc.installdata.sh   |   0
+ scripts/inc.packagetarget.sh |  42 ++++++++++++++++++++++++++++++++----------
+ scripts/inc.signapk.jar      | Bin
+ scripts/inc.updatebinary.sh  |   0
+ 7 files changed, 32 insertions(+), 10 deletions(-)
+ mode change 100755 => 100644 scripts/inc.buildhelper.sh
+ mode change 100755 => 100644 scripts/inc.buildtarget.sh
+ mode change 100755 => 100644 scripts/inc.compatibility.sh
+ mode change 100755 => 100644 scripts/inc.installdata.sh
+ mode change 100755 => 100644 scripts/inc.packagetarget.sh
+ mode change 100755 => 100644 scripts/inc.signapk.jar
+ mode change 100755 => 100644 scripts/inc.updatebinary.sh
+
+diff --git a/scripts/inc.buildhelper.sh b/scripts/inc.buildhelper.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/inc.buildtarget.sh b/scripts/inc.buildtarget.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/inc.compatibility.sh b/scripts/inc.compatibility.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/inc.installdata.sh b/scripts/inc.installdata.sh
+old mode 100755
+new mode 100644
+diff --git a/scripts/inc.packagetarget.sh b/scripts/inc.packagetarget.sh
+old mode 100755
+new mode 100644
+index ad34ac0..1923e4c
+--- a/scripts/inc.packagetarget.sh
++++ b/scripts/inc.packagetarget.sh
+@@ -61,16 +61,7 @@ bundlexz() {
+   fi
+ }
+ 
+-createzip() {
+-  find "$build" -exec touch -d "2008-02-28 21:33:46.000000000 +0100" {} \;
+-  cd "$build"
+-  for d in $(ls -d */ | grep -v "META-INF"); do #notice that d will end with a slash, ls is safe here because there are no directories with spaces
+-    cd "$build/$d"
+-    for f in $(ls); do # ls is safe here because there are no directories with spaces
+-      for g in $(ls "$f"); do
+-        foldersize="$(du -ck "$f/$g/" | tail -n1 | awk '{ print $1 }')"
+-        printf "%s\t%s\t%d\n" "$f" "$g" "$foldersize" >> "$build/app_sizes.txt"
+-      done
++createxz() {
+       hash="$(tar -cf - "$f" | md5sum | cut -f1 -d' ')"
+       if [ -f "$CACHE/$hash.tar.xz" ]; then #we have this xz in cache
+         echo "Fetching $d$f from the cache"
+@@ -81,10 +72,41 @@ createzip() {
+         XZ_OPT=-9e tar --remove-files -cJf "$f.tar.xz" "$f"
+         cp "$f.tar.xz" "$CACHE/$hash.tar.xz" #copy into the cache
+       fi
++      echo "Done with $d$f"
+       touch -d "2008-02-28 21:33:46.000000000 +0100" "$f.tar.xz"
++      sync
++}
++
++createzip() {
++  find "$build" -exec touch -d "2008-02-28 21:33:46.000000000 +0100" {} \;
++  cd "$build"
++
++  pidlist=""
++  for d in $(ls -d */ | grep -v "META-INF"); do #notice that d will end with a slash, ls is safe here because there are no directories with spaces
++    cd "$build/$d"
++    for f in $(ls); do # ls is safe here because there are no directories with spaces
++      for g in $(ls "$f"); do
++        foldersize="$(du -ck "$f/$g/" | tail -n1 | awk '{ print $1 }')"
++        printf "%s\t%s\t%d\n" "$f" "$g" "$foldersize" >> "$build/app_sizes.txt"
++      done
++
++      # Count still running createxz instances and wait if there is too many
++      threads=0; for p in $pidlist; do test -d /proc/$p && threads=$((threads+1)); done
++      while [ $threads -ge $THREADS ]; do
++        sleep 2
++        threads=0; for p in $pidlist; do test -d /proc/$p && threads=$((threads+1)); done
++      done
++
++      # Order component preparation
++      createxz $d &
++      pidlist="$pidlist $!"
+     done
+   done
+ 
++  echo "Waiting for components to be prepared..."
++  for p in $pidlist; do wait $p; done
++  echo "All components are ready."
++
+   unsignedzip="$BUILD/$ARCH/$API/$VARIANT.zip"
+   signedzip="$OUT/open_gapps-$ARCH-$PLATFORM-$VARIANT-$DATE.zip"
+ 
+diff --git a/scripts/inc.signapk.jar b/scripts/inc.signapk.jar
+old mode 100755
+new mode 100644
+diff --git a/scripts/inc.updatebinary.sh b/scripts/inc.updatebinary.sh
+old mode 100755
+new mode 100644
+-- 
+2.5.3
+
