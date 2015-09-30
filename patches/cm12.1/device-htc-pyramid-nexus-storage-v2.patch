@@ -1,0 +1,312 @@
+From 61974d43536106a6eb9f2de70f483824b3727ef7 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Tue, 29 Sep 2015 15:48:58 -0400
+Subject: [PATCH] Switch to nexus style mode completely
+
+This is a 2nd iteration of the patch in which we go completely Nexus.
+We eliminate external sdcard completely and use it fully as data partition that can be fully encrypted.
+In addition we perform series of storage layout changes, cleanups and optimizations.
+
+Now to the details:
+* Use original "userdata" parititon as /system (60% more space for GAPPS and DEX data).
+* Reduce size of primary zram swap by half (Add more RAM).
+* Use original "system" as secondary swap (Provide backup swap for smaller zram swap).
+* We create pre-odexed build which should allow the following:
+  - Avoid usage of userdata for DEX data of system apps and data duplication
+  - Avoid encryption of system DEX data (which is public)
+  - Allow much faster access from /system partition
+  - Allow much faster boot with encrypted data (when data is encrypted,
+    dalvik-cache is also and need to be re-created on each boot for asking user's password!)
+* Add misc recovery related settings and coresponding changes to TWRP in order to support above.
+* Modify recovery related settings (this device tree can be used for building TWRP image)
+* Remove duplicated default init.rc code
+* General cleanups
+
+Change-Id: I60b8303fce99a83c162ca11bb1304a551c48404a
+---
+ BoardConfig.mk                                     |  8 +++--
+ device_pyramid.mk                                  |  1 -
+ .../base/core/res/res/xml/storage_list.xml         | 10 +-----
+ recovery.fstab                                     | 12 +------
+ recovery/root/etc/twrp.fstab                       | 10 +++---
+ rootdir/Android.mk                                 |  8 -----
+ rootdir/etc/fstab.pyramid                          | 22 +++++--------
+ rootdir/etc/init.pyramid.rc                        | 16 ---------
+ rootdir/etc/init.pyramid.sh                        | 38 ----------------------
+ system_prop.mk                                     |  6 ++--
+ 10 files changed, 23 insertions(+), 108 deletions(-)
+ mode change 100644 => 120000 recovery.fstab
+ delete mode 100755 rootdir/etc/init.pyramid.sh
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index ca99a2d..8f058e2 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -173,7 +173,7 @@ TARGET_USERIMAGES_USE_F2FS := true
+ BOARD_VOLD_MAX_PARTITIONS := 36
+ BOARD_BOOTIMAGE_PARTITION_SIZE := 16777216
+ BOARD_RECOVERYIMAGE_PARTITION_SIZE := 16776192
+-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 838859776
++BOARD_SYSTEMIMAGE_PARTITION_SIZE := 1252770816
+ BOARD_USERDATAIMAGE_PARTITION_SIZE := 1252770816
+ BOARD_FLASH_BLOCK_SIZE := 262144
+ 
+@@ -188,6 +188,8 @@ TW_INCLUDE_NTFS_3G := true
+ TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
+ TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/platform/msm_hsusb/gadget/lun0/file"
+ TW_BACKUP_DATA_MEDIA := true
+-TW_INTERNAL_STORAGE_PATH := /sdcard
+-TW_EXTERNAL_STORAGE_PATH := /sdcard1
+ TW_INCLUDE_L_CRYPTO := true
++
++# Dalvik/ART optimizations
++WITH_DEXPREOPT := true
++WITH_DEXPREOPT_COMP := false
+diff --git a/device_pyramid.mk b/device_pyramid.mk
+index ef26334..5c24735 100644
+--- a/device_pyramid.mk
++++ b/device_pyramid.mk
+@@ -152,7 +152,6 @@ DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
+ # Ramdisk
+ PRODUCT_PACKAGES += \
+     fstab.pyramid \
+-    init.pyramid.sh \
+     init.pyramid.rc \
+     init.qcom.power.rc \
+     init.pyramid.usb.rc \
+diff --git a/overlay/frameworks/base/core/res/res/xml/storage_list.xml b/overlay/frameworks/base/core/res/res/xml/storage_list.xml
+index 92249dd..8aeda20 100644
+--- a/overlay/frameworks/base/core/res/res/xml/storage_list.xml
++++ b/overlay/frameworks/base/core/res/res/xml/storage_list.xml
+@@ -26,16 +26,8 @@
+         android:emulated="true"
+         android:primary="true"
+         android:mtpReserve="100" />
+-    <!-- external sdcard (non-removable due to optional usage of second partition for data) -->
+-    <storage android:mountPoint="/storage/sdcard1"
+-        android:storageDescription="@string/storage_sd_card"
+-        android:primary="false"
+-        android:emulated="false"
+-        android:removable="false"
+-        android:allowMassStorage="false"
+-        android:maxFileSize="4096" />
+     <!-- external USB OTG storage -->
+-    <storage android:mountPoint="/storage/usb-otg"
++    <storage android:mountPoint="/storage/usbdisk"
+         android:storageDescription="@string/storage_usb"
+         android:removable="true" />
+ </StorageList>
+diff --git a/recovery.fstab b/recovery.fstab
+deleted file mode 100644
+index bf1959e..0000000
+--- a/recovery.fstab
++++ /dev/null
+@@ -1,11 +0,0 @@
+-# mount point   fstype          device                  [device2] [length=]
+-
+-/boot           emmc            /dev/block/mmcblk0p20
+-/recovery       emmc            /dev/block/mmcblk0p21
+-/system         ext4            /dev/block/mmcblk0p22
+-/data           f2fs            /dev/block/mmcblk0p23   length=-16384
+-/cache          f2fs            /dev/block/mmcblk0p24
+-/misc           emmc            /dev/block/mmcblk0p31
+-/sdcard1        vfat            /dev/block/mmcblk1p1    /dev/block/mmcblk1      flags=display="sdcard1";storage;wipeingui;removable
+-/data1          f2fs            /dev/block/mmcblk1p2    /dev/block/mmcblk1      flags=display="data1";wipeingui;removable
+-/usbdisk        vfat            /dev/block/sda1         /dev/block/sda          flags=display="usbdisk";storage;wipeingui;removable
+diff --git a/recovery.fstab b/recovery.fstab
+new file mode 120000
+index 0000000..368a16b
+--- /dev/null
++++ b/recovery.fstab
+@@ -0,0 +1 @@
++recovery/root/etc/twrp.fstab
+\ No newline at end of file
+diff --git a/recovery/root/etc/twrp.fstab b/recovery/root/etc/twrp.fstab
+index 20614ab..2614832 100644
+--- a/recovery/root/etc/twrp.fstab
++++ b/recovery/root/etc/twrp.fstab
+@@ -2,10 +2,8 @@
+ 
+ /boot           emmc            /dev/block/mmcblk0p20
+ /recovery       emmc            /dev/block/mmcblk0p21
+-/system         ext4            /dev/block/mmcblk0p22
+-/data           f2fs            /dev/block/mmcblk0p23   length=-16384
+-/cache          f2fs            /dev/block/mmcblk0p28
++/system         ext4            /dev/block/mmcblk0p23
++/data           f2fs            /dev/block/mmcblk1      length=-16384
++/cache          f2fs            /dev/block/mmcblk0p24
+ /misc           emmc            /dev/block/mmcblk0p31
+-/sdcard1        vfat            /dev/block/mmcblk1p1    /dev/block/mmcblk1      flags=display="sdcard1";andsec;storage;wipeingui;removable
+-/data1          f2fs            /dev/block/mmcblk1p2    /dev/block/mmcblk1      flags=display="data1";wipeingui;removable
+-/usb-otg        vfat            /dev/block/sda1         /dev/block/sda          flags=display="usb-otg";storage;wipeingui;removable
++/usbdisk        vfat            /dev/block/sda1         /dev/block/sda          flags=display="usbdisk";storage;wipeingui;removable
+diff --git a/rootdir/Android.mk b/rootdir/Android.mk
+index fd3298a..8f9b24d 100644
+--- a/rootdir/Android.mk
++++ b/rootdir/Android.mk
+@@ -17,14 +17,6 @@ LOCAL_MODULE_PATH	:= $(TARGET_ROOT_OUT)
+ include $(BUILD_PREBUILT)
+ 
+ include $(CLEAR_VARS)
+-LOCAL_MODULE		:= init.pyramid.sh
+-LOCAL_MODULE_TAGS	:= optional eng
+-LOCAL_MODULE_CLASS	:= ETC
+-LOCAL_SRC_FILES		:= etc/init.pyramid.sh
+-LOCAL_MODULE_PATH	:= $(TARGET_ROOT_OUT)
+-include $(BUILD_PREBUILT)
+-
+-include $(CLEAR_VARS)
+ LOCAL_MODULE		:= init.pyramid.rc
+ LOCAL_MODULE_TAGS	:= optional eng
+ LOCAL_MODULE_CLASS	:= ETC
+diff --git a/rootdir/etc/fstab.pyramid b/rootdir/etc/fstab.pyramid
+index a955c97..a8dc29b 100644
+--- a/rootdir/etc/fstab.pyramid
++++ b/rootdir/etc/fstab.pyramid
+@@ -7,22 +7,18 @@
+ /dev/block/platform/msm_sdcc.1/by-name/boot        /boot              emmc        defaults                                                  defaults
+ /dev/block/platform/msm_sdcc.1/by-name/recovery    /recovery          emmc        defaults                                                  defaults
+ /dev/block/platform/msm_sdcc.1/by-name/misc        /misc              emmc        defaults                                                  defaults
+-/dev/block/platform/msm_sdcc.1/by-name/devlog      /cache             ext4        noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,noauto_da_alloc,errors=panic wait,check
+-/dev/block/platform/msm_sdcc.1/by-name/devlog      /cache             f2fs        rw,discard,nosuid,nodev,noatime,nodiratime,inline_xattr   wait,check
+-/dev/block/platform/msm_sdcc.1/by-name/system      /system            ext4        ro,noatime,barrier=1                                      wait
+-/dev/block/platform/msm_sdcc.1/by-name/userdata    /data              ext4        noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,noauto_da_alloc,errors=panic wait,check,encryptable=footer,length=-16384
+-/dev/block/platform/msm_sdcc.1/by-name/userdata    /data              f2fs        noatime,nodiratime,nosuid,nodev,inline_xattr,discard,rw   wait,check,encryptable=footer,length=-16384
+-/dev/block/platform/msm_sdcc.3/by-num/p2           /data1             ext4        noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,noauto_da_alloc,errors=panic wait,check
+-/dev/block/platform/msm_sdcc.3/by-num/p2           /data1             f2fs        noatime,nodiratime,nosuid,nodev,inline_xattr,discard,rw   wait,check
+-
+-# SD card
+-/devices/platform/msm_sdcc.3/mmc_host/mmc1*        auto               vfat        defaults                                                  voldmanaged=sdcard1:auto,noemulatedsd
++/dev/block/platform/msm_sdcc.1/by-name/devlog      /devlog            ext4        rw,noatime,nosuid,nodev,barrier=0                         wait
++/dev/block/platform/msm_sdcc.1/by-name/userdata    /system            ext4        ro,noatime,barrier=0                                      wait
++/dev/block/platform/msm_sdcc.1/by-name/cache       /cache             ext4        noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,noauto_da_alloc,errors=panic wait,check
++/dev/block/platform/msm_sdcc.1/by-name/cache       /cache             f2fs        rw,discard,nosuid,nodev,noatime,nodiratime,inline_xattr   wait,check
++/dev/block/platform/msm_sdcc.3/mmcblk1             /data              ext4        noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,noauto_da_alloc,errors=panic wait,check,encryptable=footer,length=-16384
++/dev/block/platform/msm_sdcc.3/mmcblk1             /data              f2fs        noatime,nodiratime,nosuid,nodev,inline_xattr,discard,rw   wait,check,encryptable=footer,length=-16384
+ 
+ # USB storage
+-d*                                                 auto               auto        defaults                                                  voldmanaged=usbdisk:auto,noemulatedsd
++/devices/platform/msm_hsusb_host.0/usb1            auto               auto        defaults                                                  voldmanaged=usbdisk:auto,noemulatedsd
+ 
+ # ZRAM
+ /dev/block/zram0                                   none               swap        defaults                                                  zramsize=134217728
+ 
+-# Cache as secondary swap
+-/dev/block/platform/msm_sdcc.1/by-name/cache       none               swap        defaults                                                  defaults
++# System as secondary swap
++/dev/block/platform/msm_sdcc.1/by-name/system      none               swap        defaults                                                  defaults
+diff --git a/rootdir/etc/init.pyramid.rc b/rootdir/etc/init.pyramid.rc
+index 4372188..deda515 100755
+--- a/rootdir/etc/init.pyramid.rc
++++ b/rootdir/etc/init.pyramid.rc
+@@ -18,14 +18,6 @@ on init
+     export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
+     export EMULATED_STORAGE_TARGET /storage/emulated
+ 
+-    # Secondary storage
+-    mkdir /mnt/media_rw/sdcard1 0700 media_rw media_rw
+-    mkdir /storage/sdcard1 0700 root root
+-    export SECONDARY_STORAGE /storage/sdcard1
+-
+-    # Secondary data (optional)
+-    mkdir /data1 0771 root root
+-
+     # Support legacy paths
+     symlink /storage/emulated/legacy /sdcard
+     symlink /storage/emulated/legacy /mnt/sdcard
+@@ -67,9 +59,6 @@ on fs
+     # link widevine drm library path
+     symlink /system/vendor/lib /vendor/lib
+ 
+-    # run device's script
+-    exec /init.pyramid.sh
+-
+     mount_all /remount.pyramid
+ 
+ on post-fs-data
+@@ -272,11 +261,6 @@ service iprenew_wlan0 /system/bin/dhcpcd -n
+     disabled
+     oneshot
+ 
+-# external sdcard daemon running as media_rw (1023)
+-service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
+-    class late_start
+-    disabled
+-
+ # virtual sdcard daemon running as media_rw (1023)
+ service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
+     class late_start
+diff --git a/rootdir/etc/init.pyramid.sh b/rootdir/etc/init.pyramid.sh
+deleted file mode 100755
+index 127ef98..0000000
+--- a/rootdir/etc/init.pyramid.sh
++++ /dev/null
+@@ -1,38 +0,0 @@
+-#!/system/bin/sh
+-
+-export PATH=${PATH}:/system/bin/:/system/xbin/
+-LOG="/cache/${0}.log"
+-
+-log -p i -t userinit "[${0}][Start]"
+-
+-# Log related mounts and mount points before
+-echo "[Start]"   >> ${LOG}
+-mount            >> ${LOG}
+-echo "[/]"       >> ${LOG}
+-ls -la  /        >> ${LOG}
+-echo "[/data]"   >> ${LOG}
+-ls -la  /data/   >> ${LOG}
+-echo "[/data1]"  >> ${LOG}
+-ls -la  /data1/  >> ${LOG}
+-du -sch /data1/* >> ${LOG}
+-
+-# Attempt to link data components to secondary data (optional)
+-# If we fail those locations will be used as usual
+-# Ensure permissions are set correctly
+-test -d /data1/dalvik-cache && chmod 0771 /data1/dalvik-cache && chown root:root         /data1/dalvik-cache && rm -Rf /data/dalvik-cache && ln -s /data1/dalvik-cache /data/dalvik-cache && log -p i -t userinit "[${0}] Linked /data1/dalvik-cache" && echo "[${0}] Linked /data1/dalvik-cache" >> ${LOG}
+-test -d /data1/app          && chmod 0771 /data1/app          && chown system:system     /data1/app          && rm -Rf /data/app          && ln -s /data1/app          /data/app          && log -p i -t userinit "[${0}] Linked /data1/app"          && echo "[${0}] Linked /data1/app"          >> ${LOG}
+-test -d /data1/data         && chmod 0771 /data1/data         && chown system:system     /data1/data         && rm -Rf /data/data         && ln -s /data1/data         /data/data         && log -p i -t userinit "[${0}] Linked /data1/data"         && echo "[${0}] Linked /data1/data"         >> ${LOG}
+-test -d /data1/media        && chmod 0770 /data1/media        && chown media_rw:media_rw /data1/media        && rm -Rf /data/media        && ln -s /data1/media        /data/media        && log -p i -t userinit "[${0}] Linked /data1/media"        && echo "[${0}] Linked /data1/media"        >> ${LOG}
+-
+-# Log related mounts and mount points after
+-echo "[Stop]"    >> ${LOG}
+-mount            >> ${LOG}
+-echo "[/]"       >> ${LOG}
+-ls -la  /        >> ${LOG}
+-echo "[/data]"   >> ${LOG}
+-ls -la  /data/   >> ${LOG}
+-echo "[/data1]"  >> ${LOG}
+-ls -la  /data1/  >> ${LOG}
+-du -sch /data1/* >> ${LOG}
+-
+-log -p i -t userinit "[${0}][Stop]"
+diff --git a/system_prop.mk b/system_prop.mk
+index cf2f112..1b42ad8 100644
+--- a/system_prop.mk
++++ b/system_prop.mk
+@@ -22,10 +22,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
+ 
+ # Tweaks
+ PRODUCT_PROPERTY_OVERRIDES += \
+-    dalvik.vm.dexopt-data-only=1 \
+-    dalvik.vm.dexopt-flags=m=y \
+     windowsmgr.max_events_per_sec=300 \
+     pm.sleep_mode=1
++#    dalvik.vm.dexopt-data-only=1 \
++#    dalvik.vm.dexopt-flags=m=y \
+ 
+ # Display
+ PRODUCT_PROPERTY_OVERRIDES += \
+@@ -41,8 +41,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
+ # Misc
+ PRODUCT_PROPERTY_OVERRIDES += \
+     ro.setupwizard.enable_bypass=1 \
+-    dalvik.vm.lockprof.threshold=500 \
+     ro.com.google.locationfeatures=1
++#    dalvik.vm.lockprof.threshold=500 \
+ 
+ # USB-OTG
+ persist.sys.isUsbOtgEnabled=true
+-- 
+2.5.3
+

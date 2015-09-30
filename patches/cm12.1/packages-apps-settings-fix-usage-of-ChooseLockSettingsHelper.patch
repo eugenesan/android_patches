@@ -1,0 +1,76 @@
+From 515c3aeeaeaf88820a03719e340a599320d0de6f Mon Sep 17 00:00:00 2001
+From: Daniel Micay <danielmicay@gmail.com>
+Date: Sun, 28 Jun 2015 13:31:54 -0400
+Subject: [PATCH 3/3] fix usage of ChooseLockSettingsHelper
+
+The fragment was not being passed, so the ChooseLock* fragments are not
+informed if authentication fails (i.e. the cancel button is pushed) and
+continue on as if it was successful. This wasn't noticed because this
+code isn't used in the normal path where authentication happens before
+entering the preferences menu to choose the authentication method.
+
+The authentication support built-in to these fragments may even be dead
+code, but it should work correctly if it's there because it may be the
+basis of new code.
+---
+ src/com/android/settings/ChooseLockGeneric.java     | 2 +-
+ src/com/android/settings/ChooseLockPassword.java    | 2 +-
+ src/com/android/settings/ChooseLockPattern.java     | 2 +-
+ src/com/android/settings/ChooseLockPatternSize.java | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/com/android/settings/ChooseLockGeneric.java b/src/com/android/settings/ChooseLockGeneric.java
+index ea679c1..0f0ad22 100644
+--- a/src/com/android/settings/ChooseLockGeneric.java
++++ b/src/com/android/settings/ChooseLockGeneric.java
+@@ -117,7 +117,7 @@ public class ChooseLockGeneric extends SettingsActivity {
+ 
+             mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+             mKeyStore = KeyStore.getInstance();
+-            mChooseLockSettingsHelper = new ChooseLockSettingsHelper(this.getActivity());
++            mChooseLockSettingsHelper = new ChooseLockSettingsHelper(this.getActivity(), this);
+             mLockPatternUtils = new LockPatternUtils(getActivity());
+ 
+             // Defaults to needing to confirm credentials
+diff --git a/src/com/android/settings/ChooseLockPassword.java b/src/com/android/settings/ChooseLockPassword.java
+index bdd50fc..19b514d 100644
+--- a/src/com/android/settings/ChooseLockPassword.java
++++ b/src/com/android/settings/ChooseLockPassword.java
+@@ -198,7 +198,7 @@ public class ChooseLockPassword extends SettingsActivity {
+             mPasswordMinNonLetter = Math.max(intent.getIntExtra(PASSWORD_MIN_NONLETTER_KEY,
+                     mPasswordMinNonLetter), mLockPatternUtils.getRequestedPasswordMinimumNonLetter());
+ 
+-            mChooseLockSettingsHelper = new ChooseLockSettingsHelper(getActivity());
++            mChooseLockSettingsHelper = new ChooseLockSettingsHelper(getActivity(), this);
+         }
+ 
+         @Override
+diff --git a/src/com/android/settings/ChooseLockPattern.java b/src/com/android/settings/ChooseLockPattern.java
+index 60de8a7..377bc9a 100644
+--- a/src/com/android/settings/ChooseLockPattern.java
++++ b/src/com/android/settings/ChooseLockPattern.java
+@@ -327,7 +327,7 @@ public class ChooseLockPattern extends SettingsActivity {
+         @Override
+         public void onCreate(Bundle savedInstanceState) {
+             super.onCreate(savedInstanceState);
+-            mChooseLockSettingsHelper = new ChooseLockSettingsHelper(getActivity());
++            mChooseLockSettingsHelper = new ChooseLockSettingsHelper(getActivity(), this);
+             if (!(getActivity() instanceof ChooseLockPattern)) {
+                 throw new SecurityException("Fragment contained in wrong activity");
+             }
+diff --git a/src/com/android/settings/ChooseLockPatternSize.java b/src/com/android/settings/ChooseLockPatternSize.java
+index a54ae80..80b0060 100644
+--- a/src/com/android/settings/ChooseLockPatternSize.java
++++ b/src/com/android/settings/ChooseLockPatternSize.java
+@@ -49,7 +49,7 @@ public class ChooseLockPatternSize extends SettingsActivity {
+         @Override
+         public void onCreate(Bundle savedInstanceState) {
+             super.onCreate(savedInstanceState);
+-            mChooseLockSettingsHelper = new ChooseLockSettingsHelper(this.getActivity());
++            mChooseLockSettingsHelper = new ChooseLockSettingsHelper(this.getActivity(), this);
+             if (!(getActivity() instanceof ChooseLockPatternSize)) {
+                 throw new SecurityException("Fragment contained in wrong activity");
+             }
+-- 
+2.5.3
+

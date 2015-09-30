@@ -1,0 +1,117 @@
+From 60d80d271d3d2a1ffeca76f829e6d5a67053da80 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Tue, 8 Sep 2015 17:51:04 -0400
+Subject: [PATCH 1/2] Add support for backing up data/media
+
+See: https://github.com/TeamWin/Team-Win-Recovery-Project/issues/276
+
+Change-Id: I9e0538adef145a042d956f523d90d0a949014639
+---
+ Android.mk     |  4 ++--
+ data.cpp       |  6 ++++++
+ partition.cpp  | 17 +++++++++++++++--
+ partitions.hpp |  1 +
+ variables.h    |  1 +
+ 5 files changed, 25 insertions(+), 4 deletions(-)
+
+diff --git a/Android.mk b/Android.mk
+index c1365e7..3cd7da9 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -235,8 +235,8 @@ endif
+ ifeq ($(TW_INCLUDE_BLOBPACK), true)
+     LOCAL_CFLAGS += -DTW_INCLUDE_BLOBPACK
+ endif
+-ifeq ($(TW_DEFAULT_EXTERNAL_STORAGE), true)
+-    LOCAL_CFLAGS += -DTW_DEFAULT_EXTERNAL_STORAGE
++ifeq ($(TW_BACKUP_DATA_MEDIA), true)
++    LOCAL_CFLAGS += -DTW_BACKUP_DATA_MEDIA
+ endif
+ ifneq ($(TARGET_USE_CUSTOM_LUN_FILE_PATH),)
+     LOCAL_CFLAGS += -DCUSTOM_LUN_FILE=\"$(TARGET_USE_CUSTOM_LUN_FILE_PATH)\"
+diff --git a/data.cpp b/data.cpp
+index 7364b9f..150e311 100644
+--- a/data.cpp
++++ b/data.cpp
+@@ -689,6 +689,12 @@ void DataManager::SetDefaultValues()
+ 	mValues.insert(make_pair(TW_HAS_DATA_MEDIA, make_pair("0", 0)));
+ 	mValues.insert(make_pair("tw_has_internal", make_pair("0", 0)));
+ #endif
++#ifdef TW_BACKUP_DATA_MEDIA
++	printf("TW_BACKUP_DATA_MEDIA := true\n");
++	mConstValues.insert(make_pair(TW_BACKUP_DATA_MEDIA, "1"));
++#else
++	mConstValues.insert(make_pair(TW_BACKUP_DATA_MEDIA, "0"));
++#endif
+ #ifdef TW_NO_BATT_PERCENT
+ 	printf("TW_NO_BATT_PERCENT := true\n");
+ 	mConstValues.insert(make_pair(TW_NO_BATTERY_PERCENT, "1"));
+diff --git a/partition.cpp b/partition.cpp
+index 8c5b412..4124823 100644
+--- a/partition.cpp
++++ b/partition.cpp
+@@ -143,6 +143,7 @@ TWPartition::TWPartition() {
+ 	Can_Encrypt_Backup = false;
+ 	Use_Userdata_Encryption = false;
+ 	Has_Data_Media = false;
++	Backup_Data_Media = false;
+ 	Has_Android_Secure = false;
+ 	Is_Storage = false;
+ 	Is_Settings_Storage = false;
+@@ -713,7 +714,19 @@ void TWPartition::Setup_Data_Media() {
+ 	}
+ 	DataManager::SetValue("tw_has_internal", 1);
+ 	DataManager::SetValue("tw_has_data_media", 1);
+-	du.add_absolute_dir("/data/media");
++
++	int backup_datamedia;
++
++	// Check if we need to exclude data/media
++	DataManager::GetValue(TW_BACKUP_DATA_MEDIA, backup_datamedia);
++	if (backup_datamedia != 0) {
++		Backup_Data_Media = true;
++		LOGINFO("Will backup data/media on emulated storage.\n");
++	} else {
++		Backup_Data_Media = false;
++		du.add_absolute_dir("/data/media");
++		LOGINFO("Will exclude data/media on emulated storage.\n");
++	}
+ }
+ 
+ void TWPartition::Find_Real_Block_Device(string& Block, bool Display_Error) {
+@@ -1122,7 +1135,7 @@ bool TWPartition::Wipe(string New_File_System) {
+ 	else
+ 		unlink("/.layout_version");
+ 
+-	if (Has_Data_Media && Current_File_System == New_File_System) {
++	if (Has_Data_Media && Backup_Data_Media && Current_File_System == New_File_System) {
+ 		wiped = Wipe_Data_Without_Wiping_Media();
+ 		recreate_media = false;
+ 	} else {
+diff --git a/partitions.hpp b/partitions.hpp
+index afcd474..ac25d7b 100644
+--- a/partitions.hpp
++++ b/partitions.hpp
+@@ -85,6 +85,7 @@ public:
+ 
+ protected:
+ 	bool Has_Data_Media;                                                      // Indicates presence of /data/media, may affect wiping and backup methods
++	bool Backup_Data_Media;                                                   // Indicates need to backup /data/media, may affect wiping, backup and restore methods
+ 	void Setup_Data_Media();                                                  // Sets up a partition as a /data/media emulated storage partition
+ 
+ private:
+diff --git a/variables.h b/variables.h
+index d5df8d4..ff235fd 100644
+--- a/variables.h
++++ b/variables.h
+@@ -123,6 +123,7 @@
+ #define TW_EXTERNAL_LABEL           "tw_external_label"        // sdcard or external
+ 
+ #define TW_HAS_DATA_MEDIA           "tw_has_data_media"
++#define TW_BACKUP_DATA_MEDIA        "tw_backup_data_media"
+ 
+ #define TW_HAS_BOOT_PARTITION       "tw_has_boot_partition"
+ #define TW_HAS_RECOVERY_PARTITION   "tw_has_recovery_partition"
+-- 
+2.5.3
+

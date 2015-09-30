@@ -1,0 +1,587 @@
+From 850fa815457289fe5cd6b90214209fd2fbf4881b Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Fri, 4 Sep 2015 09:17:59 -0400
+Subject: [PATCH] Use Nexus style data layout, allow data components on
+ external sdcard and some optimizations and cleanups
+
+Use internal data as in Nexus devices (sdcard0 is emulated) and external sdcard now called sdcard1.
+
+Optional second partition of external sdcard (data1) can be used to store selected data components such as:
+app, data, media and dalvik-cache. To do so, one must create a folder with a name of the component/s on data1.
+
+We register sdcard1 as secondary storage allowing built-in asec mechanism to be used to move apps to it.
+
+Also:
+* Add misc recovery related settings and coresponding changes to TWRP in order to support above.
+* Modify recovery to backup of emulated internal sdcard and apps in asac container.
+* Remove duplicated default init.rc code
+* Optimize storage, use cache as secondary swap and reuse devlog as cache
+
+To summarize, this patch allows user to encrypt device including sdcard0,
+place selected data components on external sdcard and hopefuly provides better performance.
+
+Change-Id: Ib52086347eb1f8fc9fd11031428f2c49bdda9afb
+---
+ BoardConfig.mk                                     | 15 ++--
+ device_pyramid.mk                                  |  1 +
+ .../base/core/res/res/xml/storage_list.xml         | 45 ++++++------
+ recovery.fstab                                     | 15 ++--
+ recovery/root/etc/twrp.fstab                       | 21 +++---
+ recovery/root/init.recovery.pyramid.rc             | 12 ----
+ rootdir/Android.mk                                 |  8 +++
+ rootdir/etc/fstab.pyramid                          | 39 ++++++-----
+ rootdir/etc/init.pyramid.rc                        | 81 +++++++++++++---------
+ rootdir/etc/init.pyramid.sh                        | 38 ++++++++++
+ rootdir/etc/remount.pyramid                        |  4 +-
+ system_prop.mk                                     | 20 +++---
+ 12 files changed, 175 insertions(+), 124 deletions(-)
+ mode change 100755 => 100644 rootdir/etc/fstab.pyramid
+ create mode 100755 rootdir/etc/init.pyramid.sh
+ mode change 100755 => 100644 rootdir/etc/remount.pyramid
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index 31a1114..ca99a2d 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -29,7 +29,6 @@ TARGET_SPECIFIC_HEADER_PATH := $(LOCAL_PATH)/include
+ 
+ BOARD_VENDOR := htc
+ 
+-
+ # Bootloader
+ TARGET_NO_BOOTLOADER := true
+ 
+@@ -84,7 +83,6 @@ AUDIO_FEATURE_ENABLED_FM := true
+ TARGET_GPS_HAL_PATH := $(LOCAL_PATH)/gps
+ BOARD_VENDOR_QCOM_GPS_LOC_API_AMSS_VERSION := 50000
+ 
+-
+ # Graphics
+ USE_OPENGL_RENDERER := true
+ TARGET_DISPLAY_USE_RETIRE_FENCE := true
+@@ -92,6 +90,7 @@ TARGET_USES_C2D_COMPOSITION := true
+ TARGET_USES_ION := true
+ NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
+ TARGET_DISPLAY_INSECURE_MM_HEAP := true
++DEVICE_RESOLUTION := 540x960
+ 
+ # Media
+ TARGET_NO_ADAPTIVE_PLAYBACK := true
+@@ -117,11 +116,14 @@ BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x01400000
+ TARGET_KERNEL_CONFIG := pyramid_defconfig
+ TARGET_KERNEL_SOURCE := kernel/htc/pyramid
+ 
++# Recovery
++TARGET_RECOVERY_DEVICE_MODULES += chargeled
+ TARGET_RECOVERY_FSTAB := device/htc/pyramid/rootdir/etc/fstab.pyramid
+ RECOVERY_FSTAB_VERSION := 2
+ TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
+ RECOVERY_GRAPHICS_USE_LINELENGTH := true
+ TARGET_RECOVERY_DEVICE_DIRS += device/htc/pyramid
++RECOVERY_SDCARD_ON_DATA := true
+ 
+ # Required for Sensors
+ COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
+@@ -153,9 +155,6 @@ BOARD_SUPPRESS_EMMC_WIPE := true
+ # Use dlmalloc
+ MALLOC_IMPL := dlmalloc
+ 
+-# Recovery
+-TARGET_RECOVERY_DEVICE_MODULES += chargeled
+-
+ # SELinux
+ -include device/qcom/sepolicy/sepolicy.mk
+ 
+@@ -178,7 +177,7 @@ BOARD_SYSTEMIMAGE_PARTITION_SIZE := 838859776
+ BOARD_USERDATAIMAGE_PARTITION_SIZE := 1252770816
+ BOARD_FLASH_BLOCK_SIZE := 262144
+ 
+-# Twrp
++# TWRP
+ TW_THEME := portrait_mdpi
+ TW_INCLUDE_CRYPTO := true
+ TW_NO_SCREEN_BLANK := true
+@@ -188,3 +187,7 @@ TW_NEW_ION_HEAP := true
+ TW_INCLUDE_NTFS_3G := true
+ TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
+ TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/platform/msm_hsusb/gadget/lun0/file"
++TW_BACKUP_DATA_MEDIA := true
++TW_INTERNAL_STORAGE_PATH := /sdcard
++TW_EXTERNAL_STORAGE_PATH := /sdcard1
++TW_INCLUDE_L_CRYPTO := true
+diff --git a/device_pyramid.mk b/device_pyramid.mk
+index 5c24735..ef26334 100644
+--- a/device_pyramid.mk
++++ b/device_pyramid.mk
+@@ -152,6 +152,7 @@ DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
+ # Ramdisk
+ PRODUCT_PACKAGES += \
+     fstab.pyramid \
++    init.pyramid.sh \
+     init.pyramid.rc \
+     init.qcom.power.rc \
+     init.pyramid.usb.rc \
+diff --git a/overlay/frameworks/base/core/res/res/xml/storage_list.xml b/overlay/frameworks/base/core/res/res/xml/storage_list.xml
+index 208b2c3..92249dd 100644
+--- a/overlay/frameworks/base/core/res/res/xml/storage_list.xml
++++ b/overlay/frameworks/base/core/res/res/xml/storage_list.xml
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <!--
+ **
+-** Copyright 2011, The Android Open Source Project
++** Copyright 2013, The Android Open Source Project
+ **
+ ** Licensed under the Apache License, Version 2.0 (the "License")
+ ** you may not use this file except in compliance with the License.
+@@ -17,30 +17,25 @@
+ */
+ -->
+ 
+-<!-- The <device> element should contain one or more <storage> elements.
+-     Exactly one of these should have the attribute primary="true".
+-     This storage will be the primary external storage and should have path="/mnt/sdcard".
+-     Each storage should have both a path and description attribute set.
+-     The following boolean attributes are optional:
+-
+-        primary:    this storage is the primary external storage
+-        removable:  this is removable storage (for example, a real SD card)
+-        emulated:   the storage is emulated via the FUSE sdcard daemon
+-        mtp-reserve: number of megabytes of storage MTP should reserve for free storage
+-                     (used for emulated storage that is shared with system's data partition)
+-
+-      A storage should not have both emulated and removable set to true
+--->
++<!-- See storage config details at http://source.android.com/tech/storage/ -->
+ 
+ <StorageList xmlns:android="http://schemas.android.com/apk/res/android">
+-    <!-- removable is not set in nosdcard product -->
+-    <storage android:mountPoint="/storage/sdcard0"
+-             android:storageDescription="@string/storage_sd_card"
+-             android:primary="true"
+-             android:removable="true"
+-             android:allowMassStorage="true"
+-	     android:maxFileSize="4096" />
+-    <storage android:mountPoint="/storage/usbdisk"
+-	     android:storageDescription="@string/storage_usb"
+-	     android:removable="true" />
++    <!-- internal emulated storage -->
++    <storage
++        android:storageDescription="@string/storage_internal"
++        android:emulated="true"
++        android:primary="true"
++        android:mtpReserve="100" />
++    <!-- external sdcard (non-removable due to optional usage of second partition for data) -->
++    <storage android:mountPoint="/storage/sdcard1"
++        android:storageDescription="@string/storage_sd_card"
++        android:primary="false"
++        android:emulated="false"
++        android:removable="false"
++        android:allowMassStorage="false"
++        android:maxFileSize="4096" />
++    <!-- external USB OTG storage -->
++    <storage android:mountPoint="/storage/usb-otg"
++        android:storageDescription="@string/storage_usb"
++        android:removable="true" />
+ </StorageList>
+diff --git a/recovery.fstab b/recovery.fstab
+index 780f9a7..bf1959e 100644
+--- a/recovery.fstab
++++ b/recovery.fstab
+@@ -1,10 +1,11 @@
+-# mount point	fstype		device			[device2] [length=]
++# mount point   fstype          device                  [device2] [length=]
+ 
+-/recovery	emmc		/dev/block/mmcblk0p21
+-/boot		emmc		/dev/block/mmcblk0p20
+-/cache          ext4            /dev/block/mmcblk0p24
+-/data           ext4            /dev/block/mmcblk0p23	length=-16384
+-/sd-ext         ext4            /dev/block/mmcblk1p2
+-/sdcard		vfat		/dev/block/mmcblk1p1
++/boot           emmc            /dev/block/mmcblk0p20
++/recovery       emmc            /dev/block/mmcblk0p21
+ /system         ext4            /dev/block/mmcblk0p22
++/data           f2fs            /dev/block/mmcblk0p23   length=-16384
++/cache          f2fs            /dev/block/mmcblk0p24
+ /misc           emmc            /dev/block/mmcblk0p31
++/sdcard1        vfat            /dev/block/mmcblk1p1    /dev/block/mmcblk1      flags=display="sdcard1";storage;wipeingui;removable
++/data1          f2fs            /dev/block/mmcblk1p2    /dev/block/mmcblk1      flags=display="data1";wipeingui;removable
++/usbdisk        vfat            /dev/block/sda1         /dev/block/sda          flags=display="usbdisk";storage;wipeingui;removable
+diff --git a/recovery/root/etc/twrp.fstab b/recovery/root/etc/twrp.fstab
+index 82a48d7..20614ab 100644
+--- a/recovery/root/etc/twrp.fstab
++++ b/recovery/root/etc/twrp.fstab
+@@ -1,12 +1,11 @@
+-# mount point fstype device [device2] [length=]
+-
+-/boot			emmc		/dev/block/mmcblk0p20
+-/recovery		emmc		/dev/block/mmcblk0p21
+-/system			ext4		/dev/block/mmcblk0p22
+-/data			ext4		/dev/block/mmcblk0p23	length=-16384
+-/cache			ext4		/dev/block/mmcblk0p24
+-/misc			emmc		/dev/block/mmcblk0p31
+-/sdcard			vfat		/dev/block/mmcblk1p1	/dev/block/mmcblk1	flags=display="MicroSD card";storage;wipeingui;removable
+-/sd-ext			ext4		/dev/block/mmcblk1p2				flags=display="SD-Ext";wipeingui;removable
+-#/usb-otg		vfat		/dev/block/sda1		/dev/block/sda		flags=display="USB OTG";storage;wipeingui;removable
++# mount point   fstype          device                  [device2] [length=]
+ 
++/boot           emmc            /dev/block/mmcblk0p20
++/recovery       emmc            /dev/block/mmcblk0p21
++/system         ext4            /dev/block/mmcblk0p22
++/data           f2fs            /dev/block/mmcblk0p23   length=-16384
++/cache          f2fs            /dev/block/mmcblk0p28
++/misc           emmc            /dev/block/mmcblk0p31
++/sdcard1        vfat            /dev/block/mmcblk1p1    /dev/block/mmcblk1      flags=display="sdcard1";andsec;storage;wipeingui;removable
++/data1          f2fs            /dev/block/mmcblk1p2    /dev/block/mmcblk1      flags=display="data1";wipeingui;removable
++/usb-otg        vfat            /dev/block/sda1         /dev/block/sda          flags=display="usb-otg";storage;wipeingui;removable
+diff --git a/recovery/root/init.recovery.pyramid.rc b/recovery/root/init.recovery.pyramid.rc
+index 0424624..824bd8b 100755
+--- a/recovery/root/init.recovery.pyramid.rc
++++ b/recovery/root/init.recovery.pyramid.rc
+@@ -56,15 +56,3 @@ service power_test /sbin/power_test
+     disabled
+     oneshot
+     seclabel u:r:recovery:s0
+-
+-# Always start adbd on userdebug and eng builds
+-on property:ro.debuggable=1
+-    #write /sys/class/android_usb/android0/enable 1
+-    #start adbd
+-    setprop service.adb.root 1
+-
+-# Restart adbd so it can run as root
+-on property:service.adb.root=1
+-    write /sys/class/android_usb/android0/enable 0
+-    restart adbd
+-    write /sys/class/android_usb/android0/enable 1
+diff --git a/rootdir/Android.mk b/rootdir/Android.mk
+index 8f9b24d..fd3298a 100644
+--- a/rootdir/Android.mk
++++ b/rootdir/Android.mk
+@@ -17,6 +17,14 @@ LOCAL_MODULE_PATH	:= $(TARGET_ROOT_OUT)
+ include $(BUILD_PREBUILT)
+ 
+ include $(CLEAR_VARS)
++LOCAL_MODULE		:= init.pyramid.sh
++LOCAL_MODULE_TAGS	:= optional eng
++LOCAL_MODULE_CLASS	:= ETC
++LOCAL_SRC_FILES		:= etc/init.pyramid.sh
++LOCAL_MODULE_PATH	:= $(TARGET_ROOT_OUT)
++include $(BUILD_PREBUILT)
++
++include $(CLEAR_VARS)
+ LOCAL_MODULE		:= init.pyramid.rc
+ LOCAL_MODULE_TAGS	:= optional eng
+ LOCAL_MODULE_CLASS	:= ETC
+diff --git a/rootdir/etc/fstab.pyramid b/rootdir/etc/fstab.pyramid
+old mode 100755
+new mode 100644
+index dd91423..a955c97
+--- a/rootdir/etc/fstab.pyramid
++++ b/rootdir/etc/fstab.pyramid
+@@ -1,25 +1,28 @@
+ # Android fstab file.
+-#<src>			<mnt_point>	<type>	<mnt_flags>						<fs_mgr_flags>
+-#/dev/block/platform/msm_sdcc.1/by-name/dsps	/firmware_dsps	vfat	ro,shortname=lower					wait
+-/dev/block/platform/msm_sdcc.1/by-name/radio	/firmware_radio	vfat	ro,shortname=lower,context=u:object_r:firmware_file:s0		wait
+-/dev/block/platform/msm_sdcc.1/by-name/adsp    /firmware_q6	vfat	ro,shortname=lower,context=u:object_r:firmware_file:s0		wait
+-#/dev/block/platform/msm_sdcc.1/by-name/wcnss	/firmware_wcnss	vfat	ro,shortname=lower					wait
+-
+-/dev/block/platform/msm_sdcc.1/by-name/boot      /boot         emmc	defaults						defaults
+-/dev/block/platform/msm_sdcc.1/by-name/recovery  /recovery     emmc	defaults						defaults
+-/dev/block/platform/msm_sdcc.1/by-name/misc      /misc         emmc     defaults						defaults
+-/dev/block/platform/msm_sdcc.1/by-name/devlog    /devlog       ext4	noatime,nosuid,nodev,barrier=0				wait
+-/dev/block/platform/msm_sdcc.1/by-name/system    /system       ext4	rw,noatime,barrier=0					wait
+-/dev/block/platform/msm_sdcc.1/by-name/cache     /cache        ext4	noatime,nosuid,nodev,barrier=0				wait
+-/dev/block/platform/msm_sdcc.1/by-name/cache     /cache        f2fs	rw,discard,nosuid,nodev,noatime,nodiratime,inline_xattr wait,check
+-/dev/block/platform/msm_sdcc.1/by-name/userdata  /data         ext4	noatime,nosuid,nodev,noauto_da_alloc,barrier=0		wait,encryptable=footer,length=-16384
+-/dev/block/platform/msm_sdcc.1/by-name/userdata  /data         f2fs	rw,discard,nosuid,nodev,noatime,nodiratime,inline_xattr wait,check,encryptable=footer,length=-16384
++#<src>                                             <mnt_point>        <type>        <mnt_flags>                                             <fs_mgr_flags>
++#/dev/block/platform/msm_sdcc.1/by-name/dsps       /firmware_dsps     vfat        ro,shortname=lower                                        wait
++/dev/block/platform/msm_sdcc.1/by-name/radio       /firmware_radio    vfat        ro,shortname=lower,context=u:object_r:firmware_file:s0    wait
++/dev/block/platform/msm_sdcc.1/by-name/adsp        /firmware_q6       vfat        ro,shortname=lower,context=u:object_r:firmware_file:s0    wait
++#/dev/block/platform/msm_sdcc.1/by-name/wcnss      /firmware_wcnss    vfat        ro,shortname=lower                                        wait
++/dev/block/platform/msm_sdcc.1/by-name/boot        /boot              emmc        defaults                                                  defaults
++/dev/block/platform/msm_sdcc.1/by-name/recovery    /recovery          emmc        defaults                                                  defaults
++/dev/block/platform/msm_sdcc.1/by-name/misc        /misc              emmc        defaults                                                  defaults
++/dev/block/platform/msm_sdcc.1/by-name/devlog      /cache             ext4        noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,noauto_da_alloc,errors=panic wait,check
++/dev/block/platform/msm_sdcc.1/by-name/devlog      /cache             f2fs        rw,discard,nosuid,nodev,noatime,nodiratime,inline_xattr   wait,check
++/dev/block/platform/msm_sdcc.1/by-name/system      /system            ext4        ro,noatime,barrier=1                                      wait
++/dev/block/platform/msm_sdcc.1/by-name/userdata    /data              ext4        noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,noauto_da_alloc,errors=panic wait,check,encryptable=footer,length=-16384
++/dev/block/platform/msm_sdcc.1/by-name/userdata    /data              f2fs        noatime,nodiratime,nosuid,nodev,inline_xattr,discard,rw   wait,check,encryptable=footer,length=-16384
++/dev/block/platform/msm_sdcc.3/by-num/p2           /data1             ext4        noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,noauto_da_alloc,errors=panic wait,check
++/dev/block/platform/msm_sdcc.3/by-num/p2           /data1             f2fs        noatime,nodiratime,nosuid,nodev,inline_xattr,discard,rw   wait,check
+ 
+ # SD card
+-/devices/platform/msm_sdcc.3/mmc_host/mmc1*	auto	vfat	defaults		voldmanaged=sdcard0:auto,noemulatedsd
++/devices/platform/msm_sdcc.3/mmc_host/mmc1*        auto               vfat        defaults                                                  voldmanaged=sdcard1:auto,noemulatedsd
+ 
+ # USB storage
+-/devices/platform/msm_hsusb_host.0/usb1*	auto	auto	defaults		voldmanaged=usbdisk:auto
++d*                                                 auto               auto        defaults                                                  voldmanaged=usbdisk:auto,noemulatedsd
+ 
+ # ZRAM
+-/dev/block/zram0				none 	swap 	defaults 		zramsize=268435456
++/dev/block/zram0                                   none               swap        defaults                                                  zramsize=134217728
++
++# Cache as secondary swap
++/dev/block/platform/msm_sdcc.1/by-name/cache       none               swap        defaults                                                  defaults
+diff --git a/rootdir/etc/init.pyramid.rc b/rootdir/etc/init.pyramid.rc
+index 207e50e..4372188 100755
+--- a/rootdir/etc/init.pyramid.rc
++++ b/rootdir/etc/init.pyramid.rc
+@@ -3,23 +3,34 @@ import init.qcom.power.rc
+ 
+ on early-init
+ 
+-   # ZRAM
+-   write /sys/block/zram0/comp_algorithm lz4
+-   write /sys/block/zram0/max_comp_streams 2
++    # ZRAM
++    write /sys/block/zram0/comp_algorithm lz4
++    write /sys/block/zram0/max_comp_streams 2
+ 
+ on init
+     mkdir /devlog 0700 root root
+-    mkdir /mnt/media_rw/sdcard0 0700 media_rw media_rw
+-    mkdir /mnt/media_rw/usbdisk 0700 media_rw media_rw
+ 
+-    mkdir /storage/sdcard0 0700 root root
+-    mkdir /storage/usbdisk 0700 root root
++    # See storage config details at http://source.android.com/tech/storage/
++    mkdir /mnt/shell/emulated 0700 shell shell
++    mkdir /storage/emulated 0555 root root
+ 
+-    # for backwards compatibility
+-    symlink /storage/sdcard0 /sdcard
+-    symlink /storage/sdcard0 /mnt/sdcard
+-    symlink /storage/usbdisk /usbdisk
+-    symlink /storage/usbdisk /mnt/usbdisk
++    export EXTERNAL_STORAGE /storage/emulated/legacy
++    export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
++    export EMULATED_STORAGE_TARGET /storage/emulated
++
++    # Secondary storage
++    mkdir /mnt/media_rw/sdcard1 0700 media_rw media_rw
++    mkdir /storage/sdcard1 0700 root root
++    export SECONDARY_STORAGE /storage/sdcard1
++
++    # Secondary data (optional)
++    mkdir /data1 0771 root root
++
++    # Support legacy paths
++    symlink /storage/emulated/legacy /sdcard
++    symlink /storage/emulated/legacy /mnt/sdcard
++    symlink /storage/emulated/legacy /storage/sdcard0
++    symlink /mnt/shell/emulated/0 /storage/emulated/legacy
+ 
+     setprop ro.usb.idproduct.ums 0c86
+     setprop ro.usb.idproduct.rndis 0c86
+@@ -27,17 +38,16 @@ on init
+     setprop ro.usb.idproduct.mtp_adb 0f87
+     setprop ro.usb.idproduct.ptp 0f87
+ 
+-    export EXTERNAL_STORAGE /storage/sdcard0
+-    export SECONDARY_STORAGE /storage/usbdisk
+-
+ on fs
+-
+     # create firmware mount points
+     mkdir /firmware_radio 0771 system system
+     mkdir /firmware_q6 0771 system system
+     # mount all mmc partitions
+     mount_all /fstab.pyramid
++    # init and enable swap partitions (zram and cache)
++    mkswap /dev/block/platform/msm_sdcc.1/by-name/cache
+     swapon_all /fstab.pyramid
++    write /proc/sys/vm/swappiness 60
+ 
+     mkdir /data/tombstones 0771 system system
+     symlink /data/tombstones /tombstones
+@@ -49,13 +59,17 @@ on fs
+     chmod 0644 /proc/cmdline
+ 
+     setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
++    setprop ro.crypto.fuse_sdcard true
+ 
+     # Force loading of modem and Q6 images
+     write /dev/smd_pkt_loopback 1
+ 
+-   # link widevine drm library path
++    # link widevine drm library path
+     symlink /system/vendor/lib /vendor/lib
+ 
++    # run device's script
++    exec /init.pyramid.sh
++
+     mount_all /remount.pyramid
+ 
+ on post-fs-data
+@@ -63,6 +77,8 @@ on post-fs-data
+     chown root root /devlog
+     chmod 0700 /devlog
+ 
++    mkdir /data/media 0770 media_rw media_rw
++
+     # Set indication (checked by vold) that we have finished this action
+     setprop vold.post_fs_data_done 1
+ 
+@@ -241,29 +257,29 @@ service dhcpcd_wlan0 /system/bin/dhcpcd -ABKL
+     oneshot
+ 
+ service dhcpcd_p2p /system/bin/dhcpcd -aABKL
+-	disabled
+-	oneshot
++    disabled
++    oneshot
+ 
+ service dhcpcd_bt-pan /system/bin/dhcpcd -ABKL
+-	disabled
+-	oneshot
++    disabled
++    oneshot
+ 
+ service iprenew_bt-pan /system/bin/dhcpcd -n
+-	disabled
+-	oneshot
++    disabled
++    oneshot
+ 
+ service iprenew_wlan0 /system/bin/dhcpcd -n
+-	disabled
+-	oneshot
+-# wifi--
++    disabled
++    oneshot
+ 
+-service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0 /storage/sdcard0
+-        class late_start
+-        disabled
++# external sdcard daemon running as media_rw (1023)
++service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
++    class late_start
++    disabled
+ 
+-service fuse_usbdisk /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/usbdisk /storage/usbdisk
+-	class late_start
+-	disabled
++# virtual sdcard daemon running as media_rw (1023)
++service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
++    class late_start
+ 
+ on property:init.svc.bootanim=stopped
+     start qcom-post-boot
+@@ -278,4 +294,3 @@ on property:service.adb.root=1
+ 
+ on property:sys.radio.shutdown=true
+     exec /system/bin/sh /system/etc/init.qcom.efs.sync.sh
+-
+diff --git a/rootdir/etc/init.pyramid.sh b/rootdir/etc/init.pyramid.sh
+new file mode 100755
+index 0000000..127ef98
+--- /dev/null
++++ b/rootdir/etc/init.pyramid.sh
+@@ -0,0 +1,38 @@
++#!/system/bin/sh
++
++export PATH=${PATH}:/system/bin/:/system/xbin/
++LOG="/cache/${0}.log"
++
++log -p i -t userinit "[${0}][Start]"
++
++# Log related mounts and mount points before
++echo "[Start]"   >> ${LOG}
++mount            >> ${LOG}
++echo "[/]"       >> ${LOG}
++ls -la  /        >> ${LOG}
++echo "[/data]"   >> ${LOG}
++ls -la  /data/   >> ${LOG}
++echo "[/data1]"  >> ${LOG}
++ls -la  /data1/  >> ${LOG}
++du -sch /data1/* >> ${LOG}
++
++# Attempt to link data components to secondary data (optional)
++# If we fail those locations will be used as usual
++# Ensure permissions are set correctly
++test -d /data1/dalvik-cache && chmod 0771 /data1/dalvik-cache && chown root:root         /data1/dalvik-cache && rm -Rf /data/dalvik-cache && ln -s /data1/dalvik-cache /data/dalvik-cache && log -p i -t userinit "[${0}] Linked /data1/dalvik-cache" && echo "[${0}] Linked /data1/dalvik-cache" >> ${LOG}
++test -d /data1/app          && chmod 0771 /data1/app          && chown system:system     /data1/app          && rm -Rf /data/app          && ln -s /data1/app          /data/app          && log -p i -t userinit "[${0}] Linked /data1/app"          && echo "[${0}] Linked /data1/app"          >> ${LOG}
++test -d /data1/data         && chmod 0771 /data1/data         && chown system:system     /data1/data         && rm -Rf /data/data         && ln -s /data1/data         /data/data         && log -p i -t userinit "[${0}] Linked /data1/data"         && echo "[${0}] Linked /data1/data"         >> ${LOG}
++test -d /data1/media        && chmod 0770 /data1/media        && chown media_rw:media_rw /data1/media        && rm -Rf /data/media        && ln -s /data1/media        /data/media        && log -p i -t userinit "[${0}] Linked /data1/media"        && echo "[${0}] Linked /data1/media"        >> ${LOG}
++
++# Log related mounts and mount points after
++echo "[Stop]"    >> ${LOG}
++mount            >> ${LOG}
++echo "[/]"       >> ${LOG}
++ls -la  /        >> ${LOG}
++echo "[/data]"   >> ${LOG}
++ls -la  /data/   >> ${LOG}
++echo "[/data1]"  >> ${LOG}
++ls -la  /data1/  >> ${LOG}
++du -sch /data1/* >> ${LOG}
++
++log -p i -t userinit "[${0}][Stop]"
+diff --git a/rootdir/etc/remount.pyramid b/rootdir/etc/remount.pyramid
+old mode 100755
+new mode 100644
+index 6dfc0ed..b65a7ed
+--- a/rootdir/etc/remount.pyramid
++++ b/rootdir/etc/remount.pyramid
+@@ -1,3 +1,3 @@
+ # Android fstab file.
+-#<src>			<mnt_point>	<type>	<mnt_flags>						<fs_mgr_flags>
+-/dev/block/mmcblk0p22	/system		ext4	remount,ro,noatime,barrier=0				wait
++#<src>                        <mnt_point>        <type>        <mnt_flags>                                                <fs_mgr_flags>
++/dev/block/mmcblk0p22         /system            ext4          remount,ro,noatime,barrier=0                                wait
+diff --git a/system_prop.mk b/system_prop.mk
+index 2f60bdb..cf2f112 100644
+--- a/system_prop.mk
++++ b/system_prop.mk
+@@ -5,27 +5,27 @@
+ PRODUCT_PROPERTY_OVERRIDES += \
+     ro.sf.lcd_density=240
+ 
+-# radio
++# Radio
+ PRODUCT_PROPERTY_OVERRIDES += \
+     mobiledata.interfaces=rmnet0 \
+     rild.libpath=/system/lib/libhtc_ril.so \
+     ro.telephony.ril_class=HtcMsm8660RIL
+ 
+-# wifi
++# WiFi
+ PRODUCT_PROPERTY_OVERRIDES += \
+- wifi.interface=wlan0
++    wifi.interface=wlan0
+ 
+ # UMS
+ PRODUCT_PROPERTY_OVERRIDES += \
+-    persist.sys.usb.config=mtp,adb \
++    persist.sys.usb.config=mtp \
+     ro.vold.umsdirtyratio=20
+ 
+-# tweaks
++# Tweaks
+ PRODUCT_PROPERTY_OVERRIDES += \
+-     dalvik.vm.dexopt-data-only=1 \
+-     dalvik.vm.dexopt-flags=m=y \
+-     windowsmgr.max_events_per_sec=300 \
+-     pm.sleep_mode=1
++    dalvik.vm.dexopt-data-only=1 \
++    dalvik.vm.dexopt-flags=m=y \
++    windowsmgr.max_events_per_sec=300 \
++    pm.sleep_mode=1
+ 
+ # Display
+ PRODUCT_PROPERTY_OVERRIDES += \
+@@ -38,7 +38,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
+     ro.opengles.version=131072 \
+     debug.egl.recordable.rgba8888=1
+ 
+-## misc
++# Misc
+ PRODUCT_PROPERTY_OVERRIDES += \
+     ro.setupwizard.enable_bypass=1 \
+     dalvik.vm.lockprof.threshold=500 \
+-- 
+2.5.3
+
