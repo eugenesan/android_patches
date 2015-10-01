@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
 
+  <!-- Nexus 5 (hammerhead) -->
+  <project name="CyanogenMod/android_device_lge_hammerhead" path="device/lge/hammerhead" remote="github" />
+  <project name="CyanogenMod/android_kernel_lge_hammerhead" path="kernel/lge/hammerhead" remote="github" />
+  <project name="CyanogenMod/android_device_qcom_common" path="device/qcom/common" remote="github" />
+
   <!-- HTC Sense XE (pyramid)  -->
 
   <remove-project name="CyanogenMod/android_bionic" />
@@ -9,7 +14,8 @@
 
   <!-- <project path="device/htc/pyramid" name="ivanich/android_device_htc_pyramid" revision="cm-12.1" /> -->
   <project path="device/htc/pyramid" name="eugenesan/android_device_htc_pyramid" revision="cm-12.1" />
-  <project path="kernel/htc/pyramid" name="ivanich/android_kernel_htc_pyramid" revision="cm-12.0" />
+  <!-- <project path="kernel/htc/pyramid" name="ivanich/android_kernel_htc_pyramid" revision="cm-12.0" /> -->
+  <project path="kernel/htc/pyramid" name="eugenesan/android_kernel_htc_pyramid" revision="cm-12.1" />
   <project path="vendor/htc" name="ivanich/proprietary_vendor_htc" revision="cm-12.1" />
 
   <project path="hardware/qcom/audio-caf/msm8660" name="ivanich/android_hardware_qcom_audio" groups="qcom,qcom_audio" revision="cm-12.1" />
