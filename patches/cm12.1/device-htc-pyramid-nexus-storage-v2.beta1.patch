@@ -1,10 +1,10 @@
-From fd693a0d5cc1158b01781a2a11d25324701e32fa Mon Sep 17 00:00:00 2001
+From 61974d43536106a6eb9f2de70f483824b3727ef7 Mon Sep 17 00:00:00 2001
 From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
 Date: Tue, 29 Sep 2015 15:48:58 -0400
-Subject: [PATCH 2/3] Switch to nexus style mode completely v2
+Subject: [PATCH] Switch to nexus style mode completely
 
 This is a 2nd iteration of the patch in which we go completely Nexus.
-We eliminate external sdcard completely and use it as /data that can be fully encrypted.
+We eliminate external sdcard completely and use it fully as data partition that can be fully encrypted.
 In addition we perform series of storage layout changes, cleanups and optimizations.
 
 Now to the details:
@@ -17,7 +17,6 @@ Now to the details:
   - Allow much faster access from /system partition
   - Allow much faster boot with encrypted data (when data is encrypted,
     dalvik-cache is also and need to be re-created on each boot for asking user's password!)
-  - Enable ART-small mode which pre-compiles (into dalvik-cache) only bare minimum of clasees
 * Add misc recovery related settings and coresponding changes to TWRP in order to support above.
 * Modify recovery related settings (this device tree can be used for building TWRP image)
 * Remove duplicated default init.rc code
@@ -25,7 +24,7 @@ Now to the details:
 
 Change-Id: I60b8303fce99a83c162ca11bb1304a551c48404a
 ---
- BoardConfig.mk                                     | 17 +++++++---
+ BoardConfig.mk                                     |  8 +++--
  device_pyramid.mk                                  |  1 -
  .../base/core/res/res/xml/storage_list.xml         | 10 +-----
  recovery.fstab                                     | 12 +------
@@ -35,37 +34,15 @@ Change-Id: I60b8303fce99a83c162ca11bb1304a551c48404a
  rootdir/etc/init.pyramid.rc                        | 16 ---------
  rootdir/etc/init.pyramid.sh                        | 38 ----------------------
  system_prop.mk                                     |  6 ++--
- 10 files changed, 30 insertions(+), 110 deletions(-)
+ 10 files changed, 23 insertions(+), 108 deletions(-)
  mode change 100644 => 120000 recovery.fstab
  delete mode 100755 rootdir/etc/init.pyramid.sh
 
 diff --git a/BoardConfig.mk b/BoardConfig.mk
-index 8d9101f..fb59097 100644
+index ca99a2d..8f058e2 100644
 --- a/BoardConfig.mk
 +++ b/BoardConfig.mk
-@@ -124,6 +124,7 @@ TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
- RECOVERY_GRAPHICS_USE_LINELENGTH := true
- TARGET_RECOVERY_DEVICE_DIRS += device/htc/pyramid
- RECOVERY_SDCARD_ON_DATA := true
-+BOARD_HAS_NO_REAL_SDCARD := true
- 
- # Required for Sensors
- COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
-@@ -148,9 +149,13 @@ BOARD_HARDWARE_CLASS := $(LOCAL_PATH)/cmhw
- # RIL
- BOARD_RIL_CLASS := ../../../$(LOCAL_PATH)/ril
- 
-+# USB
-+TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/platform/msm_hsusb/gadget/lun0/file"
-+
- # Misc
- BOARD_USES_LEGACY_MMAP := true
- BOARD_SUPPRESS_EMMC_WIPE := true
-+BOARD_SUPPRESS_SECURE_ERASE := true
- 
- # Use dlmalloc
- MALLOC_IMPL := dlmalloc
-@@ -173,7 +178,7 @@ TARGET_USERIMAGES_USE_F2FS := true
+@@ -173,7 +173,7 @@ TARGET_USERIMAGES_USE_F2FS := true
  BOARD_VOLD_MAX_PARTITIONS := 36
  BOARD_BOOTIMAGE_PARTITION_SIZE := 16777216
  BOARD_RECOVERYIMAGE_PARTITION_SIZE := 16776192
@@ -74,33 +51,29 @@ index 8d9101f..fb59097 100644
  BOARD_USERDATAIMAGE_PARTITION_SIZE := 1252770816
  BOARD_FLASH_BLOCK_SIZE := 262144
  
-@@ -187,8 +192,10 @@ TW_NO_CPU_TEMP := true
- TW_NEW_ION_HEAP := true
- TW_INCLUDE_NTFS_3G := true
+@@ -188,6 +188,8 @@ TW_INCLUDE_NTFS_3G := true
  TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
--TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/platform/msm_hsusb/gadget/lun0/file"
+ TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/platform/msm_hsusb/gadget/lun0/file"
  TW_BACKUP_DATA_MEDIA := true
 -TW_INTERNAL_STORAGE_PATH := /sdcard
 -TW_EXTERNAL_STORAGE_PATH := /sdcard1
--TW_INCLUDE_L_CRYPTO := true
+ TW_INCLUDE_L_CRYPTO := true
 +
 +# Dalvik/ART optimizations
 +WITH_DEXPREOPT := true
 +WITH_DEXPREOPT_COMP := false
-+WITH_DEXPREOPT_PIC := true
-+WITH_ART_SMALL_MODE := true
 diff --git a/device_pyramid.mk b/device_pyramid.mk
-index 319a244..281e0e0 100644
+index ef26334..5c24735 100644
 --- a/device_pyramid.mk
 +++ b/device_pyramid.mk
-@@ -156,7 +156,6 @@ DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
+@@ -152,7 +152,6 @@ DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
  # Ramdisk
  PRODUCT_PACKAGES += \
      fstab.pyramid \
 -    init.pyramid.sh \
      init.pyramid.rc \
+     init.qcom.power.rc \
      init.pyramid.usb.rc \
-     ueventd.pyramid.rc \
 diff --git a/overlay/frameworks/base/core/res/res/xml/storage_list.xml b/overlay/frameworks/base/core/res/res/xml/storage_list.xml
 index 92249dd..8aeda20 100644
 --- a/overlay/frameworks/base/core/res/res/xml/storage_list.xml
@@ -168,10 +141,10 @@ index 20614ab..2614832 100644
 -/usb-otg        vfat            /dev/block/sda1         /dev/block/sda          flags=display="usb-otg";storage;wipeingui;removable
 +/usbdisk        vfat            /dev/block/sda1         /dev/block/sda          flags=display="usbdisk";storage;wipeingui;removable
 diff --git a/rootdir/Android.mk b/rootdir/Android.mk
-index 6b6a7c0..346808f 100644
+index fd3298a..8f9b24d 100644
 --- a/rootdir/Android.mk
 +++ b/rootdir/Android.mk
-@@ -9,14 +9,6 @@ LOCAL_MODULE_PATH	:= $(TARGET_ROOT_OUT)
+@@ -17,14 +17,6 @@ LOCAL_MODULE_PATH	:= $(TARGET_ROOT_OUT)
  include $(BUILD_PREBUILT)
  
  include $(CLEAR_VARS)
@@ -223,7 +196,7 @@ index a955c97..a8dc29b 100644
 +# System as secondary swap
 +/dev/block/platform/msm_sdcc.1/by-name/system      none               swap        defaults                                                  defaults
 diff --git a/rootdir/etc/init.pyramid.rc b/rootdir/etc/init.pyramid.rc
-index 82e7a55..e1a8431 100755
+index 4372188..deda515 100755
 --- a/rootdir/etc/init.pyramid.rc
 +++ b/rootdir/etc/init.pyramid.rc
 @@ -18,14 +18,6 @@ on init
@@ -251,7 +224,7 @@ index 82e7a55..e1a8431 100755
      mount_all /remount.pyramid
  
  on post-fs-data
-@@ -280,11 +269,6 @@ service iprenew_wlan0 /system/bin/dhcpcd -n
+@@ -272,11 +261,6 @@ service iprenew_wlan0 /system/bin/dhcpcd -n
      disabled
      oneshot
  
@@ -335,5 +308,5 @@ index cf2f112..1b42ad8 100644
  # USB-OTG
  persist.sys.isUsbOtgEnabled=true
 -- 
-2.6.0
+2.5.3
 

@@ -1,0 +1,138 @@
+From 1f872636f40d24a29266634ab902740e5f6ae7ef Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Fri, 2 Oct 2015 10:59:16 -0400
+Subject: [PATCH] Switch to nexus style mode completely v3
+
+This is a 3rd iteration of the patch in which we go completely Nexus.
+We eliminate external sdcard completely and use it as /data that can be fully encrypted.
+In addition we perform series of storage layout changes, cleanups and optimizations.
+
+Now to the details:
+* Use original "userdata" parititon as /system (60% more space for GApps and ODEX data).
+* Use original system partiton as /cache and relocate dalvik-cache to it (this way Apps ODEX data is not encrypted and fetched faster).
+  This also allow much faster boot with encrypted data (dalvik-cache is available on boot for asking user's password).
+* Reduce size of primary zram swap to 96MB since profiling showed this to be sufficient (20% more RAM).
+* Use original "cache" partition is used as secondary swap (Provide backup swap for smaller zram swap).
+* We create pre-odexed build optimized for "small" devices which should allow the following:
+  - Avoid usage of userdata for DEX data of system apps and data duplication
+  - Avoid encryption of ODEX data of system apps
+  - Allow much faster access from /system partition
+  - Enable ART-small mode which pre-compiles ODEX data for system apps and relocaes to dalvik-cache only bare minimum of clasees
+* Add misc recovery related settings and coresponding changes to TWRP in order to support above.
+* Modify recovery related settings (this device tree can be used for building TWRP image)
+* Remove duplicated default init.rc code
+* General cleanups
+
+Change-Id: Ieb2b58569fcc20bb2d77def3f205fd009386d7bc
+---
+ BoardConfig.mk               | 2 +-
+ device_pyramid.mk            | 1 +
+ recovery/root/etc/twrp.fstab | 2 +-
+ rootdir/etc/fstab.pyramid    | 8 ++++----
+ rootdir/etc/init.pyramid.rc  | 6 ++++++
+ system_prop.mk               | 3 ---
+ 6 files changed, 13 insertions(+), 9 deletions(-)
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index fb59097..f6b52d1 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -194,7 +194,7 @@ TW_INCLUDE_NTFS_3G := true
+ TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
+ TW_BACKUP_DATA_MEDIA := true
+ 
+-# Dalvik/ART optimizations
++# Dalvik/ART
+ WITH_DEXPREOPT := true
+ WITH_DEXPREOPT_COMP := false
+ WITH_DEXPREOPT_PIC := true
+diff --git a/device_pyramid.mk b/device_pyramid.mk
+index 281e0e0..0bdcd02 100644
+--- a/device_pyramid.mk
++++ b/device_pyramid.mk
+@@ -226,6 +226,7 @@ $(call inherit-product, device/htc/pyramid/media_a1026.mk)
+ ## htc audio settings
+ $(call inherit-product, device/htc/pyramid/media_htcaudio.mk)
+ 
++# setup dalvik vm configs
+ $(call inherit-product, frameworks/native/build/phone-hdpi-512-dalvik-heap.mk)
+ 
+ # Discard inherited values and use our own instead.
+diff --git a/recovery/root/etc/twrp.fstab b/recovery/root/etc/twrp.fstab
+index 2614832..7246102 100644
+--- a/recovery/root/etc/twrp.fstab
++++ b/recovery/root/etc/twrp.fstab
+@@ -4,6 +4,6 @@
+ /recovery       emmc            /dev/block/mmcblk0p21
+ /system         ext4            /dev/block/mmcblk0p23
+ /data           f2fs            /dev/block/mmcblk1      length=-16384
+-/cache          f2fs            /dev/block/mmcblk0p24
++/cache          ext4            /dev/block/mmcblk0p22
+ /misc           emmc            /dev/block/mmcblk0p31
+ /usbdisk        vfat            /dev/block/sda1         /dev/block/sda          flags=display="usbdisk";storage;wipeingui;removable
+diff --git a/rootdir/etc/fstab.pyramid b/rootdir/etc/fstab.pyramid
+index a8dc29b..4af8df6 100644
+--- a/rootdir/etc/fstab.pyramid
++++ b/rootdir/etc/fstab.pyramid
+@@ -9,8 +9,8 @@
+ /dev/block/platform/msm_sdcc.1/by-name/misc        /misc              emmc        defaults                                                  defaults
+ /dev/block/platform/msm_sdcc.1/by-name/devlog      /devlog            ext4        rw,noatime,nosuid,nodev,barrier=0                         wait
+ /dev/block/platform/msm_sdcc.1/by-name/userdata    /system            ext4        ro,noatime,barrier=0                                      wait
+-/dev/block/platform/msm_sdcc.1/by-name/cache       /cache             ext4        noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,noauto_da_alloc,errors=panic wait,check
+-/dev/block/platform/msm_sdcc.1/by-name/cache       /cache             f2fs        rw,discard,nosuid,nodev,noatime,nodiratime,inline_xattr   wait,check
++/dev/block/platform/msm_sdcc.1/by-name/system      /cache             ext4        noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,noauto_da_alloc,errors=panic wait,check
++/dev/block/platform/msm_sdcc.1/by-name/system      /cache             f2fs        rw,discard,nosuid,nodev,noatime,nodiratime,inline_xattr   wait,check
+ /dev/block/platform/msm_sdcc.3/mmcblk1             /data              ext4        noatime,nosuid,nodev,barrier=1,data=ordered,nomblk_io_submit,noauto_da_alloc,errors=panic wait,check,encryptable=footer,length=-16384
+ /dev/block/platform/msm_sdcc.3/mmcblk1             /data              f2fs        noatime,nodiratime,nosuid,nodev,inline_xattr,discard,rw   wait,check,encryptable=footer,length=-16384
+ 
+@@ -18,7 +18,7 @@
+ /devices/platform/msm_hsusb_host.0/usb1            auto               auto        defaults                                                  voldmanaged=usbdisk:auto,noemulatedsd
+ 
+ # ZRAM
+-/dev/block/zram0                                   none               swap        defaults                                                  zramsize=134217728
++/dev/block/zram0                                   none               swap        defaults                                                  zramsize=100663296
+ 
+ # System as secondary swap
+-/dev/block/platform/msm_sdcc.1/by-name/system      none               swap        defaults                                                  defaults
++/dev/block/platform/msm_sdcc.1/by-name/cache       none               swap        defaults                                                  defaults
+diff --git a/rootdir/etc/init.pyramid.rc b/rootdir/etc/init.pyramid.rc
+index e1a8431..02ecfc8 100755
+--- a/rootdir/etc/init.pyramid.rc
++++ b/rootdir/etc/init.pyramid.rc
+@@ -59,6 +59,12 @@ on fs
+     # link widevine drm library path
+     symlink /system/vendor/lib /vendor/lib
+ 
++    # relocate dalvik-cache to cache partition
++    mkdir /cache/dalvik-cache 0771 root root
++    mkdir /cache/dalvik-cache/profiles 0711 system system
++    exec -- rm -Rf /data/dalvik-cache
++    symlink /cache/dalvik-cache /data/dalvik-cache
++
+     mount_all /remount.pyramid
+ 
+ on post-fs-data
+diff --git a/system_prop.mk b/system_prop.mk
+index 1b42ad8..7e2c3f2 100644
+--- a/system_prop.mk
++++ b/system_prop.mk
+@@ -24,8 +24,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
+ PRODUCT_PROPERTY_OVERRIDES += \
+     windowsmgr.max_events_per_sec=300 \
+     pm.sleep_mode=1
+-#    dalvik.vm.dexopt-data-only=1 \
+-#    dalvik.vm.dexopt-flags=m=y \
+ 
+ # Display
+ PRODUCT_PROPERTY_OVERRIDES += \
+@@ -42,7 +40,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
+ PRODUCT_PROPERTY_OVERRIDES += \
+     ro.setupwizard.enable_bypass=1 \
+     ro.com.google.locationfeatures=1
+-#    dalvik.vm.lockprof.threshold=500 \
+ 
+ # USB-OTG
+ persist.sys.isUsbOtgEnabled=true
+-- 
+2.6.0
+
