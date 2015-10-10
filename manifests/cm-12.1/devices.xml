@@ -2,9 +2,12 @@
 <manifest>
 
   <!-- Nexus 5 (hammerhead) -->
+
+  <!--
   <project name="CyanogenMod/android_device_lge_hammerhead" path="device/lge/hammerhead" remote="github" />
   <project name="CyanogenMod/android_kernel_lge_hammerhead" path="kernel/lge/hammerhead" remote="github" />
   <project name="CyanogenMod/android_device_qcom_common" path="device/qcom/common" remote="github" />
+  -->
 
   <!-- HTC Sense XE (pyramid)  -->
 
