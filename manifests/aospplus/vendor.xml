@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- Setup GitHub -->
+  <remote  name="github"
+           fetch="https://github.com" />
+
+  <remote  name="private"
+           fetch="ssh://git@github.com" />
+
+  <!-- Set default branch and use shallow sync -->
+  <default revision="refs/tags/android-6.0.0_r1"
+           remote="aosp"
+           sync-c="true"
+           sync-j="4" />
+
+  <!-- Setup vendor -->
+  <project path="vendor/aospplus" name="eugenesan/android-vendor-aospplus" remote="github" revision="master" >
+    <copyfile src="utils/rom-build.sh" dest="rom-build.sh" />
+    <copyfile src="utils/rom-vendor.sh" dest="rom-vendor.sh" />
+  </project>
+</manifest>
