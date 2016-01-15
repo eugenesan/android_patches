@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.1.4
+# Version 2.1.5
 
 # Clean scrollback buffer
 echo -e '\0033\0143'
@@ -30,7 +30,7 @@ txtrst=$(tput sgr0)             # reset
 : ${USE_CCACHE:="true"}
 : ${CCACHE_NOSTATS:="false"}
 : ${CCACHE_DIR:="$(dirname ${OUT})/ccache"}
-: ${THREADS:="$(($(cat /proc/cpuinfo | grep "^processor" | wc -l) / 4 * 3))"}
+: ${THREADS:="$(($(cat /proc/cpuinfo | grep "^processor" | wc -l) / 4 * 3 + 1))"}
 : ${JSER:="7"}
 : ${BUILD_TYPE="userdebug"}
 : ${RECOVERY_BUILD_TYPE="eng"}
@@ -77,7 +77,7 @@ elif [ -r ${DIR}/vendor/omni/config/common.mk ]; then
         MAINT=$(cat ${DIR}/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f3 -d.)
 elif [ -r ${DIR}/build/core/version_defaults.mk ]; then
         VENDOR="aosp"
-        VENDOR_LUNCH=""
+        VENDOR_LUNCH="aosp_"
         MAJOR=$(cat ${DIR}/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f1 -d.)
         MINOR=$(cat ${DIR}/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f2 -d.)
         MAINT=$(cat ${DIR}/build/core/version_defaults.mk | grep 'PLATFORM_VERSION := *' | awk '{print $3}' | cut -f2 -d= | cut -f3 -d.)
