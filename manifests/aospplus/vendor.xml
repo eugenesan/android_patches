@@ -7,11 +7,8 @@
   <remote  name="private"
            fetch="ssh://git@github.com" />
 
-  <!-- Set default branch and use shallow sync -->
-  <default revision="refs/tags/android-6.0.0_r1"
-           remote="aosp"
-           sync-c="true"
-           sync-j="4" />
+  <!-- Setup vendor -->
+  <project name="eugenesan/android_kernel_lge_hammerhead" path="kernel/lge/hammerhead" remote="github" revision="android-msm-hammerhead-3.4-marshmallow-eugenesan" />
 
   <!-- Setup vendor -->
   <project path="vendor/aospplus" name="eugenesan/android-vendor-aospplus" remote="github" revision="master" >

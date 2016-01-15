@@ -24,6 +24,10 @@
   <remove-project name="device/google/atv" groups="device,fugu,broadcom_pdk,generic_fs" />
   <remove-project name="device/htc/flounder" groups="device,flounder,broadcom_pdk" />
   <remove-project name="device/htc/flounder-kernel" groups="device,flounder,broadcom_pdk" clone-depth="1" />
+  <remove-project name="device/huawei/angler" groups="device,angler,broadcom_pdk" />
+  <remove-project name="device/huawei/angler-kernel" groups="device,angler,broadcom_pdk" />
+  <remove-project name="device/lge/bullhead" groups="device,bullhead" />
+  <remove-project name="device/lge/bullhead-kernel" groups="device,bullhead" />
   <remove-project name="device/moto/shamu" groups="device,shamu,broadcom_pdk" />
   <remove-project name="device/moto/shamu-kernel" groups="device,shamu,broadcom_pdk" clone-depth="1" />
   <remove-project name="device/sample" groups="pdk" />
