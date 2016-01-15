@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- Docs
+  http://xda-university.com/as-a-developer/repo-tips-tricks
+  https://gerrit.googlesource.com/git-repo/+/master/docs/manifest-format.txt
+  -->
+
+  <!-- Setup GitHub -->
+  <!--
+  <remote  name="github"
+           fetch="https://github.com" />
+
+  <remote  name="private"
+           fetch="ssh://git@github.com" />
+  -->
+
+  <!-- Nexus 5 (hammerhead) -->
+  <!--
+  <project name="eugenesan/android_kernel_lge_hammerhead" path="kernel/lge/hammerhead" remote="github" revision="android-msm-hammerhead-3.4-marshmallow-mr1-eugenesan" />
+  <project name="CyanogenMod/android_device_lge_hammerhead" path="device/lge/hammerhead" remote="github" />
+  <project name="CyanogenMod/android_kernel_lge_hammerhead" path="kernel/lge/hammerhead" remote="github" />
+  <project name="CyanogenMod/android_device_qcom_common" path="device/qcom/common" remote="github" />
+  -->
+
+  <!-- HTC Sense XE (pyramid)  -->
+  <!--
+  <remove-project name="CyanogenMod/android_bionic" />
+  <project path="bionic" name="ivanich/android_bionic" />
+  <project path="bionic" name="eugenesan/android_bionic" />
+  -->
+
+  <project path="device/htc/pyramid" name="ivanich/android_device_htc_pyramid" />
+  <!-- <project path="device/htc/pyramid" name="eugenesan/android_device_htc_pyramid" revision="cm-13.0" /> -->
+  <project path="kernel/htc/pyramid" name="ivanich/android_kernel_htc_pyramid"/>
+  <!-- <project path="kernel/htc/pyramid" name="eugenesan/android_kernel_htc_pyramid" revision="cm-13.0" /> -->
+  <project path="vendor/htc" name="ivanich/proprietary_vendor_htc" />
+
+  <project path="hardware/qcom/audio-caf/msm8660" name="ivanich/android_hardware_qcom_audio" groups="qcom,qcom_audio" />
+  <project path="hardware/qcom/display-caf/msm8660" name="ivanich/android_hardware_qcom_display" groups="qcom,qcom_display" />
+  <project path="hardware/qcom/media-caf/msm8660" name="ivanich/android_hardware_qcom_media" groups="qcom" />
+
+  <project path="external/stlport" name="CyanogenMod/android_external_stlport" />
+
+  <!-- SamsungS2ATT (skyrocket) -->
+  <!--
+  <project path="prebuilts/gcc/linux-x86/arm/arm-eabi-4.7" name="platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7" groups="pdk,linux,arm" remote="aosp" revision="refs/tags/android-4.4.4_r2" />
+  <project name="CyanogenMod/android_device_samsung_skyrocket" path="device/samsung/skyrocket" remote="github" />
+  <project name="CyanogenMod/android_device_samsung_celox-common" path="device/samsung/celox-common" remote="github" />
+  <project name="CyanogenMod/android_device_samsung_msm8660-common" path="device/samsung/msm8660-common" remote="github" />
+  <project name="CyanogenMod/android_kernel_samsung_msm8660-common" path="kernel/samsung/msm8660-common" remote="github" />
+  <project name="CyanogenMod/android_device_samsung_qcom-common" path="device/samsung/qcom-common" remote="github" />
+  <project name="CyanogenMod/android_hardware_samsung" path="hardware/samsung" remote="github" />
+
+  <project name="CyanogenMod/android_hardware_qcom_audio" path="hardware/qcom/audio-caf/msm8660" groups="qcom,qcom_audio"  revision="cm-12.1-caf-8660" />
+  <project name="CyanogenMod/android_hardware_qcom_display" path="hardware/qcom/display-caf/msm8660" groups="qcom,qcom_display" revision="cm-12.1-caf-8660" />
+  <project name="CyanogenMod/android_hardware_qcom_media" path="hardware/qcom/media-caf/msm8660" groups="qcom" revision="cm-12.1-caf-8660" />
+  -->
+
+  <!-- GalaxyS4ATT (jflteatt) -->
+  <!--
+  <project name="CyanogenMod/android_device_samsung_jf-common" path="device/samsung/jf-common" remote="github" />
+  <project name="eugenesan/android_device_samsung_jf-common" path="device/samsung/jf-common" remote="github" />
+  <project name="CyanogenMod/android_device_samsung_qcom-common" path="device/samsung/qcom-common" remote="github" />
+  <project name="CyanogenMod/android_kernel_samsung_jf" path="kernel/samsung/jf" remote="github" />
+  <project name="CyanogenMod/android_device_samsung_jflteatt" path="device/samsung/jflteatt" remote="github" />
+  <project name="CyanogenMod/android_hardware_samsung" path="hardware/samsung" remote="github" />
+  <project name="TheMuppets/proprietary_vendor_samsung" path="vendor/samsung" remote="github" />
+  -->
+
+  <!-- Setup vendor -->
+  <!--
+  <remove-project name="CyanogenMod/android_vendor_cm" />
+  <project path="vendor/cm" name="eugenesan/android_vendor_cm" />
+  <project path="vendor/aospplus" name="eugenesan/android-vendor-aospplus" remote="github" revision="master" >
+    <copyfile src="utils/rom-build.sh" dest="rom-build.sh" />
+    <copyfile src="utils/rom-kernel.sh" dest="rom-kernel.sh" />
+    <copyfile src="utils/rom-vendor.sh" dest="rom-vendor.sh" />
+  </project>
+  -->
+
+  <!-- CyanogenMod.
+  <remove-project name="CyanogenMod/android_frameworks_base" />
+  <project path="frameworks/base" name="eugenesan/android_frameworks_base" />
+  <remove-project name="CyanogenMod/android_packages_apps_Settings" />
+  <project path="packages/apps/Settings" name="eugenesan/android_packages_apps_Settings" />
+  -->
+
+  <!-- Recovery -->
+  <!--
+  <project path="bootable/recovery" name="omnirom/android_bootable_recovery" revision="android-5.1" />
+  <project path="bootable/recovery" name="eugenesan/android_bootable_recovery" revision="android-5.1" />
+  <remove-project name="CyanogenMod/android_bootable_recovery" />
+  <project path="bootable/recovery" name="ivanich/android_bootable_recovery" />
+  -->
+
+  <!-- Misc projects -->
+  <!--
+  <project path="packages/apps/CryptfsPasswordManager" name="eugenesan/cryptfs-password-manager" revision="master" />
+  <project path="packages/apps/CryptfsPasswordManager" name="nelenokv/cryptfs-password-manager" revision="master" />
+  -->
+</manifest>
