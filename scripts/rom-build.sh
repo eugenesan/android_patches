@@ -1,7 +1,14 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.2.0
+# Version 2.2.1
+#
+# Usage: [INTERACTIVE=true] ${0} [device] [clean] [sync]
+#        INTERACTIVE : Do not start build rather enter interactive mode with hints being printed
+#        device      : Specify device to be built (default is hammerhead)
+#        clean       : clean  : Clean output folder, log and screen
+#                      cclean : As clean but also wipes ccache
+#        sync        : sync   : Perform a repo sync before build
 
 # Get current paths
 DIR="$(cd `dirname $0`; pwd)"
@@ -11,7 +18,8 @@ SCRIPT="$(basename ${0})"
 
 # Import command line parameters
 DEVICE="${1}"
-EXTRAS="${2}"
+CLEAN="${2}"
+SYNC="${3}"
 
 # Load defaults, can be overriden by environment
 : ${OUT:="$DIR/out"}
@@ -25,12 +33,16 @@ EXTRAS="${2}"
 : ${DEVICE:="hammerhead"}
 : ${PREFS_FROM_SOURCE:="false"}
 
-# Enable logging
-exec > >(tee ${DIR}/${SCRIPT%.*}.log) 2>&1
+# Clean output and log if the build is clean
+if [ "${CLEAN}" == "clean" ]; then
+	rm ${DIR}/${SCRIPT%.*}.log
+	# Clean scrollback buffer
+	echo -e '\0033\0143'
+	clear
+fi
 
-# Clean scrollback buffer
-echo -e '\0033\0143'
-clear
+# Enable logging
+exec > >(tee -a ${DIR}/${SCRIPT%.*}.log) 2>&1
 
 # Prepare output customization commands
 red=$(tput setaf 1)             # red
@@ -51,7 +63,6 @@ if [ "`update-alternatives --list javac | wc -l`" -gt 1 ]; then
         export PATH=${JDK}:${JRE}:${PATH_ORIG}
 fi
 JVER=$(${JDK}/javac -version  2>&1 | head -n1 | cut -f2 -d' ')
-
 
 # Get build version
 if [ -r ${DIR}/vendor/pa/vendor.mk ]; then
@@ -89,15 +100,6 @@ else
         exit 1
 fi
 VERSION=${VENDOR}-${MAJOR}.${MINOR}$([ -n "${MAINT}" ] && echo .)${MAINT}
-
-# If there is no extra parameter, reduce parameters index by 1
-if [ "${EXTRAS}" == "true" ] || [ "${EXTRAS}" == "false" ]; then
-        SYNC="${2}"
-        UPLOAD="${3}"
-else
-        SYNC="${3}"
-        UPLOAD="${4}"
-fi
 
 # Get start time
 res1=$(date +%s.%N)
@@ -162,17 +164,13 @@ echo -e "${bldgrn}Start time: $(date) ${txtrst}"
 [ -n "${CCACHE_DIR}" ] && export CCACHE_DIR && echo -e "${bldgrn}CCACHE: location = [${txtrst}${grn}${CCACHE_DIR}${bldgrn}], size = [${txtrst}${grn}${cache1}${bldgrn}]${txtrst}"
 
 # Decide what command to execute
-case "${EXTRAS}" in
-        threads)
-                echo -e "${bldblu}Please enter desired building/syncing threads number followed by [ENTER]${txtrst}"
-                read THREADS
-        ;;
+case "${CLEAN}" in
         clean|cclean)
                 echo -e "${bldblu}Cleaning intermediates and output files${txtrst}"
                 export CLEAN_BUILD="true"
                 [ -d "${DIR}/out" ] && rm -Rf ${DIR}/out/*
                 # Clean ccache if we have to
-                if [ -n "${CCACHE_DIR}" ] && [ ${EXTRAS} == cclean ]; then
+                if [ -n "${CCACHE_DIR}" ] && [ ${CLEAN} == cclean ]; then
                         echo "${bldblu}Cleaning ccache${txtrst}"
                         ${CCACHE} -C -M 5G
                 fi
@@ -182,10 +180,12 @@ esac
 echo -e ""
 
 # Fetch latest sources
-if [ "${SYNC}" == "true" ]; then
+case "${SYNC}" in
+        sync)
         echo -e "\n${bldblu}Fetching latest sources${txtrst}"
         repo sync -j"${THREADS}"
-fi
+        ;;
+esac
 
 if [ -r vendor/cm/get-prebuilts ]; then
         if [ -r vendor/cm/proprietary/.get-prebuilts ]; then
