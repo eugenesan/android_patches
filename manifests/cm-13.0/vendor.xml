@@ -27,18 +27,21 @@
   <remove-project name="CyanogenMod/android_bionic" />
   <project path="bionic" name="ivanich/android_bionic" />
   <project path="bionic" name="eugenesan/android_bionic" />
+  -->
+  <!--
   <project path="device/htc/pyramid" name="ivanich/android_device_htc_pyramid" />
   <project path="kernel/htc/pyramid" name="ivanich/android_kernel_htc_pyramid" />
   <project path="vendor/htc" name="ivanich/proprietary_vendor_htc" />
-  <project path="hardware/qcom/audio-caf/msm8660" name="ivanich/android_hardware_qcom_audio" groups="qcom,qcom_audio" />
-  <project path="hardware/qcom/display-caf/msm8660" name="ivanich/android_hardware_qcom_display" groups="qcom,qcom_display" />
-  <project path="hardware/qcom/media-caf/msm8660" name="ivanich/android_hardware_qcom_media" groups="qcom" />
   -->
-
   <project path="device/htc/pyramid" name="eugenesan/android_device_htc_pyramid" />
   <project path="kernel/htc/pyramid" name="eugenesan/android_kernel_htc_pyramid" />
   <project path="vendor/htc" name="eugenesan/proprietary_vendor_htc" />
 
+  <!--
+  <project path="hardware/qcom/audio-caf/msm8660" name="ivanich/android_hardware_qcom_audio" groups="qcom,qcom_audio" />
+  <project path="hardware/qcom/display-caf/msm8660" name="ivanich/android_hardware_qcom_display" groups="qcom,qcom_display" />
+  <project path="hardware/qcom/media-caf/msm8660" name="ivanich/android_hardware_qcom_media" groups="qcom" />
+  -->
   <project path="hardware/qcom/audio-caf/msm8660" name="eugenesan/android_hardware_qcom_audio" groups="qcom,qcom_audio" />
   <project path="hardware/qcom/display-caf/msm8660" name="eugenesan/android_hardware_qcom_display" groups="qcom,qcom_display" />
   <project path="hardware/qcom/media-caf/msm8660" name="eugenesan/android_hardware_qcom_media" groups="qcom" />
@@ -83,10 +86,12 @@
   -->
 
   <!-- CyanogenMod -->
+  <!--
   <remove-project name="CyanogenMod/android_frameworks_base" />
   <project path="frameworks/base" name="eugenesan/android_frameworks_base" />
   <remove-project name="CyanogenMod/android_packages_apps_Settings" />
   <project path="packages/apps/Settings" name="eugenesan/android_packages_apps_Settings" />
+  -->
 
   <!-- Recovery -->
   <!--
