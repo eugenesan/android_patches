@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.1.5
+# Version 2.1.6
 
 # Clean scrollback buffer
 echo -e '\0033\0143'
@@ -264,6 +264,10 @@ else
         else
                 mka bacon
         fi
+
+        echo -e "${bldblu}Saving build manifest${txtrst}"
+        repo manifest -r -o rom-build-revs.xml
+        repo manifest -o rom-build-heads.xml
 fi
 
 # Get and print increased ccache size
