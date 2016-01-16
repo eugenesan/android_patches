@@ -1,17 +1,36 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.1.6
-
-# Clean scrollback buffer
-echo -e '\0033\0143'
-clear
+# Version 2.2.0
 
 # Get current paths
 DIR="$(cd `dirname $0`; pwd)"
 OUT="$(readlink ${DIR}/out)"
-[ -z "${OUT}" ] && OUT="${DIR}/out"
 PATH_ORIG="${PATH}"
+SCRIPT="$(basename ${0})"
+
+# Import command line parameters
+DEVICE="${1}"
+EXTRAS="${2}"
+
+# Load defaults, can be overriden by environment
+: ${OUT:="$DIR/out"}
+: ${USE_CCACHE:="true"}
+: ${CCACHE_NOSTATS:="false"}
+: ${CCACHE_DIR:="$(dirname $OUT)/ccache"}
+: ${THREADS:="$(($(cat /proc/cpuinfo | grep "^processor" | wc -l) * 2 / 4 * 3 + 1))"}
+: ${JSER:="7"}
+: ${BUILD_TYPE:="userdebug"}
+: ${RECOVERY_BUILD_TYPE:="eng"}
+: ${DEVICE:="hammerhead"}
+: ${PREFS_FROM_SOURCE:="false"}
+
+# Enable logging
+exec > >(tee ${DIR}/${SCRIPT%.*}.log) 2>&1
+
+# Clean scrollback buffer
+echo -e '\0033\0143'
+clear
 
 # Prepare output customization commands
 red=$(tput setaf 1)             # red
@@ -25,16 +44,6 @@ bldcya=${txtbld}$(tput setaf 6) # cyan
 txtbld=$(tput bold)             # bold
 txtrst=$(tput sgr0)             # reset
 
-# Local defaults, can be overriden by environment
-: ${PREFS_FROM_SOURCE:="false"}
-: ${USE_CCACHE:="true"}
-: ${CCACHE_NOSTATS:="false"}
-: ${CCACHE_DIR:="$(dirname ${OUT})/ccache"}
-: ${THREADS:="$(($(cat /proc/cpuinfo | grep "^processor" | wc -l) / 4 * 3 + 1))"}
-: ${JSER:="7"}
-: ${BUILD_TYPE="userdebug"}
-: ${RECOVERY_BUILD_TYPE="eng"}
-
 # If there is more than one jdk installed, use latest in series (JSER)
 if [ "`update-alternatives --list javac | wc -l`" -gt 1 ]; then
         JDK=$(dirname `update-alternatives --list javac | grep "\-${JSER}\-"` | tail -n1)
@@ -43,12 +52,6 @@ if [ "`update-alternatives --list javac | wc -l`" -gt 1 ]; then
 fi
 JVER=$(${JDK}/javac -version  2>&1 | head -n1 | cut -f2 -d' ')
 
-# Import command line parameters
-DEVICE="${1}"
-EXTRAS="${2}"
-
-# Default to building Nexus 5 2013
-[ -n "${DEVICE}" ] || DEVICE="hammerhead"
 
 # Get build version
 if [ -r ${DIR}/vendor/pa/vendor.mk ]; then
@@ -266,8 +269,8 @@ else
         fi
 
         echo -e "${bldblu}Saving build manifest${txtrst}"
-        repo manifest -r -o rom-build-revs.xml
-        repo manifest -o rom-build-heads.xml
+        repo manifest -r -o ${DIR}/${SCRIPT%.*}.revs.xml
+        repo manifest -o ${DIR}/${SCRIPT%.*}.heads.xml
 fi
 
 # Get and print increased ccache size
