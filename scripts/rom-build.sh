@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.2.2
+# Version 2.2.3
 #
 # Usage: [INTERACTIVE=true] ${0} [device] [clean] [sync]
 #        INTERACTIVE : Do not start build rather enter interactive mode with hints being printed
@@ -34,7 +34,7 @@ SYNC="${3}"
 : ${PREFS_FROM_SOURCE:="false"}
 
 # Clean output and log if the build is clean
-if [ "${CLEAN}" == "clean" ]; then
+if [ "${CLEAN}" == "clean" ] || [ "${CLEAN}" == "dummy" ]; then
 	rm ${DIR}/${SCRIPT%.*}.log
 	# Clean scrollback buffer
 	echo -e '\0033\0143'
