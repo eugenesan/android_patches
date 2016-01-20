@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.2.1
+# Version 2.2.2
 #
 # Usage: [INTERACTIVE=true] ${0} [device] [clean] [sync]
 #        INTERACTIVE : Do not start build rather enter interactive mode with hints being printed
@@ -267,11 +267,13 @@ else
         else
                 mka bacon
         fi
-
-        echo -e "${bldblu}Saving build manifest${txtrst}"
-        repo manifest -r -o ${DIR}/${SCRIPT%.*}.revs.xml
-        repo manifest -o ${DIR}/${SCRIPT%.*}.heads.xml
 fi
+
+# Save current manifests
+echo -e "${bldblu}Saving build manifest${txtrst}"
+repo manifest -r -o ${DIR}/${SCRIPT%.*}.revs.xml
+repo manifest -o ${DIR}/${SCRIPT%.*}.heads.xml
+tar -C ${DIR}/.repo -cJf ${DIR}/${SCRIPT%.*}.local_manifests.tar.xz local_manifests
 
 # Get and print increased ccache size
 if [ -n "${CCACHE_DIR}" ]; then
