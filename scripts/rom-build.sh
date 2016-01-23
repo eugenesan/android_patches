@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.3.0
+# Version 2.3.1
 
 help() {
     cat <<EOB
@@ -11,6 +11,8 @@ Usage: $(basename ${0}) [device] [options]
         -c         : Clean output folder, log and screen (Twice to wipe ccache)
         -C         : Clean output folder, log, screen and wipe ccache
         -i         : Do not start build rather enter interactive mode with hints being printed
+        -l         : Perform no logging
+        -n         : Perform dummy build
         -r         : Perform an recovery build
         -s         : Perform a repo sync before build
         -x         : Clear screen and log before build
@@ -26,11 +28,13 @@ SCRIPT="$(basename ${0})"
 
 # Import command line parameters
 [ $# -eq 0 ] && help
-while getopts cCirsx opt; do
+while getopts cCilnrsx opt; do
         case "$opt" in
                 c)      CLEAN="y"          ;;
                 C)      CLEAN="a"          ;;
                 i)      MODE="interactive" ;;
+                l)      LOG="dummy"        ;;
+                n)      MODE="dummy"       ;;
                 r)      MODE="recovery"    ;;
                 s)      SYNC="y"           ;;
                 x)      CLEAN="x"          ;;
@@ -57,17 +61,23 @@ fi
 : ${RECOVERY_BUILD_TYPE:="eng"}
 : ${PREFS_FROM_SOURCE:="false"}
 : ${MODE:="rom"}
+: ${LOG:="y"}
 
-# Clean output and log if the build is clean
-if [ -n "${CLEAN}" ]; then
+# Clean log if requested
+if [ "${CLEAN}" == "y" ]; then
 	rm ${DIR}/${SCRIPT%.*}.log
-	# Clean scrollback buffer
-	echo -e '\0033\0143'
-	clear
+fi
+
+# Clean scrollback buffer
+if [ -n "${CLEAN}" ]; then
+        echo -e '\0033\0143'
+        clear
 fi
 
 # Enable logging
-exec > >(tee -a ${DIR}/${SCRIPT%.*}.log) 2>&1
+if [ "${LOG}" == "y" ]; then
+        exec > >(tee -a ${DIR}/${SCRIPT%.*}.log) 2>&1
+fi
 
 # Prepare output customization commands
 red=$(tput setaf 1)             # red
@@ -283,7 +293,7 @@ elif [ "${MODE}" == "recovery" ]; then
 
         echo -e "${bldblu}Starting recovery compilation${txtrst}"
         make -j"${THREADS}" recoveryimage
-else
+elif [ "${MODE}" == "rom" ]; then
         # Setup environment
         echo -e "\n${bldblu}Setting up environment${txtrst}"
         . build/envsetup.sh
@@ -320,13 +330,17 @@ else
         else
                 mka bacon
         fi
+else
+        # Performing dummy build
+        echo -e "\n${bldblu}Skipping actual build${txtrst}"
 fi
 
 # Save current manifests
-echo -e "${bldblu}Saving build manifest${txtrst}"
+echo -e "${bldblu}Saving manifest${txtrst}"
 repo manifest -r -o ${DIR}/${SCRIPT%.*}.revs.xml
 repo manifest -o ${DIR}/${SCRIPT%.*}.heads.xml
-tar -C ${DIR}/.repo -cJf ${DIR}/${SCRIPT%.*}.local_manifests.tar.xz local_manifests
+XZ_OPT="-9e --threads=${THREADS}" tar -C ${DIR} -cJf ${SCRIPT%.*}.manifests.tar.xz ${SCRIPT%.*}.{revs,heads}.xml .repo/{manifests/default.xml,local_manifests}
+rm -f ${DIR}/${SCRIPT%.*}.{revs,heads}.xml
 
 # Get and print increased ccache size
 if [ -n "${CCACHE_DIR}" ]; then
