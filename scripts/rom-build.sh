@@ -1,14 +1,22 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.2.3
-#
-# Usage: [INTERACTIVE=true] ${0} [device] [clean] [sync]
-#        INTERACTIVE : Do not start build rather enter interactive mode with hints being printed
-#        device      : Specify device to be built (default is hammerhead)
-#        clean       : clean  : Clean output folder, log and screen
-#                      cclean : As clean but also wipes ccache
-#        sync        : sync   : Perform a repo sync before build
+# Version 2.3.0
+
+help() {
+    cat <<EOB
+Usage: $(basename ${0}) [device] [options]
+        device:    : Specify device to be built (default is hammerhead)
+        options:
+        -c         : Clean output folder, log and screen (Twice to wipe ccache)
+        -C         : Clean output folder, log, screen and wipe ccache
+        -i         : Do not start build rather enter interactive mode with hints being printed
+        -r         : Perform an recovery build
+        -s         : Perform a repo sync before build
+        -x         : Clear screen and log before build
+EOB
+        exit 255
+}
 
 # Get current paths
 DIR="$(cd `dirname $0`; pwd)"
@@ -17,9 +25,26 @@ PATH_ORIG="${PATH}"
 SCRIPT="$(basename ${0})"
 
 # Import command line parameters
+[ $# -eq 0 ] && help
+while getopts cCirsx opt; do
+        case "$opt" in
+                c)      CLEAN="y"          ;;
+                C)      CLEAN="a"          ;;
+                i)      MODE="interactive" ;;
+                r)      MODE="recovery"    ;;
+                s)      SYNC="y"           ;;
+                x)      CLEAN="x"          ;;
+                *)      help               ;;
+        esac
+done
+
+shift `expr $OPTIND - 1`
+
+# Set current device
 DEVICE="${1}"
-CLEAN="${2}"
-SYNC="${3}"
+if [ -z "${DEVICE}" ]; then
+	help
+fi
 
 # Load defaults, can be overriden by environment
 : ${OUT:="$DIR/out"}
@@ -30,11 +55,11 @@ SYNC="${3}"
 : ${JSER:="7"}
 : ${BUILD_TYPE:="userdebug"}
 : ${RECOVERY_BUILD_TYPE:="eng"}
-: ${DEVICE:="hammerhead"}
 : ${PREFS_FROM_SOURCE:="false"}
+: ${MODE:="rom"}
 
 # Clean output and log if the build is clean
-if [ "${CLEAN}" == "clean" ] || [ "${CLEAN}" == "dummy" ]; then
+if [ -n "${CLEAN}" ]; then
 	rm ${DIR}/${SCRIPT%.*}.log
 	# Clean scrollback buffer
 	echo -e '\0033\0143'
@@ -156,7 +181,7 @@ else
         unset CCACHE
 fi
 
-echo -e "${cya}Building ${bldcya}Android ${VERSION} for ${DEVICE} using Java-${JVER}${txtrst} with ${THREADS} threads"
+echo -e "${cya}Building ${MODE} ${bldcya}Android ${VERSION} for ${DEVICE} using Java-${JVER}${txtrst} with ${THREADS} threads"
 echo -e "${bldgrn}Start time: $(date) ${txtrst}"
 
 # Print ccache stats
@@ -165,12 +190,12 @@ echo -e "${bldgrn}Start time: $(date) ${txtrst}"
 
 # Decide what command to execute
 case "${CLEAN}" in
-        clean|cclean)
+        y|a)
                 echo -e "${bldblu}Cleaning intermediates and output files${txtrst}"
                 export CLEAN_BUILD="true"
                 [ -d "${DIR}/out" ] && rm -Rf ${DIR}/out/*
                 # Clean ccache if we have to
-                if [ -n "${CCACHE_DIR}" ] && [ ${CLEAN} == cclean ]; then
+                if [ -n "${CCACHE_DIR}" ] && [ ${CLEAN} == "a" ]; then
                         echo "${bldblu}Cleaning ccache${txtrst}"
                         ${CCACHE} -C -M 5G
                 fi
@@ -181,7 +206,7 @@ echo -e ""
 
 # Fetch latest sources
 case "${SYNC}" in
-        sync)
+        y)
         echo -e "\n${bldblu}Fetching latest sources${txtrst}"
         repo sync -j"${THREADS}"
         ;;
@@ -201,7 +226,7 @@ else
 fi
 
 # Decide if we enter interactive mode or default build mode
-if [ -n "${INTERACTIVE}" ]; then
+if [ "${MODE}" == "interactive" ]; then
         echo -e "\n${bldblu}Enabling interactive mode. Possible commands are:${txtrst}"
 
         if [ "${VENDOR}" == "cm" ]; then
@@ -230,6 +255,34 @@ if [ -n "${INTERACTIVE}" ]; then
         # Setup and enter interactive environment
         echo -e "${bldblu}Dropping to interactive shell...${txtrst}"
         bash --init-file build/envsetup.sh -i
+elif [ "${MODE}" == "recovery" ]; then
+        # Setup environment
+        echo -e "\n${bldblu}Setting up environment${txtrst}"
+        . build/envsetup.sh
+
+        # Print java caveats
+        if [ ! -r "${DIR}/out/versions_checked.mk" ] && [ -n "$(java -version 2>&1 | grep -i openjdk)" ]; then
+                echo -e "\n${bldcya}Your java version still not checked and is candidate to fail, masquerading.${txtrst}"
+                export JAVA_VERSION="java_version=${JVER}"
+        fi
+
+        # Ensure java is set correctly
+        export PATH=${JDK}:${JRE}:${PATH_ORIG}
+        export JAVA_HOME="${JDK}"
+        export J2REDIR="${JRE}"
+
+        # Preparing
+        echo -e "\n${bldblu}Preparing device [${DEVICE}]${txtrst}"
+        if [ "${VENDOR}" == "cm" ]; then
+                lunch ${VENDOR}_${DEVICE}-${RECOVERY_BUILD_TYPE}
+        elif [ "${VENDOR}" == "omni" ]; then
+                breakfast ${DEVICE}
+        else
+                lunch ${VENDOR_LUNCH}${DEVICE}-${BUILD_TYPE}
+        fi
+
+        echo -e "${bldblu}Starting recovery compilation${txtrst}"
+        make -j"${THREADS}" recoveryimage
 else
         # Setup environment
         echo -e "\n${bldblu}Setting up environment${txtrst}"
