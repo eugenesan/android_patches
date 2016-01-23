@@ -1,0 +1,118 @@
+From edd7ac214e2e4e5fd9ed6fcff549cc20da0b9794 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Fri, 15 Jan 2016 18:50:38 -0500
+Subject: [PATCH 2/2] Tweak fstabs and support internal and adopted storage in
+ recovery
+
+Change-Id: I08ce0c65e7281e7861a928b92bb7daff0fa36615
+---
+ BoardConfig.mk               |  5 +++--
+ recovery/root/etc/twrp.fstab | 11 ++++++-----
+ rootdir/etc/fstab.pyramid    | 34 +++++++++++++++++-----------------
+ system_prop.mk               |  4 ----
+ 4 files changed, 26 insertions(+), 28 deletions(-)
+
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index 2113090..8af5944 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -121,6 +121,7 @@ TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
+ RECOVERY_GRAPHICS_USE_LINELENGTH := true
+ TARGET_RECOVERY_DEVICE_DIRS += device/htc/pyramid
+ TARGET_RECOVERY_FSTAB := device/htc/pyramid/rootdir/etc/fstab.pyramid
++RECOVERY_SDCARD_ON_DATA := true
+ 
+ # Required for Sensors
+ COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
+@@ -180,7 +181,7 @@ HAVE_SELINUX := true
+ TW_NO_CPU_TEMP := true
+ TW_NEW_ION_HEAP := true
+ TW_INCLUDE_NTFS_3G := true
+-TW_EXTERNAL_STORAGE_MOUNT_POINT := "usb-otg"
+-TW_EXTERNAL_STORAGE_PATH := "/usb-otg"
++TW_INTERNAL_STORAGE_PATH := "/sdcard"
++TW_EXTERNAL_STORAGE_PATH := "/sdcard-ext"
+ TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
+ TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/platform/msm_hsusb/gadget/lun0/file"
+diff --git a/recovery/root/etc/twrp.fstab b/recovery/root/etc/twrp.fstab
+index 9ddab13..7fad1f9 100644
+--- a/recovery/root/etc/twrp.fstab
++++ b/recovery/root/etc/twrp.fstab
+@@ -3,9 +3,10 @@
+ /dev/block/platform/msm_sdcc.1/by-name/boot		/boot		emmc	defaults				defaults
+ /dev/block/platform/msm_sdcc.1/by-name/recovery		/recovery	emmc	defaults				defaults
+ /dev/block/platform/msm_sdcc.1/by-name/system		/system		ext4	defaults				defaults
+-/dev/block/platform/msm_sdcc.1/by-name/userdata		/data		auto	nosuid,nodev,noatime,nodiratime		defaults	twrp=encryptable=/dev/block/platform/msm_sdcc.1/by-name/extra
+-/dev/block/platform/msm_sdcc.1/by-name/cache		/cache		auto	nosuid,nodev,noatime,nodiratime		defaults
++/dev/block/platform/msm_sdcc.1/by-name/userdata		/data		f2fs	nosuid,nodev,noatime,nodiratime		defaults	twrp=encryptable=/dev/block/platform/msm_sdcc.1/by-name/extra
++/dev/block/platform/msm_sdcc.1/by-name/cache		/cache		f2fs	nosuid,nodev,noatime,nodiratime		defaults
+ /dev/block/platform/msm_sdcc.1/by-name/misc		/misc		emmc	defaults				defaults
+-/dev/block/mmcblk1p2					/sdcard		auto	defaults				defaults	twrp=display="MicroSD card Adopted";storage;wipeingui;removable
+-/dev/block/mmcblk1p1					/sdcard1	auto	defaults				defaults	twrp=display="MicroSD card Legacy";storage;wipeingui;removable
+-/dev/block/sda1						/usb-otg	auto	defaults				defaults	twrp=display="USB OTG";storage;wipeingui;removable
++/dev/block/platform/msm_sdcc.1/by-name/devlog		/devlog		ext4	nosuid,nodev,noatime,nodiratime		defaults	twrp=display="Devlog"
++
++/dev/block/mmcblk1p1					/sdcard-ext	vfat	defaults				defaults	twrp=display="MicroSD-External";storage;wipeingui;removable
++/dev/block/sda1						/usb		vfat	defaults				defaults	twrp=display="USB-OTG";storage;wipeingui;removable
+diff --git a/rootdir/etc/fstab.pyramid b/rootdir/etc/fstab.pyramid
+index 589f2a9..2574049 100755
+--- a/rootdir/etc/fstab.pyramid
++++ b/rootdir/etc/fstab.pyramid
+@@ -1,25 +1,25 @@
+ # Android fstab file.
+-#<src>			<mnt_point>	<type>	<mnt_flags>						<fs_mgr_flags>
+-#/dev/block/platform/msm_sdcc.1/by-name/dsps	/firmware_dsps	vfat	ro,shortname=lower					wait
+-/dev/block/platform/msm_sdcc.1/by-name/radio	/firmware_radio	vfat	ro,shortname=lower,context=u:object_r:firmware_file:s0		wait
+-/dev/block/platform/msm_sdcc.1/by-name/adsp    /firmware_q6	vfat	ro,shortname=lower,context=u:object_r:firmware_file:s0		wait
+-#/dev/block/platform/msm_sdcc.1/by-name/wcnss	/firmware_wcnss	vfat	ro,shortname=lower					wait
++#<src>						<mnt_point>	<type>	<mnt_flags>							<fs_mgr_flags>
++#/dev/block/platform/msm_sdcc.1/by-name/dsps	/firmware_dsps	vfat	ro,shortname=lower							wait
++/dev/block/platform/msm_sdcc.1/by-name/radio	/firmware_radio	vfat	ro,shortname=lower,context=u:object_r:firmware_file:s0			wait
++/dev/block/platform/msm_sdcc.1/by-name/adsp	/firmware_q6	vfat	ro,shortname=lower,context=u:object_r:firmware_file:s0			wait
++#/dev/block/platform/msm_sdcc.1/by-name/wcnss	/firmware_wcnss	vfat	ro,shortname=lower							wait
+ 
+-/dev/block/platform/msm_sdcc.1/by-name/boot      /boot         emmc	defaults								defaults
+-/dev/block/platform/msm_sdcc.1/by-name/recovery  /recovery     emmc	defaults								defaults
+-/dev/block/platform/msm_sdcc.1/by-name/misc      /misc         emmc	defaults								defaults
+-/dev/block/platform/msm_sdcc.1/by-name/devlog    /devlog       ext4	noatime,nosuid,nodev,barrier=0						wait
+-/dev/block/platform/msm_sdcc.1/by-name/system    /system       ext4	rw,noatime,barrier=0							wait
+-/dev/block/platform/msm_sdcc.1/by-name/cache     /cache        f2fs     rw,discard,nosuid,nodev,noatime,nodiratime,inline_xattr 		wait,check,formattable
+-/dev/block/platform/msm_sdcc.1/by-name/cache     /cache        ext4	noatime,nosuid,nodev,barrier=0,journal_async_commit			wait,check,formattable
+-/dev/block/platform/msm_sdcc.1/by-name/userdata  /data         f2fs     rw,discard,nosuid,nodev,noatime,nodiratime,inline_xattr 		wait,check,formattable,encryptable=/dev/block/platform/msm_sdcc.1/by-name/extra
+-/dev/block/platform/msm_sdcc.1/by-name/userdata  /data         ext4	noatime,nosuid,nodev,noauto_da_alloc,barrier=0,journal_async_commit	wait,check,formattable,encryptable=/dev/block/platform/msm_sdcc.1/by-name/extra
++/dev/block/platform/msm_sdcc.1/by-name/boot	/boot		emmc	defaults								defaults
++/dev/block/platform/msm_sdcc.1/by-name/recovery	/recovery	emmc	defaults								defaults
++/dev/block/platform/msm_sdcc.1/by-name/misc	/misc		emmc	defaults								defaults
++/dev/block/platform/msm_sdcc.1/by-name/devlog	/devlog		ext4	noatime,nosuid,nodev,barrier=0						wait
++/dev/block/platform/msm_sdcc.1/by-name/system	/system		ext4	rw,noatime,barrier=0							wait
++/dev/block/platform/msm_sdcc.1/by-name/cache	/cache		f2fs	rw,discard,nosuid,nodev,noatime,nodiratime,inline_xattr			wait,check,formattable
++/dev/block/platform/msm_sdcc.1/by-name/cache	/cache		ext4	noatime,nosuid,nodev,barrier=0,journal_async_commit			wait,check,formattable
++/dev/block/platform/msm_sdcc.1/by-name/userdata	/data		f2fs	rw,discard,nosuid,nodev,noatime,nodiratime,inline_xattr			wait,check,formattable,encryptable=/dev/block/platform/msm_sdcc.1/by-name/extra
++/dev/block/platform/msm_sdcc.1/by-name/userdata	/data		ext4	noatime,nosuid,nodev,noauto_da_alloc,barrier=0,journal_async_commit	wait,check,formattable,encryptable=/dev/block/platform/msm_sdcc.1/by-name/extra
+ 
+ # SD card
+-/devices/platform/msm_sdcc.3/mmc_host/mmc1*	auto	auto	defaults		voldmanaged=sdcard0:auto,encryptable=userdata,noemulatedsd
++/devices/platform/msm_sdcc.3/mmc_host/mmc1*	auto		auto	defaults								voldmanaged=sdcard-ext:auto,encryptable=userdata
+ 
+ # USB storage
+-/devices/platform/msm_hsusb_host.0/usb1*	auto	auto	defaults		voldmanaged=usb:auto
++/devices/platform/msm_hsusb_host.0/usb1*	auto		auto	defaults								voldmanaged=usb-otg:auto
+ 
+ # ZRAM
+-/dev/block/zram0				none 	swap	defaults		zramsize=134217728,notrim
++/dev/block/zram0				none 		swap	defaults								zramsize=134217728,notrim
+diff --git a/system_prop.mk b/system_prop.mk
+index e8cda5f..6c71d4e 100644
+--- a/system_prop.mk
++++ b/system_prop.mk
+@@ -51,7 +51,3 @@ PRODUCT_PROPERTY_OVERRIDES += \
+ # Thermal
+ PRODUCT_PROPERTY_OVERRIDES += \
+     persist.thermal.monitor=true
+-
+-# By default, primary storage is physical
+-PRODUCT_PROPERTY_OVERRIDES += \
+-    ro.vold.primary_physical=1
+-- 
+2.7.0
+
