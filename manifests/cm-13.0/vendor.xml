@@ -50,17 +50,17 @@
 
   <!-- SamsungS2ATT (skyrocket) -->
   <!--
-  <project path="prebuilts/gcc/linux-x86/arm/arm-eabi-4.7" name="platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7" groups="pdk,linux,arm" remote="aosp" revision="refs/tags/android-4.4.4_r2" />
-  <project name="CyanogenMod/android_device_samsung_skyrocket" path="device/samsung/skyrocket" remote="github" />
-  <project name="CyanogenMod/android_device_samsung_celox-common" path="device/samsung/celox-common" remote="github" />
-  <project name="CyanogenMod/android_device_samsung_msm8660-common" path="device/samsung/msm8660-common" remote="github" />
-  <project name="CyanogenMod/android_kernel_samsung_msm8660-common" path="kernel/samsung/msm8660-common" remote="github" />
   <project name="CyanogenMod/android_device_samsung_qcom-common" path="device/samsung/qcom-common" remote="github" />
-  <project name="CyanogenMod/android_hardware_samsung" path="hardware/samsung" remote="github" />
+  <project name="bryan2894/android_device_samsung_msm8660-common" path="device/samsung/msm8660-common" remote="github" />
+  <project name="bryan2894/android_device_samsung_celox-common" path="device/samsung/celox-common" remote="github" />
+  <project name="bryan2894/android_device_samsung_skyrocket" path="device/samsung/skyrocket" remote="github" />
+  <project name="bryan2894/android_kernel_samsung_msm8660-common" path="kernel/samsung/msm8660-common" remote="github" />
 
-  <project name="CyanogenMod/android_hardware_qcom_audio" path="hardware/qcom/audio-caf/msm8660" groups="qcom,qcom_audio"  revision="cm-12.1-caf-8660" />
-  <project name="CyanogenMod/android_hardware_qcom_display" path="hardware/qcom/display-caf/msm8660" groups="qcom,qcom_display" revision="cm-12.1-caf-8660" />
-  <project name="CyanogenMod/android_hardware_qcom_media" path="hardware/qcom/media-caf/msm8660" groups="qcom" revision="cm-12.1-caf-8660" />
+  <project path="hardware/qcom/audio-caf/msm8660" name="bryan2894/android_hardware_qcom_audio" groups="qcom,qcom_audio" revision="cm-13.0-caf-8660" />
+  <project path="hardware/qcom/display-caf/msm8660" name="bryan2894/android_hardware_qcom_display" groups="qcom,qcom_display" revision="cm-13.0-caf-8660" />
+  <project path="hardware/qcom/media-caf/msm8660" name="bryan2894/android_hardware_qcom_media" groups="qcom" revision="cm-13.0-caf-8660" />
+
+  <project path="vendor/samsung" name="bryan2894/proprietary_vendor_samsung" />
   -->
 
   <!-- GalaxyS4ATT (jflteatt) -->
@@ -86,6 +86,8 @@
   -->
 
   <!-- CyanogenMod -->
+  <remove-project name="CyanogenMod/android_frameworks_opt_telephony" />
+  <project path="frameworks/opt/telephony" name="eugenesan/android_frameworks_opt_telephony" groups="pdk" />
   <!--
   <remove-project name="CyanogenMod/android_frameworks_base" />
   <project path="frameworks/base" name="eugenesan/android_frameworks_base" />
