@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.3.1
+# Version 2.3.2
 
 help() {
     cat <<EOB
@@ -76,7 +76,10 @@ fi
 
 # Enable logging
 if [ "${LOG}" == "y" ]; then
-        exec > >(tee -a ${DIR}/${SCRIPT%.*}.log) 2>&1
+        LOG="${SCRIPT%.*}.log"
+        exec > >(tee -a ${DIR}/${LOG}) 2>&1
+else
+        unset LOG
 fi
 
 # Prepare output customization commands
@@ -335,12 +338,16 @@ else
         echo -e "\n${bldblu}Skipping actual build${txtrst}"
 fi
 
-# Save current manifests
-echo -e "${bldblu}Saving manifest${txtrst}"
+# Save build script, log and manifests
+echo -e "${bldblu}Saving build script, log and manifests${txtrst}"
 repo manifest -r -o ${DIR}/${SCRIPT%.*}.revs.xml
 repo manifest -o ${DIR}/${SCRIPT%.*}.heads.xml
-XZ_OPT="-9e --threads=${THREADS}" tar -C ${DIR} -cJf ${SCRIPT%.*}.manifests.tar.xz ${SCRIPT%.*}.{revs,heads}.xml .repo/{manifests/default.xml,local_manifests}
-rm -f ${DIR}/${SCRIPT%.*}.{revs,heads}.xml
+mv -vf ${SCRIPT%.*}.tar.xz .${SCRIPT%.*}.tar.xz
+XZ_OPT="-9e --threads=${THREADS}" tar -C ${DIR} -cJf ${SCRIPT%.*}.tar.xz \
+        ${SCRIPT%.*}.* \
+        .repo/{manifests{.git/config,/default.xml},local_manifests}
+
+cd ${DIR}; rm -vf ${SCRIPT%.*}.{*xml,log}
 
 # Get and print increased ccache size
 if [ -n "${CCACHE_DIR}" ]; then
