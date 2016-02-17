@@ -8,7 +8,7 @@
            fetch="ssh://git@github.com" />
 
   <!-- Setup devices -->
-  <project name="eugenesan/android_kernel_lge_hammerhead" path="kernel/lge/hammerhead" remote="github" revision="android-msm-hammerhead-3.4-marshmallow-mr1-eugenesan" />
+  <project path="kernel/lge/hammerhead" name="eugenesan/android_kernel_lge_hammerhead" remote="github" revision="android-msm-hammerhead-3.4-marshmallow-mr1-eugenesan" />
 
   <!-- Setup vendor -->
   <project path="vendor/aospplus" name="eugenesan/android-vendor-aospplus" remote="github" revision="master" >
