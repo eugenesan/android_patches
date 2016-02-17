@@ -16,62 +16,51 @@
 
   <!-- Nexus 5 (hammerhead) -->
   <!--
-  <project name="eugenesan/android_kernel_lge_hammerhead" path="kernel/lge/hammerhead" remote="github" revision="android-msm-hammerhead-3.4-marshmallow-mr1-eugenesan" />
-  <project name="CyanogenMod/android_device_lge_hammerhead" path="device/lge/hammerhead" remote="github" />
-  <project name="CyanogenMod/android_kernel_lge_hammerhead" path="kernel/lge/hammerhead" remote="github" />
-  <project name="CyanogenMod/android_device_qcom_common" path="device/qcom/common" remote="github" />
+  <project path="kernel/lge/hammerhead" name="eugenesan/android_kernel_lge_hammerhead" remote="github" revision="android-msm-hammerhead-3.4-marshmallow-mr1-eugenesan" />
+  <project path="device/lge/hammerhead" name="CyanogenMod/android_device_lge_hammerhead" remote="github" />
+  <project path="kernel/lge/hammerhead" name="CyanogenMod/android_kernel_lge_hammerhead" remote="github" />
+  <project path="device/qcom/common" name="CyanogenMod/android_device_qcom_common" remote="github" />
   -->
 
-  <!-- HTC Sense XE (pyramid)  -->
-  <!--
-  <remove-project name="CyanogenMod/android_bionic" />
-  <project path="bionic" name="ivanich/android_bionic" />
-  <project path="bionic" name="eugenesan/android_bionic" />
-  -->
-  <!--
-  <project path="device/htc/pyramid" name="ivanich/android_device_htc_pyramid" />
-  <project path="kernel/htc/pyramid" name="ivanich/android_kernel_htc_pyramid" />
-  <project path="vendor/htc" name="ivanich/proprietary_vendor_htc" />
-  -->
-  <project path="device/htc/pyramid" name="eugenesan/android_device_htc_pyramid" />
-  <project path="kernel/htc/pyramid" name="eugenesan/android_kernel_htc_pyramid" />
-  <project path="vendor/htc" name="eugenesan/proprietary_vendor_htc" />
+  <!-- Snapdragon S3 common (MSM8660) -->
+  <project path="external/stlport" name="CyanogenMod/android_external_stlport" remote="github" revision="cm-13.0" />
 
-  <!--
-  <project path="hardware/qcom/audio-caf/msm8660" name="ivanich/android_hardware_qcom_audio" groups="qcom,qcom_audio" />
-  <project path="hardware/qcom/display-caf/msm8660" name="ivanich/android_hardware_qcom_display" groups="qcom,qcom_display" />
-  <project path="hardware/qcom/media-caf/msm8660" name="ivanich/android_hardware_qcom_media" groups="qcom" />
-  -->
-  <project path="hardware/qcom/audio-caf/msm8660" name="eugenesan/android_hardware_qcom_audio" groups="qcom,qcom_audio" />
-  <project path="hardware/qcom/display-caf/msm8660" name="eugenesan/android_hardware_qcom_display" groups="qcom,qcom_display" />
-  <project path="hardware/qcom/media-caf/msm8660" name="eugenesan/android_hardware_qcom_media" groups="qcom" />
-
-  <project path="external/stlport" name="CyanogenMod/android_external_stlport" />
+  <!-- HTC Sense XE (pyramid) [Forked @ivanich] -->
+  <project path="device/htc/pyramid" name="eugenesan/android_device_htc_pyramid" remote="github" revision="cm-13.0" />
+  <project path="kernel/htc/pyramid" name="eugenesan/android_kernel_htc_pyramid" remote="github" revision="cm-13.0" />
+  <project path="vendor/htc" name="eugenesan/proprietary_vendor_htc" remote="github" revision="cm-13.0" />
+  <project path="hardware/qcom/audio-caf/msm8660" name="eugenesan/android_hardware_qcom_audio" groups="qcom,qcom_audio" remote="github" revision="cm-13.0" />
+  <project path="hardware/qcom/display-caf/msm8660" name="eugenesan/android_hardware_qcom_display" groups="qcom,qcom_display" remote="github" revision="cm-13.0" />
+  <project path="hardware/qcom/media-caf/msm8660" name="eugenesan/android_hardware_qcom_media" groups="qcom" remote="github" revision="cm-13.0" />
+  <remove-project name="CyanogenMod/android_frameworks_opt_telephony" />
+  <project path="frameworks/opt/telephony" name="eugenesan/android_frameworks_opt_telephony" groups="pdk" remote="github" revision="cm-13.0" />
 
   <!-- SamsungS2ATT (skyrocket) -->
   <!--
-  <project name="CyanogenMod/android_device_samsung_qcom-common" path="device/samsung/qcom-common" remote="github" />
-  <project name="bryan2894/android_device_samsung_msm8660-common" path="device/samsung/msm8660-common" remote="github" />
-  <project name="bryan2894/android_device_samsung_celox-common" path="device/samsung/celox-common" remote="github" />
-  <project name="bryan2894/android_device_samsung_skyrocket" path="device/samsung/skyrocket" remote="github" />
-  <project name="bryan2894/android_kernel_samsung_msm8660-common" path="kernel/samsung/msm8660-common" remote="github" />
-
-  <project path="hardware/qcom/audio-caf/msm8660" name="bryan2894/android_hardware_qcom_audio" groups="qcom,qcom_audio" revision="cm-13.0-caf-8660" />
-  <project path="hardware/qcom/display-caf/msm8660" name="bryan2894/android_hardware_qcom_display" groups="qcom,qcom_display" revision="cm-13.0-caf-8660" />
-  <project path="hardware/qcom/media-caf/msm8660" name="bryan2894/android_hardware_qcom_media" groups="qcom" revision="cm-13.0-caf-8660" />
-
-  <project path="vendor/samsung" name="bryan2894/proprietary_vendor_samsung" />
+  <project name="CyanogenMod/android_external_sony_boringssl-compat" path="external/sony/boringssl-compat" remote="github" revision="cm-13.0" />
+  <project path="device/qcom/common" name="CyanogenMod/android_device_qcom_common" remote="github" revision="cm-13.0" />
+  <project path="device/samsung/qcom-common" name="CyanogenMod/android_device_samsung_qcom-common" remote="github" revision="cm-13.0" />
+  <project path="device/samsung/msm8660-common" name="eugenesan/android_device_samsung_msm8660-common" remote="github" revision="cm-13.0" />
+  <project path="device/samsung/celox-common" name="bryan2894/android_device_samsung_celox-common" remote="github" revision="cm-13.0" />
+  <project path="device/samsung/hercules" name="bryan2894/android_device_samsung_hercules" remote="github" revision="cm-13.0" />
+  <project path="device/samsung/skyrocket" name="bryan2894/android_device_samsung_skyrocket" remote="github" revision="cm-13.0" />
+  <project path="kernel/samsung/msm8660-common" name="bryan2894/android_kernel_samsung_msm8660-common" remote="github" revision="cm-13.0" />
+  <project path="hardware/qcom/audio-caf/msm8660" name="bryan2894/android_hardware_qcom_audio" remote="github" revision="cm-13.0-caf-8660" />
+  <project path="hardware/qcom/display-caf/msm8660" name="bryan2894/android_hardware_qcom_display" remote="github" revision="cm-13.0-caf-8660" />
+  <project path="hardware/qcom/media-caf/msm8660" name="bryan2894/android_hardware_qcom_media" remote="github" revision="cm-13.0-caf-8660" />
+  <project path="hardware/samsung" name="CyanogenMod/android_hardware_samsung" remote="github" revision="cm-13.0" />
+  <project path="vendor/samsung" name="bryan2894/proprietary_vendor_samsung" remote="github" revision="cm-13.0" />
   -->
 
   <!-- GalaxyS4ATT (jflteatt) -->
   <!--
-  <project name="CyanogenMod/android_device_samsung_jf-common" path="device/samsung/jf-common" remote="github" />
-  <project name="eugenesan/android_device_samsung_jf-common" path="device/samsung/jf-common" remote="github" />
-  <project name="CyanogenMod/android_device_samsung_qcom-common" path="device/samsung/qcom-common" remote="github" />
-  <project name="CyanogenMod/android_kernel_samsung_jf" path="kernel/samsung/jf" remote="github" />
-  <project name="CyanogenMod/android_device_samsung_jflteatt" path="device/samsung/jflteatt" remote="github" />
-  <project name="CyanogenMod/android_hardware_samsung" path="hardware/samsung" remote="github" />
-  <project name="TheMuppets/proprietary_vendor_samsung" path="vendor/samsung" remote="github" />
+  <project path="device/samsung/jf-common" name="CyanogenMod/android_device_samsung_jf-common" remote="github" />
+  <project path="device/samsung/jf-common" name="eugenesan/android_device_samsung_jf-common" remote="github" />
+  <project path="device/samsung/qcom-common"name="CyanogenMod/android_device_samsung_qcom-common"  remote="github" />
+  <project path="kernel/samsung/jf" name="CyanogenMod/android_kernel_samsung_jf" remote="github" />
+  <project path="device/samsung/jflteatt" name="CyanogenMod/android_device_samsung_jflteatt" remote="github" />
+  <project path="hardware/samsung" name="CyanogenMod/android_hardware_samsung" remote="github" />
+  <project path="vendor/samsung" name="TheMuppets/proprietary_vendor_samsung" remote="github" />
   -->
 
   <!-- Setup vendor -->
@@ -86,8 +75,6 @@
   -->
 
   <!-- CyanogenMod -->
-  <remove-project name="CyanogenMod/android_frameworks_opt_telephony" />
-  <project path="frameworks/opt/telephony" name="eugenesan/android_frameworks_opt_telephony" groups="pdk" />
   <!--
   <remove-project name="CyanogenMod/android_frameworks_base" />
   <project path="frameworks/base" name="eugenesan/android_frameworks_base" />
@@ -100,9 +87,9 @@
   <project path="bootable/recovery" name="omnirom/android_bootable_recovery" revision="android-5.1" />
   <project path="bootable/recovery" name="ivanich/android_bootable_recovery" />
   <project path="bootable/recovery" name="mdmower/twrp" />
-  -->
   <remove-project name="CyanogenMod/android_bootable_recovery" />
   <project path="bootable/recovery" name="eugenesan/android_bootable_recovery" groups="pdk" />
+  -->
 
   <!-- Misc projects -->
   <!--

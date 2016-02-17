@@ -1,0 +1,144 @@
+From cfe3e87be689c612929274c3608357b2788f9381 Mon Sep 17 00:00:00 2001
+From: "Eugene San (eugenesan)" <eugenesan@gmail.com>
+Date: Thu, 28 Jan 2016 18:54:51 -0500
+Subject: [PATCH] Fix non-eng builds and conform with TWRP guidelines
+
+Change-Id: I3900da7bf2aa7a9830ddd5282e040ff2c3a299a6
+---
+ msm8660.mk                             |  5 -----
+ recovery/Android.mk                    | 15 ---------------
+ recovery/postrecoveryboot.sh           | 21 ---------------------
+ recovery/root/etc/twrp.fstab           |  9 +++++++++
+ recovery/root/sbin/postrecoveryboot.sh | 21 +++++++++++++++++++++
+ recovery/twrp.fstab                    |  9 ---------
+ 6 files changed, 30 insertions(+), 50 deletions(-)
+ delete mode 100644 recovery/Android.mk
+ delete mode 100644 recovery/postrecoveryboot.sh
+ create mode 100644 recovery/root/etc/twrp.fstab
+ create mode 100644 recovery/root/sbin/postrecoveryboot.sh
+ delete mode 100644 recovery/twrp.fstab
+
+diff --git a/msm8660.mk b/msm8660.mk
+index 0f4a04b..8acc76d 100644
+--- a/msm8660.mk
++++ b/msm8660.mk
+@@ -96,11 +96,6 @@ PRODUCT_PACKAGES += \
+     init.qcom.power.rc \
+     ueventd.qcom.rc
+ 
+-# TWRP Recovery
+-PRODUCT_PACKAGES += \
+-    postrecoveryboot.sh \
+-    twrp.fstab
+-
+ # Audio config
+ PRODUCT_COPY_FILES += \
+     device/samsung/msm8660-common/configs/audio_policy.conf:system/etc/audio_policy.conf
+diff --git a/recovery/Android.mk b/recovery/Android.mk
+deleted file mode 100644
+index 1ae019b..0000000
+--- a/recovery/Android.mk
++++ /dev/null
+@@ -1,15 +0,0 @@
+-include $(CLEAR_VARS)
+-LOCAL_MODULE       := twrp.fstab
+-LOCAL_MODULE_TAGS  := optional eng
+-LOCAL_MODULE_CLASS := ETC
+-LOCAL_SRC_FILES    := recovery/twrp.fstab
+-LOCAL_MODULE_PATH  := $(TARGET_RECOVERY_ROOT_OUT)/etc
+-include $(BUILD_PREBUILT)
+-
+-include $(CLEAR_VARS)
+-LOCAL_MODULE       := postrecoveryboot.sh
+-LOCAL_MODULE_TAGS  := optional eng
+-LOCAL_MODULE_CLASS := ETC
+-LOCAL_SRC_FILES    := recovery/postrecoveryboot.sh
+-LOCAL_MODULE_PATH  := $(TARGET_RECOVERY_ROOT_OUT)/sbin
+-include $(BUILD_PREBUILT)
+diff --git a/recovery/postrecoveryboot.sh b/recovery/postrecoveryboot.sh
+deleted file mode 100644
+index 7b15d7f..0000000
+--- a/recovery/postrecoveryboot.sh
++++ /dev/null
+@@ -1,21 +0,0 @@
+-#!/sbin/sh
+-
+-# The partition to use is named "PARAM" and can be found by dumping the PIT.
+-
+-# 0: charge
+-# 1: direct
+-# 2: recovery_enter
+-# 3: recovery_end
+-# 4: download_end
+-
+-target=`getprop ro.board.platform`
+-
+-case "$target" in
+-    "msm8660")
+-        # hack because 8660 doesn't support partitions by-name
+-        echo -n -e '\x03\x00\x00\x00' > /dev/block/mmcblk0p12
+-        ;;
+-    *)
+-        echo -n -e '\x03\x00\x00\x00' > /dev/block/platform/msm_sdcc.1/by-name/param
+-        ;;
+-esac
+diff --git a/recovery/root/etc/twrp.fstab b/recovery/root/etc/twrp.fstab
+new file mode 100644
+index 0000000..77a39f5
+--- /dev/null
++++ b/recovery/root/etc/twrp.fstab
+@@ -0,0 +1,9 @@
++/boot         emmc        /dev/block/mmcblk0p8
++/efs          ext4        /dev/block/mmcblk0p21  flags=display="EFS";backup=1
++/recovery     emmc        /dev/block/mmcblk0p22
++/data         ext4        /dev/block/mmcblk0p28
++/system       ext4        /dev/block/mmcblk0p25
++/cache        ext4        /dev/block/mmcblk0p24
++/external_sd  vfat        /dev/block/mmcblk1p1   /dev/block/mmcblk1   flags=display="MicroSD Card";storage;wipeingui;removable
++/preload      ext4        /dev/block/mmcblk0p27  flags=display="Preload";backup=1;wipeingui
++/usb-otg      vfat        /dev/block/sda1        /dev/block/sda       flags=display="USB OTG";storage;wipeingui;removable
+diff --git a/recovery/root/sbin/postrecoveryboot.sh b/recovery/root/sbin/postrecoveryboot.sh
+new file mode 100644
+index 0000000..7b15d7f
+--- /dev/null
++++ b/recovery/root/sbin/postrecoveryboot.sh
+@@ -0,0 +1,21 @@
++#!/sbin/sh
++
++# The partition to use is named "PARAM" and can be found by dumping the PIT.
++
++# 0: charge
++# 1: direct
++# 2: recovery_enter
++# 3: recovery_end
++# 4: download_end
++
++target=`getprop ro.board.platform`
++
++case "$target" in
++    "msm8660")
++        # hack because 8660 doesn't support partitions by-name
++        echo -n -e '\x03\x00\x00\x00' > /dev/block/mmcblk0p12
++        ;;
++    *)
++        echo -n -e '\x03\x00\x00\x00' > /dev/block/platform/msm_sdcc.1/by-name/param
++        ;;
++esac
+diff --git a/recovery/twrp.fstab b/recovery/twrp.fstab
+deleted file mode 100644
+index 77a39f5..0000000
+--- a/recovery/twrp.fstab
++++ /dev/null
+@@ -1,9 +0,0 @@
+-/boot         emmc        /dev/block/mmcblk0p8
+-/efs          ext4        /dev/block/mmcblk0p21  flags=display="EFS";backup=1
+-/recovery     emmc        /dev/block/mmcblk0p22
+-/data         ext4        /dev/block/mmcblk0p28
+-/system       ext4        /dev/block/mmcblk0p25
+-/cache        ext4        /dev/block/mmcblk0p24
+-/external_sd  vfat        /dev/block/mmcblk1p1   /dev/block/mmcblk1   flags=display="MicroSD Card";storage;wipeingui;removable
+-/preload      ext4        /dev/block/mmcblk0p27  flags=display="Preload";backup=1;wipeingui
+-/usb-otg      vfat        /dev/block/sda1        /dev/block/sda       flags=display="USB OTG";storage;wipeingui;removable
+-- 
+2.7.0
+
