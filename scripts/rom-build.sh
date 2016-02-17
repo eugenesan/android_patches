@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.3.2
+# Version 2.3.3
 
 help() {
     cat <<EOB
@@ -95,10 +95,14 @@ txtbld=$(tput bold)             # bold
 txtrst=$(tput sgr0)             # reset
 
 # If there is more than one jdk installed, use latest in series (JSER)
-if [ "`update-alternatives --list javac | wc -l`" -gt 1 ]; then
+if [ `update-alternatives --list javac | wc -l` -gt 1 ]; then
         JDK=$(dirname `update-alternatives --list javac | grep "\-${JSER}\-"` | tail -n1)
         JRE=$(dirname ${JDK}/../jre/bin/java)
         export PATH=${JDK}:${JRE}:${PATH_ORIG}
+fi
+if [ ${JC} == 0 ] || [ -z ${JDK} ]; then
+        echo -e "${redbld}No valid Java${JSER} instalations found, exiting...${txtrst}"
+        exit 1
 fi
 JVER=$(${JDK}/javac -version  2>&1 | head -n1 | cut -f2 -d' ')
 
@@ -194,7 +198,7 @@ else
         unset CCACHE
 fi
 
-echo -e "${cya}Building ${MODE} ${bldcya}Android ${VERSION} for ${DEVICE} using Java-${JVER}${txtrst} with ${THREADS} threads"
+echo -e "${cya}Building ${MODE} ${bldcya}Android ${VERSION} for ${DEVICE} using Java-${JVER} with ${THREADS} threads"
 echo -e "${bldgrn}Start time: $(date) ${txtrst}"
 
 # Print ccache stats
