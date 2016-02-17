@@ -95,12 +95,13 @@ txtbld=$(tput bold)             # bold
 txtrst=$(tput sgr0)             # reset
 
 # If there is more than one jdk installed, use latest in series (JSER)
-if [ `update-alternatives --list javac | wc -l` -gt 1 ]; then
+JC=`update-alternatives --list javac | wc -l`
+if [ ${JC} -gt 1 ]; then
         JDK=$(dirname `update-alternatives --list javac | grep "\-${JSER}\-"` | tail -n1)
         JRE=$(dirname ${JDK}/../jre/bin/java)
         export PATH=${JDK}:${JRE}:${PATH_ORIG}
 fi
-if [ ${JC} == 0 ] || [ -z ${JDK} ]; then
+if [ ${JC} -eq 0 ] || [ -z ${JDK} ]; then
         echo -e "${redbld}No valid Java${JSER} instalations found, exiting...${txtrst}"
         exit 1
 fi
