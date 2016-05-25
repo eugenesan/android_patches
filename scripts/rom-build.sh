@@ -1,15 +1,19 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.3.3
+# Version 2.3.4
+# System preparations (Ubuntu 16.04):
+# http://forum.xda-developers.com/chef-central/android/guide-how-to-setup-ubuntu-16-04-lts-t3363669
+# Before first build run: sudo update-ca-certificates -f
 
 help() {
     cat <<EOB
-Usage: $(basename ${0}) [device] [options]
+Usage: $(basename ${0}) [options] &| [device]
         device:    : Specify device to be built (default is hammerhead)
         options:
         -c         : Clean output folder, log and screen (Twice to wipe ccache)
         -C         : Clean output folder, log, screen and wipe ccache
+        -d         : Enable debug mode
         -i         : Do not start build rather enter interactive mode with hints being printed
         -l         : Perform no logging
         -n         : Perform dummy build
@@ -26,12 +30,17 @@ OUT="$(readlink ${DIR}/out)"
 PATH_ORIG="${PATH}"
 SCRIPT="$(basename ${0})"
 
+# Create TMPDIR and point to it for target images to be built in it
+mkdir -p "${OUT}/tmp"
+export TMPDIR="${OUT}/tmp"
+
 # Import command line parameters
 [ $# -eq 0 ] && help
-while getopts cCilnrsx opt; do
+while getopts cCdilnrsx opt; do
         case "$opt" in
                 c)      CLEAN="y"          ;;
                 C)      CLEAN="a"          ;;
+                d)      DEBUG="y"          ;;
                 i)      MODE="interactive" ;;
                 l)      LOG="dummy"        ;;
                 n)      MODE="dummy"       ;;
@@ -44,10 +53,15 @@ done
 
 shift `expr $OPTIND - 1`
 
+# Enable tracing if debug enabled
+if [ "${DEBUG}" == "y" ]; then
+        set -x
+fi
+
 # Set current device
 DEVICE="${1}"
 if [ -z "${DEVICE}" ]; then
-	help
+        help
 fi
 
 # Load defaults, can be overriden by environment
@@ -56,7 +70,7 @@ fi
 : ${CCACHE_NOSTATS:="false"}
 : ${CCACHE_DIR:="$(dirname $OUT)/ccache"}
 : ${THREADS:="$(($(cat /proc/cpuinfo | grep "^processor" | wc -l) * 2 / 4 * 3 + 1))"}
-: ${JSER:="7"}
+: ${JSER:="8"}
 : ${BUILD_TYPE:="userdebug"}
 : ${RECOVERY_BUILD_TYPE:="eng"}
 : ${PREFS_FROM_SOURCE:="false"}
@@ -65,7 +79,7 @@ fi
 
 # Clean log if requested
 if [ "${CLEAN}" == "y" ]; then
-	rm ${DIR}/${SCRIPT%.*}.log
+        rm ${DIR}/${SCRIPT%.*}.log
 fi
 
 # Clean scrollback buffer
@@ -96,16 +110,19 @@ txtrst=$(tput sgr0)             # reset
 
 # If there is more than one jdk installed, use latest in series (JSER)
 JC=`update-alternatives --list javac | wc -l`
-if [ ${JC} -gt 1 ]; then
+if [ ${JC} -ge 1 ]; then
         JDK=$(dirname `update-alternatives --list javac | grep "\-${JSER}\-"` | tail -n1)
-        JRE=$(dirname ${JDK}/../jre/bin/java)
-        export PATH=${JDK}:${JRE}:${PATH_ORIG}
+        JRE=$(dirname `update-alternatives --list java | grep "\-${JSER}\-"` | tail -n1)
 fi
 if [ ${JC} -eq 0 ] || [ -z ${JDK} ]; then
         echo -e "${redbld}No valid Java${JSER} instalations found, exiting...${txtrst}"
         exit 1
 fi
+export PATH=${JDK}:${JRE}:${PATH_ORIG}
+export JAVA_HOME="$(realpath ${JDK}/..)"
+export J2REDIR="$(realpath ${JRE}/..)"
 JVER=$(${JDK}/javac -version  2>&1 | head -n1 | cut -f2 -d' ')
+
 
 # Get build version
 if [ -r ${DIR}/vendor/pa/vendor.mk ]; then
@@ -244,7 +261,8 @@ else
 fi
 
 # Decide if we enter interactive mode or default build mode
-if [ "${MODE}" == "interactive" ]; then
+case "${MODE}" in
+    interactive)
         echo -e "\n${bldblu}Enabling interactive mode. Possible commands are:${txtrst}"
 
         if [ "${VENDOR}" == "cm" ]; then
@@ -273,75 +291,71 @@ if [ "${MODE}" == "interactive" ]; then
         # Setup and enter interactive environment
         echo -e "${bldblu}Dropping to interactive shell...${txtrst}"
         bash --init-file build/envsetup.sh -i
-elif [ "${MODE}" == "recovery" ]; then
+    ;;
+
+    recovery|rom)
         # Setup environment
         echo -e "\n${bldblu}Setting up environment${txtrst}"
         . build/envsetup.sh
 
-        # Print java caveats
+        # Set java workarounds and print warnings
         if [ ! -r "${DIR}/out/versions_checked.mk" ] && [ -n "$(java -version 2>&1 | grep -i openjdk)" ]; then
                 echo -e "\n${bldcya}Your java version still not checked and is candidate to fail, masquerading.${txtrst}"
                 export JAVA_VERSION="java_version=${JVER}"
+
+        fi
+        if [ "${JSER}" == "8" ]; then
+                echo -e "\n${bldcya}Your java version use is experimental and is candidate to fail.${txtrst}"
+                export EXPERIMENTAL_USE_JAVA8="yes"
         fi
 
-        # Ensure java is set correctly
+        # Ensure java is still set correctly
         export PATH=${JDK}:${JRE}:${PATH_ORIG}
-        export JAVA_HOME="${JDK}"
-        export J2REDIR="${JRE}"
+        export JAVA_HOME="$(realpath ${JDK}/..)"
+        export J2REDIR="$(realpath ${JRE}/..)"
 
-        # Preparing
-        echo -e "\n${bldblu}Preparing device [${DEVICE}]${txtrst}"
-        if [ "${VENDOR}" == "cm" ]; then
-                lunch ${VENDOR}_${DEVICE}-${RECOVERY_BUILD_TYPE}
-        elif [ "${VENDOR}" == "omni" ]; then
-                breakfast ${DEVICE}
-        else
-                lunch ${VENDOR_LUNCH}${DEVICE}-${BUILD_TYPE}
+        if [ "${MODE}" == "recovery" ]; then
+                # Preparing
+                echo -e "\n${bldblu}Preparing device [${DEVICE}]${txtrst}"
+                if [ "${VENDOR}" == "cm" ]; then
+                        lunch ${VENDOR}_${DEVICE}-${RECOVERY_BUILD_TYPE}
+                elif [ "${VENDOR}" == "omni" ]; then
+                        breakfast ${DEVICE}
+                else
+                        lunch ${VENDOR_LUNCH}${DEVICE}-${BUILD_TYPE}
+                fi
+
+                echo -e "${bldblu}Starting recovery compilation${txtrst}"
+                make -j"${THREADS}" recoveryimage
+        elif [ "${MODE}" == "rom" ]; then
+                # Preparing
+                echo -e "\n${bldblu}Preparing device [${DEVICE}]${txtrst}"
+                export PREFS_FROM_SOURCE
+                if [ "${VENDOR}" == "cm" ]; then
+                        breakfast "${VENDOR_LUNCH}${DEVICE}"
+                elif [ "${VENDOR}" == "omni" ]; then
+                        breakfast "${DEVICE}"
+                else
+                        lunch "${VENDOR_LUNCH}${DEVICE}-${BUILD_TYPE}"
+                fi
+
+                echo -e "${bldblu}Starting rom compilation${txtrst}"
+                if [ "${VENDOR}" == "aosp" ]; then
+                        schedtool -B -n 1 -e ionice -n 1 make -j${THREADS} ${CCACHE_OPT} ${JAVA_VERSION}
+                elif [ "${VENDOR}" == "cm" ]; then
+                        brunch "${VENDOR_LUNCH}${DEVICE}"
+                elif [ "${VENDOR}" == "omni" ]; then
+                        brunch "${DEVICE}"
+                else
+                        mka bacon
+                fi
         fi
-
-        echo -e "${bldblu}Starting recovery compilation${txtrst}"
-        make -j"${THREADS}" recoveryimage
-elif [ "${MODE}" == "rom" ]; then
-        # Setup environment
-        echo -e "\n${bldblu}Setting up environment${txtrst}"
-        . build/envsetup.sh
-
-        # Print java caveats
-        if [ ! -r "${DIR}/out/versions_checked.mk" ] && [ -n "$(java -version 2>&1 | grep -i openjdk)" ]; then
-                echo -e "\n${bldcya}Your java version still not checked and is candidate to fail, masquerading.${txtrst}"
-                export JAVA_VERSION="java_version=${JVER}"
-        fi
-
-        # Ensure java is set correctly
-        export PATH=${JDK}:${JRE}:${PATH_ORIG}
-        export JAVA_HOME="${JDK}"
-        export J2REDIR="${JRE}"
-
-        # Preparing
-        echo -e "\n${bldblu}Preparing device [${DEVICE}]${txtrst}"
-        export PREFS_FROM_SOURCE
-        if [ "${VENDOR}" == "cm" ]; then
-                breakfast "${VENDOR_LUNCH}${DEVICE}"
-        elif [ "${VENDOR}" == "omni" ]; then
-                breakfast "${DEVICE}"
-        else
-                lunch "${VENDOR_LUNCH}${DEVICE}-${BUILD_TYPE}"
-        fi
-
-        echo -e "${bldblu}Starting compilation${txtrst}"
-        if [ "${VENDOR}" == "aosp" ]; then
-                schedtool -B -n 1 -e ionice -n 1 make -j${THREADS} ${CCACHE_OPT} ${JAVA_VERSION}
-        elif [ "${VENDOR}" == "cm" ]; then
-                brunch "${VENDOR_LUNCH}${DEVICE}"
-        elif [ "${VENDOR}" == "omni" ]; then
-                brunch "${DEVICE}"
-        else
-                mka bacon
-        fi
-else
+    ;;
+    *)
         # Performing dummy build
         echo -e "\n${bldblu}Skipping actual build${txtrst}"
-fi
+    ;;
+esac
 
 # Save build script, log and manifests
 echo -e "${bldblu}Saving build script, log and manifests${txtrst}"
