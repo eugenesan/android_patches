@@ -1,17 +1,17 @@
 #!/bin/bash
 
 # Android AOSP/AOSPA/CM/SLIM/OMNI build script
-# Version 2.3.4
+# Version 2.3.5
 # System preparations (Ubuntu 16.04):
 # http://forum.xda-developers.com/chef-central/android/guide-how-to-setup-ubuntu-16-04-lts-t3363669
 # Before first build run: sudo update-ca-certificates -f
 
 help() {
     cat <<EOB
-Usage: $(basename ${0}) [options] &| [device]
-        device:    : Specify device to be built (default is hammerhead)
+Usage: $(basename ${0}) [options] <device>
+        device:    : Specify device to be built
         options:
-        -c         : Clean output folder, log and screen (Twice to wipe ccache)
+        -c         : Clean output folder, log and screen
         -C         : Clean output folder, log, screen and wipe ccache
         -d         : Enable debug mode
         -i         : Do not start build rather enter interactive mode with hints being printed
@@ -26,15 +26,13 @@ EOB
 
 # Get current paths
 DIR="$(cd `dirname $0`; pwd)"
-OUT="$(readlink ${DIR}/out)"
 PATH_ORIG="${PATH}"
 SCRIPT="$(basename ${0})"
 
-# Create TMPDIR and point to it for target images to be built in it
-mkdir -p "${OUT}/tmp"
-export TMPDIR="${OUT}/tmp"
+# Store command line parameters
+CMD="${0} ${@}"
 
-# Import command line parameters
+# Parse command line parameters
 [ $# -eq 0 ] && help
 while getopts cCdilnrsx opt; do
         case "$opt" in
@@ -50,7 +48,6 @@ while getopts cCdilnrsx opt; do
                 *)      help               ;;
         esac
 done
-
 shift `expr $OPTIND - 1`
 
 # Enable tracing if debug enabled
@@ -66,9 +63,10 @@ fi
 
 # Load defaults, can be overriden by environment
 : ${OUT:="$DIR/out"}
+: ${TMPDIR:="$OUT/tmp"}
+: ${CCACHE_DIR:="$DIR/ccache"}
 : ${USE_CCACHE:="true"}
 : ${CCACHE_NOSTATS:="false"}
-: ${CCACHE_DIR:="$(dirname $OUT)/ccache"}
 : ${THREADS:="$(($(cat /proc/cpuinfo | grep "^processor" | wc -l) * 2 / 4 * 3 + 1))"}
 : ${JSER:="8"}
 : ${BUILD_TYPE:="userdebug"}
@@ -76,6 +74,22 @@ fi
 : ${PREFS_FROM_SOURCE:="false"}
 : ${MODE:="rom"}
 : ${LOG:="y"}
+
+# Prepare output customization commands
+red=$(tput setaf 1)             # red
+grn=$(tput setaf 2)             # green
+yel=$(tput setaf 3)             # yellow
+blu=$(tput setaf 4)             # blue
+mag=$(tput setaf 5)             # magenta
+cya=$(tput setaf 6)             # cyan
+bldred=${txtbld}$(tput setaf 1) # red
+bldgrn=${txtbld}$(tput setaf 2) # green
+bldyel=${txtbld}$(tput setaf 2) # bold yellow
+bldblu=${txtbld}$(tput setaf 4) # bold blue
+bldmag=${txtbld}$(tput setaf 5) # bold magenta
+bldcya=${txtbld}$(tput setaf 6) # bold cyan
+txtbld=$(tput bold)             # just bold
+txtrst=$(tput sgr0)             # reset
 
 # Clean log if requested
 if [ "${CLEAN}" == "y" ]; then
@@ -96,18 +110,6 @@ else
         unset LOG
 fi
 
-# Prepare output customization commands
-red=$(tput setaf 1)             # red
-grn=$(tput setaf 2)             # green
-blu=$(tput setaf 4)             # blue
-cya=$(tput setaf 6)             # cyan
-bldred=${txtbld}$(tput setaf 1) # red
-bldgrn=${txtbld}$(tput setaf 2) # green
-bldblu=${txtbld}$(tput setaf 4) # blue
-bldcya=${txtbld}$(tput setaf 6) # cyan
-txtbld=$(tput bold)             # bold
-txtrst=$(tput sgr0)             # reset
-
 # If there is more than one jdk installed, use latest in series (JSER)
 JC=`update-alternatives --list javac | wc -l`
 if [ ${JC} -ge 1 ]; then
@@ -122,7 +124,6 @@ export PATH=${JDK}:${JRE}:${PATH_ORIG}
 export JAVA_HOME="$(realpath ${JDK}/..)"
 export J2REDIR="$(realpath ${JRE}/..)"
 JVER=$(${JDK}/javac -version  2>&1 | head -n1 | cut -f2 -d' ')
-
 
 # Get build version
 if [ -r ${DIR}/vendor/pa/vendor.mk ]; then
@@ -170,12 +171,12 @@ if [ "${USE_CCACHE}" == "true" ]; then
         CCACHE="$(which ccache)"
         if [ -n "${CCACHE}" ]; then
                 export CCACHE_COMPRESS="1"
-                echo -e "${bldblu}Using system ccache with compression enabled [${CCACHE}]${txtrst}"
+                echo -e "${bldmag}Using system ccache with compression enabled [${CCACHE}]${txtrst}"
         elif [ -r "${DIR}/prebuilts/misc/linux-x86/ccache/ccache" ]; then
                 CCACHE="${DIR}/prebuilts/misc/linux-x86/ccache/ccache"
-                echo -e "${bldblu}Using prebuilt ccache [${CCACHE}]${txtrst}"
+                echo -e "${bldmag}Using prebuilt ccache [${CCACHE}]${txtrst}"
         else
-                echo -e "${bldblu}No suitable ccache found, disabling ccache usage${txtrst}"
+                echo -e "${bldmag}No suitable ccache found, disabling ccache usage${txtrst}"
                 unset USE_CCACHE
                 unset CCACHE_DIR
                 unset CCACHE_NOSTATS
@@ -185,9 +186,6 @@ if [ "${USE_CCACHE}" == "true" ]; then
         if [ -n "${CCACHE}" ]; then
                 # Prepare ccache parameter for make
                 CCACHE_OPT="ccache=${CCACHE}"
-
-                # If custom ccache folder not specified, will use default one
-                #[ -n "${CCACHE_DIR}" ] || CCACHE_DIR="${HOME}/.ccache"
 
                 # Export and prepare ccache storage
                 export CCACHE_DIR
@@ -216,8 +214,23 @@ else
         unset CCACHE
 fi
 
-echo -e "${cya}Building ${MODE} ${bldcya}Android ${VERSION} for ${DEVICE} using Java-${JVER} with ${THREADS} threads"
-echo -e "${bldgrn}Start time: $(date) ${txtrst}"
+# Dump directories if debug enabled
+if [ "${DEBUG}" == "y" ]; then
+        echo -e "${bldmag}PATH:[${PATH}]${txtrst}"
+        echo -e "${bldmag}PATH_ORIG:[${PATH_ORIG}]${txtrst}"
+        echo -e "${bldmag}DIR:[${DIR}]${txtrst}"
+        echo -e "${bldmag}OUT:[${OUT}]${txtrst}"
+        echo -e "${bldmag}TMPDIR:[${TMPDIR}]${txtrst}"
+        echo -e "${bldmag}CCACHE_DIR:[${CCACHE_DIR}]${txtrst}"
+        echo -e "${bldmag}JAVA_HOME:[${JAVA_HOME}]${txtrst}"
+        echo -e "${bldmag}J2REDIR:[${J2REDIR}]${txtrst}"
+        echo -e "${bldmag}CCACHE_DIR:[${CCACHE_DIR}]${txtrst}"
+fi
+
+# Print runtime settings asnd command line parameters
+echo -e "${yel}Invoked with the following parameters: ${bldyel}[${CMD}]${txtrst}"
+echo -e "${yel}Building ${MODE} ${bldyel}Android ${VERSION} for ${DEVICE} using Java-${JVER} with ${THREADS} threads"
+echo -e "${yel}Start time: ${bldyel}$(date) ${txtrst}"
 
 # Print ccache stats
 [ -n "${USE_CCACHE}" ] && export USE_CCACHE && echo -e "${cya}Building using CCACHE${txtrst}"
@@ -226,23 +239,31 @@ echo -e "${bldgrn}Start time: $(date) ${txtrst}"
 # Decide what command to execute
 case "${CLEAN}" in
         y|a)
-                echo -e "${bldblu}Cleaning intermediates and output files${txtrst}"
+                echo -e "${bldmag}Cleaning intermediates and output files${txtrst}"
                 export CLEAN_BUILD="true"
                 [ -d "${DIR}/out" ] && rm -Rf ${DIR}/out/*
+
                 # Clean ccache if we have to
                 if [ -n "${CCACHE_DIR}" ] && [ ${CLEAN} == "a" ]; then
-                        echo "${bldblu}Cleaning ccache${txtrst}"
+                        echo "${bldmag}Cleaning ccache${txtrst}"
                         ${CCACHE} -C -M 5G
                 fi
         ;;
 esac
+
+# Ensure output directory exists
+mkdir -p "${OUT}"
+
+# Create and enforce TMPDIR for target images to be built in it
+mkdir -p "${TMPDIR}"
+export TMPDIR
 
 echo -e ""
 
 # Fetch latest sources
 case "${SYNC}" in
         y)
-        echo -e "\n${bldblu}Fetching latest sources${txtrst}"
+        echo -e "\n${bldmag}Fetching latest sources${txtrst}"
         repo sync -j"${THREADS}"
         ;;
 esac
@@ -251,7 +272,7 @@ if [ -r vendor/cm/get-prebuilts ]; then
         if [ -r vendor/cm/proprietary/.get-prebuilts ]; then
                 echo -e "${bldgrn}Already downloaded prebuilts${txtrst}"
         else
-                echo -e "${bldblu}Downloading prebuilts${txtrst}"
+                echo -e "${bldmag}Downloading prebuilts${txtrst}"
                 pushd vendor/cm > /dev/null
                 ./get-prebuilts && touch proprietary/.get-prebuilts
                 popd > /dev/null
@@ -263,7 +284,7 @@ fi
 # Decide if we enter interactive mode or default build mode
 case "${MODE}" in
     interactive)
-        echo -e "\n${bldblu}Enabling interactive mode. Possible commands are:${txtrst}"
+        echo -e "\n${bldmag}Enabling interactive mode. Possible commands are:${txtrst}"
 
         if [ "${VENDOR}" == "cm" ]; then
                 echo -e "Prepare device environment: [${bldgrn}breakfast ${VENDOR_LUNCH}${DEVICE}${txtrst}]"
@@ -289,13 +310,13 @@ case "${MODE}" in
         echo -e "Emulate device: [${bldgrn}vncserver :1; DISPLAY=:1 emulator&${txtrst}]"
 
         # Setup and enter interactive environment
-        echo -e "${bldblu}Dropping to interactive shell...${txtrst}"
+        echo -e "${bldmag}Dropping to interactive shell...${txtrst}"
         bash --init-file build/envsetup.sh -i
     ;;
 
     recovery|rom)
         # Setup environment
-        echo -e "\n${bldblu}Setting up environment${txtrst}"
+        echo -e "\n${bldmag}Setting up environment${txtrst}"
         . build/envsetup.sh
 
         # Set java workarounds and print warnings
@@ -325,11 +346,11 @@ case "${MODE}" in
                         lunch ${VENDOR_LUNCH}${DEVICE}-${BUILD_TYPE}
                 fi
 
-                echo -e "${bldblu}Starting recovery compilation${txtrst}"
+                echo -e "${bldmag}Starting recovery compilation${txtrst}"
                 make -j"${THREADS}" recoveryimage
         elif [ "${MODE}" == "rom" ]; then
                 # Preparing
-                echo -e "\n${bldblu}Preparing device [${DEVICE}]${txtrst}"
+                echo -e "\n${bldmag}Preparing device [${DEVICE}]${txtrst}"
                 export PREFS_FROM_SOURCE
                 if [ "${VENDOR}" == "cm" ]; then
                         breakfast "${VENDOR_LUNCH}${DEVICE}"
@@ -339,7 +360,7 @@ case "${MODE}" in
                         lunch "${VENDOR_LUNCH}${DEVICE}-${BUILD_TYPE}"
                 fi
 
-                echo -e "${bldblu}Starting rom compilation${txtrst}"
+                echo -e "${bldmag}Starting rom compilation${txtrst}"
                 if [ "${VENDOR}" == "aosp" ]; then
                         schedtool -B -n 1 -e ionice -n 1 make -j${THREADS} ${CCACHE_OPT} ${JAVA_VERSION}
                 elif [ "${VENDOR}" == "cm" ]; then
@@ -353,12 +374,12 @@ case "${MODE}" in
     ;;
     *)
         # Performing dummy build
-        echo -e "\n${bldblu}Skipping actual build${txtrst}"
+        echo -e "\n${bldmag}Skipping actual build${txtrst}"
     ;;
 esac
 
 # Save build script, log and manifests
-echo -e "${bldblu}Saving build script, log and manifests${txtrst}"
+echo -e "${bldmag}Saving build script, log and manifests${txtrst}"
 repo manifest -r -o ${DIR}/${SCRIPT%.*}.revs.xml
 repo manifest -o ${DIR}/${SCRIPT%.*}.heads.xml
 mv -vf ${SCRIPT%.*}.tar.xz .${SCRIPT%.*}.tar.xz
@@ -375,7 +396,8 @@ if [ -n "${CCACHE_DIR}" ]; then
         else
                 cache2=$(prebuilts/misc/linux-x86/ccache/ccache -s | grep "^cache size" | awk '{print $3$4}')
         fi
-                echo -e "\n${bldgrn}ccache size is ${txtrst} ${grn}${cache2}${txtrst} (was ${grn}${cache1}${txtrst})"
+
+        echo -e "\n${bldgrn}ccache size is ${txtrst} ${grn}${cache2}${txtrst} (was ${grn}${cache1}${txtrst})"
 fi
 
 # Get and print elapsed time
