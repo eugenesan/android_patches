@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- Setup GitHub -->
+  <remote  name="github"
+           fetch="https://github.com" />
+
+  <remote  name="private"
+           fetch="ssh://git@github.com" />
+
+  <!-- Setup devices -->
+  <project path="kernel/lge/bullhead" name="android/kernel_msm" remote="github" revision="android-msm-bullhead-3.10-n-preview-5" />
+  <!--
+  <project path="kernel/lge/hammerhead" name="android/kernel_msm" remote="github" revision="android-msm-hammerhead-3.10-n-preview-5" />
+  <project path="kernel/lge/hammerhead" name="aosp/android_kernel_lge_hammerhead" remote="github" revision="android-msm-hammerhead-3.4-marshmallow-mr2" />
+  -->
+  <project path="kernel/lge/hammerhead" name="eugenesan/android_kernel_lge_hammerhead" remote="github" revision="android-msm-hammerhead-3.4-marshmallow-mr2" />
+  <project path="kernel/moto/shamu" name="android/kernel_msm" remote="github" revision="android-msm-shamu-3.10-n-preview-5" />
+
+  <!-- Setup vendor -->
+  <project path="vendor/aospplus" name="eugenesan/android-vendor-aospplus" remote="github" revision="master" >
+    <copyfile src="utils/rom-build.sh" dest="rom-build.sh" />
+    <copyfile src="utils/rom-kernel.sh" dest="rom-kernel.sh" />
+    <copyfile src="utils/rom-vendor.sh" dest="rom-vendor.sh" />
+  </project>
+</manifest>
