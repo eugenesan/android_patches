@@ -1,4 +1,4 @@
 Android Patches
 ===============
 
-Serves as backup of private my local patches, script and stuff.
+Serves as backup of my local android patches, script and stuff.
